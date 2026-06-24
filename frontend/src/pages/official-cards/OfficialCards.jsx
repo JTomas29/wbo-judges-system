@@ -27,38 +27,41 @@ const OfficialCards = () => {
 
   return (
     <div>
-      <h2 className="mb-16">Tarjetas Oficiales</h2>
-      <p className="mb-16" style={{ color: 'var(--text-light)' }}>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Tarjetas Oficiales</h2>
+      <p className="text-sm text-gray-400 mb-4">
         {fight.boxeadorRojo} vs {fight.boxeadorAzul}
       </p>
 
       {cards.map((card, ci) => (
-        <div className="card mb-16" key={card.id}>
-          <h3 style={{ marginBottom: 12 }}>{card.label}</h3>
-          <div className="rounds-container">
-            <div className="round-row" style={{ fontWeight: 600, background: 'var(--primary)', color: '#fff' }}>
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-4" key={card.id}>
+          <h3 className="text-lg font-bold text-gray-800 mb-3">{card.label}</h3>
+          <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold">
               <span>Round</span>
-              <span style={{ textAlign: 'center' }}>Rojo</span>
-              <span style={{ textAlign: 'center' }}>Azul</span>
+              <span className="text-center">Rojo</span>
+              <span className="text-center">Azul</span>
             </div>
             {card.rounds.map((r, ri) => (
-              <div className="round-row" key={ri}>
-                <span className="round-label">Round {r.round}</span>
-                <input type="number" min="1" max="10" value={r.rojo}
-                  onChange={(e) => handleRoundScore(ci, ri, 'rojo', e.target.value)} />
-                <input type="number" min="1" max="10" value={r.azul}
-                  onChange={(e) => handleRoundScore(ci, ri, 'azul', e.target.value)} />
+              <div key={ri} className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-gray-50 even:bg-white rounded-lg">
+                <span className="font-bold text-[#6b1421] text-sm">Round {r.round}</span>
+                <div className="flex justify-center">
+                  <input type="number" min="1" max="10" value={r.rojo}
+                    onChange={(e) => handleRoundScore(ci, ri, 'rojo', e.target.value)}
+                    className="w-20 px-3 py-2 text-center border border-gray-200 rounded-lg text-base font-bold focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
+                </div>
+                <div className="flex justify-center">
+                  <input type="number" min="1" max="10" value={r.azul}
+                    onChange={(e) => handleRoundScore(ci, ri, 'azul', e.target.value)}
+                    className="w-20 px-3 py-2 text-center border border-gray-200 rounded-lg text-base font-bold focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
+                </div>
               </div>
             ))}
           </div>
         </div>
       ))}
 
-      <div className="btn-group">
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate(`/analysis/${fightId}`)}
-        >
+      <div className="flex gap-2">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors" onClick={() => navigate(`/analysis/${fightId}`)}>
           Procesar Análisis
         </button>
       </div>

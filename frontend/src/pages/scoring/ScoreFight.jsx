@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockFights, mockRounds } from '../../data/mockData';
+import { mockFights } from '../../data/mockData';
 
 const ScoreFight = () => {
   const { fightId } = useParams();
@@ -23,51 +23,56 @@ const ScoreFight = () => {
   };
 
   return (
-    <div style={{ maxWidth: 700 }}>
-      <div className="detail-header mb-16">
+    <div className="max-w-[700px]">
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
         <div>
-          <h2 style={{ margin: 0 }}>Tarjeta de Puntuación</h2>
-          <p style={{ color: 'var(--text-light)' }}>
+          <h2 className="text-xl font-bold text-gray-900 m-0">Tarjeta de Puntuación</h2>
+          <p className="text-sm text-gray-400">
             {fight.boxeadorRojo} vs {fight.boxeadorAzul}
           </p>
         </div>
       </div>
 
-      <div className="card">
-        <div className="rounds-container">
-          <div className="round-row" style={{ fontWeight: 600, background: 'var(--primary)', color: '#fff' }}>
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <div className="flex flex-col gap-1.5">
+          <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold">
             <span>Round</span>
-            <span style={{ textAlign: 'center' }}>{fight.boxeadorRojo} (Rojo)</span>
-            <span style={{ textAlign: 'center' }}>{fight.boxeadorAzul} (Azul)</span>
+            <span className="text-center">{fight.boxeadorRojo} (Rojo)</span>
+            <span className="text-center">{fight.boxeadorAzul} (Azul)</span>
           </div>
           {scores.map((s, i) => (
-            <div className="round-row" key={i}>
-              <span className="round-label">Round {s.round}</span>
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={s.rojo}
-                onChange={(e) => handleScore(i, 'rojo', e.target.value)}
-              />
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={s.azul}
-                onChange={(e) => handleScore(i, 'azul', e.target.value)}
-              />
+            <div key={i} className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-gray-50 even:bg-white rounded-lg">
+              <span className="font-bold text-[#6b1421] text-sm">Round {s.round}</span>
+              <div className="flex justify-center">
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={s.rojo}
+                  onChange={(e) => handleScore(i, 'rojo', e.target.value)}
+                  className="w-20 px-3 py-2 text-center border border-gray-200 rounded-lg text-base font-bold focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                />
+              </div>
+              <div className="flex justify-center">
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={s.azul}
+                  onChange={(e) => handleScore(i, 'azul', e.target.value)}
+                  className="w-20 px-3 py-2 text-center border border-gray-200 rounded-lg text-base font-bold focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                />
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="btn-group mt-16">
-        <button className="btn btn-primary">Guardar</button>
-        <button
-          className="btn btn-success"
-          onClick={() => navigate(`/official-cards/${fightId}`)}
-        >
+      <div className="flex gap-2 mt-4">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors">
+          Guardar
+        </button>
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-green-500 text-white rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors" onClick={() => navigate(`/official-cards/${fightId}`)}>
           Finalizar Tarjeta
         </button>
       </div>

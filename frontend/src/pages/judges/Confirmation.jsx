@@ -7,36 +7,36 @@ const Confirmation = () => {
   const fight = mockFights.find((f) => f.id === Number(fightId)) || mockFights[0];
 
   return (
-    <div className="card" style={{ maxWidth: 500, margin: '40px auto', textAlign: 'center' }}>
-      <h2 style={{ marginBottom: 8 }}>Confirmación de Designación</h2>
-      <p style={{ color: 'var(--text-light)', marginBottom: 24 }}>
+    <div className="bg-white rounded-xl shadow-sm p-5 max-w-[500px] mx-auto mt-10 text-center">
+      <h2 className="text-xl font-bold text-gray-900 mb-2">Confirmación de Designación</h2>
+      <p className="text-sm text-gray-400 mb-6">
         Has sido designado como juez para el siguiente evento:
       </p>
 
-      <div style={{ textAlign: 'left', marginBottom: 24 }}>
-        <div className="detail-item mb-16">
-          <label>Evento</label>
-          <span style={{ fontSize: 18, fontWeight: 600 }}>{fight.evento}</span>
+      <div className="text-left mb-6">
+        <div className="mb-4">
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Evento</label>
+          <span className="text-lg font-semibold text-gray-800">{fight.evento}</span>
         </div>
-        <div className="detail-item mb-16">
-          <label>Pelea</label>
-          <span>{fight.boxeadorRojo} vs {fight.boxeadorAzul}</span>
+        <div className="mb-4">
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Pelea</label>
+          <span className="text-base font-semibold text-gray-800">{fight.boxeadorRojo} vs {fight.boxeadorAzul}</span>
         </div>
-        <div className="detail-item mb-16">
-          <label>Fecha</label>
-          <span>{fight.fecha}</span>
+        <div className="mb-4">
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Fecha</label>
+          <span className="text-base font-semibold text-gray-800">{fight.fecha}</span>
         </div>
-        <div className="detail-item">
-          <label>Rounds</label>
-          <span>{fight.rounds} rounds</span>
+        <div>
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Rounds</label>
+          <span className="text-base font-semibold text-gray-800">{fight.rounds} rounds</span>
         </div>
       </div>
 
-      <div className="btn-group" style={{ justifyContent: 'center' }}>
-        <button className="btn btn-success" onClick={() => navigate(`/scoring/${fightId}`)}>
+      <div className="flex gap-2 justify-center">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-green-500 text-white rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors" onClick={() => navigate(`/scoring/${fightId}`)}>
           Aceptar
         </button>
-        <button className="btn btn-danger">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors">
           Rechazar
         </button>
       </div>

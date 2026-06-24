@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WBO — Administración de Peleas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            wbo: { 950: '#1f0102', 900: '#2d0103', 800: '#4a0205', 700: '#6b0a0a', 600: '#8b1a1a', 500: '#a52828', 400: '#c94444', 300: '#e06a6a', 200: '#f0a0a0', 100: '#fce8e8', 50: '#fff5f5' },
+          },
+          keyframes: {
+            fistbump: {
+              '0%, 100%': { transform: 'translateX(0) rotate(0deg)' },
+              '50%': { transform: 'translateX(6px) rotate(5deg)' },
+            },
+            fistbumpReverse: {
+              '0%, 100%': { transform: 'translateX(0) rotate(0deg)' },
+              '50%': { transform: 'translateX(-6px) rotate(-5deg)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.6' },
+              '50%': { opacity: '1' },
+            },
+          },
+          animation: {
+            fistbump: 'fistbump 0.8s ease-in-out infinite',
+            'fistbump-reverse': 'fistbumpReverse 0.8s ease-in-out infinite',
+            'pulse-glow': 'pulseGlow 1.5s ease-in-out infinite',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen font-sans bg-[#f4f5f7]">
+
+  <!-- ===== NAVBAR (from dashboard) ===== -->
+  <nav class="bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-[72px]">
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shadow-sm shrink-0">
+            <svg viewBox="0 0 100 100" fill="none" class="w-5 h-5 sm:w-[22px] sm:h-[22px]">
+              <path d="M50 10C35 10 22 20 18 34C14 48 20 64 32 72C38 76 44 78 50 78C56 78 62 76 68 72C80 64 86 48 82 34C78 20 65 10 50 10Z" fill="white" opacity="0.95"/>
+              <path d="M50 22C46 28 40 34 38 42C36 50 38 58 44 62C46 64 48 64 50 64C52 64 54 64 56 62C62 58 64 50 62 42C60 34 54 28 50 22Z" fill="#6b0a0a"/>
+              <circle cx="50" cy="48" r="3" fill="white" opacity="0.8"/>
+              <rect x="28" y="66" width="44" height="4" rx="2" fill="white" opacity="0.9"/>
+            </svg>
+          </div>
+          <span class="text-[15px] sm:text-base font-semibold text-gray-800 hidden sm:block">WBO Judges</span>
+          <span class="text-[15px] sm:text-base font-semibold text-gray-800 sm:hidden">WBO</span>
+        </div>
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="#" class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors">Dashboard</a>
+          <a href="#" class="px-4 py-2 text-sm font-medium text-wbo-700 border-b-2 border-wbo-700 transition-colors">Peleas</a>
+          <a href="#" class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors">Jueces</a>
+          <a href="#" class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors">Análisis</a>
+        </div>
+        <div class="hidden lg:flex items-center gap-4">
+          <div class="text-right">
+            <p class="text-sm font-semibold text-gray-800 leading-tight">Admin WBO</p>
+            <p class="text-[11px] text-gray-400 leading-tight">Administrador</p>
+          </div>
+          <div class="w-9 h-9 rounded-full bg-wbo-700 text-white flex items-center justify-center text-sm font-bold shrink-0">A</div>
+          <button class="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-4 py-1.5 hover:border-gray-300 hover:text-gray-600 transition-all duration-200">Cerrar Sesión</button>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="lg:hidden hidden border-t border-gray-100 bg-white">
+      <div class="px-4 py-3 space-y-1">
+        <a href="#" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">Dashboard</a>
+        <a href="#" class="block px-3 py-2 rounded-lg text-sm font-medium text-wbo-700 bg-wbo-50">Peleas</a>
+        <a href="#" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">Jueces</a>
+        <a href="#" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">Análisis</a>
+      </div>
+      <div class="border-t border-gray-100 px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-wbo-700 text-white flex items-center justify-center text-sm font-bold shrink-0">A</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-800 truncate">Admin WBO</p>
+          <p class="text-[11px] text-gray-400">Administrador</p>
+        </div>
+        <button class="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-gray-300 hover:text-gray-600 transition-all duration-200 shrink-0">Salir</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ===== SECTION HEADER ===== -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Administración de Peleas</h1>
+        <p class="text-sm text-gray-400 mt-1">Gestiona las peleas, asigna jueces y supervisa resultados.</p>
+      </div>
+      <button class="inline-flex items-center gap-2 px-5 py-[11px] text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+        + Programar Pelea
+      </button>
+    </div>
+
+    <!-- ===== METRIC CARDS ===== -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8 sm:mb-10">
+
+      <!-- Card 1: Total Peleas -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs sm:text-[13px] font-medium text-gray-400 uppercase tracking-wider">Total Peleas</p>
+            <p class="text-3xl sm:text-4xl font-extrabold text-wbo-700 mt-1">12</p>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-wbo-50 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" fill="none" class="w-6 h-6 sm:w-7 sm:h-7">
+              <ellipse cx="22" cy="38" rx="12" ry="16" fill="#4a0205" opacity="0.85"/>
+              <ellipse cx="42" cy="38" rx="12" ry="16" fill="#4a0205" opacity="0.85"/>
+              <circle cx="22" cy="38" r="7" fill="white" opacity="0.15"/>
+              <circle cx="42" cy="38" r="7" fill="white" opacity="0.15"/>
+              <rect x="14" y="50" width="36" height="3" rx="1.5" fill="#4a0205" opacity="0.6"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-300 mt-3">Histórico completo</p>
+      </div>
+
+      <!-- Card 2: Peleas de Campeonato -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs sm:text-[13px] font-medium text-gray-400 uppercase tracking-wider">Campeonato</p>
+            <p class="text-3xl sm:text-4xl font-extrabold text-amber-500 mt-1">3</p>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" fill="none" class="w-6 h-6 sm:w-7 sm:h-7">
+              <path d="M32 4L38 20L54 20L40 30L46 48L32 38L18 48L24 30L10 20L26 20L32 4Z" fill="#f59e0b" opacity="0.85"/>
+              <rect x="18" y="50" width="28" height="3" rx="1.5" fill="#f59e0b" opacity="0.4"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-300 mt-3">Título en disputa</p>
+      </div>
+
+      <!-- Card 3: Peleas de Ranking -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs sm:text-[13px] font-medium text-gray-400 uppercase tracking-wider">Ranking</p>
+            <p class="text-3xl sm:text-4xl font-extrabold text-blue-600 mt-1">5</p>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" fill="none" class="w-6 h-6 sm:w-7 sm:h-7">
+              <rect x="8" y="36" width="14" height="20" rx="2" fill="#2563eb" opacity="0.85"/>
+              <rect x="25" y="24" width="14" height="32" rx="2" fill="#2563eb" opacity="0.65"/>
+              <rect x="42" y="12" width="14" height="44" rx="2" fill="#2563eb" opacity="0.45"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-300 mt-3">Eliminatorias</p>
+      </div>
+
+      <!-- Card 4: Sin Programar -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs sm:text-[13px] font-medium text-gray-400 uppercase tracking-wider">Sin Programar</p>
+            <p class="text-3xl sm:text-4xl font-extrabold text-gray-400 mt-1">4</p>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" fill="none" class="w-6 h-6 sm:w-7 sm:h-7">
+              <rect x="12" y="10" width="40" height="44" rx="4" stroke="#9ca3af" stroke-width="2.5" fill="none"/>
+              <line x1="22" y1="10" x2="22" y2="22" stroke="#9ca3af" stroke-width="2.5"/>
+              <line x1="42" y1="10" x2="42" y2="22" stroke="#9ca3af" stroke-width="2.5"/>
+              <line x1="22" y1="28" x2="46" y2="28" stroke="#9ca3af" stroke-width="2"/>
+              <line x1="22" y1="36" x2="46" y2="36" stroke="#9ca3af" stroke-width="2"/>
+              <line x1="22" y1="44" x2="46" y2="44" stroke="#9ca3af" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-300 mt-3">Próximas fechas</p>
+      </div>
+    </div>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="flex flex-wrap items-center gap-3 mb-5">
+      <button class="px-4 py-2 text-sm font-semibold text-white bg-wbo-700 rounded-lg transition-colors">Todas</button>
+      <button class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:border-wbo-300 hover:text-wbo-600 transition-all">Pendientes</button>
+      <button class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:border-wbo-300 hover:text-wbo-600 transition-all">Activas</button>
+      <button class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:border-wbo-300 hover:text-wbo-600 transition-all">Finalizadas</button>
+      <button class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:border-wbo-300 hover:text-wbo-600 transition-all">Canceladas</button>
+    </div>
+
+    <!-- ===== FIGHT LIST (LOADING STATE) ===== -->
+    <div id="fightList">
+      <!-- Loading Spinner -->
+      <div id="loadingSpinner" class="flex flex-col items-center justify-center py-20">
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" fill="none" class="w-10 h-10 animate-fistbump">
+            <ellipse cx="22" cy="38" rx="12" ry="16" fill="#4a0205" opacity="0.85"/>
+            <circle cx="22" cy="38" r="7" fill="white" opacity="0.15"/>
+          </svg>
+          <div class="text-2xl font-extrabold text-wbo-300 animate-pulse-glow">VS</div>
+          <svg viewBox="0 0 64 64" fill="none" class="w-10 h-10 animate-fistbump-reverse">
+            <ellipse cx="42" cy="38" rx="12" ry="16" fill="#4a0205" opacity="0.85"/>
+            <circle cx="42" cy="38" r="7" fill="white" opacity="0.15"/>
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-gray-400 animate-pulse">Cargando peleas...</p>
+      </div>
+    </div>
+
+    <!-- ===== FIGHT CARDS (hidden initially, shown after "load") ===== -->
+    <div id="fightCards" class="hidden space-y-4">
+
+      <!-- Fight 1: Velada del Año -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span>
+              <span class="text-xs font-semibold text-green-600 uppercase tracking-wide">Activa</span>
+            </div>
+            <span class="text-xs text-gray-300">15 Jul 2026</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-0">
+            <!-- Boxer A -->
+            <div class="flex-1 flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-wbo-700 shrink-0">JP</div>
+              <div>
+                <p class="text-sm sm:text-base font-bold text-gray-800">Juan Pérez</p>
+                <p class="text-[11px] text-gray-400">México · 28-0-0 (20 KO)</p>
+              </div>
+            </div>
+
+            <!-- VS Badge -->
+            <div class="flex items-center gap-1.5 px-4 sm:px-6">
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+              <span class="text-xs font-extrabold text-gray-300 tracking-wider">VS</span>
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Boxer B -->
+            <div class="flex-1 flex items-center gap-3 justify-end w-full sm:w-auto">
+              <div class="text-right">
+                <p class="text-sm sm:text-base font-bold text-gray-800">Carlos López</p>
+                <p class="text-[11px] text-gray-400">Argentina · 24-2-1 (16 KO)</p>
+              </div>
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700 shrink-0">CL</div>
+            </div>
+          </div>
+
+          <!-- Meta -->
+          <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+              3 jueces asignados
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              12 rounds · Categoría Pesado
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+              Campeonato Mundial
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fight 2: Eliminatoria Ranking -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+              <span class="text-xs font-semibold text-yellow-600 uppercase tracking-wide">Pendiente</span>
+            </div>
+            <span class="text-xs text-gray-300">22 Jul 2026</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-0">
+            <div class="flex-1 flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-wbo-700 shrink-0">MG</div>
+              <div>
+                <p class="text-sm sm:text-base font-bold text-gray-800">Miguel Gómez</p>
+                <p class="text-[11px] text-gray-400">España · 18-3-0 (12 KO)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 px-4 sm:px-6">
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+              <span class="text-xs font-extrabold text-gray-300 tracking-wider">VS</span>
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex-1 flex items-center gap-3 justify-end w-full sm:w-auto">
+              <div class="text-right">
+                <p class="text-sm sm:text-base font-bold text-gray-800">Satoshi Tanaka</p>
+                <p class="text-[11px] text-gray-400">Japón · 20-1-0 (8 KO)</p>
+              </div>
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700 shrink-0">ST</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+              1 juez asignado
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              10 rounds · Categoría Semipesado
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              Eliminatoria Ranking
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fight 3: Combate Clasificatorio (finalizada) -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-shadow duration-200">
+        <div class="p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+              <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Finalizada</span>
+            </div>
+            <span class="text-xs text-gray-300">10 Jun 2026</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-0">
+            <div class="flex-1 flex items-center gap-3 w-full sm:w-auto">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-wbo-700 shrink-0">RG</div>
+              <div>
+                <p class="text-sm sm:text-base font-bold text-gray-800">Roberto García</p>
+                <p class="text-[11px] text-gray-400">EE.UU. · 15-5-0 (10 KO)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 px-4 sm:px-6">
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+              <span class="text-xs font-extrabold text-gray-300 tracking-wider">VS</span>
+              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-wbo-100 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" fill="none" class="w-3.5 h-3.5 sm:w-4 sm:h-4">
+                  <ellipse cx="22" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                  <ellipse cx="42" cy="38" rx="8" ry="11" fill="#4a0205" opacity="0.85"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex-1 flex items-center gap-3 justify-end w-full sm:w-auto">
+              <div class="text-right">
+                <p class="text-sm sm:text-base font-bold text-gray-800">Daniel Kim</p>
+                <p class="text-[11px] text-gray-400">Corea · 14-3-2 (6 KO)</p>
+              </div>
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700 shrink-0">DK</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+            <span class="inline-flex items-center gap-1 text-[11px] text-green-600 font-medium">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Daniel Kim por decisión unánime
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="mt-12 pt-6 border-t border-gray-200">
+      <p class="text-xs text-center text-gray-300 tracking-wider">WBO Judges Evaluation System v1.0</p>
+    </div>
+
+  </main>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('menuBtn').addEventListener('click', function() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+
+    // Simulate loading
+    setTimeout(() => {
+      document.getElementById('loadingSpinner').classList.add('hidden');
+      document.getElementById('fightCards').classList.remove('hidden');
+    }, 2000);
+  </script>
+</body>
+</html>

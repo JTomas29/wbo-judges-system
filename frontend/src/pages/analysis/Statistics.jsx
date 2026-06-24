@@ -1,5 +1,11 @@
 import { mockFights, mockJudges, mockAnalysis } from '../../data/mockData';
 
+const barColor = (pct) => {
+  if (pct >= 80) return 'bg-green-500';
+  if (pct >= 60) return 'bg-amber-500';
+  return 'bg-red-500';
+};
+
 const Statistics = () => {
   const totalFights = mockFights.length;
   const activeFights = mockFights.filter((f) => f.estado === 'Activa').length;
@@ -8,55 +14,51 @@ const Statistics = () => {
 
   return (
     <div>
-      <h2 className="mb-16">Estadísticas Globales</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Estadísticas Globales</h2>
 
-      <div className="card-grid">
-        <div className="card stat-card">
-          <div className="stat-value">{totalFights}</div>
-          <div className="stat-label">Total Peleas</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 text-center border-t-4 border-[#6b1421]">
+          <div className="text-4xl font-extrabold text-[#6b1421]">{totalFights}</div>
+          <div className="text-sm text-gray-400 font-medium mt-1.5">Total Peleas</div>
         </div>
-        <div className="card stat-card accent">
-          <div className="stat-value">{activeFights}</div>
-          <div className="stat-label">Activas</div>
+        <div className="bg-white rounded-xl shadow-sm p-6 text-center border-t-4 border-[#C9A44C]">
+          <div className="text-4xl font-extrabold text-gold-dark">{activeFights}</div>
+          <div className="text-sm text-gray-400 font-medium mt-1.5">Activas</div>
         </div>
-        <div className="card stat-card success">
-          <div className="stat-value">{finishedFights}</div>
-          <div className="stat-label">Finalizadas</div>
+        <div className="bg-white rounded-xl shadow-sm p-6 text-center border-t-4 border-blue-500">
+          <div className="text-4xl font-extrabold text-blue-500">{finishedFights}</div>
+          <div className="text-sm text-gray-400 font-medium mt-1.5">Finalizadas</div>
         </div>
-        <div className="card stat-card warning">
-          <div className="stat-value">{totalJudges}</div>
-          <div className="stat-label">Jueces</div>
+        <div className="bg-white rounded-xl shadow-sm p-6 text-center border-t-4 border-amber-400">
+          <div className="text-4xl font-extrabold text-amber-500">{totalJudges}</div>
+          <div className="text-sm text-gray-400 font-medium mt-1.5">Jueces</div>
         </div>
       </div>
 
-      <div className="card">
-        <h3 className="mb-16">Rendimiento General de Jueces</h3>
-        <div className="table-container">
-          <table>
+      <div className="bg-white rounded-xl shadow-sm p-5">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Rendimiento General de Jueces</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
             <thead>
-              <tr>
-                <th>Juez</th>
-                <th>Coincidencias</th>
-                <th>Errores</th>
-                <th>Porcentaje</th>
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Juez</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Coincidencias</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Errores</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Porcentaje</th>
               </tr>
             </thead>
             <tbody>
               {mockAnalysis.consistencia.map((row, i) => (
-                <tr key={i}>
-                  <td>{row.juez}</td>
-                  <td>{row.aciertos}</td>
-                  <td>{row.errores}</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'var(--bg)', overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%', borderRadius: 4,
-                          width: `${row.porcentaje}%`,
-                          background: row.porcentaje >= 80 ? 'var(--success)' : row.porcentaje >= 60 ? 'var(--warning)' : 'var(--danger)',
-                        }} />
+                <tr key={i} className="border-b border-gray-50">
+                  <td className="py-3 px-4 font-semibold text-gray-800">{row.juez}</td>
+                  <td className="py-3 px-4 text-gray-600">{row.aciertos}</td>
+                  <td className="py-3 px-4 text-gray-600">{row.errores}</td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-2 rounded bg-gray-100 overflow-hidden">
+                        <div className={`h-full rounded ${barColor(row.porcentaje)}`} style={{ width: `${row.porcentaje}%` }}></div>
                       </div>
-                      <span style={{ fontWeight: 600 }}>{row.porcentaje}%</span>
+                      <span className="font-semibold text-sm text-gray-700">{row.porcentaje}%</span>
                     </div>
                   </td>
                 </tr>

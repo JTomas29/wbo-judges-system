@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WBO — Panel de Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            wbo: {
+              950: '#1a0406', 900: '#2d080a', 800: '#4a0f14', 700: '#6b1421', 600: '#7a1f2b',
+              500: '#8c2a35', 400: '#a84a55', 300: '#c97a84', 200: '#e5b3ba', 100: '#f3d6db', 50: '#fcf0f2',
+            },
+            cream: { DEFAULT: '#f5f4f2', 100: '#f0eee9', 200: '#e5e2db', 300: '#d4cfc5' },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen font-sans bg-cream">
+
+  <!-- ============================================================ -->
+  <!-- HEADER / NAVBAR                                              -->
+  <!-- ============================================================ -->
+  <header class="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] sticky top-0 z-50">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-[68px]">
+
+        <!-- LEFT: Logo + Brand -->
+        <div class="flex items-center gap-3 shrink-0">
+          <!-- Logo circular con gradiente (simula el PNG actual) -->
+          <div class="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shadow-sm shrink-0 ring-2 ring-wbo-200">
+            <svg viewBox="0 0 100 100" fill="none" class="w-[24px] h-[24px]">
+              <path d="M50 10C35 10 22 20 18 34C14 48 20 64 32 72C38 76 44 78 50 78C56 78 62 76 68 72C80 64 86 48 82 34C78 20 65 10 50 10Z" fill="white" opacity="0.95"/>
+              <path d="M50 22C46 28 40 34 38 42C36 50 38 58 44 62C46 64 48 64 50 64C52 64 54 64 56 62C62 58 64 50 62 42C60 34 54 28 50 22Z" fill="#7a1f2b"/>
+              <circle cx="50" cy="48" r="3" fill="white" opacity="0.8"/>
+              <rect x="28" y="66" width="44" height="4" rx="2" fill="white" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="hidden sm:block">
+            <p class="text-[15px] font-bold text-gray-800 leading-tight">WBO Judges</p>
+            <p class="text-[10px] text-gray-400 leading-tight tracking-wider">Evaluation System</p>
+          </div>
+          <span class="sm:hidden text-[15px] font-bold text-gray-800">WBO</span>
+        </div>
+
+        <!-- CENTER: Nav -->
+        <nav class="hidden lg:flex items-center h-[68px] gap-[2px]">
+          <a href="#" class="px-5 h-full flex items-center text-sm font-semibold text-wbo-700 border-b-[3px] border-wbo-700 transition-colors">
+            Dashboard
+          </a>
+          <a href="#" class="px-5 h-full flex items-center text-sm font-medium text-gray-500 border-b-[3px] border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors gap-2">
+            <svg viewBox="0 0 64 64" fill="none" class="w-4 h-4">
+              <ellipse cx="20" cy="36" rx="10" ry="14" fill="currentColor" opacity="0.8"/>
+              <ellipse cx="44" cy="36" rx="10" ry="14" fill="currentColor" opacity="0.8"/>
+              <circle cx="20" cy="36" r="6" fill="white" opacity="0.2"/>
+              <circle cx="44" cy="36" r="6" fill="white" opacity="0.2"/>
+            </svg>
+            Peleas
+          </a>
+          <a href="#" class="px-5 h-full flex items-center text-sm font-medium text-gray-500 border-b-[3px] border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Jueces
+          </a>
+          <a href="#" class="px-5 h-full flex items-center text-sm font-medium text-gray-500 border-b-[3px] border-transparent hover:text-wbo-600 hover:border-wbo-300 transition-colors gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Análisis
+          </a>
+        </nav>
+
+        <!-- RIGHT: Notifications + Profile + Logout -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <!-- Notification bell -->
+          <button class="relative p-2 rounded-lg text-gray-400 hover:text-wbo-600 hover:bg-wbo-50 transition-all hidden sm:block">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+          </button>
+
+          <!-- Avatar + Name -->
+          <div class="hidden sm:flex items-center gap-2.5">
+            <div class="text-right">
+              <p class="text-sm font-semibold text-gray-800 leading-tight">Admin WBO</p>
+              <p class="text-[10px] text-gray-400 leading-tight uppercase tracking-wider">Administrador</p>
+            </div>
+            <div class="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white">A</div>
+          </div>
+
+          <!-- Logout -->
+          <button class="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-3.5 py-2 hover:border-gray-300 hover:text-gray-600 transition-all duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Salir
+          </button>
+
+          <!-- Mobile hamburger -->
+          <button id="menuBtn" class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="lg:hidden hidden border-t border-gray-100 bg-white">
+      <div class="px-4 py-3 space-y-1">
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-wbo-700 bg-wbo-50">Dashboard</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">
+          <svg viewBox="0 0 64 64" fill="none" class="w-4 h-4"><ellipse cx="20" cy="36" rx="10" ry="14" fill="currentColor" opacity="0.8"/><ellipse cx="44" cy="36" rx="10" ry="14" fill="currentColor" opacity="0.8"/></svg>
+          Peleas
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>
+          Jueces
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-wbo-600 hover:bg-gray-50 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
+          Análisis
+        </a>
+      </div>
+      <div class="border-t border-gray-100 px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shrink-0">A</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-800 truncate">Admin WBO</p>
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider">Administrador</p>
+        </div>
+        <button class="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-gray-300 transition-all shrink-0">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- SYSTEM ACTIVE BADGE                                          -->
+  <!-- ============================================================ -->
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 shadow-sm">
+      <span class="relative flex w-2.5 h-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full w-2.5 h-2.5 bg-green-500"></span>
+      </span>
+      <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Sistema Activo</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MAIN CONTENT                                                -->
+  <!-- ============================================================ -->
+  <main class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6">
+      <div>
+        <h1 class="text-[26px] sm:text-[32px] font-extrabold text-gray-900 tracking-tight leading-tight">Panel de Control</h1>
+        <p class="text-sm text-gray-400 mt-1">Última actualización: 24 de junio, 2026 — 15:30 UTC</p>
+      </div>
+      <div class="text-xs text-gray-300 tracking-wide">
+        <span class="text-gray-400">WBO</span> &gt; Dashboard
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STATS CARDS (4)                                             -->
+    <!-- ============================================================ -->
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mb-8">
+
+      <!-- Card: Total Peleas -->
+      <div class="bg-white rounded-xl shadow-sm border-t-[4px] border-wbo-700 p-5 relative group hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px]">Total Peleas</p>
+            <p class="text-4xl font-extrabold text-gray-900 mt-1.5">12</p>
+          </div>
+          <div class="w-11 h-11 rounded-full bg-wbo-50 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" fill="none" class="w-6 h-6">
+              <ellipse cx="22" cy="38" rx="10" ry="14" fill="#6b1421" opacity="0.85"/>
+              <ellipse cx="42" cy="38" rx="10" ry="14" fill="#6b1421" opacity="0.85"/>
+              <circle cx="22" cy="38" r="6" fill="white" opacity="0.15"/>
+              <circle cx="42" cy="38" r="6" fill="white" opacity="0.15"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[12px] text-green-600 font-medium mt-2.5 flex items-center gap-1">
+          <span>↗</span> +2 este mes
+        </p>
+      </div>
+
+      <!-- Card: Peleas Activas -->
+      <div class="bg-white rounded-xl shadow-sm border-t-[4px] border-blue-500 p-5 relative group hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px]">Peleas Activas</p>
+            <p class="text-4xl font-extrabold text-gray-900 mt-1.5">4</p>
+          </div>
+          <div class="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+        </div>
+        <p class="text-[12px] text-green-600 font-medium mt-2.5 flex items-center gap-1">
+          <span>↗</span> +1 esta semana
+        </p>
+      </div>
+
+      <!-- Card: Finalizadas -->
+      <div class="bg-white rounded-xl shadow-sm border-t-[4px] border-gray-400 p-5 relative group hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px]">Finalizadas</p>
+            <p class="text-4xl font-extrabold text-gray-900 mt-1.5">5</p>
+          </div>
+          <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <p class="text-[12px] text-gray-400 font-medium mt-2.5 flex items-center gap-1">
+          <span>→</span> +0 este mes
+        </p>
+      </div>
+
+      <!-- Card: Jueces Registrados -->
+      <div class="bg-white rounded-xl shadow-sm border-t-[4px] border-amber-400 p-5 relative group hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px]">Jueces Registrados</p>
+            <p class="text-4xl font-extrabold text-gray-900 mt-1.5">7</p>
+          </div>
+          <div class="w-11 h-11 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+        </div>
+        <p class="text-[12px] text-green-600 font-medium mt-2.5 flex items-center gap-1">
+          <span>↗</span> +2 este mes
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TWO-COLUMN LAYOUT: Quick Actions (left) + Recent Activity (right) -->
+    <!-- ============================================================ -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 mb-8">
+
+      <!-- ===== LEFT COLUMN: Quick Actions ===== -->
+      <div class="xl:col-span-4 space-y-5">
+
+        <!-- Quick Actions Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Acciones Rápidas</p>
+          <h3 class="text-lg font-bold text-gray-900 mb-4">Operaciones</h3>
+
+          <div class="space-y-3">
+            <button class="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.99]">
+              <div class="flex items-center gap-2.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Nueva Pelea
+              </div>
+              <span class="text-white/60 text-lg leading-none">+</span>
+            </button>
+
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]">
+              <span>Ver Peleas</span>
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]">
+              <span>Ver Jueces</span>
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]">
+              <span>Ver Análisis</span>
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- System status -->
+          <div class="mt-5 pt-4 border-t border-gray-100 flex items-center gap-3">
+            <div class="relative flex w-3 h-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full w-3 h-3 bg-green-500"></span>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-700 leading-tight">Todos los sistemas operativos</p>
+              <p class="text-[11px] text-gray-400">Base de datos conectada · API activa</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Judges Mini Card -->
+        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Cuerpo de Árbitros</p>
+          <h3 class="text-lg font-bold text-gray-900 mb-4">Jueces Activos</h3>
+
+          <div class="space-y-3">
+            <!-- Judge 1 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-wbo-50 transition-colors">
+              <div class="w-[36px] h-[36px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-xs font-bold shrink-0">RM</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800 truncate">Dr. Ricardo Méndez</p>
+                <p class="text-[11px] text-gray-400">🇲🇽 México</p>
+              </div>
+              <div class="text-right">
+                <div class="flex items-center gap-1">
+                  <span class="text-[11px] font-bold text-wbo-700">98%</span>
+                  <span class="text-[10px] text-amber-500">★</span>
+                </div>
+                <p class="text-[10px] text-gray-400">12 peleas</p>
+              </div>
+            </div>
+
+            <!-- Judge 2 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-wbo-50 transition-colors">
+              <div class="w-[36px] h-[36px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-xs font-bold shrink-0">AF</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800 truncate">Lic. Ana Flores</p>
+                <p class="text-[11px] text-gray-400">🇦🇷 Argentina</p>
+              </div>
+              <div class="text-right">
+                <div class="flex items-center gap-1">
+                  <span class="text-[11px] font-bold text-wbo-700">85%</span>
+                  <span class="text-[10px] text-amber-500">★</span>
+                </div>
+                <p class="text-[10px] text-gray-400">8 peleas</p>
+              </div>
+            </div>
+
+            <!-- Judge 3 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-wbo-50 transition-colors">
+              <div class="w-[36px] h-[36px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-xs font-bold shrink-0">PS</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800 truncate">Mtro. Pedro Sánchez</p>
+                <p class="text-[11px] text-gray-400">🇪🇸 España</p>
+              </div>
+              <div class="text-right">
+                <div class="flex items-center gap-1">
+                  <span class="text-[11px] font-bold text-gray-400">—</span>
+                  <span class="text-[10px] text-gray-300">★</span>
+                </div>
+                <p class="text-[10px] text-gray-400">Inactivo</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="#" class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-wbo-600 hover:text-wbo-700 transition-colors">
+            Ver panel completo
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- ===== RIGHT COLUMN: Recent Activity ===== -->
+      <div class="xl:col-span-8">
+
+        <!-- Recent Activity Table -->
+        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Actividad Reciente</p>
+              <h3 class="text-lg font-bold text-gray-900">Últimos Combates</h3>
+            </div>
+            <a href="#" class="text-sm font-semibold text-wbo-600 hover:text-wbo-700 transition-colors shrink-0">Ver todas &gt;</a>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-100">
+                  <th class="text-left py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px]">Expediente</th>
+                  <th class="text-left py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px]">Combate</th>
+                  <th class="text-left py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px] hidden md:table-cell">Fecha</th>
+                  <th class="text-left py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px] hidden lg:table-cell">Categoría</th>
+                  <th class="text-center py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px] hidden lg:table-cell">Jueces</th>
+                  <th class="text-left py-3.5 px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-[1px]">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-50 hover:bg-cream-100 transition-colors">
+                  <td class="py-3.5 px-3 font-semibold text-gray-800">WBO-2026-001</td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-semibold text-gray-800">Velada del Año</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">Juan Pérez vs Carlos López</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-gray-500 hidden md:table-cell">15 Jul 2026</td>
+                  <td class="py-3.5 px-3 hidden lg:table-cell">
+                    <span class="text-xs font-medium text-wbo-700 bg-wbo-50 px-2.5 py-1 rounded-full">Pesado</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-center hidden lg:table-cell">
+                    <div class="flex items-center justify-center -space-x-1.5">
+                      <div class="w-6 h-6 rounded-full bg-wbo-700 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">RM</div>
+                      <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">AF</div>
+                      <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">LV</div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
+                      <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      Activa
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="border-b border-gray-50 hover:bg-cream-100 transition-colors">
+                  <td class="py-3.5 px-3 font-semibold text-gray-800">WBO-2026-002</td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-semibold text-gray-800">Campeonato Mundial</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">Mike Torres vs Sergio Díaz</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-gray-500 hidden md:table-cell">20 Jun 2026</td>
+                  <td class="py-3.5 px-3 hidden lg:table-cell">
+                    <span class="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">Semipesado</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-center hidden lg:table-cell">
+                    <div class="flex items-center justify-center -space-x-1.5">
+                      <div class="w-6 h-6 rounded-full bg-wbo-700 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">RM</div>
+                      <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">AF</div>
+                      <div class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">PS</div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-500">
+                      <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                      Finalizada
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="border-b border-gray-50 hover:bg-cream-100 transition-colors">
+                  <td class="py-3.5 px-3 font-semibold text-gray-800">WBO-2026-003</td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-semibold text-gray-800">Noche de Combates</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">Andrés Ruiz vs Luis Mora</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-gray-500 hidden md:table-cell">10 Ago 2026</td>
+                  <td class="py-3.5 px-3 hidden lg:table-cell">
+                    <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">Welter</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-center hidden lg:table-cell">
+                    <div class="flex items-center justify-center -space-x-1.5">
+                      <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">—</div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-600">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      Pendiente
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="hover:bg-cream-100 transition-colors">
+                  <td class="py-3.5 px-3 font-semibold text-gray-800">WBO-2026-004</td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-semibold text-gray-800">Título Intercontinental</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">Roberto Vega vs Fernando Cruz</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-gray-500 hidden md:table-cell">28 Jul 2026</td>
+                  <td class="py-3.5 px-3 hidden lg:table-cell">
+                    <span class="text-xs font-medium text-wbo-700 bg-wbo-50 px-2.5 py-1 rounded-full">Pesado</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-center hidden lg:table-cell">
+                    <div class="flex items-center justify-center -space-x-1.5">
+                      <div class="w-6 h-6 rounded-full bg-wbo-700 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">RM</div>
+                      <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white">AF</div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
+                      <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      Activa
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table footer -->
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400">Mostrando <span class="font-semibold text-gray-600">4</span> de <span class="font-semibold text-gray-600">12</span> peleas</p>
+            <p class="text-xs text-gray-300">Temporada 2026</p>
+          </div>
+        </div>
+
+        <!-- ===== Active Judges Detail Cards ===== -->
+        <div class="bg-white rounded-xl shadow-sm p-5 sm:p-6 mt-5">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Cuerpo de Árbitros</p>
+              <h3 class="text-lg font-bold text-gray-900">Jueces Destacados</h3>
+            </div>
+            <a href="#" class="text-sm font-semibold text-wbo-600 hover:text-wbo-700 transition-colors shrink-0">Ver panel completo &gt;</a>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <!-- Judge Card 1 -->
+            <div class="border border-gray-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shrink-0">RM</div>
+                <div>
+                  <p class="text-sm font-bold text-gray-800">Dr. Ricardo Méndez</p>
+                  <p class="text-[11px] text-gray-400">🇲🇽 México</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 mb-2">
+                <span class="text-xs font-bold text-gray-700">★ 98%</span>
+                <span class="text-[11px] text-gray-400 ml-auto">12 peleas</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-full rounded-full bg-wbo-700" style="width: 98%"></div>
+              </div>
+              <div class="mt-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-wbo-700 text-white">Élite</span>
+              </div>
+            </div>
+
+            <!-- Judge Card 2 -->
+            <div class="border border-gray-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-blue-600 to-blue-700 text-white flex items-center justify-center text-sm font-bold shrink-0">AF</div>
+                <div>
+                  <p class="text-sm font-bold text-gray-800">Lic. Ana Flores</p>
+                  <p class="text-[11px] text-gray-400">🇦🇷 Argentina</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 mb-2">
+                <span class="text-xs font-bold text-gray-700">★ 85%</span>
+                <span class="text-[11px] text-gray-400 ml-auto">8 peleas</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-full rounded-full bg-blue-600" style="width: 85%"></div>
+              </div>
+              <div class="mt-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white">Senior</span>
+              </div>
+            </div>
+
+            <!-- Judge Card 3 -->
+            <div class="border border-gray-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-gray-400 to-gray-500 text-white flex items-center justify-center text-sm font-bold shrink-0">LV</div>
+                <div>
+                  <p class="text-sm font-bold text-gray-800">Ing. Laura Vega</p>
+                  <p class="text-[11px] text-gray-400">🇨🇴 Colombia</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 mb-2">
+                <span class="text-xs font-bold text-gray-700">★ 72%</span>
+                <span class="text-[11px] text-gray-400 ml-auto">5 peleas</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-full rounded-full bg-gray-400" style="width: 72%"></div>
+              </div>
+              <div class="mt-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-400 text-white">Junior</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                       -->
+    <!-- ============================================================ -->
+    <footer class="flex flex-col sm:flex-row items-center justify-between gap-3 py-5 border-t border-gray-200">
+      <p class="text-xs text-gray-400">© 2026 WBO Judges Evaluation System. Todos los derechos reservados.</p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-wbo-600 bg-wbo-50 px-3 py-1.5 rounded-full">
+          🏆 WBO Certified
+        </span>
+        <span class="text-xs text-gray-300">v1.0.0</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', function() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

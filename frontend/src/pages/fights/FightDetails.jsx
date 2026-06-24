@@ -1,6 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockFights } from '../../data/mockData';
 
+const statusBadge = (estado) => {
+  const map = {
+    Activa: 'bg-wbo-50 text-wbo-700',
+    Finalizada: 'bg-blue-50 text-blue-600',
+    Pendiente: 'bg-amber-50 text-amber-600',
+  };
+  return map[estado] || 'bg-gray-100 text-gray-500';
+};
+
 const FightDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -8,40 +17,42 @@ const FightDetails = () => {
 
   return (
     <div>
-      <div className="detail-header">
-        <h1>{fight.evento}</h1>
-        <span className={`badge badge-${fight.estado}`}>{fight.estado}</span>
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 m-0">{fight.evento}</h1>
+        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(fight.estado)}`}>
+          {fight.estado}
+        </span>
       </div>
 
-      <div className="card mb-24">
-        <div className="detail-grid">
-          <div className="detail-item">
-            <label>Boxeador Rojo</label>
-            <span>{fight.boxeadorRojo}</span>
+      <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Boxeador Rojo</label>
+            <span className="text-base font-semibold text-gray-800">{fight.boxeadorRojo}</span>
           </div>
-          <div className="detail-item">
-            <label>Boxeador Azul</label>
-            <span>{fight.boxeadorAzul}</span>
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Boxeador Azul</label>
+            <span className="text-base font-semibold text-gray-800">{fight.boxeadorAzul}</span>
           </div>
-          <div className="detail-item">
-            <label>Fecha</label>
-            <span>{fight.fecha}</span>
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Fecha</label>
+            <span className="text-base font-semibold text-gray-800">{fight.fecha}</span>
           </div>
-          <div className="detail-item">
-            <label>Rounds</label>
-            <span>{fight.rounds} rounds</span>
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Rounds</label>
+            <span className="text-base font-semibold text-gray-800">{fight.rounds} rounds</span>
           </div>
         </div>
       </div>
 
-      <div className="btn-group">
-        <button className="btn btn-primary" onClick={() => navigate(`/judges/assign/${fight.id}`)}>
+      <div className="flex gap-2 flex-wrap">
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors" onClick={() => navigate(`/judges/assign/${fight.id}`)}>
           Asignar Jueces
         </button>
-        <button className="btn btn-secondary" onClick={() => navigate(`/official-cards/${fight.id}`)}>
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/official-cards/${fight.id}`)}>
           Ver Tarjetas
         </button>
-        <button className="btn btn-outline" onClick={() => navigate(`/analysis/${fight.id}`)}>
+        <button className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/analysis/${fight.id}`)}>
           Ver Análisis
         </button>
       </div>

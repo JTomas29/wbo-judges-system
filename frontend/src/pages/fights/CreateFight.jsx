@@ -23,38 +23,43 @@ const CreateFight = () => {
   };
 
   return (
-    <div className="card" style={{ maxWidth: 600 }}>
-      <h2 className="mb-16">Crear Nueva Pelea</h2>
+    <div className="bg-white rounded-xl shadow-sm p-5 max-w-[600px]">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Crear Nueva Pelea</h2>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Evento</label>
-          <input name="evento" value={form.evento} onChange={handleChange} placeholder="Nombre del evento" required />
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Evento</label>
+          <input name="evento" value={form.evento} onChange={handleChange} placeholder="Nombre del evento" required
+            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
         </div>
-        <div className="form-group">
-          <label>Fecha</label>
-          <input name="fecha" type="date" value={form.fecha} onChange={handleChange} required />
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Fecha</label>
+          <input name="fecha" type="date" value={form.fecha} onChange={handleChange} required
+            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Boxeador Rojo</label>
-            <input name="boxeadorRojo" value={form.boxeadorRojo} onChange={handleChange} placeholder="Nombre" required />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Boxeador Rojo</label>
+            <input name="boxeadorRojo" value={form.boxeadorRojo} onChange={handleChange} placeholder="Nombre" required
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
           </div>
-          <div className="form-group">
-            <label>Boxeador Azul</label>
-            <input name="boxeadorAzul" value={form.boxeadorAzul} onChange={handleChange} placeholder="Nombre" required />
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Boxeador Azul</label>
+            <input name="boxeadorAzul" value={form.boxeadorAzul} onChange={handleChange} placeholder="Nombre" required
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
           </div>
         </div>
-        <div className="form-group">
-          <label>Cantidad de Rounds</label>
-          <select name="rounds" value={form.rounds} onChange={handleChange}>
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Cantidad de Rounds</label>
+          <select name="rounds" value={form.rounds} onChange={handleChange}
+            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 bg-white">
             {[4, 6, 8, 10, 12].map((r) => (
               <option key={r} value={r}>{r} rounds</option>
             ))}
           </select>
         </div>
-        <div className="btn-group mt-16">
-          <button type="submit" className="btn btn-primary">Guardar</button>
-          <button type="button" className="btn btn-outline" onClick={() => navigate('/fights')}>Cancelar</button>
+        <div className="flex gap-2 mt-4">
+          <button type="submit" className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors">Guardar</button>
+          <button type="button" className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate('/fights')}>Cancelar</button>
         </div>
       </form>
     </div>
