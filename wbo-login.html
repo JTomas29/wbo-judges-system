@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WBO — Sistema de Evaluación de Jueces</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            wbo: { 900: '#2d0103', 800: '#4a0205', 700: '#6b0a0a', 600: '#8b1a1a', 500: '#a52828' },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen flex items-center justify-center font-sans p-3 sm:p-5 relative overflow-x-hidden before:fixed before:inset-0 before:pointer-events-none before:z-0 before:content-['']"
+      style="background: radial-gradient(ellipse at center, #6d0a0d 0%, #4a0205 50%, #2d0103 100%)">
+
+  <div class="relative z-10 w-full max-w-[420px]">
+
+    <!-- ===== MAIN CARD ===== -->
+    <div class="bg-white rounded-[20px] px-6 py-9 sm:px-9 sm:py-10 shadow-[0_20px_60px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.3)]">
+
+      <!-- Logo -->
+      <div class="flex justify-center mb-6">
+        <div class="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shadow-[0_4px_14px_rgba(74,2,5,0.3)] relative">
+          <div class="absolute inset-[3px] rounded-full border border-yellow-400/40"></div>
+          <svg viewBox="0 0 100 100" fill="none" class="w-10 h-10 sm:w-11 sm:h-11">
+            <path d="M50 10C35 10 22 20 18 34C14 48 20 64 32 72C38 76 44 78 50 78C56 78 62 76 68 72C80 64 86 48 82 34C78 20 65 10 50 10Z" fill="white" opacity="0.95"/>
+            <path d="M50 22C46 28 40 34 38 42C36 50 38 58 44 62C46 64 48 64 50 64C52 64 54 64 56 62C62 58 64 50 62 42C60 34 54 28 50 22Z" fill="#6b0a0a"/>
+            <circle cx="50" cy="48" r="3" fill="white" opacity="0.8"/>
+            <rect x="28" y="66" width="44" height="4" rx="2" fill="white" opacity="0.9"/>
+            <rect x="34" y="72" width="32" height="3" rx="1.5" fill="white" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Titles -->
+      <h1 class="text-center text-xl sm:text-2xl font-extrabold text-[#1a1a1a] tracking-tight leading-tight">
+        World Boxing Organization
+      </h1>
+      <p class="text-center text-sm sm:text-[13px] font-medium text-gray-400 mt-1.5 mb-7 tracking-wide">
+        Sistema de Evaluación de Jueces
+      </p>
+
+      <!-- Form -->
+      <form id="loginForm" novalidate>
+        <div class="mb-[18px]">
+          <label for="email" class="block text-[13px] font-semibold text-[#333] mb-1.5">Email</label>
+          <input type="email" id="email" placeholder="ejemplo@wbo.com" autocomplete="email" required
+                 class="w-full px-3.5 py-3 text-[15px] border border-gray-300 rounded-xl outline-none bg-[#fafafa] text-[#1a1a1a] transition-all duration-200 placeholder:text-gray-300 focus:border-wbo-600 focus:ring-4 focus:ring-wbo-600/10 focus:bg-white" />
+        </div>
+
+        <div class="mb-[18px]">
+          <label for="password" class="block text-[13px] font-semibold text-[#333] mb-1.5">Contraseña</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required
+                 class="w-full px-3.5 py-3 text-[15px] border border-gray-300 rounded-xl outline-none bg-[#fafafa] text-[#1a1a1a] transition-all duration-200 placeholder:text-gray-300 focus:border-wbo-600 focus:ring-4 focus:ring-wbo-600/10 focus:bg-white" />
+        </div>
+
+        <button type="submit" id="submitBtn"
+                class="w-full py-[13px] text-base font-bold text-white rounded-xl bg-gradient-to-br from-wbo-700 to-wbo-800 hover:from-[#550808] hover:to-[#3a0103] transition-all duration-300 hover:shadow-[0_4px_16px_rgba(74,2,5,0.35)] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none tracking-wide">
+          Ingresar
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center mt-7 pt-5 border-t border-gray-100">
+        <span class="text-[11px] text-gray-300 tracking-widest">WBO Judges Evaluation System v1.0</span>
+      </div>
+    </div>
+
+    <!-- ===== TEST CREDENTIALS ===== -->
+    <div class="mt-6">
+      <p class="text-center text-[11px] font-bold tracking-[2px] text-white/50 mb-3">Credenciales de Prueba</p>
+
+      <div class="flex items-center justify-between gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 mb-2 transition-all duration-200 hover:bg-white/10 hover:border-white/20"
+           data-email="admin@wbo.com" data-password="admin123">
+        <div class="min-w-0">
+          <p class="text-[13px] font-semibold text-white/90">Administrador</p>
+          <p class="text-[11px] text-white/40 truncate">admin@wbo.com</p>
+        </div>
+        <button type="button"
+                class="shrink-0 px-[18px] py-1.5 text-xs font-semibold text-white/80 bg-white/10 border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/20 hover:text-white hover:border-white/30 active:scale-95 font-sans">
+          Usar
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 mb-2 transition-all duration-200 hover:bg-white/10 hover:border-white/20"
+           data-email="supervisor@wbo.com" data-password="super123">
+        <div class="min-w-0">
+          <p class="text-[13px] font-semibold text-white/90">Supervisor</p>
+          <p class="text-[11px] text-white/40 truncate">supervisor@wbo.com</p>
+        </div>
+        <button type="button"
+                class="shrink-0 px-[18px] py-1.5 text-xs font-semibold text-white/80 bg-white/10 border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/20 hover:text-white hover:border-white/30 active:scale-95 font-sans">
+          Usar
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 mb-2 transition-all duration-200 hover:bg-white/10 hover:border-white/20"
+           data-email="rmendez@wbo.com" data-password="juez123">
+        <div class="min-w-0">
+          <p class="text-[13px] font-semibold text-white/90">Juez</p>
+          <p class="text-[11px] text-white/40 truncate">rmendez@wbo.com</p>
+        </div>
+        <button type="button"
+                class="shrink-0 px-[18px] py-1.5 text-xs font-semibold text-white/80 bg-white/10 border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/20 hover:text-white hover:border-white/30 active:scale-95 font-sans">
+          Usar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-email] button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const row = this.closest('[data-email]');
+        document.getElementById('email').value = row.dataset.email;
+        document.getElementById('password').value = row.dataset.password;
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const btn = document.getElementById('submitBtn');
+
+      if (!email || !password) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+
+      fetch('http://localhost:4000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Credenciales inválidas');
+        return res.json();
+      })
+      .then(data => {
+        localStorage.setItem('wbo_token', data.token);
+        localStorage.setItem('wbo_user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      })
+      .catch(err => {
+        alert(err.message);
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      });
+    });
+  </script>
+</body>
+</html>
