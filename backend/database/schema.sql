@@ -86,9 +86,6 @@ CREATE TABLE fights (
     ),
     CONSTRAINT chk_fights_boxers CHECK (
         boxer_red <> boxer_blue
-    ),
-    CONSTRAINT chk_fights_creator_role CHECK (
-        EXISTS (SELECT 1 FROM users WHERE id = created_by AND role IN ('admin', 'supervisor'))
     )
 );
 
@@ -123,9 +120,7 @@ CREATE TABLE judge_assignments (
         ON DELETE RESTRICT,
 
     CONSTRAINT uq_assign_fight_judge UNIQUE (fight_id, judge_id),
-    CONSTRAINT chk_assign_judge_role CHECK (
-        EXISTS (SELECT 1 FROM users WHERE id = judge_id AND role = 'judge')
-    ),
+    -- Nota: la validación del rol de juez se hace en la capa de aplicación
     CONSTRAINT chk_assign_response CHECK (
         (status = 'pending' AND responded_at IS NULL)
         OR (status IN ('confirmed', 'rejected') AND responded_at IS NOT NULL)
@@ -171,9 +166,6 @@ CREATE TABLE score_cards (
     CONSTRAINT chk_score_status_submit CHECK (
         (status = 'draft' AND submitted_at IS NULL)
         OR (status = 'finalized' AND submitted_at IS NOT NULL)
-    ),
-    CONSTRAINT chk_score_judge_role CHECK (
-        EXISTS (SELECT 1 FROM users WHERE id = judge_id AND role = 'judge')
     )
 );
 
@@ -244,9 +236,6 @@ CREATE TABLE official_cards (
     ),
     CONSTRAINT chk_official_scores CHECK (
         total_score_red >= 0 AND total_score_blue >= 0
-    ),
-    CONSTRAINT chk_official_creator_role CHECK (
-        EXISTS (SELECT 1 FROM users WHERE id = created_by AND role IN ('admin', 'supervisor'))
     )
 );
 
