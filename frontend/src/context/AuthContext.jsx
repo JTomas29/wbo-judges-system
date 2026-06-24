@@ -1,27 +1,51 @@
-import { createContext, useState, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { mockUser } from '../data/mockData';
+import { createContext, useState, useContext, useCallback, useEffect } from 'react';
+import { loginRequest, getMeRequest } from '../services/authService';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(mockUser);
-  const [token, setToken] = useState('mock-token-wbo');
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('wbo_token');
+    if (storedToken) {
+      setToken(storedToken);
+      getMeRequest()
+        .then((res) => {
+          setUser(res.user);
+        })
+        .catch(() => {
+          localStorage.removeItem('wbo_token');
+          localStorage.removeItem('wbo_user');
+          setToken(null);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const login = useCallback(async (credentials) => {
-    setUser(mockUser);
-    setToken('mock-token-wbo');
+    const data = await loginRequest(credentials);
+    localStorage.setItem('wbo_token', data.token);
+    localStorage.setItem('wbo_user', JSON.stringify(data.user));
+    setToken(data.token);
+    setUser(data.user);
+    return data;
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem('wbo_token');
+    localStorage.removeItem('wbo_user');
     setUser(null);
     setToken(null);
   }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

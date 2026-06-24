@@ -11,6 +11,12 @@ const pageTitles = {
   '/analysis/statistics': 'Estadísticas',
 };
 
+const roleLabels = {
+  admin: 'Administrador',
+  supervisor: 'Supervisor',
+  judge: 'Juez',
+};
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -40,7 +46,11 @@ const Navbar = () => {
         </span>
       </div>
       <div className="navbar-right">
-        <span className="navbar-user">{user?.email || 'admin@wbo.com'}</span>
+        {user && (
+          <span className="navbar-user">
+            {user.name} — {roleLabels[user.role] || user.role}
+          </span>
+        )}
         <button className="btn-logout" onClick={logout}>
           Cerrar Sesión
         </button>

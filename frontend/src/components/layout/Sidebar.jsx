@@ -9,6 +9,12 @@ const navItems = [
   { label: 'Análisis', path: '/analysis/statistics', icon: '▤' },
 ];
 
+const roleLabels = {
+  admin: 'Administrador',
+  supervisor: 'Supervisor',
+  judge: 'Juez',
+};
+
 const Sidebar = () => {
   const { user } = useAuth();
 
@@ -29,9 +35,15 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      <div className="sidebar-footer">
-        {user?.name || 'Sin sesión'}
-      </div>
+      {user && (
+        <div className="sidebar-footer">
+          {user.name}
+          <br />
+          <span style={{ fontSize: 11, opacity: 0.6 }}>
+            {roleLabels[user.role] || user.role}
+          </span>
+        </div>
+      )}
     </aside>
   );
 };

@@ -1,7 +1,15 @@
-// Middleware de roles — restringe acceso según el rol del usuario
-const roleMiddleware = (...roles) => {
+const roleMiddleware = (...allowedRoles) => {
   return (req, res, next) => {
-    // TODO: verificar que req.user.role esté incluido en roles
+    if (!req.user) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: `Acceso denegado. Se requiere uno de los roles: ${allowedRoles.join(', ')}`,
+      });
+    }
+
     next();
   };
 };

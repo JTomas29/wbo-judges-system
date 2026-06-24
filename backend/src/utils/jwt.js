@@ -1,14 +1,14 @@
-// Utilidades JWT — generar y verificar tokens
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+
 const generateToken = (payload) => {
-  // TODO: firmar token con jwt.sign usando JWT_SECRET
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 const verifyToken = (token) => {
-  // TODO: verificar token con jwt.verify
-  return jwt.verify(token, process.env.JWT_SECRET);
+  return jwt.verify(token, JWT_SECRET);
 };
 
 module.exports = { generateToken, verifyToken };

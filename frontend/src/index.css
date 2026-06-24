@@ -403,8 +403,10 @@ tbody tr:hover {
 .login-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0;
   background: linear-gradient(135deg, var(--wbo-red-dark) 0%, #8a1119 50%, var(--wbo-red-dark) 100%);
   padding: 20px;
 }
@@ -475,21 +477,86 @@ tbody tr:hover {
   color: #bbb;
 }
 
-.login-credentials {
-  margin-top: 16px;
+.login-error {
+  background: #fef2f2;
+  border: 1px solid var(--wbo-red);
+  color: var(--wbo-red);
   padding: 10px 14px;
-  background: #faf8f5;
-  border: 1px solid #eee;
   border-radius: 6px;
-  font-size: 12px;
-  color: #888;
+  font-size: 13px;
   text-align: center;
+  margin-bottom: 16px;
+}
+
+.login-dev-accounts {
+  margin-top: 24px;
+  width: 420px;
+  max-width: 100%;
+}
+
+.dev-accounts-header {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.dev-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dev-account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  backdrop-filter: blur(4px);
+}
+
+.dev-account-info {
   line-height: 1.5;
 }
 
-.login-credentials strong {
-  color: var(--wbo-red);
+.dev-account-label {
+  font-size: 13px;
   font-weight: 600;
+  color: var(--wbo-white);
+}
+
+.dev-account-email {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.dev-account-pass {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.dev-use-btn {
+  flex-shrink: 0;
+  min-width: 60px;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+  color: var(--wbo-white);
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.dev-use-btn:hover {
+  background: var(--wbo-white);
+  border-color: var(--wbo-white);
+  color: var(--wbo-red-dark);
 }
 
 /* ─── DETAIL ─── */
