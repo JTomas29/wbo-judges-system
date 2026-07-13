@@ -30,7 +30,7 @@ User.create = async ({ name, email, passwordHash, role }) => {
 
 User.getAllJudges = async () => {
   const { rows } = await pool.query(
-    "SELECT id, name, email, role, is_active FROM users WHERE role = 'judge' ORDER BY name"
+    "SELECT id, name, email, role, level::text AS level, is_active FROM users WHERE role = 'judge' AND is_active = TRUE ORDER BY name"
   );
   return rows;
 };

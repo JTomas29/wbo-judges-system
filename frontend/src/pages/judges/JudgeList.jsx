@@ -1,14 +1,78 @@
-import { mockJudges } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { getJudges } from '../../services/judgeService';
+import { useAuth } from '../../context/AuthContext';
 
-const statusBadge = (estado) => {
+const levelBadge = (level) => {
   const map = {
-    Activo: 'bg-wbo-50 text-wbo-700',
-    Inactivo: 'bg-gray-100 text-gray-500',
+    elite: 'bg-green-100 text-green-800',
+    senior: 'bg-blue-100 text-blue-800',
+    junior: 'bg-yellow-100 text-yellow-800',
   };
-  return map[estado] || 'bg-gray-100 text-gray-500';
+  return map[level] || 'bg-gray-100 text-gray-500';
+};
+
+const statusBadge = (active) => {
+  return active
+    ? 'bg-green-100 text-green-700'
+    : 'bg-gray-100 text-gray-500';
 };
 
 const JudgeList = () => {
+  const { token } = useAuth();
+  const [judges, setJudges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    setLoading(true);
+    setError(null);
+    getJudges(token)
+      .then((res) => {
+        setJudges(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || 'Error al cargar jueces');
+        setLoading(false);
+      });
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#6b1421]" />
+        <span className="ml-3 text-gray-500 text-sm">Cargando jueces...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg text-sm">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (judges.length === 0) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-900 m-0">Gestión de Jueces</h2>
+          <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors">
+            + Crear Juez
+          </button>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
+          No hay jueces registrados
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -24,18 +88,24 @@ const JudgeList = () => {
             <tr className="border-b border-gray-100">
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
+              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {mockJudges.map((juez) => (
+            {judges.map((juez) => (
               <tr key={juez.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-4 font-semibold text-gray-800">{juez.nombre}</td>
+                <td className="py-3 px-4 font-semibold text-gray-800">{juez.name}</td>
                 <td className="py-3 px-4 text-gray-600">{juez.email}</td>
                 <td className="py-3 px-4">
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(juez.estado)}`}>
-                    {juez.estado}
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
+                    {juez.level || '—'}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
+                    {juez.is_active ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
                 <td className="py-3 px-4">
@@ -43,15 +113,9 @@ const JudgeList = () => {
                     <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors">
                       Editar
                     </button>
-                    {juez.estado === 'Activo' ? (
-                      <button className="inline-flex items-center justify-center px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors">
-                        Desactivar
-                      </button>
-                    ) : (
-                      <button className="inline-flex items-center justify-center px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors">
-                        Activar
-                      </button>
-                    )}
+                    <button className="inline-flex items-center justify-center px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors">
+                      Desactivar
+                    </button>
                   </div>
                 </td>
               </tr>
