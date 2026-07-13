@@ -53,19 +53,13 @@ const Login = () => {
         </div>
         <hr className="h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent border-0 mx-0 mb-7" />
 
-        {error && (
-          <div className="text-center text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 mb-4">
-            {error}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-xs font-semibold text-gray-500 mb-1">Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(''); }}
               placeholder="admin@wbo.com"
               disabled={submitting}
               required
@@ -77,7 +71,7 @@ const Login = () => {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
               placeholder="••••••••"
               disabled={submitting}
               required
@@ -91,6 +85,12 @@ const Login = () => {
           >
             {submitting ? 'Ingresando...' : 'Ingresar'}
           </button>
+
+          {error && (
+            <div className="text-center text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 mt-4">
+              {error}
+            </div>
+          )}
         </form>
 
         <div className="text-center text-xs text-gray-300 mt-5">
