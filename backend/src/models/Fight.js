@@ -82,6 +82,25 @@ Fight.create = async (data) => {
   return rows[0].id;
 };
 
+Fight.update = async (id, data) => {
+  const { rows } = await pool.query(`
+    UPDATE fights SET
+      event_name = $1, boxer_red = $2, boxer_blue = $3,
+      scheduled_date = $4, total_rounds = $5, weight_class = $6,
+      venue = $7, title = $8, broadcaster = $9,
+      referee_id = $10, notes = $11
+    WHERE id = $12
+    RETURNING id
+  `, [
+    data.event_name, data.boxer_red, data.boxer_blue,
+    data.scheduled_date, data.total_rounds, data.weight_class,
+    data.venue || null, data.title || null, data.broadcaster || null,
+    data.referee_id || null, data.notes || null,
+    id,
+  ]);
+  return rows[0] || null;
+};
+
 Fight.getAssignedJudges = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT

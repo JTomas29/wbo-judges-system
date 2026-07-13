@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getFights } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 
+const canEdit = (status) => status === 'pending' || status === 'active';
+
 const statusStyle = (status) => {
   const map = {
     pending: 'bg-gray-100 text-gray-600',
@@ -32,7 +34,7 @@ const formatDate = (dateStr) => {
 };
 
 const FightList = () => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
   const [fights, setFights] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +106,17 @@ const FightList = () => {
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
                       <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/fights/${fight.id}`)}>Ver</button>
-                      <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors">Editar</button>
+                      {user?.role === 'admin' && (
+                        <button
+                          className={`inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold transition-colors ${
+                            canEdit(fight.status)
+                              ? 'text-gray-700 hover:border-[#6b1421] hover:text-[#6b1421]'
+                              : 'text-gray-300 cursor-not-allowed'
+                          }`}
+                          disabled={!canEdit(fight.status)}
+                          onClick={() => navigate(`/fights/${fight.id}/edit`)}
+                        >Editar</button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -5,6 +5,7 @@ import Login from '../pages/auth/Login';
 import Dashboard from '../pages/dashboard/Dashboard';
 import FightList from '../pages/fights/FightList';
 import CreateFight from '../pages/fights/CreateFight';
+import EditFight from '../pages/fights/EditFight';
 import FightDetails from '../pages/fights/FightDetails';
 import JudgeList from '../pages/judges/JudgeList';
 import AssignJudges from '../pages/judges/AssignJudges';
@@ -28,6 +29,7 @@ const AppRoutes = () => (
 
     <Route path="/fights" element={<ProtectedRoute><FightList /></ProtectedRoute>} />
     <Route path="/fights/create" element={<ProtectedRoute><CreateFight /></ProtectedRoute>} />
+    <Route path="/fights/:id/edit" element={<ProtectedRoute><EditFight /></ProtectedRoute>} />
     <Route path="/fights/:id" element={<ProtectedRoute><FightDetails /></ProtectedRoute>} />
 
     <Route path="/judges" element={<ProtectedRoute><JudgeList /></ProtectedRoute>} />
