@@ -15,11 +15,7 @@ Fight.getAll = async () => {
       f.title,
       f.broadcaster,
       f.referee_id,
-<<<<<<< HEAD
-      COALESCE(u_ref.name, NULL) AS referee_name,
-=======
       u_ref.name AS referee_name,
->>>>>>> feature/fase1-fight-detail
       f.status::text,
       f.min_judges_required,
       f.total_rounds,
@@ -37,8 +33,6 @@ Fight.getAll = async () => {
   `);
   return rows;
 };
-<<<<<<< HEAD
-=======
 
 Fight.getById = async (id) => {
   const { rows } = await pool.query(`
@@ -107,6 +101,5 @@ Fight.getAnalysisSummary = async (fightId) => {
   `, [fightId]);
   return rows;
 };
->>>>>>> feature/fase1-fight-detail
 
 module.exports = Fight;
