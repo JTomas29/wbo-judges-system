@@ -8,6 +8,7 @@ const judgeRoutes = require('./routes/judgeRoutes');
 const scoreRoutes = require('./routes/scoreRoutes');
 const analysisRoutes = require('./routes/analysisRoutes');
 const meRoutes = require('./routes/meRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/judges', judgeRoutes);
 app.use('/api/scores', scoreRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/me', meRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
