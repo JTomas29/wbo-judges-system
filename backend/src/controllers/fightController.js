@@ -1,10 +1,39 @@
+const Fight = require('../models/Fight');
+
 // Controlador de peleas — CRUD de eventos de boxeo
-exports.getAll = (req, res) => {
-  // TODO: listar todas las peleas
+exports.getAll = async (req, res, next) => {
+  try {
+    const fights = await Fight.getAll();
+    res.json(fights);
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.getById = (req, res) => {
-  // TODO: obtener una pelea por ID
+exports.getById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const fight = await Fight.getById(id);
+    if (!fight) {
+      return res.status(404).json({ message: 'Pelea no encontrada' });
+    }
+
+    const [assignedJudges, officialCard, analysisSummary] = await Promise.all([
+      Fight.getAssignedJudges(id),
+      Fight.getOfficialCard(id),
+      Fight.getAnalysisSummary(id),
+    ]);
+
+    res.json({
+      ...fight,
+      assigned_judges: assignedJudges,
+      official_card: officialCard || null,
+      analysis_summary: analysisSummary,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.create = (req, res) => {
