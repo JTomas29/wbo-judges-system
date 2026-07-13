@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+﻿const { pool } = require('../config/db');
 
 const Fight = {};
 
@@ -58,6 +58,28 @@ Fight.getById = async (id) => {
     WHERE f.id = $1
   `, [id]);
   return rows[0] || null;
+};
+
+Fight.create = async (data) => {
+  const { rows } = await pool.query(`
+    INSERT INTO fights (event_name, boxer_red, boxer_blue, scheduled_date, total_rounds, weight_class, venue, title, referee_id, broadcaster, notes, created_by)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    RETURNING id
+  `, [
+    data.event_name,
+    data.boxer_red,
+    data.boxer_blue,
+    data.scheduled_date,
+    data.total_rounds,
+    data.weight_class,
+    data.venue || null,
+    data.title || null,
+    data.referee_id || null,
+    data.broadcaster || null,
+    data.notes || null,
+    data.created_by,
+  ]);
+  return rows[0].id;
 };
 
 Fight.getAssignedJudges = async (fightId) => {
