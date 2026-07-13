@@ -1,6 +1,13 @@
+const Fight = require('../models/Fight');
+
 // Controlador de peleas — CRUD de eventos de boxeo
-exports.getAll = (req, res) => {
-  // TODO: listar todas las peleas
+exports.getAll = async (req, res, next) => {
+  try {
+    const fights = await Fight.getAll();
+    res.json(fights);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.getById = (req, res) => {
