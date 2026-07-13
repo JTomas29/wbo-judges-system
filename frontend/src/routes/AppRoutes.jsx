@@ -32,7 +32,7 @@ const AppRoutes = () => (
 
     <Route path="/judges" element={<ProtectedRoute><JudgeList /></ProtectedRoute>} />
     <Route path="/judges/assign/:fightId" element={<ProtectedRoute><AssignJudges /></ProtectedRoute>} />
-    <Route path="/judges/confirmation/:fightId" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
+    <Route path="/judges/confirmation" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
 
     <Route path="/scoring/:fightId" element={<ProtectedRoute><ScoreFight /></ProtectedRoute>} />
     <Route path="/scoring/live/:fightId" element={<ProtectedRoute><LiveScore /></ProtectedRoute>} />

@@ -109,16 +109,41 @@ const Confirmation = () => {
     </div>
   );
 
+  const pending = assignments.filter(a => a.assignment_status === 'pending').length;
+  const confirmed = assignments.filter(a => a.assignment_status === 'confirmed').length;
+  const rejected = assignments.filter(a => a.assignment_status === 'rejected').length;
+
   if (assignments.length === 0) return (
-    <div className="text-center py-20">
-      <h2 className="text-xl font-bold text-gray-900 mb-2">Mis Asignaciones</h2>
-      <p className="text-gray-400 text-sm">No tienes asignaciones pendientes</p>
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+        <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-bold text-gray-800 mb-2">No tenés designaciones pendientes</h3>
+      <p className="text-sm text-gray-400">Cuando un administrador te asigne una pelea aparecerÃ¡ aquÃ­.</p>
     </div>
   );
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Mis Asignaciones</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Mis Designaciones</h2>
+        <div className="flex gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Pendientes: {pending}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+            Confirmadas: {confirmed}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            Rechazadas: {rejected}
+          </span>
+        </div>
+      </div>
 
       {assignments.map((a) => {
         const isPending = a.assignment_status === 'pending';

@@ -22,8 +22,8 @@ const Login = () => {
     setError('');
     setSubmitting(true);
     try {
-      await login({ email, password });
-      navigate('/dashboard');
+      const result = await login({ email, password });
+      navigate(result.user?.role === 'judge' ? '/judges/confirmation' : '/dashboard');
     } catch (err) {
       setError(
         err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.'
