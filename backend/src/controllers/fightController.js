@@ -144,6 +144,35 @@ exports.update = async (req, res, next) => {
   }
 };
 
-exports.remove = (req, res) => {
-  res.status(501).json({ message: 'No implementado' });
+exports.remove = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+
+    const deletable = ['pending', 'cancelled'];
+    if (!deletable.includes(fight.status)) {
+      return res.status(400).json({ message: `No se puede eliminar una pelea en estado ${fight.status}` });
+    }
+
+    const [officialCard, analysisSummary] = await Promise.all([
+      Fight.getOfficialCard(id),
+      Fight.getAnalysisSummary(id),
+    ]);
+
+    if (officialCard) {
+      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene una tarjeta oficial cargada' });
+    }
+
+    if (analysisSummary.length > 0) {
+      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene an\u00e1lisis realizados' });
+    }
+
+    await Fight.deleteAssignments(id);
+    const deleted = await Fight.deleteById(id);
+
+    res.json({ message: 'Pelea eliminada correctamente.' });
+  } catch (err) {
+    next(err);
+  }
 };

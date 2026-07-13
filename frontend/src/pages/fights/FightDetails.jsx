@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFightById } from '../../services/fightService';
+import { getFightById, deleteFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 
 const statusStyle = (status) => {
@@ -23,6 +23,9 @@ const FightDetails = () => {
   const [fight, setFight] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -56,8 +59,21 @@ const FightDetails = () => {
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteFight(id, token);
+      setShowDeleteModal(false);
+      navigate('/fights');
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Error al eliminar la pelea');
+      setDeleting(false);
+    }
+  };
+
   return (
-    <div>
+    <>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 m-0">{fight.event_name}</h1>
@@ -127,6 +143,9 @@ const FightDetails = () => {
             {user?.role === 'admin' && (
               <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-[#6b1421] border-2 border-[#6b1421] rounded-lg text-sm font-semibold hover:bg-[#fcf0f2] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled'} title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' ? 'No se puede editar una pelea finalizada' : ''} onClick={() => navigate(`/fights/${fight.id}/edit`)}>Editar</button>
             )}
+            {user?.role === 'admin' && (
+              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'pending' && fight.status !== 'cancelled'} onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}>Eliminar Pelea</button>
+            )}
           </div>
         </div>
       )}
@@ -135,7 +154,26 @@ const FightDetails = () => {
         <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/official-cards/${fight.id}`)}>Ver Tarjetas</button>
         <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/analysis/${fight.id}`)}>Ver AnÃ¡lisis</button>
       </div>
-    </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { if (!deleting) { setShowDeleteModal(false); setDeleteError(null); } }}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar pelea</h3>
+            <p className="text-sm text-gray-600 mb-6">Esta acci\u00f3n eliminar\u00e1 definitivamente la pelea y no podr\u00e1 deshacerse.</p>
+            {deleteError && (
+              <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">{deleteError}</div>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors" disabled={deleting} onClick={() => { setShowDeleteModal(false); setDeleteError(null); }}>Cancelar</button>
+              <button className="px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2" disabled={deleting} onClick={handleDelete}>
+                {deleting && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
+                {deleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

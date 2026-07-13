@@ -143,4 +143,13 @@ Fight.getAnalysisSummary = async (fightId) => {
   return rows;
 };
 
+Fight.deleteAssignments = async (fightId) => {
+  await pool.query(`DELETE FROM judge_assignments WHERE fight_id = $1`, [fightId]);
+};
+
+Fight.deleteById = async (id) => {
+  const { rows } = await pool.query(`DELETE FROM fights WHERE id = $1 RETURNING id`, [id]);
+  return rows[0] || null;
+};
+
 module.exports = Fight;
