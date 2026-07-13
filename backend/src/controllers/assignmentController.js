@@ -76,11 +76,15 @@ exports.remove = async (req, res, next) => {
 exports.respond = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { response } = req.body;
+    const { response, reason } = req.body;
     const judgeId = req.user.id;
 
     if (!response || !['confirmed', 'rejected'].includes(response)) {
       return res.status(400).json({ message: 'response debe ser confirmed o rejected' });
+    }
+
+    if (response === 'rejected' && (!reason || !reason.trim())) {
+      return res.status(400).json({ message: 'Debe indicar el motivo del rechazo' });
     }
 
     const fight = await Fight.getById(id);
@@ -93,7 +97,7 @@ exports.respond = async (req, res, next) => {
       return res.status(409).json({ message: `La asignación ya fue respondida como ${assignment.status}` });
     }
 
-    const updated = await JudgeAssignment.respond(id, judgeId, response);
+    const updated = await JudgeAssignment.respond(id, judgeId, response, reason);
     const updatedFight = await Fight.getById(id);
 
     const allAssignments = await JudgeAssignment.getByFight(id);

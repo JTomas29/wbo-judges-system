@@ -13,7 +13,7 @@ JudgeAssignment.create = async (fightId, judgeId, assignmentType) => {
 
 JudgeAssignment.findOne = async (fightId, judgeId) => {
   const { rows } = await pool.query(`
-    SELECT id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at
+    SELECT id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at, rejection_reason
     FROM judge_assignments
     WHERE fight_id = $1 AND judge_id = $2
   `, [fightId, judgeId]);
@@ -30,7 +30,8 @@ JudgeAssignment.getByFight = async (fightId) => {
       ja.assignment_type::text,
       ja.status::text,
       ja.assigned_at,
-      ja.responded_at
+      ja.responded_at,
+      ja.rejection_reason
     FROM judge_assignments ja
     JOIN users u ON u.id = ja.judge_id
     WHERE ja.fight_id = $1
@@ -56,13 +57,14 @@ JudgeAssignment.delete = async (fightId, judgeId) => {
   return rowCount;
 };
 
-JudgeAssignment.respond = async (fightId, judgeId, response) => {
+JudgeAssignment.respond = async (fightId, judgeId, response, reason) => {
+  const hasReason = reason && response === 'rejected';
   const { rows } = await pool.query(`
     UPDATE judge_assignments
-    SET status = $3, responded_at = NOW()
+    SET status = $3, responded_at = NOW(), rejection_reason = $4
     WHERE fight_id = $1 AND judge_id = $2
-    RETURNING id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at
-  `, [fightId, judgeId, response]);
+    RETURNING id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at, rejection_reason
+  `, [fightId, judgeId, response, hasReason ? reason : null]);
   return rows[0] || null;
 };
 
@@ -78,7 +80,8 @@ JudgeAssignment.getByJudgeId = async (judgeId) => {
       ja.assignment_type::text,
       ja.status::text AS assignment_status,
       f.status::text AS fight_status,
-      ja.responded_at
+      ja.responded_at,
+      ja.rejection_reason
     FROM judge_assignments ja
     JOIN fights f ON f.id = ja.fight_id
     WHERE ja.judge_id = $1

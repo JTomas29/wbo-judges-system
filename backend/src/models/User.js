@@ -12,9 +12,24 @@ User.findByEmail = async (email) => {
 
 User.findById = async (id) => {
   const { rows } = await pool.query(
-    'SELECT id, name, email, role, is_active, created_at FROM users WHERE id = $1',
+    "SELECT id, name, email, role, level::text AS level, is_active, created_at FROM users WHERE id = $1",
     [id]
   );
+  return rows[0] || null;
+};
+
+User.updateJudge = async (id, data) => {
+  let query, params;
+  if (data.password_hash) {
+    query = `UPDATE users SET name = $1, email = $2, level = $3::judge_level, is_active = $4, password_hash = $5 WHERE id = $6 AND role = 'judge'
+      RETURNING id, name, email, role, level::text AS level, is_active, created_at`;
+    params = [data.name, data.email, data.level, data.is_active, data.password_hash, id];
+  } else {
+    query = `UPDATE users SET name = $1, email = $2, level = $3::judge_level, is_active = $4 WHERE id = $5 AND role = 'judge'
+      RETURNING id, name, email, role, level::text AS level, is_active, created_at`;
+    params = [data.name, data.email, data.level, data.is_active, id];
+  }
+  const { rows } = await pool.query(query, params);
   return rows[0] || null;
 };
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getJudges } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,7 +19,8 @@ const statusBadge = (active) => {
 };
 
 const JudgeList = () => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const navigate = useNavigate();
   const [judges, setJudges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -110,9 +112,10 @@ const JudgeList = () => {
                 </td>
                 <td className="py-3 px-4">
                   <div className="flex gap-2">
-                    <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors">
-                      Editar
-                    </button>
+                    {user?.role === 'admin' && (
+                      <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
+                        onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
+                    )}
                     <button className="inline-flex items-center justify-center px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors">
                       Desactivar
                     </button>

@@ -45,6 +45,8 @@ const Confirmation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [responding, setResponding] = useState(null);
+  const [rejecting, setRejecting] = useState(null);
+  const [rejectReasons, setRejectReasons] = useState({});
 
   const loadAssignments = useCallback(async () => {
     if (!token) return;
@@ -62,20 +64,20 @@ const Confirmation = () => {
 
   useEffect(() => { loadAssignments(); }, [loadAssignments]);
 
-  const handleRespond = async (fightId, response) => {
+  const handleRespond = async (fightId, response, reason) => {
     setResponding(fightId);
     setError(null);
     try {
-      const res = await respondAssignment(fightId, response, token);
-      // Actualizar la asignaciÃ³n en la lista con la respuesta
+      const body = { response };
+      if (reason) body.reason = reason;
+      const res = await respondAssignment(fightId, body, token);
       setAssignments((prev) =>
         prev.map((a) =>
           a.fight_id === fightId
-            ? { ...a, assignment_status: response, responded_at: new Date().toISOString() }
+            ? { ...a, assignment_status: response, responded_at: new Date().toISOString(), rejection_reason: reason || null }
             : a
         )
       );
-      // Si la pelea quedÃ³ activa, mostrar mensaje
       if (res.data.fight_status === 'active') {
         setAssignments((prev) =>
           prev.map((a) =>
@@ -87,7 +89,27 @@ const Confirmation = () => {
       setError(err.response?.data?.message || 'Error al responder la asignaciÃ³n');
     } finally {
       setResponding(null);
+      setRejecting(null);
     }
+  };
+
+  const startReject = (fightId) => {
+    setRejecting(fightId);
+    setError(null);
+  };
+
+  const cancelReject = (fightId) => {
+    setRejecting(null);
+    setRejectReasons((prev) => ({ ...prev, [fightId]: '' }));
+  };
+
+  const confirmReject = (fightId) => {
+    const reason = (rejectReasons[fightId] || '').trim();
+    if (!reason) {
+      setError('Debe indicar el motivo del rechazo');
+      return;
+    }
+    handleRespond(fightId, 'rejected', reason);
   };
 
   if (!isJudge) return (
@@ -197,21 +219,57 @@ const Confirmation = () => {
             </div>
 
             {isPending ? (
-              <div className="flex gap-2">
-                <button
-                  disabled={responding === a.fight_id}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => handleRespond(a.fight_id, 'confirmed')}
-                >
-                  {responding === a.fight_id ? 'Respondiendo...' : 'Confirmar'}
-                </button>
-                <button
-                  disabled={responding === a.fight_id}
-                  className="inline-flex items-center justify-center px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => handleRespond(a.fight_id, 'rejected')}
-                >
-                  {responding === a.fight_id ? 'Respondiendo...' : 'Rechazar'}
-                </button>
+              <div>
+                {rejecting === a.fight_id ? (
+                  <div className="bg-red-50 rounded-lg p-4 mb-3">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Motivo del rechazo *</label>
+                    <textarea
+                      className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6b1421]/20 resize-none mb-3"
+                      rows={3}
+                      placeholder="Explique por qu\u00e9 no puede aceptar la designaci\u00f3n..."
+                      value={rejectReasons[a.fight_id] || ''}
+                      onChange={(e) => setRejectReasons((prev) => ({ ...prev, [a.fight_id]: e.target.value }))}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        disabled={responding === a.fight_id}
+                        className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        onClick={() => confirmReject(a.fight_id)}
+                      >
+                        {responding === a.fight_id ? 'Enviando...' : 'Enviar rechazo'}
+                      </button>
+                      <button
+                        disabled={responding === a.fight_id}
+                        className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-gray-400 transition-colors"
+                        onClick={() => cancelReject(a.fight_id)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      disabled={responding === a.fight_id}
+                      className="inline-flex items-center justify-center px-5 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={() => handleRespond(a.fight_id, 'confirmed')}
+                    >
+                      {responding === a.fight_id ? 'Respondiendo...' : 'Confirmar'}
+                    </button>
+                    <button
+                      disabled={responding === a.fight_id}
+                      className="inline-flex items-center justify-center px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={() => startReject(a.fight_id)}
+                    >
+                      Rechazar
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : a.assignment_status === 'rejected' && a.rejection_reason ? (
+              <div className="text-sm">
+                <span className="text-gray-400">Respondiste: {formatDate(a.responded_at)}</span>
+                <div className="mt-2 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{a.rejection_reason}</div>
               </div>
             ) : (
               <div className="text-sm text-gray-400">
