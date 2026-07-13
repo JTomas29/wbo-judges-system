@@ -7,6 +7,7 @@ const fightRoutes = require('./routes/fightRoutes');
 const judgeRoutes = require('./routes/judgeRoutes');
 const scoreRoutes = require('./routes/scoreRoutes');
 const analysisRoutes = require('./routes/analysisRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/fights', fightRoutes);
 app.use('/api/judges', judgeRoutes);
 app.use('/api/scores', scoreRoutes);
 app.use('/api/analysis', analysisRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
