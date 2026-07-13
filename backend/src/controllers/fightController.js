@@ -10,8 +10,30 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
-exports.getById = (req, res) => {
-  // TODO: obtener una pelea por ID
+exports.getById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const fight = await Fight.getById(id);
+    if (!fight) {
+      return res.status(404).json({ message: 'Pelea no encontrada' });
+    }
+
+    const [assignedJudges, officialCard, analysisSummary] = await Promise.all([
+      Fight.getAssignedJudges(id),
+      Fight.getOfficialCard(id),
+      Fight.getAnalysisSummary(id),
+    ]);
+
+    res.json({
+      ...fight,
+      assigned_judges: assignedJudges,
+      official_card: officialCard || null,
+      analysis_summary: analysisSummary,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.create = (req, res) => {
