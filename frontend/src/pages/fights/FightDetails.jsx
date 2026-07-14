@@ -58,6 +58,8 @@ const FightDetails = () => {
   );
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
+  const myAssignment = fight?.assigned_judges?.find(j => j.id === user?.id);
+  const canScore = user?.role === 'judge' && myAssignment?.status === 'confirmed' && fight?.status === 'active';
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -147,6 +149,18 @@ const FightDetails = () => {
               <button className="inline-flex items-center justify-center px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'pending' && fight.status !== 'cancelled'} onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}>Eliminar Pelea</button>
             )}
           </div>
+        </div>
+      )}
+
+      {canScore && (
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Puntuaci\u00f3n</h3>
+          <button
+            className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+            onClick={() => navigate(`/scoring/${fight.id}`)}
+          >
+            Puntuar pelea
+          </button>
         </div>
       )}
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
+import { getMyAssignments } from '../../services/judgeService';
 
 const statusColors = {
   scheduled: { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500', label: 'Programada' },
@@ -29,10 +30,12 @@ const formatDate = (dateStr) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeFights, setActiveFights] = useState([]);
+  const [activeFightsLoading, setActiveFightsLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -50,6 +53,25 @@ const Dashboard = () => {
   useEffect(() => {
     if (token) fetchData();
   }, [token, fetchData]);
+
+  useEffect(() => {
+    if (!token || user?.role !== 'judge') return;
+    let cancelled = false;
+    setActiveFightsLoading(true);
+    getMyAssignments(token)
+      .then((res) => {
+        if (!cancelled) {
+          setActiveFights(
+            (res.data || []).filter(
+              (a) => a.assignment_status === 'confirmed' && a.fight_status === 'active'
+            )
+          );
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setActiveFightsLoading(false); });
+    return () => { cancelled = true; };
+  }, [token, user]);
 
   if (loading) {
     return (
@@ -158,6 +180,57 @@ const Dashboard = () => {
         </div>
       ) : (
         <>
+          {/* Juez: Mis peleas activas */}
+          {user?.role === 'judge' && (
+            <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Puntuaci\u00f3n</p>
+                  <h3 className="text-lg font-bold text-gray-900">Mis peleas activas</h3>
+                </div>
+              </div>
+              {activeFightsLoading ? (
+                <div className="flex items-center gap-2 py-6">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-200 border-t-[#6b1421]" />
+                  <span className="text-sm text-gray-400">Cargando...</span>
+                </div>
+              ) : activeFights.length === 0 ? (
+                <div className="py-8 text-center">
+                  <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-700 mb-1">No ten\u00e9s peleas activas</p>
+                  <p className="text-xs text-gray-400">Cuando una pelea que confirmaste est\u00e9 activa, aparecer\u00e1 aqu\u00ed.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {activeFights.map((a) => (
+                    <div key={a.fight_id} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 hover:bg-[#fcf0f2] transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-gray-800 truncate">{a.event_name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {a.boxer_red} vs {a.boxer_blue}
+                        </p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">
+                          {new Date(a.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          {a.venue ? ` \u00b7 ${a.venue}` : ''}
+                        </p>
+                      </div>
+                      <button
+                        className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-[#6b1421] text-white rounded-lg text-xs font-semibold hover:bg-[#4a0f14] transition-colors"
+                        onClick={() => navigate(`/scoring/${a.fight_id}`)}
+                      >
+                        Puntuar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stats */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
             {statCards.map((card) => (

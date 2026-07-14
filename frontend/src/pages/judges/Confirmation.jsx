@@ -271,6 +271,23 @@ const Confirmation = () => {
                 <span className="text-gray-400">Respondiste: {formatDate(a.responded_at)}</span>
                 <div className="mt-2 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{a.rejection_reason}</div>
               </div>
+            ) : a.assignment_status === 'confirmed' ? (
+              <div>
+                {isActive ? (
+                  <button
+                    className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+                    onClick={() => navigate(`/scoring/${a.fight_id}`)}
+                  >
+                    Puntuar pelea
+                  </button>
+                ) : a.fight_status === 'completed' || a.fight_status === 'analyzed' ? (
+                  <p className="text-sm text-gray-400">La pelea ya finaliz\u00f3</p>
+                ) : a.fight_status === 'pending' ? (
+                  <p className="text-sm text-gray-400">Esperando que la pelea comience</p>
+                ) : (
+                  <p className="text-sm text-gray-400">Respondiste: {formatDate(a.responded_at)}</p>
+                )}
+              </div>
             ) : (
               <div className="text-sm text-gray-400">
                 Respondiste: {formatDate(a.responded_at)}
