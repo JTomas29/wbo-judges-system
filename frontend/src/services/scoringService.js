@@ -16,3 +16,8 @@ export const saveRound = (scorecardId, data, token) =>
   axios.post(`${API_URL}/scorecards/${scorecardId}/rounds`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+export const finalizeScorecard = (scorecardId, token) =>
+  axios.patch(`${API_URL}/scorecards/${scorecardId}/finalize`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });

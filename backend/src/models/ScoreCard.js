@@ -48,4 +48,23 @@ ScoreCard.getRoundScores = async (scoreCardId) => {
   return rows;
 };
 
+ScoreCard.finalize = async (id) => {
+  const { rows } = await pool.query(`
+    UPDATE score_cards
+    SET status = 'finalized', submitted_at = NOW()
+    WHERE id = $1 AND status = 'draft'
+    RETURNING id, fight_id, judge_id, status::text, total_score_red, total_score_blue, winner, submitted_at
+  `, [id]);
+  return rows[0] || null;
+};
+
+ScoreCard.getRoundCount = async (scoreCardId) => {
+  const { rows } = await pool.query(`
+    SELECT COUNT(*)::INTEGER AS count
+    FROM round_scores
+    WHERE score_card_id = $1
+  `, [scoreCardId]);
+  return rows[0].count;
+};
+
 module.exports = ScoreCard;

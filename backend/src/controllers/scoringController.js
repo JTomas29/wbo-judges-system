@@ -102,3 +102,39 @@ exports.saveRound = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.finalizeScorecard = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const scoreCard = await ScoreCard.findById(id);
+    if (!scoreCard) return res.status(404).json({ message: 'Tarjeta no encontrada' });
+
+    if (scoreCard.judge_id !== req.user.id) {
+      return res.status(403).json({ message: 'No puedes finalizar una tarjeta que no te pertenece' });
+    }
+
+    if (scoreCard.status !== 'draft') {
+      return res.status(400).json({ message: 'La tarjeta ya fue enviada y no puede modificarse.' });
+    }
+
+    const fight = await Fight.getById(scoreCard.fight_id);
+    if (!fight || fight.status !== 'active') {
+      return res.status(400).json({ message: 'La pelea ya no está activa.' });
+    }
+
+    const roundCount = await ScoreCard.getRoundCount(Number(id));
+    if (roundCount < fight.total_rounds) {
+      return res.status(400).json({ message: 'Debe completar todos los rounds antes de enviar la tarjeta.' });
+    }
+
+    const finalized = await ScoreCard.finalize(Number(id));
+    if (!finalized) {
+      return res.status(400).json({ message: 'No se pudo finalizar la tarjeta.' });
+    }
+
+    res.json({ scorecard: finalized, message: 'Tarjeta enviada correctamente.' });
+  } catch (err) {
+    next(err);
+  }
+};
