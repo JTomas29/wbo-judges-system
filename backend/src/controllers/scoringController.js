@@ -103,6 +103,16 @@ exports.saveRound = async (req, res, next) => {
   }
 };
 
+exports.getAllScorecards = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const scorecards = await ScoreCard.getAllByFight(Number(id));
+    res.json(scorecards);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.finalizeScorecard = async (req, res, next) => {
   try {
     const { id } = req.params;

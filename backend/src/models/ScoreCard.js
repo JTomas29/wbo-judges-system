@@ -58,6 +58,34 @@ ScoreCard.finalize = async (id) => {
   return rows[0] || null;
 };
 
+ScoreCard.getAllByFight = async (fightId) => {
+  const { rows } = await pool.query(`
+    SELECT
+      u.id AS judge_id,
+      u.name AS judge_name,
+      u.level::text AS level,
+      ja.assignment_type::text AS assignment_type,
+      sc.status::text AS scorecard_status,
+      sc.total_score_red,
+      sc.total_score_blue,
+      sc.winner,
+      sc.submitted_at,
+      COUNT(rs.id)::INTEGER AS completed_rounds,
+      f.total_rounds
+    FROM judge_assignments ja
+    JOIN users u ON u.id = ja.judge_id
+    JOIN fights f ON f.id = ja.fight_id
+    LEFT JOIN score_cards sc ON sc.fight_id = ja.fight_id AND sc.judge_id = ja.judge_id
+    LEFT JOIN round_scores rs ON rs.score_card_id = sc.id
+    WHERE ja.fight_id = $1 AND ja.status = 'confirmed'
+    GROUP BY u.id, u.name, u.level, ja.assignment_type, sc.status,
+             sc.total_score_red, sc.total_score_blue, sc.winner, sc.submitted_at,
+             f.total_rounds
+    ORDER BY u.name
+  `, [fightId]);
+  return rows;
+};
+
 ScoreCard.getRoundCount = async (scoreCardId) => {
   const { rows } = await pool.query(`
     SELECT COUNT(*)::INTEGER AS count

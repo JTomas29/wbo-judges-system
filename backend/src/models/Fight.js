@@ -143,6 +143,16 @@ Fight.getAnalysisSummary = async (fightId) => {
   return rows;
 };
 
+Fight.complete = async (id) => {
+  const { rows } = await pool.query(`
+    UPDATE fights
+    SET status = 'completed'
+    WHERE id = $1 AND status = 'active'
+    RETURNING id, status::text
+  `, [id]);
+  return rows[0] || null;
+};
+
 Fight.deleteAssignments = async (fightId) => {
   await pool.query(`DELETE FROM judge_assignments WHERE fight_id = $1`, [fightId]);
 };

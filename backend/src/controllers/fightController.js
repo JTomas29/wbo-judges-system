@@ -1,5 +1,6 @@
 ﻿const Fight = require('../models/Fight');
 const User = require('../models/User');
+const ScoreCard = require('../models/ScoreCard');
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -139,6 +140,28 @@ exports.update = async (req, res, next) => {
 
     const updated = await Fight.getById(id);
     res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.complete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+    if (fight.status !== 'active') {
+      return res.status(400).json({ message: 'Solo se puede finalizar una pelea activa' });
+    }
+
+    const scorecards = await ScoreCard.getAllByFight(Number(id));
+    const allFinalized = scorecards.every((sc) => sc.scorecard_status === 'finalized');
+    if (!allFinalized) {
+      return res.status(400).json({ message: 'Todos los jueces deben haber enviado su tarjeta' });
+    }
+
+    const updated = await Fight.complete(Number(id));
+    res.json({ message: 'Pelea finalizada correctamente.', fight: updated });
   } catch (err) {
     next(err);
   }

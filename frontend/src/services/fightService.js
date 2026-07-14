@@ -23,3 +23,11 @@ export const deleteFight = (id, token) =>
   axios.delete(`${API_URL}/fights/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+export const getScorecards = (id, token) =>
+  axios.get(`${API_URL}/fights/${id}/scorecards`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+export const completeFight = (id, token) =>
+  axios.post(`${API_URL}/fights/${id}/complete`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
