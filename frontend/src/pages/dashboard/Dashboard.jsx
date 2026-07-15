@@ -206,26 +206,41 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {activeFights.map((a) => (
-                    <div key={a.fight_id} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 hover:bg-[#fcf0f2] transition-colors">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-gray-800 truncate">{a.event_name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {a.boxer_red} vs {a.boxer_blue}
-                        </p>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
-                          {new Date(a.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                          {a.venue ? ` \u00b7 ${a.venue}` : ''}
-                        </p>
-                      </div>
-                      <button
-                        className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-[#6b1421] text-white rounded-lg text-xs font-semibold hover:bg-[#4a0f14] transition-colors"
-                        onClick={() => navigate(`/scoring/${a.fight_id}`)}
-                      >
-                        Puntuar
-                      </button>
-                    </div>
-                  ))}
+                      {activeFights.map((a) => {
+                        const isScored = a.scorecard_status === 'finalized';
+                        return (
+                          <div key={a.fight_id} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 hover:bg-[#fcf0f2] transition-colors">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-bold text-gray-800 truncate">{a.event_name}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {a.boxer_red} vs {a.boxer_blue}
+                              </p>
+                              <p className="text-[11px] text-gray-400 mt-0.5">
+                                {new Date(a.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                {a.venue ? ` \u00b7 ${a.venue}` : ''}
+                              </p>
+                            </div>
+                            {isScored ? (
+                              <div className="shrink-0 text-right">
+                                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-100 text-green-700">
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  Tarjeta enviada
+                                </span>
+                                <p className="text-[10px] text-gray-400 mt-0.5">Esperando a los demás jueces.</p>
+                              </div>
+                            ) : (
+                              <button
+                                className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-[#6b1421] text-white rounded-lg text-xs font-semibold hover:bg-[#4a0f14] transition-colors"
+                                onClick={() => navigate(`/scoring/${a.fight_id}`)}
+                              >
+                                Puntuar
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                 </div>
               )}
             </div>

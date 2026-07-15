@@ -81,9 +81,11 @@ JudgeAssignment.getByJudgeId = async (judgeId) => {
       ja.status::text AS assignment_status,
       f.status::text AS fight_status,
       ja.responded_at,
-      ja.rejection_reason
+      ja.rejection_reason,
+      sc.status::text AS scorecard_status
     FROM judge_assignments ja
     JOIN fights f ON f.id = ja.fight_id
+    LEFT JOIN score_cards sc ON sc.fight_id = ja.fight_id AND sc.judge_id = ja.judge_id
     WHERE ja.judge_id = $1
     ORDER BY f.scheduled_date ASC
   `, [judgeId]);

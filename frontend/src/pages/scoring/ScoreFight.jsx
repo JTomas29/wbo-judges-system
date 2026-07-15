@@ -61,7 +61,7 @@ const ScoreFight = () => {
         const f = fightRes.data;
         setFight(f);
 
-        if (user.role !== 'judge' || f.status !== 'active') {
+        if (user.role !== 'judge') {
           setRestriction('Esta pelea no está disponible para puntuar.');
           setLoading(false);
           return;
@@ -78,6 +78,28 @@ const ScoreFight = () => {
         }
 
         if (cancelled) return;
+
+        if (myRes.data.score_card && myRes.data.score_card.status === 'finalized') {
+          setScoreCard(myRes.data.score_card);
+          const rd = {};
+          myRes.data.round_scores.forEach((rs) => {
+            rd[rs.round_number] = {
+              score_red: rs.score_red,
+              score_blue: rs.score_blue,
+              referee_score: rs.referee_score,
+              referee_notes: rs.referee_notes || '',
+            };
+          });
+          setRoundData(rd);
+          setLoading(false);
+          return;
+        }
+
+        if (f.status !== 'active') {
+          setRestriction('Esta pelea no está disponible para puntuar.');
+          setLoading(false);
+          return;
+        }
 
         if (!myRes.data.score_card) {
           const createRes = await createScorecard(fightId, token);
@@ -242,6 +264,22 @@ const ScoreFight = () => {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
           <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
+
+      {isFinalized && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-green-800">Tu tarjeta fue enviada correctamente.</p>
+              <p className="text-xs text-green-600">No puede modificarse.</p>
+            </div>
+          </div>
         </div>
       )}
 
