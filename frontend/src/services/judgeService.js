@@ -17,6 +17,11 @@ export const updateJudge = (id, data, token) =>
     headers: { Authorization: `Bearer ${token}` },
   });
 
+export const deleteJudge = (id, token) =>
+  axios.delete(`${API_URL}/judges/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 // Asignaciones (admin)
 export const createAssignment = (fightId, data, token) =>
   axios.post(`${API_URL}/fights/${fightId}/assignments`, data, {

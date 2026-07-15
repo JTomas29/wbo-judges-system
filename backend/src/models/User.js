@@ -43,9 +43,17 @@ User.create = async ({ name, email, passwordHash, role }) => {
   return rows[0];
 };
 
+User.deleteJudge = async (id) => {
+  const { rows } = await pool.query(
+    `DELETE FROM users WHERE id = $1 AND role = 'judge' RETURNING id, name, email`,
+    [id]
+  );
+  return rows[0] || null;
+};
+
 User.getAllJudges = async () => {
   const { rows } = await pool.query(
-    "SELECT id, name, email, role, level::text AS level, is_active FROM users WHERE role = 'judge' AND is_active = TRUE ORDER BY name"
+    "SELECT id, name, email, role, level::text AS level, is_active FROM users WHERE role = 'judge' ORDER BY name"
   );
   return rows;
 };

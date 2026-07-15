@@ -68,6 +68,24 @@ exports.update = async (req, res, next) => {
   }
 };
 
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const judge = await User.findById(id);
+    if (!judge) return res.status(404).json({ message: 'Juez no encontrado' });
+    if (judge.role !== 'judge') return res.status(400).json({ message: 'El usuario no es un juez' });
+
+    const deleted = await User.deleteJudge(id);
+    if (!deleted) return res.status(400).json({ message: 'No se pudo eliminar el juez' });
+    res.json({ message: 'Juez eliminado correctamente', judge: deleted });
+  } catch (err) {
+    if (err.code === '23503') {
+      return res.status(409).json({ message: 'No se puede eliminar el juez porque tiene datos asociados (asignaciones o puntuaciones)' });
+    }
+    next(err);
+  }
+};
+
 exports.assign = (req, res) => {
   // TODO: asignar juez(es) a una pelea
 };

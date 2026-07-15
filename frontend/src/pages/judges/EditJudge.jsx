@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getJudgeById, updateJudge } from '../../services/judgeService';
+import { getJudgeById, updateJudge, deleteJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 
 const LEVELS = ['junior', 'senior', 'elite'];
@@ -20,6 +20,8 @@ const EditJudge = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -88,6 +90,19 @@ const EditJudge = () => {
     } catch (err) {
       setError(err.response?.data?.message || 'Error al actualizar el juez');
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setError(null);
+    setDeleting(true);
+    try {
+      await deleteJudge(id, token);
+      navigate('/judges');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar el juez');
+      setDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -173,8 +188,32 @@ const EditJudge = () => {
           <button type="button"
             className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
             onClick={() => navigate('/judges')}>Cancelar</button>
+          <button type="button"
+            className="inline-flex items-center justify-center px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors ml-auto"
+            onClick={() => setShowDeleteModal(true)}>Eliminar</button>
         </div>
       </form>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !deleting && setShowDeleteModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar juez</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              ¿Estás seguro de que quieres eliminar a <strong>{form?.name}</strong>? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+                onClick={() => setShowDeleteModal(false)} disabled={deleting}>No</button>
+              <button
+                className="px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-40"
+                onClick={handleDelete} disabled={deleting}>
+                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

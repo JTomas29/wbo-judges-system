@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getJudges } from '../../services/judgeService';
+import { updateJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 
 const levelBadge = (level) => {
@@ -24,6 +25,7 @@ const JudgeList = () => {
   const [judges, setJudges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmTarget, setConfirmTarget] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -39,6 +41,24 @@ const JudgeList = () => {
         setLoading(false);
       });
   }, [token]);
+
+  const handleToggleActive = async (juez) => {
+    try {
+      await updateJudge(juez.id, {
+        name: juez.name,
+        email: juez.email,
+        level: juez.level || 'junior',
+        is_active: !juez.is_active,
+      }, token);
+      setJudges((prev) =>
+        prev.map((j) => (j.id === juez.id ? { ...j, is_active: !j.is_active } : j))
+      );
+      setConfirmTarget(null);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al cambiar estado del juez');
+      setConfirmTarget(null);
+    }
+  };
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
 
@@ -132,9 +152,18 @@ const JudgeList = () => {
                       <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
                         onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
                     )}
-                    <button className="inline-flex items-center justify-center px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors">
-                      Desactivar
-                    </button>
+                    {isStaff && (
+                      <button
+                        className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                          juez.is_active
+                            ? 'bg-red-500 text-white hover:bg-red-600'
+                            : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                        onClick={() => setConfirmTarget(juez)}
+                      >
+                        {juez.is_active ? 'Desactivar' : 'Activar'}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -142,6 +171,33 @@ const JudgeList = () => {
           </tbody>
         </table>
       </div>
+
+      {confirmTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmTarget(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {confirmTarget.is_active ? 'Desactivar juez' : 'Activar juez'}
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              ¿Estás seguro de que quieres {confirmTarget.is_active ? 'desactivar' : 'activar'} a <strong>{confirmTarget.name}</strong>?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+                onClick={() => setConfirmTarget(null)}
+              >
+                No
+              </button>
+              <button
+                className="px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+                onClick={() => handleToggleActive(confirmTarget)}
+              >
+                Sí
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
