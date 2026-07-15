@@ -153,6 +153,13 @@ Fight.complete = async (id) => {
   return rows[0] || null;
 };
 
+Fight.analyze = async (id) => {
+  const { rows } = await pool.query(`
+    SELECT * FROM fn_calculate_analysis($1)
+  `, [id]);
+  return rows;
+};
+
 Fight.deleteAssignments = async (fightId) => {
   await pool.query(`DELETE FROM judge_assignments WHERE fight_id = $1`, [fightId]);
 };

@@ -167,6 +167,43 @@ exports.complete = async (req, res, next) => {
   }
 };
 
+exports.analyze = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+
+    if (fight.status === 'analyzed') {
+      return res.status(400).json({ message: 'Esta pelea ya fue analizada.' });
+    }
+
+    if (fight.status !== 'completed') {
+      return res.status(400).json({ message: 'La pelea debe estar finalizada antes de ejecutar el análisis.' });
+    }
+
+    const officialCard = await Fight.getOfficialCard(id);
+    if (!officialCard) {
+      return res.status(400).json({ message: 'Debe existir una tarjeta oficial para poder analizar la pelea.' });
+    }
+
+    const scorecards = await ScoreCard.getAllByFight(Number(id));
+    const hasFinalized = scorecards.some((sc) => sc.scorecard_status === 'finalized');
+    if (!hasFinalized) {
+      return res.status(400).json({ message: 'Debe existir al menos una tarjeta de juez finalizada para ejecutar el análisis.' });
+    }
+
+    const results = await Fight.analyze(Number(id));
+    res.json({
+      fight_id: Number(id),
+      status: 'analyzed',
+      judges_analyzed: results.length,
+      message: 'Análisis completado',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.remove = async (req, res, next) => {
   try {
     const { id } = req.params;

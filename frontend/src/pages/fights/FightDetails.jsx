@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFightById, deleteFight } from '../../services/fightService';
+import { getFightById, deleteFight, analyzeFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 
 const statusStyle = (status) => {
@@ -26,6 +26,8 @@ const FightDetails = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -140,8 +142,31 @@ const FightDetails = () => {
           <div className="flex gap-3 flex-wrap">
             <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'pending'} onClick={() => navigate(`/judges/assign/${fight.id}`)}>Asignar Jueces</button>
             <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'active'} title={fight.status !== 'active' ? 'La pelea debe estar activa' : ''} onClick={() => navigate(`/scoring/live/${fight.id}`)}>Seguimiento en vivo</button>
-            <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed'} title={fight.status !== 'completed' ? 'La pelea debe estar finalizada' : ''} onClick={() => navigate(`/official-cards/${fight.id}`)}>Cargar Tarjeta Oficial</button>
-            <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed' || !fight.official_card} title={fight.status !== 'completed' || !fight.official_card ? 'La pelea debe estar finalizada y tener tarjeta oficial' : ''} onClick={() => navigate(`/analysis/${fight.id}`)}>Analizar Pelea</button>
+            {user?.role === 'admin' && (
+              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed'} title={fight.status !== 'completed' ? 'La pelea debe estar finalizada' : ''} onClick={() => navigate(`/official-cards/${fight.id}`)}>Cargar Tarjeta Oficial</button>
+            )}
+            {user?.role === 'admin' && (<>
+              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed' || !fight.official_card || analyzing} title={fight.status !== 'completed' || !fight.official_card ? 'La pelea debe estar finalizada y tener tarjeta oficial' : ''} onClick={async () => {
+                setAnalyzeError(null);
+                setAnalyzing(true);
+                try {
+                  await analyzeFight(id, token);
+                  navigate(`/analysis/${id}`);
+                } catch (err) {
+                  setAnalyzeError(err.response?.data?.message || 'Error al ejecutar el análisis');
+                  setAnalyzing(false);
+                }
+              }}>
+                {analyzing ? (
+                  <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />Procesando análisis...</>
+                ) : 'Analizar Pelea'}
+              </button>
+              {analyzeError && (
+                <div className="w-full mt-2 bg-red-50 border border-red-200 rounded-xl p-3">
+                  <p className="text-red-700 text-sm">{analyzeError}</p>
+                </div>
+              )}
+            </>)}
             {user?.role === 'admin' && (
               <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-[#6b1421] border-2 border-[#6b1421] rounded-lg text-sm font-semibold hover:bg-[#fcf0f2] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled'} title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' ? 'No se puede editar una pelea finalizada' : ''} onClick={() => navigate(`/fights/${fight.id}/edit`)}>Editar</button>
             )}

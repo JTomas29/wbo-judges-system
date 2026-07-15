@@ -1,5 +1,5 @@
 ﻿const { Router } = require('express');
-const { getAll, getById, create, update, remove, complete } = require('../controllers/fightController');
+const { getAll, getById, create, update, remove, complete, analyze } = require('../controllers/fightController');
 const { assign, remove: removeAssignment, list, respond } = require('../controllers/assignmentController');
 const { createOrGetScorecard, getMyScorecard, getAllScorecards } = require('../controllers/scoringController');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -24,6 +24,9 @@ router.get('/:id/scorecards', roleMiddleware('admin', 'supervisor'), getAllScore
 
 // Finalizar pelea (admin)
 router.post('/:id/complete', roleMiddleware('admin'), complete);
+
+// Ejecutar análisis (admin)
+router.post('/:id/analyze', roleMiddleware('admin'), analyze);
 
 // Asignaciones de jueces
 router.post('/:id/assignments', roleMiddleware('admin'), assign);
