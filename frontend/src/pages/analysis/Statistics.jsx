@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAllStatistics, getJudgeStatistics } from '../../services/statisticsService';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,12 @@ const barColor = (pct) => {
   if (pct >= 80) return 'bg-green-500';
   if (pct >= 60) return 'bg-amber-500';
   return 'bg-red-500';
+};
+
+const borderScore = (pct) => {
+  if (pct >= 80) return 'border-green-500';
+  if (pct >= 60) return 'border-orange-500';
+  return 'border-red-500';
 };
 
 const levelBadge = (level) => {
@@ -110,10 +116,10 @@ const Statistics = () => {
           onClick={backToList}
           className="mb-4 text-sm text-[#6b1421] font-semibold hover:underline flex items-center gap-1"
         >
-          &larr; Volver al ranking
+          ← Volver al ranking
         </button>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-6 mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-1">{judgeHistory.name}</h2>
           <div className="flex items-center gap-3 mb-4">
             {levelBadge(judgeHistory.level)}
@@ -121,13 +127,13 @@ const Statistics = () => {
             <span className="text-sm text-gray-400">{judgeHistory.total_rounds} rounds</span>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-gray-800">{judgeHistory.avg_match_pct.toFixed(1)}%</p>
-              <p className="text-xs text-gray-400 mt-1">Precisión histórica</p>
+            <div className={`bg-white shadow-sm rounded-b-lg border-t-4 ${borderScore(judgeHistory.avg_match_pct)} p-4`}>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Precisión histórica</p>
+              <p className="text-3xl font-bold text-gray-900">{judgeHistory.avg_match_pct.toFixed(1)}%</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-gray-800">{judgeHistory.last_5_avg.toFixed(1)}%</p>
-              <p className="text-xs text-gray-400 mt-1">Últimas 5 peleas</p>
+            <div className={`bg-white shadow-sm rounded-b-lg border-t-4 ${borderScore(judgeHistory.last_5_avg)} p-4`}>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Últimas 5 peleas</p>
+              <p className="text-3xl font-bold text-gray-900">{judgeHistory.last_5_avg.toFixed(1)}%</p>
             </div>
           </div>
         </div>
@@ -152,12 +158,12 @@ const Statistics = () => {
         )}
 
         {!historyLoading && !historyError && judgeHistory.history.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm card-minimal overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Evento</th>
                     <th className="text-center py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">%</th>
                     <th className="text-center py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
@@ -209,54 +215,45 @@ const Statistics = () => {
         {user?.role === 'judge' ? 'Mis Estadísticas' : 'Ranking de Jueces'}
       </h2>
 
-      {judges.map((judge) => (
+      {judges.map((judge, i) => (
         <div
           key={judge.id}
-          className="bg-white rounded-xl shadow-sm p-5 mb-3 hover:shadow-md transition-shadow cursor-pointer"
+          className="bg-white rounded-xl shadow-sm card-minimal p-4 mb-2 hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => openJudgeDetail(judge)}
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
+          <div className="grid grid-cols-12 items-center gap-3">
+            <div className="col-span-4 flex items-center gap-3 min-w-0">
+              <span className="text-lg font-bold text-gray-400 w-7 text-right shrink-0">#{i + 1}</span>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6b1421] to-[#4a0f14] text-white flex items-center justify-center text-sm font-bold shrink-0">
                 {judge.name?.charAt(0) || 'J'}
               </div>
-              <div>
-                <p className="font-semibold text-gray-800">{judge.name}</p>
-                <div className="flex items-center gap-2 mt-0.5">
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-800 truncate">{judge.name}</p>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   {levelBadge(judge.level)}
-                  <span className="text-xs text-gray-400">{judge.total_fights} peleas</span>
-                  <span className="text-xs text-gray-400">{judge.total_rounds} rounds</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{judge.total_fights} peleas</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{judge.total_rounds} rounds</span>
                 </div>
               </div>
             </div>
-            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="col-span-4">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">Precisión histórica</span>
+                <span className="text-gray-500 text-xs font-medium">Precisión histórica</span>
                 <span className="text-sm font-bold text-gray-700">{judge.avg_match_pct.toFixed(1)}%</span>
               </div>
               <div className="h-2 rounded bg-gray-100 overflow-hidden">
-                <div
-                  className={`h-full rounded ${barColor(judge.avg_match_pct)}`}
-                  style={{ width: `${Math.min(judge.avg_match_pct, 100)}%` }}
-                ></div>
+                <div className={`h-full rounded ${barColor(judge.avg_match_pct)}`} style={{ width: `${Math.min(judge.avg_match_pct, 100)}%` }}></div>
               </div>
             </div>
-            <div>
+
+            <div className="col-span-4">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">Últimas 5 peleas</span>
+                <span className="text-gray-500 text-xs font-medium">Últimas 5 peleas</span>
                 <span className="text-sm font-bold text-gray-700">{judge.last_5_avg.toFixed(1)}%</span>
               </div>
               <div className="h-2 rounded bg-gray-100 overflow-hidden">
-                <div
-                  className={`h-full rounded ${barColor(judge.last_5_avg)}`}
-                  style={{ width: `${Math.min(judge.last_5_avg, 100)}%` }}
-                ></div>
+                <div className={`h-full rounded ${barColor(judge.last_5_avg)}`} style={{ width: `${Math.min(judge.last_5_avg, 100)}%` }}></div>
               </div>
             </div>
           </div>

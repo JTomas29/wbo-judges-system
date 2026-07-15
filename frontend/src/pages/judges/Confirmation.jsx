@@ -26,7 +26,7 @@ const fightStatusBadge = (status) => {
 const assignmentTypeLabel = (type) => {
   const map = {
     evaluator: 'Evaluador del combate',
-    referee_evaluator: 'Evaluador del Ã¡rbitro',
+    referee_evaluator: 'Evaluador del árbitro',
   };
   return map[type] || type;
 };
@@ -86,7 +86,7 @@ const Confirmation = () => {
         );
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al responder la asignaciÃ³n');
+      setError(err.response?.data?.message || 'Error al responder la asignación');
     } finally {
       setResponding(null);
       setRejecting(null);
@@ -114,7 +114,7 @@ const Confirmation = () => {
 
   if (!isJudge) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-amber-50 text-amber-700 px-6 py-4 rounded-lg text-sm">Solo los jueces pueden acceder a esta pÃ¡gina</div>
+      <div className="bg-amber-50 text-amber-700 px-6 py-4 rounded-lg text-sm">Solo los jueces pueden acceder a esta página</div>
     </div>
   );
 
@@ -142,8 +142,8 @@ const Confirmation = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <h3 className="text-lg font-bold text-gray-800 mb-2">No tenés designaciones pendientes</h3>
-      <p className="text-sm text-gray-400">Cuando un administrador te asigne una pelea aparecerÃ¡ aquÃ­.</p>
+      <h3 className="text-lg font-bold text-gray-800 mb-2">No ten�s designaciones pendientes</h3>
+      <p className="text-sm text-gray-400">Cuando un administrador te asigne una pelea aparecerá aquí.</p>
     </div>
   );
 
@@ -172,10 +172,10 @@ const Confirmation = () => {
         const isActive = a.fight_status === 'active';
 
         return (
-          <div key={a.fight_id} className="bg-white rounded-xl shadow-sm p-5 mb-4">
+          <div key={a.fight_id} className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-4">
             {a._justActivated && (
               <div className="mb-4 bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm font-semibold">
-                La pelea alcanzÃ³ el mÃ­nimo de jueces confirmados y quedÃ³ activa.
+                La pelea alcanzó el mínimo de jueces confirmados y quedó activa.
               </div>
             )}
 
@@ -213,7 +213,7 @@ const Confirmation = () => {
                 <span className="text-sm font-semibold text-gray-800">{a.boxer_blue}</span>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Tipo de asignaciÃ³n</label>
+                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-0.5">Tipo de asignación</label>
                 <span className="text-sm font-semibold text-gray-800">{assignmentTypeLabel(a.assignment_type)}</span>
               </div>
             </div>
@@ -226,7 +226,7 @@ const Confirmation = () => {
                     <textarea
                       className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6b1421]/20 resize-none mb-3"
                       rows={3}
-                      placeholder="Explique por qu\u00e9 no puede aceptar la designaci\u00f3n..."
+                      placeholder="Explique por qué no puede aceptar la designación..."
                       value={rejectReasons[a.fight_id] || ''}
                       onChange={(e) => setRejectReasons((prev) => ({ ...prev, [a.fight_id]: e.target.value }))}
                     />
@@ -298,7 +298,7 @@ const Confirmation = () => {
                     Puntuar pelea
                   </button>
                 ) : a.fight_status === 'completed' || a.fight_status === 'analyzed' ? (
-                  <p className="text-sm text-gray-400">La pelea ya finaliz\u00f3</p>
+                  <p className="text-sm text-gray-400">La pelea ya finalizó</p>
                 ) : a.fight_status === 'pending' ? (
                   <p className="text-sm text-gray-400">Esperando que la pelea comience</p>
                 ) : (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
@@ -96,7 +96,7 @@ const FightAnalysis = () => {
   return (
     <div className="max-w-[1000px] space-y-6">
       {/* General info */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
+      <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 m-0">{fight.event_name}</h2>
@@ -128,7 +128,7 @@ const FightAnalysis = () => {
 
       {/* Official card result */}
       {official_card && (
-        <div className="bg-white rounded-xl shadow-sm p-5">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Resultado Oficial</h3>
           <div className="grid grid-cols-3 gap-4 max-w-md mb-4">
             <div className="text-center p-4 rounded-xl bg-gray-50">
@@ -162,7 +162,7 @@ const FightAnalysis = () => {
 
       {/* Judge cards */}
       {judges_analysis?.map((judge) => (
-        <div key={judge.judge_id} className="bg-white rounded-xl shadow-sm p-5">
+        <div key={judge.judge_id} className="bg-white rounded-xl shadow-sm card-minimal p-5">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <h3 className="text-lg font-bold text-gray-900 m-0">{judge.judge_name}</h3>
             {judge.level && (
@@ -254,7 +254,7 @@ const FightAnalysis = () => {
 
       {/* Consistency table */}
       {isStaff && consistency?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-5">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Consistencia entre Jueces</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

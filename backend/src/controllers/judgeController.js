@@ -36,20 +36,20 @@ exports.update = async (req, res, next) => {
     if (!email || !email.trim()) return res.status(400).json({ message: 'El email es obligatorio' });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return res.status(400).json({ message: 'Email inv\u00e1lido' });
+    if (!emailRegex.test(email)) return res.status(400).json({ message: 'Email inválido' });
 
     if (email.toLowerCase() !== judge.email.toLowerCase()) {
       const existing = await User.findByEmail(email);
-      if (existing) return res.status(400).json({ message: 'El email ya est\u00e1 registrado por otro usuario' });
+      if (existing) return res.status(400).json({ message: 'El email ya está registrado por otro usuario' });
     }
 
     const validLevels = ['junior', 'senior', 'elite'];
     const finalLevel = level || judge.level;
-    if (!validLevels.includes(finalLevel)) return res.status(400).json({ message: 'Nivel inv\u00e1lido. Debe ser junior, senior o elite' });
+    if (!validLevels.includes(finalLevel)) return res.status(400).json({ message: 'Nivel inválido. Debe ser junior, senior o elite' });
 
     let password_hash;
     if (password && password.trim()) {
-      if (password.length < 6) return res.status(400).json({ message: 'La contrase\u00f1a debe tener al menos 6 caracteres' });
+      if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
       password_hash = await bcrypt.hash(password, 10);
     }
 

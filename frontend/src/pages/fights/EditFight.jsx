@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFightById, updateFight } from '../../services/fightService';
 import { getJudges } from '../../services/judgeService';
@@ -122,8 +122,12 @@ const EditFight = () => {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 max-w-[700px]">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Editar Pelea</h2>
+    <div className="max-w-2xl mx-auto mt-8">
+      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-medium text-wbo-700 hover:text-opacity-80 transition-colors mb-4">
+        ← Volver a Peleas
+      </button>
+      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Pelea</h2>
       {error && (
         <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
       )}
@@ -195,16 +199,17 @@ const EditFight = () => {
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none" />
           </div>
         </div>
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-3 mt-6">
           <button type="submit" disabled={saving}
-            className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </button>
           <button type="button"
-            className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
             onClick={() => navigate(`/fights/${id}`)}>Cancelar</button>
         </div>
       </form>
+    </div>
     </div>
   );
 };

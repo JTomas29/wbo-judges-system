@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
@@ -181,7 +181,7 @@ const OfficialCards = () => {
       )}
 
       {card ? (
-        <div className="bg-white rounded-xl shadow-sm p-5">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
           <div className="text-center mb-6">
             <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
               <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +223,7 @@ const OfficialCards = () => {
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
             <div className="space-y-1.5">
               <div className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2.5 bg-[#6b1421] text-white rounded-lg text-xs font-semibold">
                 <span>Round</span>
@@ -275,7 +275,7 @@ const OfficialCards = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Guardar tarjeta oficial</h3>
             <p className="text-sm text-gray-600 mb-6">
-              Una vez guardada no podr\u00e1 modificarse. ¿Dese\u00e1s continuar?
+              Una vez guardada no podrá modificarse. ¿Deseás continuar?
             </p>
             <div className="flex gap-3 justify-end">
               <button

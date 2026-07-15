@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getJudges } from '../../services/judgeService';
 import { updateJudge } from '../../services/judgeService';
@@ -120,7 +120,7 @@ const JudgeList = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-5 overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">

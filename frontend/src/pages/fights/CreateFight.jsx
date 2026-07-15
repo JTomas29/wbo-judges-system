@@ -102,8 +102,12 @@ const CreateFight = () => {
     }`;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 max-w-[700px]">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Crear Nueva Pelea</h2>
+    <div className="max-w-2xl mx-auto mt-8">
+      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-medium text-wbo-700 hover:text-opacity-80 transition-colors mb-4">
+        ← Volver a Peleas
+      </button>
+      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Crear Nueva Pelea</h2>
       {error && (
         <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
       )}
@@ -134,7 +138,7 @@ const CreateFight = () => {
             {fieldErrors.scheduled_date && <p className="text-xs text-red-500 mt-1">{fieldErrors.scheduled_date}</p>}
           </div>
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">CategorÃ­a *</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Categoría *</label>
             <input name="weight_class" value={form.weight_class} onChange={handleChange} placeholder="Ej: Peso Pesado"
               className={inputClass('weight_class')} />
             {fieldErrors.weight_class && <p className="text-xs text-red-500 mt-1">{fieldErrors.weight_class}</p>}
@@ -152,7 +156,7 @@ const CreateFight = () => {
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
           </div>
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">TÃ­tulo</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Título</label>
             <input name="title" value={form.title} onChange={handleChange} placeholder="Ej: Campeonato WBO"
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
           </div>
@@ -162,10 +166,10 @@ const CreateFight = () => {
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
           </div>
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Ãrbitro</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Árbitro</label>
             <select name="referee_id" value={form.referee_id} onChange={handleChange}
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 bg-white">
-              <option value="">â€” Sin asignar â€”</option>
+              <option value="">— Sin asignar —</option>
               {referees.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
           </div>
@@ -175,16 +179,17 @@ const CreateFight = () => {
               className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none" />
           </div>
         </div>
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-3 mt-6">
           <button type="submit" disabled={loading}
-            className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
             {loading ? 'Guardando...' : 'Guardar'}
           </button>
           <button type="button"
-            className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
             onClick={() => navigate('/fights')}>Cancelar</button>
         </div>
       </form>
+    </div>
     </div>
   );
 };

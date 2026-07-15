@@ -305,7 +305,7 @@ exports.remove = async (req, res, next) => {
     }
 
     if (analysisSummary.length > 0) {
-      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene an\u00e1lisis realizados' });
+      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene análisis realizados' });
     }
 
     await Fight.deleteAssignments(id);

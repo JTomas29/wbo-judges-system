@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJudgeById, updateJudge, deleteJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
@@ -59,13 +59,13 @@ const EditJudge = () => {
     if (!form.email.trim()) {
       errs.email = 'El email es obligatorio';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errs.email = 'Email inv\u00e1lido';
+      errs.email = 'Email inválido';
     }
     if (form.password && form.password.length > 0 && form.password.length < 6) {
-      errs.password = 'M\u00ednimo 6 caracteres';
+      errs.password = 'Mínimo 6 caracteres';
     }
     if (form.password !== form.confirm_password) {
-      errs.confirm_password = 'Las contrase\u00f1as no coinciden';
+      errs.confirm_password = 'Las contraseñas no coinciden';
     }
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -107,7 +107,7 @@ const EditJudge = () => {
   };
 
   const inputClass = (field) =>
-    `w-full px-3.5 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
+    `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
       fieldErrors[field]
         ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
         : 'border-gray-200 focus:border-[#6b1421] focus:ring-[#6b1421]/20'
@@ -133,28 +133,32 @@ const EditJudge = () => {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 max-w-[500px]">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Editar Juez</h2>
+    <div className="max-w-2xl mx-auto mt-8">
+      <button onClick={() => navigate('/judges')} className="flex items-center text-sm font-medium text-wbo-700 hover:text-opacity-80 transition-colors mb-4">
+        ← Volver a Jueces
+      </button>
+      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Juez</h2>
       {error && (
         <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
       )}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Nombre *</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nombre *</label>
           <input name="name" value={form.name} onChange={handleChange} placeholder="Nombre del juez"
             className={inputClass('name')} />
           {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Email *</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Email *</label>
           <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="juez@example.com"
             className={inputClass('email')} />
           {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Nivel</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nivel</label>
           <select name="level" value={form.level} onChange={handleChange}
-            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 bg-white">
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 bg-white">
             {LEVELS.map((l) => <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>)}
           </select>
         </div>
@@ -162,34 +166,36 @@ const EditJudge = () => {
           <label className="flex items-center gap-3 cursor-pointer">
             <div className="relative">
               <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="sr-only peer" />
-              <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-[#6b1421] transition-colors" />
+              <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-wbo-700 transition-colors" />
               <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform" />
             </div>
             <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Activo</span>
           </label>
         </div>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Nueva Contrase\u00f1a <span className="text-gray-400 font-normal normal-case">(opcional)</span></label>
-          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Dejar vac\u00edo para mantener"
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nueva Contraseña <span className="text-gray-400 font-normal normal-case">(opcional)</span></label>
+          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Dejar vacío para mantener"
             className={inputClass('password')} />
           {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Confirmar Contrase\u00f1a</label>
-          <input name="confirm_password" type="password" value={form.confirm_password} onChange={handleChange} placeholder="Repetir contrase\u00f1a"
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Confirmar Contraseña</label>
+          <input name="confirm_password" type="password" value={form.confirm_password} onChange={handleChange} placeholder="Repetir contraseña"
             className={inputClass('confirm_password')} />
           {fieldErrors.confirm_password && <p className="text-xs text-red-500 mt-1">{fieldErrors.confirm_password}</p>}
         </div>
-        <div className="flex gap-2 mt-2">
-          <button type="submit" disabled={saving}
-            className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            {saving ? 'Guardando...' : 'Guardar Cambios'}
-          </button>
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
+          <div className="flex gap-3">
+            <button type="submit" disabled={saving}
+              className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
+            </button>
+            <button type="button"
+              className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
+              onClick={() => navigate('/judges')}>Cancelar</button>
+          </div>
           <button type="button"
-            className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
-            onClick={() => navigate('/judges')}>Cancelar</button>
-          <button type="button"
-            className="inline-flex items-center justify-center px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors ml-auto"
+            className="inline-flex items-center justify-center px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors text-sm"
             onClick={() => setShowDeleteModal(true)}>Eliminar</button>
         </div>
       </form>
@@ -214,6 +220,7 @@ const EditJudge = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

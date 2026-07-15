@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getScorecards, completeFight } from '../../services/fightService';
@@ -123,7 +123,7 @@ const LiveScore = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm card-minimal overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#6b1421] text-white text-xs uppercase tracking-wider">

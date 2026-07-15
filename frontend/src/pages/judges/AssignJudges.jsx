@@ -25,7 +25,7 @@ const levelBadge = (level) => {
 const assignmentTypeLabel = (type) => {
   const map = {
     evaluator: 'Evaluador del combate',
-    referee_evaluator: 'Evaluador del Ã¡rbitro',
+    referee_evaluator: 'Evaluador del árbitro',
   };
   return map[type] || type;
 };
@@ -75,7 +75,7 @@ const AssignJudges = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Jueces no asignados aÃºn a esta pelea
+  // Jueces no asignados aún a esta pelea
   const assignedIds = new Set(assignments.map((a) => a.judge_id));
   const unassignedJudges = availableJudges.filter((j) => !assignedIds.has(j.id));
 
@@ -101,7 +101,7 @@ const AssignJudges = () => {
       await deleteAssignment(fightId, judgeId, token);
       await loadData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al eliminar asignaciÃ³n');
+      setError(err.response?.data?.message || 'Error al eliminar asignación');
     }
   };
 
@@ -176,10 +176,10 @@ const AssignJudges = () => {
         <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{assignError}</div>
       )}
 
-      {/* Formulario de asignaciÃ³n â€” solo admin */}
+      {/* Formulario de asignación �?" solo admin */}
       {isAdmin && (
-        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Nueva AsignaciÃ³n</h3>
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-6">
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Nueva Asignación</h3>
           <div className="flex flex-wrap gap-3 items-end">
             <div className="min-w-[200px] flex-1">
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Juez</label>
@@ -196,7 +196,7 @@ const AssignJudges = () => {
               <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 bg-white">
                 <option value="evaluator">Evaluador del combate</option>
-                <option value="referee_evaluator">Evaluador del Ã¡rbitro</option>
+                <option value="referee_evaluator">Evaluador del árbitro</option>
               </select>
             </div>
             <div>
@@ -211,7 +211,7 @@ const AssignJudges = () => {
       )}
 
       {/* Tabla de asignaciones */}
-      <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-sm card-minimal overflow-x-auto">
         {assignments.length === 0 ? (
           <div className="p-10 text-center text-gray-400 text-sm">No hay jueces asignados a esta pelea</div>
         ) : (
@@ -225,7 +225,7 @@ const AssignJudges = () => {
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Asignado</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Respuesta</th>
-                {isAdmin && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">AcciÃ³n</th>}
+                {isAdmin && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acción</th>}
               </tr>
             </thead>
             <tbody>

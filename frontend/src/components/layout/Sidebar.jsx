@@ -2,13 +2,6 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logoSrc from '../../assets/logoWbo.png';
 
-const navItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: '▦' },
-  { label: 'Peleas', path: '/fights', icon: '▣' },
-  { label: 'Jueces', path: '/judges', icon: '⚖' },
-  { label: 'Análisis', path: '/analysis/statistics', icon: '▤' },
-];
-
 const roleLabels = {
   admin: 'Administrador',
   supervisor: 'Supervisor',
@@ -17,6 +10,17 @@ const roleLabels = {
 
 const Sidebar = () => {
   const { user } = useAuth();
+
+  const navItems = [
+    { label: 'Dashboard', path: '/dashboard', icon: '▦' },
+    ...(user?.role !== 'judge'
+      ? [
+          { label: 'Peleas', path: '/fights', icon: '▣' },
+          { label: 'Jueces', path: '/judges', icon: '⚖' },
+          { label: 'Análisis', path: '/analysis/statistics', icon: '▤' },
+        ]
+      : []),
+  ];
 
   return (
     <aside className="sidebar">

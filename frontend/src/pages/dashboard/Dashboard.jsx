@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
@@ -128,10 +128,10 @@ const Dashboard = () => {
   });
 
   const statCards = [
-    { label: 'Total Peleas', value: stats.total_fights, color: 'border-[#6b1421]', iconColor: 'bg-[#fcf0f2]' },
-    { label: 'Peleas Activas', value: stats.active_fights, color: 'border-blue-500', iconColor: 'bg-blue-50' },
-    { label: 'Finalizadas', value: stats.completed_fights, color: 'border-gray-400', iconColor: 'bg-gray-100' },
-    { label: 'Jueces Registrados', value: stats.total_judges, color: 'border-amber-400', iconColor: 'bg-amber-50' },
+    { label: 'Total Peleas', value: stats.total_fights, color: 'border-wbo-700', iconColor: 'bg-[#fcf0f2]' },
+    { label: 'Peleas Activas', value: stats.active_fights, color: 'border-green-500', iconColor: 'bg-green-50' },
+    { label: 'Finalizadas', value: stats.completed_fights, color: 'border-blue-500', iconColor: 'bg-blue-50' },
+    { label: 'Jueces Registrados', value: stats.total_judges, color: 'border-orange-500', iconColor: 'bg-orange-50' },
   ];
 
   const isEmpty = recent_fights.length === 0 && active_judges.length === 0;
@@ -171,21 +171,23 @@ const Dashboard = () => {
           </div>
           <h3 className="text-lg font-bold text-gray-800 mb-2">No hay datos disponibles</h3>
           <p className="text-sm text-gray-400 mb-6">Aún no se han registrado peleas o jueces en el sistema.</p>
-          <button
-            onClick={() => navigate('/fights/create')}
-            className="px-5 py-2.5 text-sm font-bold text-white bg-[#6b1421] rounded-xl hover:bg-[#4a0f14] transition-colors"
-          >
-            Crear primera pelea
-          </button>
+          {user?.role !== 'judge' && (
+            <button
+              onClick={() => navigate('/fights/create')}
+              className="px-5 py-2.5 text-sm font-bold text-white bg-[#6b1421] rounded-xl hover:bg-[#4a0f14] transition-colors"
+            >
+              Crear primera pelea
+            </button>
+          )}
         </div>
       ) : (
         <>
           {/* Juez: Mis peleas activas */}
           {user?.role === 'judge' && (
-            <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+            <div className="bg-white rounded-xl shadow-sm card-minimal p-5 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Puntuaci\u00f3n</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Puntuación</p>
                   <h3 className="text-lg font-bold text-gray-900">Mis peleas activas</h3>
                 </div>
               </div>
@@ -201,8 +203,8 @@ const Dashboard = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">No ten\u00e9s peleas activas</p>
-                  <p className="text-xs text-gray-400">Cuando una pelea que confirmaste est\u00e9 activa, aparecer\u00e1 aqu\u00ed.</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-1">No tenés peleas activas</p>
+                  <p className="text-xs text-gray-400">Cuando una pelea que confirmaste esté activa, aparecerá aquí.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -217,7 +219,7 @@ const Dashboard = () => {
                               </p>
                               <p className="text-[11px] text-gray-400 mt-0.5">
                                 {new Date(a.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                                {a.venue ? ` \u00b7 ${a.venue}` : ''}
+                                {a.venue ? ` · ${a.venue}` : ''}
                               </p>
                             </div>
                             {isScored ? (
@@ -256,7 +258,7 @@ const Dashboard = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px]">{card.label}</p>
-                    <p className="text-4xl font-extrabold text-gray-900 mt-1.5">{card.value}</p>
+                    <p className="text-4xl font-extrabold text-wbo-700 mt-1.5">{card.value}</p>
                   </div>
                   <div className={`w-11 h-11 rounded-full ${card.iconColor} flex items-center justify-center shrink-0`}>
                     <svg viewBox="0 0 64 64" fill="none" className="w-6 h-6">
@@ -275,31 +277,35 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
             {/* LEFT: Quick Actions */}
             <div className="xl:col-span-4 space-y-5">
-              <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+              <div className="bg-white rounded-xl shadow-sm card-minimal p-5 sm:p-6">
                 <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Acciones Rápidas</p>
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Operaciones</h3>
                 <div className="space-y-3">
-                  <button
-                    onClick={() => navigate('/fights/create')}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-bold text-white bg-[#6b1421] rounded-xl hover:bg-[#4a0f14] transition-all shadow-sm hover:shadow-md active:scale-[0.99]"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/fights/create')}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-bold text-white bg-[#6b1421] rounded-xl hover:bg-[#4a0f14] transition-all shadow-sm hover:shadow-md active:scale-[0.99]"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Nueva Pelea
+                      </div>
+                      <span className="text-white/60 text-lg leading-none">+</span>
+                    </button>
+                  )}
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/fights')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
+                    >
+                      <span>Ver Peleas</span>
+                      <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                       </svg>
-                      Nueva Pelea
-                    </div>
-                    <span className="text-white/60 text-lg leading-none">+</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/fights')}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
-                  >
-                    <span>Ver Peleas</span>
-                    <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                    </button>
+                  )}
                   {user?.role !== 'judge' && (
                     <button
                       onClick={() => navigate('/judges')}
@@ -311,15 +317,17 @@ const Dashboard = () => {
                       </svg>
                     </button>
                   )}
-                  <button
-                    onClick={() => navigate('/analysis/statistics')}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
-                  >
-                    <span>Ver Análisis</span>
-                    <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/analysis/statistics')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
+                    >
+                      <span>Ver Análisis</span>
+                      <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-3">
                   <div className="relative flex w-3 h-3">
@@ -335,7 +343,7 @@ const Dashboard = () => {
 
               {/* Judges Mini Card */}
               {active_judges.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+                <div className="bg-white rounded-xl shadow-sm card-minimal p-5 sm:p-6">
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Cuerpo de Árbitros</p>
                   <h3 className="text-lg font-bold text-gray-900 mb-4">Jueces Activos</h3>
                   <div className="space-y-3">
@@ -375,18 +383,20 @@ const Dashboard = () => {
             {/* RIGHT */}
             <div className="xl:col-span-8 space-y-5">
               {/* Recent Activity Table */}
-              <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+              <div className="bg-white rounded-xl shadow-sm card-minimal p-5 sm:p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Actividad Reciente</p>
                     <h3 className="text-lg font-bold text-gray-900">Últimos Combates</h3>
                   </div>
-                  <button
-                    onClick={() => navigate('/fights')}
-                    className="text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors shrink-0"
-                  >
-                    Ver todas &gt;
-                  </button>
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/fights')}
+                      className="text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors shrink-0"
+                    >
+                      Ver todas &gt;
+                    </button>
+                  )}
                 </div>
 
                 {recent_fights.length === 0 ? (
@@ -456,7 +466,7 @@ const Dashboard = () => {
 
               {/* Judges Detail Cards */}
               {active_judges.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6">
+                <div className="bg-white rounded-xl shadow-sm card-minimal p-5 sm:p-6">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Cuerpo de Árbitros</p>

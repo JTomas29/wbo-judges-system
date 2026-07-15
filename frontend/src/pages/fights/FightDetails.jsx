@@ -9,7 +9,7 @@ const statusStyle = (status) => {
 };
 const statusLabel = (status) => { const m = { pending: 'Pendiente', active: 'Activa', completed: 'Finalizada', analyzed: 'Analizada', cancelled: 'Cancelada' }; return m[status] || status; };
 const levelLabel = (l) => { const m = { elite: 'bg-green-100 text-green-700', senior: 'bg-blue-100 text-blue-700', junior: 'bg-yellow-100 text-yellow-700' }; return m[l] || 'bg-gray-100 text-gray-500'; };
-const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Evaluador de Ãrbitro' : 'Evaluador';
+const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Evaluador de Árbitro' : 'Evaluador';
 const confirmLabel = (s) => { const m = { confirmed: 'bg-green-100 text-green-700', pending: 'bg-amber-100 text-amber-700', rejected: 'bg-red-100 text-red-700' }; return m[s] || 'bg-gray-100 text-gray-500'; };
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '\u2014';
 const InfoRow = ({ label, value }) => (
@@ -78,6 +78,9 @@ const FightDetails = () => {
 
   return (
     <>
+      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-medium text-wbo-700 hover:text-opacity-80 transition-colors mb-4">
+        ← Volver a Peleas
+      </button>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 m-0">{fight.event_name}</h1>
@@ -86,17 +89,17 @@ const FightDetails = () => {
         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusStyle(fight.status)}`}>{statusLabel(fight.status)}</span>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">InformaciÃ³n de la Pelea</h3>
+      <div className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-6">
+        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Información de la Pelea</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <InfoRow label="Boxeador Rojo" value={fight.boxer_red} />
           <InfoRow label="Boxeador Azul" value={fight.boxer_blue} />
           <InfoRow label="Fecha" value={formatDate(fight.scheduled_date)} />
-          <InfoRow label="CategorÃ­a" value={fight.weight_class} />
+          <InfoRow label="Categoría" value={fight.weight_class} />
           <InfoRow label="Lugar" value={fight.venue} />
-          <InfoRow label="TÃ­tulo" value={fight.title} />
+          <InfoRow label="Título" value={fight.title} />
           <InfoRow label="Televisora" value={fight.broadcaster} />
-          <InfoRow label="Ãrbitro" value={fight.referee_name} />
+          <InfoRow label="Árbitro" value={fight.referee_name} />
           <InfoRow label="Rounds" value={`${fight.total_rounds} rounds`} />
           <InfoRow label="Jueces Requeridos" value={fight.min_judges_required} />
         </div>
@@ -109,7 +112,7 @@ const FightDetails = () => {
       </div>
 
       {fight.assigned_judges?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-6">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Jueces Asignados</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -137,49 +140,51 @@ const FightDetails = () => {
       )}
 
       {isStaff && (
-        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-6">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Acciones</h3>
-          <div className="flex gap-3 flex-wrap">
-            <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'pending'} onClick={() => navigate(`/judges/assign/${fight.id}`)}>Asignar Jueces</button>
-            <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'active'} title={fight.status !== 'active' ? 'La pelea debe estar activa' : ''} onClick={() => navigate(`/scoring/live/${fight.id}`)}>Seguimiento en vivo</button>
-            {user?.role === 'admin' && (
-              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed'} title={fight.status !== 'completed' ? 'La pelea debe estar finalizada' : ''} onClick={() => navigate(`/official-cards/${fight.id}`)}>Cargar Tarjeta Oficial</button>
-            )}
-            {user?.role === 'admin' && (<>
-              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'completed' || !fight.official_card || analyzing} title={fight.status !== 'completed' || !fight.official_card ? 'La pelea debe estar finalizada y tener tarjeta oficial' : ''} onClick={async () => {
-                setAnalyzeError(null);
-                setAnalyzing(true);
-                try {
-                  await analyzeFight(id, token);
-                  navigate(`/analysis/${id}`);
-                } catch (err) {
-                  setAnalyzeError(err.response?.data?.message || 'Error al ejecutar el análisis');
-                  setAnalyzing(false);
-                }
-              }}>
-                {analyzing ? (
-                  <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />Procesando análisis...</>
-                ) : 'Analizar Pelea'}
-              </button>
-              {analyzeError && (
-                <div className="w-full mt-2 bg-red-50 border border-red-200 rounded-xl p-3">
-                  <p className="text-red-700 text-sm">{analyzeError}</p>
-                </div>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex gap-3 flex-wrap items-center">
+              {user?.role === 'admin' && (
+                <button className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium shadow-sm hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status !== 'completed'} title={fight.status !== 'completed' ? 'La pelea debe estar finalizada' : ''} onClick={() => navigate(`/official-cards/${fight.id}`)}>Cargar Tarjeta Oficial</button>
               )}
-            </>)}
+              <button className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status !== 'pending'} onClick={() => navigate(`/judges/assign/${fight.id}`)}>Asignar Jueces</button>
+              <button className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status !== 'active'} title={fight.status !== 'active' ? 'La pelea debe estar activa' : ''} onClick={() => navigate(`/scoring/live/${fight.id}`)}>Seguimiento en vivo</button>
+              {user?.role === 'admin' && (
+                <button className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status !== 'completed' || !fight.official_card || analyzing} title={fight.status !== 'completed' || !fight.official_card ? 'La pelea debe estar finalizada y tener tarjeta oficial' : ''} onClick={async () => {
+                  setAnalyzeError(null);
+                  setAnalyzing(true);
+                  try {
+                    await analyzeFight(id, token);
+                    navigate(`/analysis/${id}`);
+                  } catch (err) {
+                    setAnalyzeError(err.response?.data?.message || 'Error al ejecutar el análisis');
+                    setAnalyzing(false);
+                  }
+                }}>
+                  {analyzing ? (
+                    <><span className="animate-spin h-4 w-4 border-2 border-wbo-700 border-t-transparent rounded-full mr-2" />Procesando análisis...</>
+                  ) : 'Analizar Pelea'}
+                </button>
+              )}
+              {user?.role === 'admin' && (
+                <button className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled'} title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' ? 'No se puede editar una pelea finalizada' : ''} onClick={() => navigate(`/fights/${fight.id}/edit`)}>Editar</button>
+              )}
+            </div>
             {user?.role === 'admin' && (
-              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-[#6b1421] border-2 border-[#6b1421] rounded-lg text-sm font-semibold hover:bg-[#fcf0f2] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled'} title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' ? 'No se puede editar una pelea finalizada' : ''} onClick={() => navigate(`/fights/${fight.id}/edit`)}>Editar</button>
-            )}
-            {user?.role === 'admin' && (
-              <button className="inline-flex items-center justify-center px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={fight.status !== 'pending' && fight.status !== 'cancelled'} onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}>Eliminar Pelea</button>
+              <button className="inline-flex items-center justify-center px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm" disabled={fight.status !== 'pending' && fight.status !== 'cancelled'} onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}>Eliminar Pelea</button>
             )}
           </div>
+          {analyzeError && (
+            <div className="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+              <p className="text-red-700 text-sm">{analyzeError}</p>
+            </div>
+          )}
         </div>
       )}
 
       {canScore && (
-        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Puntuaci\u00f3n</h3>
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 mb-6">
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Puntuación</h3>
           <button
             className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
             onClick={() => navigate(`/scoring/${fight.id}`)}
@@ -191,14 +196,14 @@ const FightDetails = () => {
 
       <div className="flex gap-2 flex-wrap">
         <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/official-cards/${fight.id}`)}>Ver Tarjetas</button>
-        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/analysis/${fight.id}`)}>Ver AnÃ¡lisis</button>
+        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/analysis/${fight.id}`)}>Ver Análisis</button>
       </div>
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { if (!deleting) { setShowDeleteModal(false); setDeleteError(null); } }}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar pelea</h3>
-            <p className="text-sm text-gray-600 mb-6">Esta acci\u00f3n eliminar\u00e1 definitivamente la pelea y no podr\u00e1 deshacerse.</p>
+            <p className="text-sm text-gray-600 mb-6">Esta acción eliminará definitivamente la pelea y no podrá deshacerse.</p>
             {deleteError && (
               <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">{deleteError}</div>
             )}
