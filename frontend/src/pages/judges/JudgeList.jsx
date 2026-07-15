@@ -40,6 +40,22 @@ const JudgeList = () => {
       });
   }, [token]);
 
+  const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
+
+  if (!isStaff) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+        <p className="text-yellow-800 font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
+        <button
+          className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+          onClick={() => navigate('/dashboard')}
+        >
+          Volver al Dashboard
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">

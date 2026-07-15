@@ -10,7 +10,7 @@ router.use(authMiddleware);
 router.get('/', getAll);
 router.get('/:id', getById);
 router.put('/:id', roleMiddleware('admin'), update);
-router.post('/assign', assign);
+router.post('/assign', roleMiddleware('admin'), assign);
 router.get('/assignments/:fightId', getAssignments);
 
 module.exports = router;

@@ -285,15 +285,17 @@ const Dashboard = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                  <button
-                    onClick={() => navigate('/judges')}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
-                  >
-                    <span>Ver Jueces</span>
-                    <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/judges')}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
+                    >
+                      <span>Ver Jueces</span>
+                      <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
                   <button
                     onClick={() => navigate('/analysis/statistics')}
                     className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 transition-all active:scale-[0.99]"
@@ -340,15 +342,17 @@ const Dashboard = () => {
                       </div>
                     ))}
                   </div>
-                  <button
-                    onClick={() => navigate('/judges')}
-                    className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors"
-                  >
-                    Ver panel completo
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  {user?.role !== 'judge' && (
+                    <button
+                      onClick={() => navigate('/judges')}
+                      className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors"
+                    >
+                      Ver panel completo
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -443,12 +447,14 @@ const Dashboard = () => {
                       <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-[1.5px] mb-1">Cuerpo de Árbitros</p>
                       <h3 className="text-lg font-bold text-gray-900">Jueces Destacados</h3>
                     </div>
-                    <button
-                      onClick={() => navigate('/judges')}
-                      className="text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors shrink-0"
-                    >
-                      Ver panel completo &gt;
-                    </button>
+                    {user?.role !== 'judge' && (
+                      <button
+                        onClick={() => navigate('/judges')}
+                        className="text-sm font-semibold text-[#7a1f2b] hover:text-[#6b1421] transition-colors shrink-0"
+                      >
+                        Ver panel completo &gt;
+                      </button>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">

@@ -112,6 +112,34 @@ const AssignJudges = () => {
     </div>
   );
 
+  if (!isAdmin && !loading) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+        <p className="text-yellow-800 font-medium">Solo los administradores pueden asignar jueces.</p>
+        <button
+          className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+          onClick={() => navigate('/dashboard')}
+        >
+          Volver al Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  if (fight && fight.status !== 'pending') {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+        <p className="text-yellow-800 font-medium">No es posible modificar las designaciones de esta pelea.</p>
+        <button
+          className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+          onClick={() => navigate(`/fights/${fightId}`)}
+        >
+          Volver a la pelea
+        </button>
+      </div>
+    );
+  }
+
   if (error && !fight) return (
     <div className="flex items-center justify-center py-20">
       <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg text-sm">{error}</div>

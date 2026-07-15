@@ -7,8 +7,14 @@ const LEVELS = ['junior', 'senior', 'elite'];
 
 const EditJudge = () => {
   const { id } = useParams();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
+
+  if (user && user.role !== 'admin') {
+    navigate('/dashboard', { replace: true });
+    return null;
+  }
+
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

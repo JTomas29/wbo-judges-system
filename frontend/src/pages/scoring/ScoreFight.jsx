@@ -61,14 +61,8 @@ const ScoreFight = () => {
         const f = fightRes.data;
         setFight(f);
 
-        if (user.role !== 'judge') {
-          setRestriction('Solo los jueces pueden acceder a la puntuación.');
-          setLoading(false);
-          return;
-        }
-
-        if (f.status !== 'active') {
-          setRestriction(`La pelea está en estado "${f.status}". Solo se puede puntuar cuando está activa.`);
+        if (user.role !== 'judge' || f.status !== 'active') {
+          setRestriction('Esta pelea no está disponible para puntuar.');
           setLoading(false);
           return;
         }
@@ -78,7 +72,7 @@ const ScoreFight = () => {
           myRes = await getMyScorecard(fightId, token);
         } catch (err) {
           if (cancelled) return;
-          setRestriction(err.response?.data?.message || 'No tienes acceso a esta pelea.');
+          setRestriction('Esta pelea no está disponible para puntuar.');
           setLoading(false);
           return;
         }

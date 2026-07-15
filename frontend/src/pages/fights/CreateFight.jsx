@@ -9,6 +9,19 @@ const ROUNDS = [4, 6, 8, 10, 12];
 const CreateFight = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
+
+  const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    if (user && !isAdmin) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, isAdmin, navigate]);
+
+  if (user && !isAdmin) {
+    return <p className="text-gray-400 py-10">Redirigiendo al Dashboard...</p>;
+  }
+
   const [form, setForm] = useState({
     event_name: '',
     boxer_red: '',

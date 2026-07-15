@@ -20,13 +20,27 @@ const LiveScore = () => {
   const [error, setError] = useState(null);
   const [completing, setCompleting] = useState(false);
 
+  const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
+
   const fetchData = useCallback(async () => {
     try {
+      if (!isStaff) {
+        setError('El seguimiento en vivo solo está disponible para administradores y supervisores.');
+        setLoading(false);
+        return;
+      }
       const [fightRes, scRes] = await Promise.all([
         getFightById(fightId, token),
         getScorecards(fightId, token),
       ]);
-      setFight(fightRes.data);
+      const f = fightRes.data;
+      if (f.status !== 'active') {
+        setFight(f);
+        setError('El seguimiento en vivo solo está disponible para peleas activas.');
+        setLoading(false);
+        return;
+      }
+      setFight(f);
       setEntries(scRes.data);
       setError(null);
     } catch (err) {
@@ -34,7 +48,7 @@ const LiveScore = () => {
     } finally {
       setLoading(false);
     }
-  }, [fightId, token]);
+  }, [fightId, token, isStaff]);
 
   useEffect(() => {
     fetchData();
