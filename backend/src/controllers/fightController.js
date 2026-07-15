@@ -1,6 +1,7 @@
 ﻿const Fight = require('../models/Fight');
 const User = require('../models/User');
 const ScoreCard = require('../models/ScoreCard');
+const OfficialCard = require('../models/OfficialCard');
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -162,6 +163,85 @@ exports.complete = async (req, res, next) => {
 
     const updated = await Fight.complete(Number(id));
     res.json({ message: 'Pelea finalizada correctamente.', fight: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAnalysis = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+
+    if (fight.status !== 'analyzed') {
+      return res.status(400).json({ message: 'La pelea debe estar analizada para ver el análisis.' });
+    }
+
+    const officialCard = await OfficialCard.findByFight(Number(id));
+
+    const analysisResults = await Fight.getAnalysisSummary(Number(id));
+    const roundDetail = await Fight.getRoundDetail(Number(id));
+    const consistency = await Fight.getJudgeConsistency(Number(id));
+
+    const judgesAnalysis = analysisResults.map((ar) => ({
+      judge_id: ar.judge_id,
+      judge_name: ar.judge_name,
+      rounds: roundDetail
+        .filter((r) => r.judge_id === ar.judge_id)
+        .map((r) => ({
+          round_number: r.round_number,
+          official_score_red: r.official_score_red,
+          official_score_blue: r.official_score_blue,
+          judge_score_red: r.judge_score_red,
+          judge_score_blue: r.judge_score_blue,
+          result: r.judge_score_red === r.official_score_red && r.judge_score_blue === r.official_score_blue ? 'OK' : 'ERROR',
+        })),
+      matches: ar.matches,
+      errors: ar.errors,
+      match_pct: ar.match_pct,
+    }));
+
+    const response = {
+      fight: {
+        id: fight.id,
+        event_name: fight.event_name,
+        boxer_red: fight.boxer_red,
+        boxer_blue: fight.boxer_blue,
+        scheduled_date: fight.scheduled_date,
+        venue: fight.venue,
+        weight_class: fight.weight_class,
+        status: fight.status,
+      },
+      official_card: officialCard
+        ? {
+            total_score_red: officialCard.total_score_red,
+            total_score_blue: officialCard.total_score_blue,
+            winner: officialCard.winner,
+            rounds: (officialCard.rounds || []).map((r) => ({
+              round_number: r.round_number,
+              score_red: r.score_red,
+              score_blue: r.score_blue,
+            })),
+          }
+        : null,
+      judges_analysis: judgesAnalysis,
+      consistency,
+    };
+
+    if (req.user.role === 'judge') {
+      const myAnalysis = judgesAnalysis.find((j) => j.judge_id === req.user.id);
+      if (!myAnalysis) {
+        return res.status(403).json({ message: 'No tienes análisis disponible para esta pelea.' });
+      }
+      return res.json({
+        ...response,
+        judges_analysis: [myAnalysis],
+        consistency: [],
+      });
+    }
+
+    res.json(response);
   } catch (err) {
     next(err);
   }

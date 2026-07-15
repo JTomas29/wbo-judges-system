@@ -37,6 +37,11 @@ export const analyzeFight = (id, token) =>
     headers: { Authorization: `Bearer ${token}` },
   });
 
+export const getFightAnalysis = (id, token) =>
+  axios.get(`${API_URL}/fights/${id}/analysis`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 export const getOfficialCard = (id, token) =>
   axios.get(`${API_URL}/fights/${id}/official-card`, {
     headers: { Authorization: `Bearer ${token}` },
