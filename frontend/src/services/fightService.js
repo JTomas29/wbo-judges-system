@@ -31,3 +31,13 @@ export const completeFight = (id, token) =>
   axios.post(`${API_URL}/fights/${id}/complete`, null, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+export const getOfficialCard = (id, token) =>
+  axios.get(`${API_URL}/fights/${id}/official-card`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const createOfficialCard = (id, data, token) =>
+  axios.post(`${API_URL}/fights/${id}/official-card`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
