@@ -11,12 +11,6 @@ const Card = ({ children, className = '' }) => (
   </div>
 );
 
-const IconBox = ({ children }) => (
-  <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-    {children}
-  </div>
-);
-
 const Badge = ({ children, className = '' }) => (
   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold ${className}`}>
     {children}
@@ -59,47 +53,6 @@ const STATE_META = {
 
 const STATE_STEPS = ['pending', 'confirmed', 'active', 'completed', 'analyzed'];
 
-const STATS_CARDS = (data) => [
-  {
-    label: 'Peleas asignadas', value: data.totalAssigned,
-    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
-    trend: data.totalAssigned > 0 ? `${data.totalAssigned} en total` : null,
-    accent: 'border-l-4 border-red-700',
-  },
-  {
-    label: 'Pendientes', value: data.pendingConfirm,
-    icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-    trend: data.pendingConfirm > 0 ? `${data.pendingConfirm} pendiente${data.pendingConfirm > 1 ? 's' : ''}` : null,
-    accent: 'border-l-4 border-amber-500',
-  },
-  {
-    label: 'Activas para puntuar', value: data.activeScoring,
-    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-    trend: data.activeScoring > 0 ? `${data.activeScoring} activa${data.activeScoring > 1 ? 's' : ''}` : null,
-    accent: 'border-l-4 border-blue-600',
-  },
-  {
-    label: 'Analizadas', value: data.analyzedCount,
-    icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-    trend: data.analyzedCount > 0 ? `${data.analyzedCount} analizada${data.analyzedCount > 1 ? 's' : ''}` : null,
-    accent: 'border-l-4 border-green-600',
-  },
-];
-
-const PerformanceRing = ({ pct, size = 120, strokeWidth = 8 }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (Math.min(pct, 100) / 100) * circumference;
-  return (
-    <svg width={size} height={size} className="transform -rotate-90 drop-shadow-sm">
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} className="text-slate-100" />
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round"
-        strokeDasharray={circumference} strokeDashoffset={offset}
-        className={`transition-all duration-1000 ease-out ${pct >= 80 ? 'stroke-green-500' : pct >= 60 ? 'stroke-amber-500' : 'stroke-red-500'}`} />
-    </svg>
-  );
-};
-
 const TimelineItem = ({ icon, label, date, done }) => (
   <div className="flex gap-3">
     <div className={`flex flex-col items-center ${done ? '' : 'opacity-40'}`}>
@@ -114,6 +67,18 @@ const TimelineItem = ({ icon, label, date, done }) => (
       <p className={`text-sm font-semibold ${done ? 'text-slate-800' : 'text-slate-400'}`}>{label}</p>
       {date && <p className="text-xs text-slate-400 mt-0.5">{date}</p>}
     </div>
+  </div>
+);
+
+const StatBlock = ({ label, value, icon }) => (
+  <div className="bg-white rounded-xl border border-slate-200 p-4 text-center transition-all duration-200 hover:border-red-200 hover:shadow-sm">
+    <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center mx-auto mb-2">
+      <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+      </svg>
+    </div>
+    <p className="text-2xl font-bold text-slate-900 leading-none">{value}</p>
+    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mt-1">{label}</p>
   </div>
 );
 
@@ -200,38 +165,37 @@ const JudgeDashboard = () => {
     .slice(0, 2)
     .toUpperCase() || '??';
 
-  const cardData = { totalAssigned, pendingConfirm, activeScoring, analyzedCount };
-
-  const timelineEvents = [
-    { icon: 'M5 13l4 4L19 7', label: 'Tarjeta enviada correctamente', date: null, done: analyzedCount > 0 },
-    { icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Pelea analizada', date: null, done: analyzedCount > 0 },
-    { icon: 'M13 10V3L4 14h7v7l9-11h-7z', label: 'Nivel actualizado', date: stats?.level ? `Nivel ${stats.level}` : null, done: !!stats?.level },
-  ];
-
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
 
-      {/* ─── 1. HERO ─── */}
-      <Card>
-        <div className="p-6 sm:p-8 border-b border-red-200">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-            <div className="flex items-center gap-5 flex-1 min-w-0">
+      {/* ─── 1. MI PERFIL (Premium Card) ─── */}
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+        {/* Top section: Avatar + Info + Stats */}
+        <div className="p-6 sm:p-8">
+          <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+            {/* Left: Avatar + Personal Info */}
+            <div className="flex items-start gap-5 flex-1 min-w-0">
               <div className="shrink-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-sm">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-md">
                   {initials}
                 </div>
               </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                  <h1 className="text-3xl font-bold text-slate-900 tracking-tight truncate">{user?.name}</h1>
+              <div className="min-w-0 pt-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight truncate">{user?.name}</h1>
+                <p className="text-sm text-slate-500 mt-0.5">{user?.email}</p>
+                <div className="flex flex-wrap items-center gap-2 mt-2.5">
                   <Badge className="bg-red-50 text-red-700 border border-red-200">
                     Juez
                   </Badge>
                   <Badge className={LEVEL_BADGE[user?.level] || 'bg-slate-100 text-slate-600'}>
                     {user?.level || '\u2014'}
                   </Badge>
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${user?.is_active ? 'text-green-600' : 'text-slate-400'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
+                    {user?.is_active ? 'Activo' : 'Inactivo'}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-500 capitalize">{TODAY_STR()}</p>
+                <p className="text-sm text-slate-500 mt-3 capitalize">{TODAY_STR()}</p>
                 <p className="text-sm text-slate-500 mt-1">
                   Bienvenido de vuelta, {user?.name?.split(' ')[0] || 'Juez'}.{' '}
                   {pendingConfirm > 0
@@ -242,28 +206,54 @@ const JudgeDashboard = () => {
                 </p>
               </div>
             </div>
+
+            {/* Right: Stats blocks */}
             {stats && totalFights > 0 && (
-              <div className="shrink-0 flex gap-6 sm:gap-8 p-4 sm:p-5 rounded-xl bg-white border border-red-100">
-                {[
-                  { label: 'Precisi\u00F3n', value: `${precision}%` },
-                  { label: 'Peleas', value: totalFights },
-                  { label: 'Rounds', value: totalRounds },
-                ].map((item) => (
-                  <div key={item.label} className="text-center">
-                    <p className="text-xl sm:text-2xl font-bold text-slate-900">{item.value}</p>
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">{item.label}</p>
-                  </div>
-                ))}
+              <div className="shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto lg:min-w-[420px]">
+                <StatBlock
+                  label="Precisión"
+                  value={`${precision}%`}
+                  icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+                <StatBlock
+                  label="Peleas evaluadas"
+                  value={totalFights}
+                  icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+                <StatBlock
+                  label="Rounds evaluados"
+                  value={totalRounds}
+                  icon="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+                <StatBlock
+                  label="Peleas analizadas"
+                  value={analyzedCount}
+                  icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </div>
+            )}
+
+            {/* Stats loading state */}
+            {loadingStats && (
+              <div className="shrink-0 flex items-center gap-3 py-4 px-6">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-red-800" />
+                <span className="text-sm text-slate-500">Cargando estadísticas...</span>
+              </div>
+            )}
+
+            {/* Stats empty state */}
+            {!loadingStats && stats && totalFights === 0 && (
+              <div className="shrink-0 py-4 px-6 text-center">
+                <p className="text-sm text-slate-400">Aún no hay datos de rendimiento.</p>
+                <p className="text-xs text-slate-300 mt-0.5">Completá tu primera pelea para ver tus estadísticas.</p>
               </div>
             )}
           </div>
         </div>
+
+        {/* Bottom bar: Meta info + actions */}
         <div className="px-6 sm:px-8 py-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
-              {user?.is_active ? 'Activo' : 'Inactivo'}
-            </span>
             <span>Ingreso: {FORMAT_DATE(user?.created_at)}</span>
           </div>
           <div className="flex gap-2">
@@ -281,68 +271,9 @@ const JudgeDashboard = () => {
             </button>
           </div>
         </div>
-      </Card>
-
-      {/* ─── 2. STATS CARDS ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {STATS_CARDS(cardData).map((card) => (
-          <Card key={card.label} className={`border-0 border-l-4 ${card.accent} p-6 pt-7`}>
-            <IconBox>
-              <svg className="w-5.5 h-5.5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d={card.icon} />
-              </svg>
-            </IconBox>
-            <p className="text-5xl font-bold text-slate-900 mt-4 mb-1">{card.value}</p>
-            <p className="text-sm font-medium text-slate-500">{card.label}</p>
-            {card.trend && (
-              <div className="mt-3 flex items-center gap-1">
-                <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-                <span className="text-[10px] font-semibold text-green-600">{card.trend}</span>
-              </div>
-            )}
-          </Card>
-        ))}
       </div>
 
-      {/* ─── 3. PROFILE CARD ─── */}
-      <Card className="p-6 sm:p-8">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-base font-bold shadow-sm shrink-0">
-            {initials}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 flex-1 text-sm">
-            <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Nombre</p>
-              <p className="font-semibold text-slate-800 truncate">{user?.name}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Email</p>
-              <p className="font-semibold text-slate-800 truncate">{user?.email}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Rol</p>
-              <p className="font-semibold text-slate-800">Juez</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Nivel</p>
-              <Badge className={LEVEL_BADGE[user?.level] || 'bg-slate-100 text-slate-600'}>
-                {user?.level || '\u2014'}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Estado</p>
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${user?.is_active ? 'text-green-600' : 'text-slate-400'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
-                {user?.is_active ? 'Activo' : 'Inactivo'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* ─── 4. DESIGNATIONS + TIMELINE ─── */}
+      {/* ─── 2. DESIGNATIONS + TIMELINE ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6 sm:p-8">
           <div className="flex items-center justify-between mb-7">
@@ -406,7 +337,6 @@ const JudgeDashboard = () => {
                 const meta = STATE_META[state];
                 const currentStep = meta.step;
                 const progressText = currentStep >= 0 ? `Paso ${currentStep + 1} de 5` : '';
-                const getInitials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
 
                 const borderAccent = {
                   pending: 'border-l-amber-500',
@@ -558,66 +488,7 @@ const JudgeDashboard = () => {
         </Card>
       </div>
 
-      {/* ─── 5. PERFORMANCE ─── */}
-      <Card className="p-6 sm:p-8">
-        <h2 className="text-lg font-bold text-slate-900 mb-6">Mi Rendimiento</h2>
-
-        {loadingStats ? (
-          <div className="flex items-center gap-3 py-10 justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-slate-200 border-t-red-800" />
-            <span className="text-sm text-slate-500">Cargando rendimiento...</span>
-          </div>
-        ) : stats && stats.total_fights > 0 ? (
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
-            <div className="shrink-0 flex flex-col items-center">
-              <div className="relative">
-                <PerformanceRing pct={precision} size={140} strokeWidth={10} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-slate-900">{precision}%</p>
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Precisión</p>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${precision >= 80 ? 'bg-green-500' : precision >= 60 ? 'bg-amber-500' : 'bg-red-500'}`} />
-                <span className="text-xs font-medium text-slate-500">
-                  {precision >= 80 ? 'Excelente' : precision >= 60 ? 'Regular' : 'Necesita mejorar'}
-                </span>
-              </div>
-            </div>
-            <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-              {[
-                { label: 'Nivel actual', value: stats.level || '\u2014', badge: true },
-                { label: 'Peleas evaluadas', value: stats.total_fights },
-                { label: 'Rounds juzgados', value: stats.total_rounds },
-                { label: 'Promedio histórico', value: `${stats.last_5_avg || 0}%` },
-              ].map((item) => (
-                <div key={item.label} className="p-4 rounded-xl bg-white border border-red-100 transition-all duration-300 hover:border-red-300 hover:shadow-sm">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{item.label}</p>
-                  {item.badge ? (
-                    <Badge className={LEVEL_BADGE[stats.level] || 'bg-slate-100 text-slate-600'}>{item.value}</Badge>
-                  ) : (
-                    <p className="text-2xl font-bold text-slate-900">{item.value}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="py-10 text-center">
-            <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <p className="text-sm font-semibold text-slate-600">Aún no hay datos de rendimiento</p>
-            <p className="text-xs text-slate-400 mt-1">Completá tu primera pelea para ver tu rendimiento.</p>
-          </div>
-        )}
-      </Card>
-
-      {/* ─── 6. QUICK ACTIONS ─── */}
+      {/* ─── 3. QUICK ACTIONS ─── */}
       <Card className="p-6 sm:p-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
