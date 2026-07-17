@@ -16,6 +16,7 @@ import LiveScore from '../pages/scoring/LiveScore';
 import OfficialCards from '../pages/official-cards/OfficialCards';
 import FightAnalysis from '../pages/analysis/FightAnalysis';
 import Statistics from '../pages/analysis/Statistics';
+import UserManagement from '../pages/admin/UserManagement';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
@@ -58,6 +59,8 @@ const AppRoutes = () => (
 
     <Route path="/analysis/:fightId" element={<ProtectedRoute><FightAnalysis /></ProtectedRoute>} />
     <Route path="/analysis/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
+
+    <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
 
     <Route path="*" element={<Navigate to="/dashboard" replace />} />
   </Routes>

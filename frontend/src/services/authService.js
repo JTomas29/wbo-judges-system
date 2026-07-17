@@ -5,3 +5,6 @@ export const loginRequest = (credentials) =>
 
 export const getMeRequest = () =>
   api.get('/auth/me').then((res) => res.data);
+
+export const registerRequest = (data, token) =>
+  api.post('/auth/register', data, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.data);

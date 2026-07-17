@@ -98,12 +98,7 @@ const JudgeList = () => {
   if (judges.length === 0) {
     return (
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900 m-0">Gestión de Jueces</h2>
-          <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors">
-            + Crear Juez
-          </button>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
         <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
           No hay jueces registrados
         </div>
@@ -113,12 +108,7 @@ const JudgeList = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-900 m-0">Gestión de Jueces</h2>
-        <button className="inline-flex items-center justify-center px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors">
-          + Crear Juez
-        </button>
-      </div>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
 
       <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">
         <table className="w-full text-sm">
@@ -128,7 +118,7 @@ const JudgeList = () => {
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+              {user?.role === 'admin' && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>}
             </tr>
           </thead>
           <tbody>
@@ -146,13 +136,11 @@ const JudgeList = () => {
                     {juez.is_active ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="py-3 px-4">
-                  <div className="flex gap-2">
-                    {user?.role === 'admin' && (
+                {user?.role === 'admin' && (
+                  <td className="py-3 px-4">
+                    <div className="flex gap-2">
                       <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
                         onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
-                    )}
-                    {user?.role === 'admin' && (
                       <button
                         className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                           juez.is_active
@@ -163,9 +151,9 @@ const JudgeList = () => {
                       >
                         {juez.is_active ? 'Desactivar' : 'Activar'}
                       </button>
-                    )}
-                  </div>
-                </td>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

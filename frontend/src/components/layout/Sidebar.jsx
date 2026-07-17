@@ -20,6 +20,9 @@ const Sidebar = () => {
           { label: 'Análisis', path: '/analysis/statistics', icon: '▤' },
         ]
       : []),
+    ...(user?.role === 'admin'
+      ? [{ label: 'Usuarios', path: '/admin/users', icon: '👤' }]
+      : []),
   ];
 
   return (
