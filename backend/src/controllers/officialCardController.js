@@ -4,14 +4,16 @@ const Fight = require('../models/Fight');
 exports.get = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const fight = await Fight.getById(id);
+    const fightId = parseInt(id, 10);
+    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
+    const fight = await Fight.getById(fightId);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
     if (req.user.role === 'judge' && fight.status !== 'analyzed') {
       return res.status(403).json({ message: 'La tarjeta oficial aún no está disponible para jueces.' });
     }
 
-    const card = await OfficialCard.findByFight(Number(id));
+    const card = await OfficialCard.findByFight(fightId);
     res.json(card);
   } catch (err) {
     next(err);
@@ -21,16 +23,18 @@ exports.get = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const fightId = parseInt(id, 10);
+    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
     const { rounds } = req.body;
 
-    const fight = await Fight.getById(id);
+    const fight = await Fight.getById(fightId);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
     if (fight.status !== 'completed') {
       return res.status(400).json({ message: 'La pelea debe finalizar antes de cargar la tarjeta oficial.' });
     }
 
-    const existing = await OfficialCard.findByFight(Number(id));
+    const existing = await OfficialCard.findByFight(fightId);
     if (existing) {
       return res.status(409).json({ message: 'Ya existe una tarjeta oficial para esta pelea.' });
     }
@@ -46,13 +50,14 @@ exports.create = async (req, res, next) => {
 
     const seen = new Set();
     for (const r of rounds) {
-      if (!r.round_number || r.round_number < 1 || r.round_number > totalRounds) {
+      const rn = Number(r.round_number);
+      if (!Number.isInteger(rn) || rn < 1 || rn > totalRounds) {
         return res.status(400).json({ message: `Número de round inválido: ${r.round_number}` });
       }
-      if (seen.has(r.round_number)) {
-        return res.status(400).json({ message: `Round ${r.round_number} duplicado.` });
+      if (seen.has(rn)) {
+        return res.status(400).json({ message: `Round ${rn} duplicado.` });
       }
-      seen.add(r.round_number);
+      seen.add(rn);
 
       const sRed = Number(r.score_red);
       const sBlue = Number(r.score_blue);
@@ -64,7 +69,7 @@ exports.create = async (req, res, next) => {
       }
     }
 
-    const card = await OfficialCard.create(Number(id), rounds, req.user.id);
+    const card = await OfficialCard.create(fightId, rounds, req.user.id);
     res.status(201).json(card);
   } catch (err) {
     next(err);

@@ -10,8 +10,17 @@ authController.register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !name.trim() || !email || !email.trim() || !password) {
       return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ message: 'Email inválido' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
     const validRoles = ['admin', 'supervisor', 'judge'];
@@ -19,13 +28,13 @@ authController.register = async (req, res, next) => {
       return res.status(400).json({ message: 'Rol inválido' });
     }
 
-    const existing = await User.findByEmail(email);
+    const existing = await User.findByEmail(email.trim());
     if (existing) {
       return res.status(409).json({ message: 'El email ya está registrado' });
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await User.create({ name, email, passwordHash, role: role || 'judge' });
+    const user = await User.create({ name: name.trim(), email: email.trim(), passwordHash, role: role || 'judge' });
 
     const token = generateToken({ id: user.id, role: user.role });
 

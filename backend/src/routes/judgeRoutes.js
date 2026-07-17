@@ -7,8 +7,8 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/', getAll);
-router.get('/:id', getById);
+router.get('/', roleMiddleware('admin', 'supervisor'), getAll);
+router.get('/:id', roleMiddleware('admin', 'supervisor'), getById);
 router.put('/:id', roleMiddleware('admin'), update);
 router.delete('/:id', roleMiddleware('admin'), deleteJudge);
 router.post('/assign', roleMiddleware('admin'), assign);

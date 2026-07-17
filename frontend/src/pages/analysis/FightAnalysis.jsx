@@ -52,20 +52,27 @@ const FightAnalysis = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#6b1421]" />
-        <span className="ml-3 text-gray-500 text-sm">Cargando análisis...</span>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center max-w-sm w-full">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-wbo-700 mx-auto mb-4" />
+          <p className="text-gray-500 text-sm">Cargando análisis...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-[700px]">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
-          <p className="text-yellow-800 font-medium">{error}</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="bg-cream rounded-2xl shadow-md px-10 py-12 text-center max-w-md w-full">
+          <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-yellow-900 font-medium text-base leading-relaxed">{error}</p>
           <button
-            className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+            className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
             Volver
@@ -77,11 +84,11 @@ const FightAnalysis = () => {
 
   if (!data || !data.fight) {
     return (
-      <div className="max-w-[700px]">
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center">
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center max-w-sm w-full">
           <p className="text-gray-400">No hay datos de análisis disponibles.</p>
           <button
-            className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+            className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
             Volver
@@ -94,7 +101,7 @@ const FightAnalysis = () => {
   const { fight, official_card, judges_analysis, consistency } = data;
 
   return (
-    <div className="max-w-[1000px] space-y-6">
+    <div className="max-w-[1000px] mx-auto space-y-6">
       {/* General info */}
       <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-4">

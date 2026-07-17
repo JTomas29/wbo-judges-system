@@ -6,19 +6,21 @@ const JudgeAssignment = require('../models/JudgeAssignment');
 exports.createOrGetScorecard = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const fightId = parseInt(id, 10);
+    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
     const judgeId = req.user.id;
 
     if (req.user.role !== 'judge') {
       return res.status(403).json({ message: 'Solo los jueces pueden crear tarjetas de puntuación' });
     }
 
-    const fight = await Fight.getById(id);
+    const fight = await Fight.getById(fightId);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
     if (fight.status !== 'active') {
       return res.status(400).json({ message: 'La pelea no está en estado activo' });
     }
 
-    const assignment = await JudgeAssignment.findOne(id, judgeId);
+    const assignment = await JudgeAssignment.findOne(fightId, judgeId);
     if (!assignment) {
       return res.status(403).json({ message: 'No tienes una asignación para esta pelea' });
     }
@@ -26,7 +28,7 @@ exports.createOrGetScorecard = async (req, res, next) => {
       return res.status(403).json({ message: 'Debes confirmar la asignación antes de puntuar' });
     }
 
-    const scoreCard = await ScoreCard.findOrCreate(Number(id), judgeId);
+    const scoreCard = await ScoreCard.findOrCreate(fightId, judgeId);
     const roundScores = await ScoreCard.getRoundScores(scoreCard.id);
 
     res.json({ score_card: scoreCard, round_scores: roundScores });
@@ -38,9 +40,11 @@ exports.createOrGetScorecard = async (req, res, next) => {
 exports.getMyScorecard = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const fightId = parseInt(id, 10);
+    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
     const judgeId = req.user.id;
 
-    const scoreCard = await ScoreCard.findByFightAndJudge(Number(id), judgeId);
+    const scoreCard = await ScoreCard.findByFightAndJudge(fightId, judgeId);
 
     if (!scoreCard) return res.json({ score_card: null, round_scores: [] });
 
@@ -54,9 +58,15 @@ exports.getMyScorecard = async (req, res, next) => {
 exports.saveRound = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const scoreCardId = parseInt(id, 10);
+    if (!Number.isInteger(scoreCardId) || scoreCardId < 1) return res.status(400).json({ message: 'ID de tarjeta inválido' });
     const { round_number, score_red, score_blue, referee_score, referee_notes } = req.body;
 
-    const scoreCard = await ScoreCard.findById(id);
+    if (round_number == null || !Number.isInteger(Number(round_number)) || Number(round_number) < 1) {
+      return res.status(400).json({ message: 'round_number debe ser un entero positivo' });
+    }
+
+    const scoreCard = await ScoreCard.findById(scoreCardId);
     if (!scoreCard) return res.status(404).json({ message: 'Tarjeta no encontrada' });
 
     if (scoreCard.judge_id !== req.user.id) {
@@ -89,7 +99,7 @@ exports.saveRound = async (req, res, next) => {
     }
 
     const round = await RoundScore.upsert({
-      scoreCardId: Number(id),
+      scoreCardId: scoreCardId,
       roundNumber: round_number,
       scoreRed: sRed,
       scoreBlue: sBlue,
@@ -106,7 +116,9 @@ exports.saveRound = async (req, res, next) => {
 exports.getAllScorecards = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const scorecards = await ScoreCard.getAllByFight(Number(id));
+    const fightId = parseInt(id, 10);
+    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
+    const scorecards = await ScoreCard.getAllByFight(fightId);
     res.json(scorecards);
   } catch (err) {
     next(err);
@@ -116,8 +128,10 @@ exports.getAllScorecards = async (req, res, next) => {
 exports.finalizeScorecard = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const scoreCardId = parseInt(id, 10);
+    if (!Number.isInteger(scoreCardId) || scoreCardId < 1) return res.status(400).json({ message: 'ID de tarjeta inválido' });
 
-    const scoreCard = await ScoreCard.findById(id);
+    const scoreCard = await ScoreCard.findById(scoreCardId);
     if (!scoreCard) return res.status(404).json({ message: 'Tarjeta no encontrada' });
 
     if (scoreCard.judge_id !== req.user.id) {
@@ -133,12 +147,12 @@ exports.finalizeScorecard = async (req, res, next) => {
       return res.status(400).json({ message: 'La pelea ya no está activa.' });
     }
 
-    const roundCount = await ScoreCard.getRoundCount(Number(id));
+    const roundCount = await ScoreCard.getRoundCount(scoreCardId);
     if (roundCount < fight.total_rounds) {
       return res.status(400).json({ message: 'Debe completar todos los rounds antes de enviar la tarjeta.' });
     }
 
-    const finalized = await ScoreCard.finalize(Number(id));
+    const finalized = await ScoreCard.finalize(scoreCardId);
     if (!finalized) {
       return res.status(400).json({ message: 'No se pudo finalizar la tarjeta.' });
     }

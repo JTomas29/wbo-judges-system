@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const getMyScorecard = (fightId, token) =>
   axios.get(`${API_URL}/fights/${fightId}/scorecards/mine`, {

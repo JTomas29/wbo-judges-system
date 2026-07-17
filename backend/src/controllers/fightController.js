@@ -12,9 +12,17 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
+const validateFightId = (id) => {
+  const num = parseInt(id, 10);
+  if (!Number.isInteger(num) || num < 1) return 'ID de pelea inválido';
+  return null;
+};
+
 exports.getById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
@@ -24,7 +32,11 @@ exports.getById = async (req, res, next) => {
       Fight.getAnalysisSummary(id),
     ]);
 
-    res.json({ ...fight, assigned_judges: assignedJudges, official_card: officialCard || null, analysis_summary: analysisSummary });
+    const filteredJudges = req.user.role === 'judge'
+      ? assignedJudges.filter((j) => j.id === req.user.id)
+      : assignedJudges;
+
+    res.json({ ...fight, assigned_judges: filteredJudges, official_card: officialCard || null, analysis_summary: analysisSummary });
   } catch (err) {
     next(err);
   }
@@ -43,6 +55,9 @@ exports.create = async (req, res, next) => {
     }
 
     const fightDate = new Date(scheduled_date);
+    if (isNaN(fightDate.getTime())) {
+      return res.status(400).json({ message: 'La fecha proporcionada no es válida' });
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (fightDate < today) {
@@ -51,12 +66,16 @@ exports.create = async (req, res, next) => {
 
     const validRounds = [4, 6, 8, 10, 12];
     const rounds = Number(total_rounds);
-    if (!validRounds.includes(rounds)) {
+    if (!Number.isInteger(rounds) || !validRounds.includes(rounds)) {
       return res.status(400).json({ message: 'total_rounds debe ser 4, 6, 8, 10 o 12' });
     }
 
     if (referee_id) {
-      const referee = await User.findById(referee_id);
+      const refId = parseInt(referee_id, 10);
+      if (!Number.isInteger(refId) || refId < 1) {
+        return res.status(400).json({ message: 'referee_id inválido' });
+      }
+      const referee = await User.findById(refId);
       if (!referee) {
         return res.status(400).json({ message: 'El referee_id indicado no existe' });
       }
@@ -87,6 +106,8 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const { event_name, boxer_red, boxer_blue, scheduled_date, total_rounds, weight_class, venue, title, referee_id, broadcaster, notes } = req.body;
 
     const fight = await Fight.getById(id);
@@ -106,6 +127,9 @@ exports.update = async (req, res, next) => {
     }
 
     const fightDate = new Date(scheduled_date);
+    if (isNaN(fightDate.getTime())) {
+      return res.status(400).json({ message: 'La fecha proporcionada no es válida' });
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (fightDate < today) {
@@ -114,12 +138,16 @@ exports.update = async (req, res, next) => {
 
     const validRounds = [4, 6, 8, 10, 12];
     const rounds = Number(total_rounds);
-    if (!validRounds.includes(rounds)) {
+    if (!Number.isInteger(rounds) || !validRounds.includes(rounds)) {
       return res.status(400).json({ message: 'total_rounds debe ser 4, 6, 8, 10 o 12' });
     }
 
     if (referee_id) {
-      const referee = await User.findById(referee_id);
+      const refId = parseInt(referee_id, 10);
+      if (!Number.isInteger(refId) || refId < 1) {
+        return res.status(400).json({ message: 'referee_id inválido' });
+      }
+      const referee = await User.findById(refId);
       if (!referee) {
         return res.status(400).json({ message: 'El referee_id indicado no existe' });
       }
@@ -149,6 +177,8 @@ exports.update = async (req, res, next) => {
 exports.complete = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
     if (fight.status !== 'active') {
@@ -171,6 +201,8 @@ exports.complete = async (req, res, next) => {
 exports.getAnalysis = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
@@ -250,6 +282,8 @@ exports.getAnalysis = async (req, res, next) => {
 exports.analyze = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
@@ -287,6 +321,8 @@ exports.analyze = async (req, res, next) => {
 exports.remove = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 

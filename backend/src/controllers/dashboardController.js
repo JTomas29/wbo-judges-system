@@ -63,6 +63,8 @@ const getDashboard = async (req, res, next) => {
       LIMIT 5
     `);
 
+    const isJudge = req.user.role === 'judge';
+
     res.json({
       stats: {
         total_fights: statsResult.rows[0].total_fights,
@@ -71,7 +73,7 @@ const getDashboard = async (req, res, next) => {
         total_judges: judgesResult.rows[0].total_judges,
       },
       recent_fights: recentFightsResult.rows,
-      active_judges: activeJudgesResult.rows.map(j => ({
+      active_judges: isJudge ? [] : activeJudgesResult.rows.map(j => ({
         id: j.judge_id,
         name: j.judge_name,
         email: j.email,

@@ -4,7 +4,8 @@ const User = {};
 
 User.findByEmail = async (email) => {
   const { rows } = await pool.query(
-    'SELECT * FROM users WHERE email = $1 AND is_active = TRUE',
+    `SELECT id, name, email, role, level::text AS level, is_active, created_at, password_hash
+     FROM users WHERE email = $1 AND is_active = TRUE`,
     [email]
   );
   return rows[0] || null;
