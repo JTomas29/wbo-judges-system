@@ -419,13 +419,8 @@ const JudgeDashboard = () => {
 
                 return (
                   <div key={a.fight_id} className={`group bg-white rounded-2xl border border-slate-200 border-l-[5px] ${borderAccent} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-red-300`}>
-                    {/* Progress bar */}
-                    <div className="relative h-1 rounded-full bg-slate-100 mx-5 mt-5 overflow-hidden">
-                      <div className={`absolute inset-y-0 left-0 rounded-full transition-all duration-700 ${currentStep >= 0 ? meta.bar : 'bg-red-500'}`} style={{ width: currentStep >= 0 ? `${((currentStep + 1) / STATE_STEPS.length) * 100}%` : '100%' }} />
-                    </div>
-
                     {/* Header */}
-                    <div className="px-5 pt-4 pb-3">
+                    <div className="px-5 pt-5 pb-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
