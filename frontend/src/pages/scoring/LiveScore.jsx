@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getScorecards, completeFight } from '../../services/fightService';
+import BackButton from '../../components/common/BackButton';
 
 const statusBadge = (status) => {
   if (!status) return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Sin tarjeta</span>;
@@ -97,6 +98,9 @@ const LiveScore = () => {
 
   return (
     <div>
+      <div className="mb-4">
+        <BackButton />
+      </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 m-0">Puntuación en Vivo</h2>

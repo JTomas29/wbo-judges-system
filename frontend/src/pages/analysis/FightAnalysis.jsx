@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
+import BackButton from '../../components/common/BackButton';
 
 const levelBadge = (level) => {
   const map = { elite: 'bg-green-100 text-green-800', senior: 'bg-blue-100 text-blue-800', junior: 'bg-yellow-100 text-yellow-800' };
@@ -102,6 +103,9 @@ const FightAnalysis = () => {
 
   return (
     <div className="max-w-[1000px] mx-auto space-y-6">
+      <div className="mb-4">
+        <BackButton />
+      </div>
       {/* General info */}
       <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-4">

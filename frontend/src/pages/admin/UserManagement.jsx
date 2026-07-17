@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { registerRequest } from '../../services/authService';
+import BackButton from '../../components/common/BackButton';
 
 const ROLES = [
   { value: 'judge', label: 'Juez' },
@@ -70,6 +71,9 @@ const UserManagement = () => {
 
   return (
     <div className="max-w-xl mx-auto">
+      <div className="mb-4">
+        <BackButton fallbackRoute="/dashboard" />
+      </div>
       <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-1">Gestión de Usuarios</h2>
         <p className="text-sm text-gray-400 mb-6">Crear nuevos usuarios en el sistema</p>

@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJudgeById, updateJudge, deleteJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const LEVELS = ['junior', 'senior', 'elite'];
 
@@ -134,9 +135,9 @@ const EditJudge = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-8">
-      <button onClick={() => navigate('/judges')} className="flex items-center text-sm font-semibold text-white bg-wbo-700 hover:bg-opacity-90 transition-colors mb-4 px-4 py-2">
-        ← Volver a Jueces
-      </button>
+      <div className="mb-4">
+        <BackButton fallbackRoute="/judges" />
+      </div>
       <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Juez</h2>
       {error && (

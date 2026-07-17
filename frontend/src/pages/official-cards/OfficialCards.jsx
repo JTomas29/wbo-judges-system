@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
+import BackButton from '../../components/common/BackButton';
 
 const OfficialCards = () => {
   const { fightId } = useParams();
@@ -167,6 +168,9 @@ const OfficialCards = () => {
 
   return (
     <div className="max-w-[900px]">
+      <div className="mb-4">
+        <BackButton />
+      </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 m-0">

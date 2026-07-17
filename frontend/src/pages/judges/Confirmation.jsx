@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { getMyAssignments, respondAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const statusBadge = (status) => {
   const map = {
@@ -185,6 +186,9 @@ const Confirmation = () => {
     <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-10 sm:pb-12">
       {/* ─── Header ─── */}
       <div className="max-w-[1440px] mx-auto mb-8">
+        <div className="mb-4">
+          <BackButton fallbackRoute="/dashboard" />
+        </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Mis Designaciones</h1>

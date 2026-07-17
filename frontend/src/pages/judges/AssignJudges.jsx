@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getFightById } from '../../services/fightService';
 import { getJudges, getFightAssignments, createAssignment, deleteAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const statusBadge = (status) => {
   const map = {
@@ -151,6 +152,9 @@ const AssignJudges = () => {
 
   return (
     <div>
+      <div className="mb-4">
+        <BackButton fallbackRoute={`/fights/${fightId}`} />
+      </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 m-0">Asignar Jueces</h1>
@@ -259,9 +263,7 @@ const AssignJudges = () => {
       </div>
 
       <div className="mt-6">
-        <button className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors" onClick={() => navigate(`/fights/${fightId}`)}>
-          Volver a la pelea
-        </button>
+        <BackButton fallbackRoute={`/fights/${fightId}`} />
       </div>
     </div>
   );

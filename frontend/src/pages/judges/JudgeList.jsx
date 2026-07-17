@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getJudges } from '../../services/judgeService';
 import { updateJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const levelBadge = (level) => {
   const map = {
@@ -98,6 +99,9 @@ const JudgeList = () => {
   if (judges.length === 0) {
     return (
       <div>
+        <div className="mb-4">
+          <BackButton fallbackRoute="/dashboard" />
+        </div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
         <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
           No hay jueces registrados
@@ -108,6 +112,9 @@ const JudgeList = () => {
 
   return (
     <div>
+      <div className="mb-4">
+        <BackButton fallbackRoute="/dashboard" />
+      </div>
       <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
 
       <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">

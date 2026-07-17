@@ -2,6 +2,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { getAllStatistics, getJudgeStatistics } from '../../services/statisticsService';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/common/BackButton';
 
 const levelBadge = (level) => {
   if (!level) return null;
@@ -163,7 +164,6 @@ const Statistics = () => {
     );
   }
 
-  const backBtnLabel = user?.role === 'judge' ? '\u2190 Volver al Dashboard' : '\u2190 Volver al ranking';
   const backBtnAction = user?.role === 'judge' ? () => navigate('/dashboard') : backToList;
 
   if (selectedJudge && judgeHistory) {
@@ -176,12 +176,15 @@ const Statistics = () => {
         <div className="max-w-[1440px] mx-auto space-y-6">
 
           {/* Back */}
-          <button onClick={backBtnAction} className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 transition-all px-4 py-2 rounded-xl shadow-sm hover:shadow-md">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" />
-            </svg>
-            {user?.role === 'judge' ? 'Dashboard' : 'Ranking'}
-          </button>
+          {user?.role === 'judge' ? (
+            <div className="mb-4">
+              <BackButton fallbackRoute="/dashboard" />
+            </div>
+          ) : (
+            <div className="mb-4">
+              <BackButton fallbackRoute="/dashboard" />
+            </div>
+          )}
 
           {/* Profile + Stats */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -346,6 +349,9 @@ const Statistics = () => {
   return (
     <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-10 sm:pb-12">
       <div className="max-w-[1440px] mx-auto space-y-6">
+        <div className="mb-4">
+          <BackButton fallbackRoute="/dashboard" />
+        </div>
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ranking de Jueces</h1>
           <p className="text-sm text-slate-500 mt-1">Rendimiento y estadísticas de todos los jueces</p>

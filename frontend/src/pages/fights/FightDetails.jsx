@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFightById, deleteFight, analyzeFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const statusStyle = (status) => {
   const map = { pending: 'bg-gray-100 text-gray-600', active: 'bg-green-100 text-green-700', completed: 'bg-blue-100 text-blue-700', analyzed: 'bg-purple-100 text-purple-700', cancelled: 'bg-red-100 text-red-700' };
@@ -78,9 +79,9 @@ const FightDetails = () => {
 
   return (
     <>
-      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-semibold text-white bg-wbo-700 hover:bg-opacity-90 transition-colors mb-4 px-4 py-2">
-        ← Volver a Peleas
-      </button>
+      <div className="mb-4">
+        <BackButton fallbackRoute="/fights" />
+      </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 m-0">{fight.event_name}</h1>

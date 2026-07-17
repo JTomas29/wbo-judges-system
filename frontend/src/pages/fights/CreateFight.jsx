@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createFight } from '../../services/fightService';
 import { getJudges } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import BackButton from '../../components/common/BackButton';
 
 const ROUNDS = [4, 6, 8, 10, 12];
 
@@ -91,9 +92,9 @@ const CreateFight = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-8">
-      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-semibold text-white bg-wbo-700 hover:bg-opacity-90 transition-colors mb-4 px-4 py-2">
-        ← Volver a Peleas
-      </button>
+      <div className="mb-4">
+        <BackButton fallbackRoute="/fights" />
+      </div>
       <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-6">Crear Nueva Pelea</h2>
       {error && (
