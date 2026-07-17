@@ -78,7 +78,7 @@ const FightDetails = () => {
 
   return (
     <>
-      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-medium text-wbo-700 hover:text-opacity-80 transition-colors mb-4">
+      <button onClick={() => navigate('/fights')} className="flex items-center text-sm font-semibold text-white bg-wbo-700 hover:bg-opacity-90 transition-colors mb-4 px-4 py-2">
         ← Volver a Peleas
       </button>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-6">

@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
-import { getMyAssignments } from '../../services/judgeService';
+import JudgeDashboard from './JudgeDashboard';
 
 const statusColors = {
   scheduled: { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500', label: 'Programada' },
@@ -34,8 +34,6 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFights, setActiveFights] = useState([]);
-  const [activeFightsLoading, setActiveFightsLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -54,24 +52,9 @@ const Dashboard = () => {
     if (token) fetchData();
   }, [token, fetchData]);
 
-  useEffect(() => {
-    if (!token || user?.role !== 'judge') return;
-    let cancelled = false;
-    setActiveFightsLoading(true);
-    getMyAssignments(token)
-      .then((res) => {
-        if (!cancelled) {
-          setActiveFights(
-            (res.data || []).filter(
-              (a) => a.assignment_status === 'confirmed' && a.fight_status === 'active'
-            )
-          );
-        }
-      })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setActiveFightsLoading(false); });
-    return () => { cancelled = true; };
-  }, [token, user]);
+  if (user?.role === 'judge') {
+    return <JudgeDashboard />;
+  }
 
   if (loading) {
     return (
