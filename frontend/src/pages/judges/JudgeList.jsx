@@ -152,7 +152,7 @@ const JudgeList = () => {
                       <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
                         onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
                     )}
-                    {isStaff && (
+                    {user?.role === 'admin' && (
                       <button
                         className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                           juez.is_active

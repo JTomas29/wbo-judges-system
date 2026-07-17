@@ -11,9 +11,9 @@ router.use(authMiddleware);
 
 router.get('/', getAll);
 router.get('/:id', getById);
-router.post('/', roleMiddleware('admin'), create);
-router.put('/:id', roleMiddleware('admin'), update);
-router.delete('/:id', roleMiddleware('admin'), remove);
+router.post('/', roleMiddleware('admin', 'supervisor'), create);
+router.put('/:id', roleMiddleware('admin', 'supervisor'), update);
+router.delete('/:id', roleMiddleware('admin', 'supervisor'), remove);
 
 // Tarjetas de puntuación del juez
 router.post('/:id/scorecards', createOrGetScorecard);

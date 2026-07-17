@@ -22,6 +22,19 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" replace />;
 };
 
+const AdminRoute = ({ children }) => {
+  const { token, user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-wbo-700 border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  if (!token) return <Navigate to="/login" replace />;
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />;
+
+  return children;
+};
+
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
@@ -34,8 +47,8 @@ const AppRoutes = () => (
     <Route path="/fights/:id" element={<ProtectedRoute><FightDetails /></ProtectedRoute>} />
 
     <Route path="/judges" element={<ProtectedRoute><JudgeList /></ProtectedRoute>} />
-    <Route path="/judges/:id/edit" element={<ProtectedRoute><EditJudge /></ProtectedRoute>} />
-    <Route path="/judges/assign/:fightId" element={<ProtectedRoute><AssignJudges /></ProtectedRoute>} />
+    <Route path="/judges/:id/edit" element={<AdminRoute><EditJudge /></AdminRoute>} />
+    <Route path="/judges/assign/:fightId" element={<AdminRoute><AssignJudges /></AdminRoute>} />
     <Route path="/judges/confirmation" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
 
     <Route path="/scoring/:fightId" element={<ProtectedRoute><ScoreFight /></ProtectedRoute>} />
