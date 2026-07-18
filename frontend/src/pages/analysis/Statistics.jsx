@@ -1,8 +1,9 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getAllStatistics, getJudgeStatistics } from '../../services/statisticsService';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../../components/common/BackButton';
+import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const levelBadge = (level) => {
   if (!level) return null;
@@ -88,6 +89,13 @@ const Statistics = () => {
   const [error, setError] = useState(null);
   const [historyError, setHistoryError] = useState(null);
 
+  // Filters
+  const [searchName, setSearchName] = useState('');
+  const [filterLevel, setFilterLevel] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -124,6 +132,36 @@ const Statistics = () => {
     setJudgeHistory(null);
     setHistoryError(null);
   };
+
+  const filteredJudges = useMemo(() => {
+    let result = [...judges];
+    if (searchName) {
+      result = result.filter((j) => j.name?.toLowerCase().includes(searchName.toLowerCase()));
+    }
+    if (filterLevel) {
+      result = result.filter((j) => j.level === filterLevel);
+    }
+    if (sortOrder === 'precision_high') {
+      result.sort((a, b) => (b.avg_match_pct || 0) - (a.avg_match_pct || 0));
+    } else if (sortOrder === 'precision_low') {
+      result.sort((a, b) => (a.avg_match_pct || 0) - (b.avg_match_pct || 0));
+    } else if (sortOrder === 'fights_most') {
+      result.sort((a, b) => (b.total_fights || 0) - (a.total_fights || 0));
+    } else if (sortOrder === 'fights_least') {
+      result.sort((a, b) => (a.total_fights || 0) - (b.total_fights || 0));
+    }
+    return result;
+  }, [judges, searchName, filterLevel, sortOrder]);
+
+  const clearFilters = () => {
+    setSearchName('');
+    setFilterLevel('');
+    setSortOrder('');
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  const hasActiveFilters = searchName || filterLevel || sortOrder || dateFrom || dateTo;
 
   if (loading) {
     return (
@@ -357,8 +395,34 @@ const Statistics = () => {
           <p className="text-sm text-slate-500 mt-1">Rendimiento y estadísticas de todos los jueces</p>
         </div>
 
+        {/* Filters */}
+        <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
+          <FilterInput value={searchName} onChange={setSearchName} placeholder="Buscar por nombre..." />
+          <FilterSelect
+            value={filterLevel}
+            onChange={setFilterLevel}
+            options={[
+              { value: 'junior', label: 'Junior' },
+              { value: 'senior', label: 'Senior' },
+              { value: 'elite', label: 'Elite' },
+            ]}
+            placeholder="Nivel"
+          />
+          <FilterSelect
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { value: 'precision_high', label: 'Mayor precisión' },
+              { value: 'precision_low', label: 'Menor precisión' },
+              { value: 'fights_most', label: 'Más peleas' },
+              { value: 'fights_least', label: 'Menos peleas' },
+            ]}
+            placeholder="Ordenar por"
+          />
+        </FilterBar>
+
         <div className="grid grid-cols-1 gap-4">
-          {judges.map((judge, i) => {
+          {filteredJudges.map((judge, i) => {
             const initials = judge.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
             const barColor = (pct) => pct >= 80 ? 'bg-green-500' : pct >= 60 ? 'bg-amber-500' : 'bg-red-500';
             return (

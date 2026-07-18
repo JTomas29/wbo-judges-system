@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFights } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
+import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
 
 const canEdit = (status) => status === 'pending' || status === 'active';
 
@@ -33,12 +34,28 @@ const formatDate = (dateStr) => {
   return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
+const STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'active', label: 'Activa' },
+  { value: 'completed', label: 'Finalizada' },
+  { value: 'analyzed', label: 'Analizada' },
+  { value: 'cancelled', label: 'Cancelada' },
+];
+
 const FightList = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
   const [fights, setFights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Filters
+  const [searchEvent, setSearchEvent] = useState('');
+  const [searchBoxer, setSearchBoxer] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -48,6 +65,45 @@ const FightList = () => {
       .then((res) => { setFights(res.data); setLoading(false); })
       .catch((err) => { setError(err.response?.data?.message || 'Error al cargar peleas'); setLoading(false); });
   }, [token]);
+
+  const categories = useMemo(() => {
+    const cats = [...new Set(fights.map((f) => f.weight_class).filter(Boolean))];
+    return cats.map((c) => ({ value: c, label: c }));
+  }, [fights]);
+
+  const filteredFights = useMemo(() => {
+    return fights.filter((fight) => {
+      if (searchEvent && !fight.event_name.toLowerCase().includes(searchEvent.toLowerCase())) return false;
+      if (searchBoxer) {
+        const q = searchBoxer.toLowerCase();
+        const matchesRed = fight.boxer_red?.toLowerCase().includes(q);
+        const matchesBlue = fight.boxer_blue?.toLowerCase().includes(q);
+        if (!matchesRed && !matchesBlue) return false;
+      }
+      if (filterStatus && fight.status !== filterStatus) return false;
+      if (filterCategory && fight.weight_class !== filterCategory) return false;
+      if (dateFrom && fight.scheduled_date) {
+        const fightDate = new Date(fight.scheduled_date).toISOString().split('T')[0];
+        if (fightDate < dateFrom) return false;
+      }
+      if (dateTo && fight.scheduled_date) {
+        const fightDate = new Date(fight.scheduled_date).toISOString().split('T')[0];
+        if (fightDate > dateTo) return false;
+      }
+      return true;
+    });
+  }, [fights, searchEvent, searchBoxer, filterStatus, filterCategory, dateFrom, dateTo]);
+
+  const clearFilters = () => {
+    setSearchEvent('');
+    setSearchBoxer('');
+    setFilterStatus('');
+    setFilterCategory('');
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  const hasActiveFilters = searchEvent || searchBoxer || filterStatus || filterCategory || dateFrom || dateTo;
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
@@ -70,8 +126,21 @@ const FightList = () => {
           + Crear Pelea
         </button>
       </div>
-      {fights.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">No hay peleas registradas</div>
+
+      {/* Filters */}
+      <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
+        <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Buscar por evento..." />
+        <FilterInput value={searchBoxer} onChange={setSearchBoxer} placeholder="Buscar por boxeador..." />
+        <FilterSelect value={filterStatus} onChange={setFilterStatus} options={STATUS_OPTIONS} placeholder="Estado" />
+        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Categoría" />
+        <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Fecha desde" />
+        <FilterDate value={dateTo} onChange={setDateTo} placeholder="Fecha hasta" />
+      </FilterBar>
+
+      {filteredFights.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
+          {hasActiveFilters ? 'No se encontraron peleas con los filtros aplicados' : 'No hay peleas registradas'}
+        </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm card-minimal overflow-x-auto">
           <table className="w-full text-sm">
@@ -90,7 +159,7 @@ const FightList = () => {
               </tr>
             </thead>
             <tbody>
-              {fights.map((fight, i) => (
+              {filteredFights.map((fight, i) => (
                 <tr key={fight.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'} hover:bg-gray-100/50 transition-colors`}>
                   <td className="py-4 px-4 font-semibold text-gray-950">{fight.event_name}</td>
                   <td className="py-4 px-4 text-gray-600 text-sm">{fight.boxer_red}</td>

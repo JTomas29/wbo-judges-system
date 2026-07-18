@@ -1,8 +1,9 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
 import BackButton from '../../components/common/BackButton';
+import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const levelBadge = (level) => {
   const map = { elite: 'bg-green-100 text-green-800', senior: 'bg-blue-100 text-blue-800', junior: 'bg-yellow-100 text-yellow-800' };
@@ -21,6 +22,37 @@ const FightAnalysis = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Filters
+  const [filterJudge, setFilterJudge] = useState('');
+  const [filterResult, setFilterResult] = useState('');
+  const [filterRound, setFilterRound] = useState('');
+
+  const filteredJudgesAnalysis = useMemo(() => {
+    if (!data?.judges_analysis) return [];
+    return data.judges_analysis
+      .filter((judge) => {
+        if (filterJudge && !judge.judge_name?.toLowerCase().includes(filterJudge.toLowerCase())) return false;
+        return true;
+      })
+      .map((judge) => {
+        if (!filterResult && !filterRound) return judge;
+        const filteredRounds = (judge.rounds || []).filter((r) => {
+          if (filterResult && r.result !== filterResult) return false;
+          if (filterRound && String(r.round_number) !== filterRound) return false;
+          return true;
+        });
+        return { ...judge, rounds: filteredRounds };
+      });
+  }, [data, filterJudge, filterResult, filterRound]);
+
+  const clearFilters = () => {
+    setFilterJudge('');
+    setFilterResult('');
+    setFilterRound('');
+  };
+
+  const hasActiveFilters = filterJudge || filterResult || filterRound;
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
   const isJudge = user?.role === 'judge';
@@ -99,13 +131,39 @@ const FightAnalysis = () => {
     );
   }
 
-  const { fight, official_card, judges_analysis, consistency } = data;
+  const { fight, official_card, consistency } = data;
+  const judges_analysis = filteredJudgesAnalysis;
 
   return (
     <div className="max-w-[1000px] mx-auto space-y-6">
       <div className="mb-4">
         <BackButton />
       </div>
+
+      {/* Filters */}
+      {data?.judges_analysis?.length > 0 && (
+        <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
+          <FilterInput value={filterJudge} onChange={setFilterJudge} placeholder="Buscar juez..." />
+          <FilterSelect
+            value={filterResult}
+            onChange={setFilterResult}
+            options={[
+              { value: 'OK', label: 'OK' },
+              { value: 'ERROR', label: 'ERROR' },
+            ]}
+            placeholder="Resultado"
+          />
+          <FilterSelect
+            value={filterRound}
+            onChange={setFilterRound}
+            options={Array.from({ length: data.fight?.total_rounds || 12 }, (_, i) => ({
+              value: String(i + 1),
+              label: `Round ${i + 1}`,
+            }))}
+            placeholder="Round"
+          />
+        </FilterBar>
+      )}
       {/* General info */}
       <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
         <div className="flex flex-wrap justify-between items-start gap-3 mb-4">

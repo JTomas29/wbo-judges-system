@@ -1,8 +1,9 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyAssignments, respondAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
+import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const statusBadge = (status) => {
   const map = {
@@ -78,6 +79,46 @@ const Confirmation = () => {
   const [responding, setResponding] = useState(null);
   const [rejecting, setRejecting] = useState(null);
   const [rejectReasons, setRejectReasons] = useState({});
+
+  // Filters
+  const [searchEvent, setSearchEvent] = useState('');
+  const [filterAssignStatus, setFilterAssignStatus] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
+
+  const getAssignStatus = (a) => {
+    if (a.assignment_status === 'pending') return 'pending';
+    if (a.assignment_status === 'rejected') return 'rejected';
+    if (a.assignment_status === 'confirmed') {
+      if (a.fight_status === 'pending') return 'confirmed';
+      if (a.fight_status === 'active') return 'active';
+      if (a.fight_status === 'completed' || a.fight_status === 'analyzed') return 'finalized';
+    }
+    return 'pending';
+  };
+
+  const filteredAssignments = useMemo(() => {
+    let result = [...assignments];
+    if (searchEvent) {
+      result = result.filter((a) => a.event_name?.toLowerCase().includes(searchEvent.toLowerCase()));
+    }
+    if (filterAssignStatus) {
+      result = result.filter((a) => getAssignStatus(a) === filterAssignStatus);
+    }
+    if (sortOrder === 'closest') {
+      result.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+    } else if (sortOrder === 'farthest') {
+      result.sort((a, b) => new Date(b.scheduled_date) - new Date(a.scheduled_date));
+    }
+    return result;
+  }, [assignments, searchEvent, filterAssignStatus, sortOrder]);
+
+  const clearFilters = () => {
+    setSearchEvent('');
+    setFilterAssignStatus('');
+    setSortOrder('');
+  };
+
+  const hasActiveFilters = searchEvent || filterAssignStatus || sortOrder;
 
   const loadAssignments = useCallback(async () => {
     if (!token) return;
@@ -202,9 +243,36 @@ const Confirmation = () => {
         </div>
       </div>
 
+      {/* ─── Filters ─── */}
+      <div className="max-w-[1440px] mx-auto mb-6">
+        <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
+          <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Buscar por evento..." />
+          <FilterSelect
+            value={filterAssignStatus}
+            onChange={setFilterAssignStatus}
+            options={[
+              { value: 'pending', label: 'Pendiente' },
+              { value: 'confirmed', label: 'Confirmada' },
+              { value: 'active', label: 'Activa' },
+              { value: 'finalized', label: 'Finalizada' },
+            ]}
+            placeholder="Estado"
+          />
+          <FilterSelect
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { value: 'closest', label: 'Fecha más próxima' },
+              { value: 'farthest', label: 'Fecha más lejana' },
+            ]}
+            placeholder="Ordenar por"
+          />
+        </FilterBar>
+      </div>
+
       {/* ─── List ─── */}
       <div className="max-w-[1440px] mx-auto space-y-5">
-        {assignments.map((a) => {
+        {filteredAssignments.map((a) => {
           const isPending = a.assignment_status === 'pending';
           const isActive = a.fight_status === 'active';
 

@@ -1,9 +1,10 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getJudges } from '../../services/judgeService';
 import { updateJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
+import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const levelBadge = (level) => {
   const map = {
@@ -20,6 +21,12 @@ const statusBadge = (active) => {
     : 'bg-gray-100 text-gray-500';
 };
 
+const LEVEL_OPTIONS = [
+  { value: 'junior', label: 'Junior' },
+  { value: 'senior', label: 'Senior' },
+  { value: 'elite', label: 'Elite' },
+];
+
 const JudgeList = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +34,12 @@ const JudgeList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirmTarget, setConfirmTarget] = useState(null);
+
+  // Filters
+  const [searchName, setSearchName] = useState('');
+  const [searchEmail, setSearchEmail] = useState('');
+  const [filterLevel, setFilterLevel] = useState('');
+  const [filterActive, setFilterActive] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -60,6 +73,26 @@ const JudgeList = () => {
       setConfirmTarget(null);
     }
   };
+
+  const filteredJudges = useMemo(() => {
+    return judges.filter((juez) => {
+      if (searchName && !juez.name.toLowerCase().includes(searchName.toLowerCase())) return false;
+      if (searchEmail && !juez.email.toLowerCase().includes(searchEmail.toLowerCase())) return false;
+      if (filterLevel && juez.level !== filterLevel) return false;
+      if (filterActive === 'active' && !juez.is_active) return false;
+      if (filterActive === 'inactive' && juez.is_active) return false;
+      return true;
+    });
+  }, [judges, searchName, searchEmail, filterLevel, filterActive]);
+
+  const clearFilters = () => {
+    setSearchName('');
+    setSearchEmail('');
+    setFilterLevel('');
+    setFilterActive('');
+  };
+
+  const hasActiveFilters = searchName || searchEmail || filterLevel || filterActive;
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
 
@@ -96,20 +129,6 @@ const JudgeList = () => {
     );
   }
 
-  if (judges.length === 0) {
-    return (
-      <div>
-        <div className="mb-4">
-          <BackButton fallbackRoute="/dashboard" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
-          No hay jueces registrados
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="mb-4">
@@ -117,55 +136,77 @@ const JudgeList = () => {
       </div>
       <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
 
-      <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
-              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
-              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
-              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-              {user?.role === 'admin' && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {judges.map((juez) => (
-              <tr key={juez.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-4 font-semibold text-gray-800">{juez.name}</td>
-                <td className="py-3 px-4 text-gray-600">{juez.email}</td>
-                <td className="py-3 px-4">
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
-                    {juez.level || '—'}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
-                    {juez.is_active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                {user?.role === 'admin' && (
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
-                        onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
-                      <button
-                        className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                          juez.is_active
-                            ? 'bg-red-500 text-white hover:bg-red-600'
-                            : 'bg-green-600 text-white hover:bg-green-700'
-                        }`}
-                        onClick={() => setConfirmTarget(juez)}
-                      >
-                        {juez.is_active ? 'Desactivar' : 'Activar'}
-                      </button>
-                    </div>
-                  </td>
-                )}
+      {/* Filters */}
+      <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
+        <FilterInput value={searchName} onChange={setSearchName} placeholder="Buscar por nombre..." />
+        <FilterInput value={searchEmail} onChange={setSearchEmail} placeholder="Buscar por email..." />
+        <FilterSelect value={filterLevel} onChange={setFilterLevel} options={LEVEL_OPTIONS} placeholder="Nivel" />
+        <FilterSelect
+          value={filterActive}
+          onChange={setFilterActive}
+          options={[
+            { value: 'active', label: 'Activo' },
+            { value: 'inactive', label: 'Inactivo' },
+          ]}
+          placeholder="Estado"
+        />
+      </FilterBar>
+
+      {filteredJudges.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
+          {hasActiveFilters ? 'No se encontraron jueces con los filtros aplicados' : 'No hay jueces registrados'}
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
+                {user?.role === 'admin' && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredJudges.map((juez) => (
+                <tr key={juez.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4 font-semibold text-gray-800">{juez.name}</td>
+                  <td className="py-3 px-4 text-gray-600">{juez.email}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
+                      {juez.level || '—'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
+                      {juez.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  {user?.role === 'admin' && (
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
+                        <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
+                          onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
+                        <button
+                          className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                            juez.is_active
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                          onClick={() => setConfirmTarget(juez)}
+                        >
+                          {juez.is_active ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {confirmTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmTarget(null)}>
