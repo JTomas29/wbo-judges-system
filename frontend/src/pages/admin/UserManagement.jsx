@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { registerRequest } from '../../services/authService';
-import BackButton from '../../components/common/BackButton';
+import FormCard from '../../components/common/FormCard';
+import FormSection from '../../components/common/FormSection';
+import InputField from '../../components/common/InputField';
+import SelectField from '../../components/common/SelectField';
 
 const ROLES = [
   { value: 'judge', label: 'Juez' },
@@ -62,69 +65,88 @@ const UserManagement = () => {
     }
   };
 
-  const inputClass = (field) =>
-    `w-full px-3.5 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
-      fieldErrors[field]
-        ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-        : 'border-gray-200 focus:border-gold focus:ring-gold/20'
-    }`;
-
   return (
-    <div className="max-w-xl mx-auto">
-      <div className="mb-4">
-        <BackButton fallbackRoute="/dashboard" />
-      </div>
-      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Gestión de Usuarios</h2>
-        <p className="text-sm text-gray-400 mb-6">Crear nuevos usuarios en el sistema</p>
+    <FormCard
+      title="Crear Nuevo Usuario"
+      subtitle="Complete los datos para crear un nuevo usuario en el sistema."
+      backRoute="/dashboard"
+      error={serverError}
+      success={success}
+      maxWidth="max-w-xl"
+      icon="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+    >
+      <form onSubmit={handleSubmit}>
 
-        {serverError && (
-          <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{serverError}</div>
-        )}
-
-        {success && (
-          <div className="mb-4 bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm">{success}</div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Nombre completo *</label>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Nombre y apellido"
-              className={inputClass('name')} />
-            {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
+        {/* ── Información personal ── */}
+        <FormSection
+          icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          title="Información personal"
+        >
+          <div className="space-y-5">
+            <InputField
+              name="name"
+              label="Nombre completo"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Nombre y apellido"
+              required
+              error={fieldErrors.name}
+            />
+            <InputField
+              name="email"
+              label="Email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="correo@ejemplo.com"
+              required
+              error={fieldErrors.email}
+            />
           </div>
+        </FormSection>
 
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Email *</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="correo@ejemplo.com"
-              className={inputClass('email')} />
-            {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
+        {/* ── Información de acceso ── */}
+        <FormSection
+          icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          title="Información de acceso"
+        >
+          <div className="space-y-5">
+            <InputField
+              name="password"
+              label="Contraseña"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Mínimo 6 caracteres"
+              required
+              error={fieldErrors.password}
+            />
+            <SelectField
+              name="role"
+              label="Rol"
+              value={form.role}
+              onChange={handleChange}
+              options={ROLES}
+              required
+            />
           </div>
+        </FormSection>
 
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Contraseña *</label>
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Mínimo 6 caracteres"
-              className={inputClass('password')} />
-            {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Rol *</label>
-            <select name="role" value={form.role} onChange={handleChange}
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 bg-white">
-              {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
-            </select>
-          </div>
-
-          <div className="flex gap-3">
-            <button type="submit" disabled={saving}
-              className="inline-flex items-center justify-center px-5 py-2.5 bg-wbo-700 text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
-              {saving ? 'Creando...' : 'Crear Usuario'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* ── Actions ── */}
+        <div className="flex items-center gap-3 pt-6 border-t border-slate-100 mt-7">
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            {saving ? 'Creando...' : 'Crear Usuario'}
+          </button>
+        </div>
+      </form>
+    </FormCard>
   );
 };
 

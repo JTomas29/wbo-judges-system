@@ -1,21 +1,18 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getJudgeById, updateJudge, deleteJudge } from '../../services/judgeService';
+import { getJudgeById, updateJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
-import BackButton from '../../components/common/BackButton';
+import FormCard from '../../components/common/FormCard';
+import FormSection from '../../components/common/FormSection';
+import InputField from '../../components/common/InputField';
+import SelectField from '../../components/common/SelectField';
 
-const LEVELS = ['junior', 'senior', 'elite'];
+const LEVELS = ['Sin Asignar', 'Principiante', 'Intermedio', 'Avanzado'];
 
 const EditJudge = () => {
   const { id } = useParams();
-  const { token, user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
-
-  if (user && user.role !== 'admin') {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
-
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,18 +23,16 @@ const EditJudge = () => {
 
   useEffect(() => {
     if (!token) return;
-    setLoading(true);
-    setError(null);
     getJudgeById(id, token)
       .then((res) => {
         const j = res.data;
         setForm({
           name: j.name || '',
           email: j.email || '',
-          level: j.level || 'junior',
-          is_active: j.is_active !== undefined ? j.is_active : true,
+          level: j.level || '',
+          is_active: j.is_active !== false,
           password: '',
-          confirm_password: '',
+          confirmPassword: '',
         });
         setLoading(false);
       })
@@ -49,25 +44,18 @@ const EditJudge = () => {
   }, [id, token]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
-    setFieldErrors({ ...fieldErrors, [name]: null });
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setFieldErrors({ ...fieldErrors, [e.target.name]: null });
   };
 
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'El nombre es obligatorio';
-    if (!form.email.trim()) {
-      errs.email = 'El email es obligatorio';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errs.email = 'Email inválido';
-    }
-    if (form.password && form.password.length > 0 && form.password.length < 6) {
-      errs.password = 'Mínimo 6 caracteres';
-    }
-    if (form.password !== form.confirm_password) {
-      errs.confirm_password = 'Las contraseñas no coinciden';
-    }
+    if (!form.email.trim()) errs.email = 'Obligatorio';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Email inválido';
+    if (!form.level) errs.level = 'Obligatorio';
+    if (form.password && form.password.length < 6) errs.password = 'Mínimo 6 caracteres';
+    if (form.password !== form.confirmPassword) errs.confirmPassword = 'Las contraseñas no coinciden';
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -87,7 +75,7 @@ const EditJudge = () => {
       };
       if (form.password) payload.password = form.password;
       await updateJudge(id, payload, token);
-      navigate('/judges');
+      navigate('/admin/users');
     } catch (err) {
       setError(err.response?.data?.message || 'Error al actualizar el juez');
       setSaving(false);
@@ -95,11 +83,11 @@ const EditJudge = () => {
   };
 
   const handleDelete = async () => {
-    setError(null);
     setDeleting(true);
     try {
+      const { deleteJudge } = await import('../../services/judgeService');
       await deleteJudge(id, token);
-      navigate('/judges');
+      navigate('/admin/users');
     } catch (err) {
       setError(err.response?.data?.message || 'Error al eliminar el juez');
       setDeleting(false);
@@ -107,122 +95,213 @@ const EditJudge = () => {
     }
   };
 
-  const inputClass = (field) =>
-    `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
-      fieldErrors[field]
-        ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-        : 'border-gray-200 focus:border-[#6b1421] focus:ring-[#6b1421]/20'
-    }`;
+  if (user && user.role !== 'admin') {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">
+          No tienes permisos para editar jueces.
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#6b1421]" />
-      <span className="ml-3 text-gray-500 text-sm">Cargando juez...</span>
+      <div className="flex items-center gap-3">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
+        <span className="text-sm text-slate-500 font-medium">Cargando juez...</span>
+      </div>
     </div>
   );
 
   if (error && !form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg text-sm">{error}</div>
+      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">{error}</div>
     </div>
   );
 
   if (!form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg text-sm">Juez no encontrado</div>
+      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">Juez no encontrado</div>
     </div>
   );
 
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <div className="mb-4">
-        <BackButton fallbackRoute="/judges" />
+    <FormCard
+      title="Editar Juez"
+      subtitle="Actualiza la información del juez."
+      backRoute="/admin/users"
+      error={error}
+      icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+    >
+      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+        <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">Editando</span>
       </div>
-      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Juez</h2>
-      {error && (
-        <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-      )}
+
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nombre *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Nombre del juez"
-            className={inputClass('name')} />
-          {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Email *</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="juez@example.com"
-            className={inputClass('email')} />
-          {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nivel</label>
-          <select name="level" value={form.level} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 bg-white">
-            {LEVELS.map((l) => <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>)}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <div className="relative">
-              <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="sr-only peer" />
-              <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-wbo-700 transition-colors" />
-              <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform" />
+
+        {/* ── Información personal ── */}
+        <FormSection
+          icon="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"
+          title="Información personal"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            <InputField
+              name="name"
+              label="Nombre"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Nombre completo"
+              required
+              error={fieldErrors.name}
+            />
+            <InputField
+              name="email"
+              label="Email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="correo@ejemplo.com"
+              required
+              error={fieldErrors.email}
+            />
+            <SelectField
+              name="level"
+              label="Nivel"
+              value={form.level}
+              onChange={handleChange}
+              placeholder="Seleccionar nivel"
+              options={LEVELS.map((l) => ({ value: l, label: l }))}
+              required
+              error={fieldErrors.level}
+            />
+            {/* Estado Activo / Inactivo */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Estado</label>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 ${
+                    form.is_active ? 'bg-emerald-500' : 'bg-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 ${
+                      form.is_active ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+                <span className={`text-sm font-medium ${form.is_active ? 'text-emerald-700' : 'text-slate-500'}`}>
+                  {form.is_active ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
             </div>
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Activo</span>
-          </label>
-        </div>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nueva Contraseña <span className="text-gray-400 font-normal normal-case">(opcional)</span></label>
-          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Dejar vacío para mantener"
-            className={inputClass('password')} />
-          {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Confirmar Contraseña</label>
-          <input name="confirm_password" type="password" value={form.confirm_password} onChange={handleChange} placeholder="Repetir contraseña"
-            className={inputClass('confirm_password')} />
-          {fieldErrors.confirm_password && <p className="text-xs text-red-500 mt-1">{fieldErrors.confirm_password}</p>}
-        </div>
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
-          <div className="flex gap-3">
-            <button type="submit" disabled={saving}
-              className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+          </div>
+        </FormSection>
+
+        {/* ── Cambiar contraseña ── */}
+        <FormSection
+          icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          title="Cambiar contraseña"
+        >
+          <p className="text-xs text-slate-500 mb-4 -mt-2">Deja los campos vacíos si no deseas cambiar la contraseña.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            <InputField
+              name="password"
+              label="Nueva Contraseña"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Mínimo 6 caracteres"
+              error={fieldErrors.password}
+            />
+            <InputField
+              name="confirmPassword"
+              label="Confirmar Contraseña"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              placeholder="Repite la contraseña"
+              error={fieldErrors.confirmPassword}
+            />
+          </div>
+        </FormSection>
+
+        {/* ── Actions ── */}
+        <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-7">
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all active:scale-[0.98]"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Eliminar Juez
+          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
-            <button type="button"
-              className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
-              onClick={() => navigate('/judges')}>Cancelar</button>
           </div>
-          <button type="button"
-            className="inline-flex items-center justify-center px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors text-sm"
-            onClick={() => setShowDeleteModal(true)}>Eliminar</button>
         </div>
       </form>
 
+      {/* ── Delete Modal ── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !deleting && setShowDeleteModal(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar juez</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              ¿Estás seguro de que quieres eliminar a <strong>{form?.name}</strong>? Esta acción no se puede deshacer.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 w-full max-w-sm animate-[fadeIn_0.2s_ease-out]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Eliminar Juez</h3>
+                <p className="text-sm text-slate-500">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 mb-6">
+              ¿Estás seguro de que deseas eliminar a <span className="font-semibold text-slate-900">{form.name}</span>?
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex items-center justify-end gap-3">
               <button
-                className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
-                onClick={() => setShowDeleteModal(false)} disabled={deleting}>No</button>
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
+              >
+                Cancelar
+              </button>
               <button
-                className="px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-40"
-                onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Eliminando...' : 'Sí, Eliminar'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
-    </div>
+    </FormCard>
   );
 };
 

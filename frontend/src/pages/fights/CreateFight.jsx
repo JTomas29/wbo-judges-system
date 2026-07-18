@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createFight } from '../../services/fightService';
 import { getJudges } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
-import BackButton from '../../components/common/BackButton';
+import FormCard from '../../components/common/FormCard';
+import FormSection from '../../components/common/FormSection';
+import InputField from '../../components/common/InputField';
+import SelectField from '../../components/common/SelectField';
+import TextareaField from '../../components/common/TextareaField';
 
 const ROUNDS = [4, 6, 8, 10, 12];
 
@@ -83,103 +87,162 @@ const CreateFight = () => {
     }
   };
 
-  const inputClass = (field) =>
-    `w-full px-3.5 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors ${
-      fieldErrors[field]
-        ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-        : 'border-gray-200 focus:border-gold focus:ring-gold/20'
-    }`;
-
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <div className="mb-4">
-        <BackButton fallbackRoute="/fights" />
-      </div>
-      <div className="bg-white rounded-b-xl border-t-4 border-wbo-700 shadow-sm p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Crear Nueva Pelea</h2>
-      {error && (
-        <div className="mb-4 bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-      )}
+    <FormCard
+      title="Crear Nueva Pelea"
+      subtitle="Complete la información para registrar una nueva pelea."
+      backRoute="/fights"
+      error={error}
+      icon="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+    >
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-          <div className="mb-4 sm:col-span-2">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Evento *</label>
-            <input name="event_name" value={form.event_name} onChange={handleChange} placeholder="Nombre del evento"
-              className={inputClass('event_name')} />
-            {fieldErrors.event_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.event_name}</p>}
+
+        {/* ── Información del combate ── */}
+        <FormSection
+          icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          title="Información del combate"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            <InputField
+              className="sm:col-span-2"
+              name="event_name"
+              label="Evento"
+              value={form.event_name}
+              onChange={handleChange}
+              placeholder="Nombre del evento"
+              required
+              error={fieldErrors.event_name}
+            />
+            <InputField
+              name="weight_class"
+              label="Categoría"
+              value={form.weight_class}
+              onChange={handleChange}
+              placeholder="Ej: Peso Pesado"
+              required
+              error={fieldErrors.weight_class}
+            />
+            <InputField
+              name="scheduled_date"
+              label="Fecha"
+              type="date"
+              value={form.scheduled_date}
+              onChange={handleChange}
+              required
+              error={fieldErrors.scheduled_date}
+            />
+            <SelectField
+              name="total_rounds"
+              label="Rounds"
+              value={form.total_rounds}
+              onChange={handleChange}
+              options={ROUNDS.map((r) => ({ value: r, label: `${r} rounds` }))}
+              required
+            />
           </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Boxeador Rojo *</label>
-            <input name="boxer_red" value={form.boxer_red} onChange={handleChange} placeholder="Nombre"
-              className={inputClass('boxer_red')} />
-            {fieldErrors.boxer_red && <p className="text-xs text-red-500 mt-1">{fieldErrors.boxer_red}</p>}
+        </FormSection>
+
+        {/* ── Participantes ── */}
+        <FormSection
+          icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          title="Participantes"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            <InputField
+              name="boxer_red"
+              label="Boxeador Rojo"
+              value={form.boxer_red}
+              onChange={handleChange}
+              placeholder="Nombre completo"
+              required
+              error={fieldErrors.boxer_red}
+            />
+            <InputField
+              name="boxer_blue"
+              label="Boxeador Azul"
+              value={form.boxer_blue}
+              onChange={handleChange}
+              placeholder="Nombre completo"
+              required
+              error={fieldErrors.boxer_blue}
+            />
           </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Boxeador Azul *</label>
-            <input name="boxer_blue" value={form.boxer_blue} onChange={handleChange} placeholder="Nombre"
-              className={inputClass('boxer_blue')} />
-            {fieldErrors.boxer_blue && <p className="text-xs text-red-500 mt-1">{fieldErrors.boxer_blue}</p>}
+        </FormSection>
+
+        {/* ── Información del evento ── */}
+        <FormSection
+          icon="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          title="Información del evento"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            <InputField
+              name="venue"
+              label="Lugar"
+              value={form.venue}
+              onChange={handleChange}
+              placeholder="Ej: Luna Park"
+            />
+            <InputField
+              name="broadcaster"
+              label="Televisora"
+              value={form.broadcaster}
+              onChange={handleChange}
+              placeholder="Ej: ESPN"
+            />
+            <InputField
+              name="title"
+              label="Título"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Ej: Campeonato WBO"
+            />
+            <SelectField
+              name="referee_id"
+              label="Árbitro"
+              value={form.referee_id}
+              onChange={handleChange}
+              placeholder="— Sin asignar —"
+              options={referees.map((r) => ({ value: r.id, label: r.name }))}
+            />
           </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Fecha *</label>
-            <input name="scheduled_date" type="date" value={form.scheduled_date} onChange={handleChange}
-              className={inputClass('scheduled_date')} />
-            {fieldErrors.scheduled_date && <p className="text-xs text-red-500 mt-1">{fieldErrors.scheduled_date}</p>}
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Categoría *</label>
-            <input name="weight_class" value={form.weight_class} onChange={handleChange} placeholder="Ej: Peso Pesado"
-              className={inputClass('weight_class')} />
-            {fieldErrors.weight_class && <p className="text-xs text-red-500 mt-1">{fieldErrors.weight_class}</p>}
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Rounds *</label>
-            <select name="total_rounds" value={form.total_rounds} onChange={handleChange}
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 bg-white">
-              {ROUNDS.map((r) => <option key={r} value={r}>{r} rounds</option>)}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Lugar</label>
-            <input name="venue" value={form.venue} onChange={handleChange} placeholder="Ej: Luna Park"
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Título</label>
-            <input name="title" value={form.title} onChange={handleChange} placeholder="Ej: Campeonato WBO"
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Televisora</label>
-            <input name="broadcaster" value={form.broadcaster} onChange={handleChange} placeholder="Ej: ESPN"
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Árbitro</label>
-            <select name="referee_id" value={form.referee_id} onChange={handleChange}
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 bg-white">
-              <option value="">— Sin asignar —</option>
-              {referees.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
-          </div>
-          <div className="mb-4 sm:col-span-2">
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Notas</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} placeholder="Observaciones adicionales"
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none" />
-          </div>
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button type="submit" disabled={loading}
-            className="inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+        </FormSection>
+
+        {/* ── Observaciones ── */}
+        <FormSection
+          icon="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          title="Observaciones"
+        >
+          <TextareaField
+            name="notes"
+            value={form.notes}
+            onChange={handleChange}
+            placeholder="Notas y observaciones adicionales sobre la pelea..."
+            rows={3}
+          />
+        </FormSection>
+
+        {/* ── Actions ── */}
+        <div className="flex items-center gap-3 pt-6 border-t border-slate-100 mt-7">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
             {loading ? 'Guardando...' : 'Guardar'}
           </button>
-          <button type="button"
-            className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
-            onClick={() => navigate('/fights')}>Cancelar</button>
+          <button
+            type="button"
+            onClick={() => navigate('/fights')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
+          >
+            Cancelar
+          </button>
         </div>
       </form>
-    </div>
-    </div>
+    </FormCard>
   );
 };
 
