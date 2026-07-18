@@ -2,12 +2,12 @@ import BackButton from './BackButton';
 
 const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, maxWidth = 'max-w-3xl' }) => (
   <div className={`${maxWidth} mx-auto`}>
-    <div className="mb-4">
+    <div className="mb-5">
       <BackButton fallbackRoute={backRoute} />
     </div>
 
     {/* Header */}
-    <div className="flex items-start gap-4 mb-6">
+    <div className="flex items-start gap-4 mb-8">
       {icon && (
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-800 to-red-900 flex items-center justify-center shrink-0 shadow-sm">
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
@@ -41,8 +41,11 @@ const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, 
     )}
 
     {/* Card */}
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 transition-all duration-300">
-      {children}
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-red-800 to-red-900" />
+      <div className="p-8 sm:p-10">
+        {children}
+      </div>
     </div>
   </div>
 );

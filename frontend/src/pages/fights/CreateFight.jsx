@@ -222,7 +222,7 @@ const CreateFight = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center gap-3 pt-6 border-t border-slate-100 mt-7">
+        <div className="flex items-center gap-3 mt-10">
           <button
             type="submit"
             disabled={loading}

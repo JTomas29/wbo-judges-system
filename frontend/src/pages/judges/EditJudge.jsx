@@ -134,8 +134,8 @@ const EditJudge = () => {
       error={error}
       icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
     >
-      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
-        <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+      <div className="flex items-center gap-2 mb-8">
+        <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulseDot" />
         <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">Editando</span>
       </div>
 
@@ -230,7 +230,7 @@ const EditJudge = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-7">
+        <div className="flex items-center justify-between mt-10">
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}

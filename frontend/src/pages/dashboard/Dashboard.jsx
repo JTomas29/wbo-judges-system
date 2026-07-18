@@ -92,9 +92,9 @@ const KpiIcon = ({ type }) => {
 
 /* ─── KPI Card ─── */
 const KpiCard = ({ label, value, icon, trend, desc, color }) => (
-  <div className="group bg-white rounded-2xl border border-slate-200 shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+  <div className={`group bg-white rounded-2xl border border-slate-200 ${color.top} shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
     <div className="flex items-start justify-between mb-3">
-      <div className={`w-10 h-10 rounded-xl ${color.bg} flex items-center justify-center transition-colors group-hover:scale-110 duration-300`}>
+      <div className={`w-11 h-11 rounded-full ${color.bg} flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm`}>
         <span className={color.text}><KpiIcon type={icon} /></span>
       </div>
       {trend && (
@@ -106,28 +106,40 @@ const KpiCard = ({ label, value, icon, trend, desc, color }) => (
         </span>
       )}
     </div>
-    <p className="text-3xl font-bold text-slate-900 leading-none mb-1">
+    <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-none mb-1">
       <AnimatedCounter value={value} />
     </p>
-    <p className="text-sm font-semibold text-slate-700">{label}</p>
+    <p className="text-sm font-bold text-slate-800">{label}</p>
     {desc && <p className="text-[11px] text-slate-400 mt-0.5">{desc}</p>}
   </div>
 );
 
 /* ─── Quick Action Card ─── */
-const QuickActionCard = ({ icon, title, desc, onClick }) => (
+const QuickActionCard = ({ icon, title, desc, onClick, primary }) => (
   <button
     onClick={onClick}
-    className="group relative flex items-start gap-4 p-4 bg-white rounded-xl border border-slate-200 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-red-200 active:scale-[0.98] text-left w-full"
+    className={`group relative flex items-start gap-4 p-4 rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] text-left w-full ${
+      primary
+        ? 'bg-red-800 border-red-800 hover:bg-red-900 hover:shadow-md text-white'
+        : 'bg-white border-slate-200 hover:shadow-md hover:border-red-200 text-slate-900'
+    }`}
   >
-    <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0 group-hover:bg-red-100 transition-colors duration-200">
-      <span className="text-red-700 text-lg">{icon}</span>
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 ${
+      primary
+        ? 'bg-white/15 group-hover:bg-white/20'
+        : 'bg-red-50 group-hover:bg-red-100'
+    }`}>
+      <span className={primary ? 'text-white' : 'text-red-700'}>{icon}</span>
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-bold text-slate-900 group-hover:text-red-800 transition-colors">{title}</p>
-      <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+      <p className={`text-sm font-bold transition-colors ${primary ? 'text-white' : 'text-slate-900 group-hover:text-red-800'}`}>{title}</p>
+      <p className={`text-xs mt-0.5 ${primary ? 'text-red-100' : 'text-slate-500'}`}>{desc}</p>
     </div>
-    <svg className="w-4 h-4 text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0 mt-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+    <svg className={`w-4 h-4 transition-all duration-200 shrink-0 mt-2 ${
+      primary
+        ? 'text-red-200 group-hover:text-white group-hover:translate-x-0.5'
+        : 'text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5'
+    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
     </svg>
   </button>
@@ -137,7 +149,7 @@ const QuickActionCard = ({ icon, title, desc, onClick }) => (
 const StatusBadge = ({ status }) => {
   const st = getStatusColor(status);
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold ${st.bg} ${st.text} border border-transparent`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold shadow-sm ${st.bg} ${st.text} border ${st.bg.replace('bg-', 'border-').replace('50', '200')}`}>
       <StatusIcon type={st.icon} />
       {st.label}
     </span>
@@ -277,10 +289,10 @@ const Dashboard = () => {
   });
 
   const kpiCards = [
-    { label: 'Total Peleas', value: stats.total_fights, icon: 'fights', desc: 'Peleas registradas en el sistema', color: { bg: 'bg-red-50', text: 'text-red-700' }, trend: null },
-    { label: 'Peleas Activas', value: stats.active_fights, icon: 'active', desc: 'En curso actualmente', color: { bg: 'bg-emerald-50', text: 'text-emerald-700' }, trend: null },
-    { label: 'Finalizadas', value: stats.completed_fights, icon: 'completed', desc: 'Completadas y analizadas', color: { bg: 'bg-blue-50', text: 'text-blue-700' }, trend: null },
-    { label: 'Jueces', value: stats.total_judges, icon: 'judges', desc: 'Registrados en el sistema', color: { bg: 'bg-amber-50', text: 'text-amber-700' }, trend: null },
+    { label: 'Total Peleas', value: stats.total_fights, icon: 'fights', desc: 'Peleas registradas en el sistema', color: { bg: 'bg-red-50', text: 'text-red-700', top: 'border-t-[3px] border-t-red-500' }, trend: null },
+    { label: 'Peleas Activas', value: stats.active_fights, icon: 'active', desc: 'En curso actualmente', color: { bg: 'bg-emerald-50', text: 'text-emerald-700', top: 'border-t-[3px] border-t-emerald-500' }, trend: null },
+    { label: 'Finalizadas', value: stats.completed_fights, icon: 'completed', desc: 'Completadas y analizadas', color: { bg: 'bg-blue-50', text: 'text-blue-700', top: 'border-t-[3px] border-t-blue-500' }, trend: null },
+    { label: 'Jueces', value: stats.total_judges, icon: 'judges', desc: 'Registrados en el sistema', color: { bg: 'bg-amber-50', text: 'text-amber-700', top: 'border-t-[3px] border-t-amber-500' }, trend: null },
   ];
 
   const statusDistribution = ['pending', 'active', 'completed', 'cancelled'].map((st) => {
@@ -295,49 +307,61 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
 
-      {/* ── Badge Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
-            <span className="relative flex w-2.5 h-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-emerald-500" />
-            </span>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Sistema Activo</span>
+      {/* ── Header Section ── */}
+      <div className="bg-gradient-to-b from-slate-50/80 to-transparent rounded-2xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-6 sm:pb-7 -mt-5 sm:-mt-6 mb-2">
+        <div className="max-w-[1440px] mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
+                <span className="relative flex w-2.5 h-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-emerald-500" />
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Sistema Activo</span>
+              </div>
+              <span className="text-xs text-slate-300">/</span>
+              <span className="text-xs text-slate-400 tracking-wide">
+                <span className="text-slate-500 font-medium">WBO</span> / Dashboard
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchData}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.97] shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualizar
+              </button>
+              <button
+                onClick={() => navigate('/fights/create')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-red-800 to-red-900 rounded-xl hover:from-red-900 hover:to-red-950 transition-all shadow-sm hover:shadow-md active:scale-[0.97]"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva Pelea
+              </button>
+            </div>
           </div>
-          <span className="text-xs text-slate-300">/</span>
-          <span className="text-xs text-slate-400 tracking-wide">
-            <span className="text-slate-500 font-medium">WBO</span> / Dashboard
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={fetchData}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.97] shadow-sm"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Actualizar
-          </button>
-          <button
-            onClick={() => navigate('/fights/create')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.97]"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Nueva Pelea
-          </button>
-        </div>
-      </div>
 
-      {/* ── Title Row ── */}
-      <div>
-        <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-tight">
-          Panel de Control
-        </h1>
-        <p className="text-sm text-slate-400 mt-1">Última actualización: {now}</p>
+          {/* Title Row */}
+          <div className="mt-5 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-red-800 to-red-600 hidden sm:block" />
+            <div className="sm:pl-5">
+              <h1 className="text-[30px] sm:text-[38px] font-extrabold text-slate-900 tracking-tight leading-tight">
+                Panel de Control
+              </h1>
+              <p className="text-sm text-slate-400 mt-1.5 flex items-center gap-2">
+                <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Última actualización: {now}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {isEmpty ? (
@@ -443,7 +467,8 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 gap-3">
                   {user?.role !== 'judge' && (
                     <QuickActionCard
-                      icon="+"
+                      primary
+                      icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>}
                       title="Nueva Pelea"
                       desc="Crear un nuevo combate en el sistema"
                       onClick={() => navigate('/fights/create')}
@@ -477,7 +502,7 @@ const Dashboard = () => {
               </div>
 
               {/* System Status */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                 <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Estado del Sistema</p>
                 <h3 className="text-lg font-bold text-slate-900 mb-3">Servicios</h3>
                 <div className="divide-y divide-slate-100">
@@ -490,7 +515,7 @@ const Dashboard = () => {
 
               {/* Status Distribution (mini chart) */}
               {statusDistribution.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Distribución</p>
                   <h3 className="text-lg font-bold text-slate-900 mb-4">Estado de peleas</h3>
                   <div className="space-y-3">
@@ -521,7 +546,7 @@ const Dashboard = () => {
             <div className="xl:col-span-8 space-y-5">
 
               {/* Recent Activity Table */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                 <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Actividad Reciente</p>
@@ -530,10 +555,10 @@ const Dashboard = () => {
                   {user?.role !== 'judge' && (
                     <button
                       onClick={() => navigate('/fights')}
-                      className="text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
+                      className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
                     >
                       Ver todas
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -547,13 +572,13 @@ const Dashboard = () => {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-100">
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Combate</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden md:table-cell">Fecha</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Rounds</th>
-                          <th className="text-center py-3.5 px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Jueces</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Estado</th>
+                      <thead className="bg-slate-50/80">
+                        <tr className="border-b border-slate-200">
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Combate</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Fecha</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Rounds</th>
+                          <th className="text-center py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Jueces</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Estado</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -562,7 +587,7 @@ const Dashboard = () => {
                           return (
                             <tr
                               key={fight.id}
-                              className="border-b border-slate-50 hover:bg-red-50/40 transition-colors cursor-pointer"
+                              className="border-b border-slate-100 hover:bg-red-50/40 transition-all duration-200 cursor-pointer"
                               onClick={() => navigate(`/fights/${fight.id}`)}
                             >
                               <td className="py-4 px-6">
@@ -604,7 +629,7 @@ const Dashboard = () => {
 
               {/* Judges Detail Cards */}
               {active_judges.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Cuerpo de Árbitros</p>
@@ -613,10 +638,10 @@ const Dashboard = () => {
                     {user?.role !== 'judge' && (
                       <button
                         onClick={() => navigate('/judges')}
-                        className="text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
+                        className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
                       >
                         Ver panel completo
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
@@ -633,7 +658,7 @@ const Dashboard = () => {
 
               {/* Timeline / Recent Activity Log */}
               {recent_fights.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Actividad en Tiempo Real</p>
                   <h3 className="text-lg font-bold text-slate-900 mb-4">Eventos Recientes</h3>
                   <div className="space-y-0">
@@ -644,9 +669,9 @@ const Dashboard = () => {
                         ? new Date(fight.scheduled_date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
                         : '--:--';
                       return (
-                        <div key={fight.id} className="relative flex gap-4 pb-4 last:pb-0">
-                          {!isLast && <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-200" />}
-                          <div className={`relative w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.dot.replace('bg-', 'bg-')} bg-opacity-100`}>
+                        <div key={fight.id} className="relative flex gap-4 pb-4 last:pb-0 group/timeline">
+                          {!isLast && <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-200 group-last/timeline:hidden" />}
+                          <div className={`relative w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.bg} transition-transform duration-200 group-hover/timeline:scale-110`}>
                             <div className={`w-2 h-2 rounded-full ${st.dot}`} />
                           </div>
                           <div className="flex-1 min-w-0">

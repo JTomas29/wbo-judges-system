@@ -10,7 +10,7 @@ const MainLayout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f4f2]">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
         {children}

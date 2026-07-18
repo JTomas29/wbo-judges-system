@@ -9,6 +9,13 @@ const roleLabels = {
   judge: 'Juez',
 };
 
+const getInitials = (name) => {
+  if (!name) return '??';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return parts.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+};
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -83,14 +90,14 @@ const Navbar = () => {
 
           {/* LEFT: Logo + Brand */}
           <div className="flex items-center gap-3 shrink-0">
-          <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 ring-2 ring-gray-100 overflow-hidden">
-            <img src={logoSrc} alt="WBO" className="w-full h-full object-contain p-1" />
-          </div>
-            <div className="hidden sm:block">
-              <p className="text-[15px] font-bold text-gray-800 leading-tight">WBO Judges</p>
-              <p className="text-[10px] text-gray-400 leading-tight tracking-wider">Evaluation System</p>
+            <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 ring-2 ring-slate-100 overflow-hidden">
+              <img src={logoSrc} alt="WBO" className="w-full h-full object-contain p-1" />
             </div>
-            <span className="sm:hidden text-[15px] font-bold text-gray-800">WBO</span>
+            <div className="hidden sm:block">
+              <p className="text-[15px] font-bold text-slate-800 leading-tight">WBO Judges</p>
+              <p className="text-[10px] text-slate-400 leading-tight tracking-wider">Evaluation System</p>
+            </div>
+            <span className="sm:hidden text-[15px] font-bold text-slate-800">WBO</span>
           </div>
 
           {/* CENTER: Nav */}
@@ -101,10 +108,10 @@ const Navbar = () => {
                 to={item.path}
                 end={item.path === '/dashboard'}
                 className={({ isActive }) =>
-                  `px-5 h-full flex items-center text-sm font-semibold gap-2 transition-colors border-b-[3px] ${
+                  `px-5 h-full flex items-center text-sm font-semibold gap-2 transition-all duration-200 border-b-[3px] ${
                     isActive
-                      ? 'text-[#6b1421] border-[#6b1421]'
-                      : 'text-gray-500 border-transparent hover:text-[#7a1f2b] hover:border-[#c97a84]'
+                      ? 'text-wbo-700 border-wbo-700'
+                      : 'text-slate-400 border-transparent hover:text-wbo-600 hover:border-wbo-300'
                   }`
                 }
               >
@@ -116,44 +123,47 @@ const Navbar = () => {
 
           {/* RIGHT: Notifications + Profile + Logout */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Notification bell */}
-            <button className="relative p-2 rounded-lg text-gray-400 hover:text-[#7a1f2b] hover:bg-[#fcf0f2] transition-all hidden sm:block">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-              </svg>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-            </button>
-
-            {/* Avatar + Name */}
             {user && (
-              <div className="hidden sm:flex items-center gap-2.5">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-800 leading-tight">{user.name}</p>
-                  <p className="text-[10px] text-gray-400 leading-tight uppercase tracking-wider">
-                    {roleLabels[user.role] || user.role}
-                  </p>
+              <>
+                {/* Avatar + Name (desktop) */}
+                <div className="hidden sm:flex items-center gap-3 pr-4 sm:pr-5 border-r border-slate-100">
+                  <div className="relative group/avatar">
+                    <div className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white ring-offset-1 ring-offset-white transition-all duration-200 group-hover/avatar:shadow-md group-hover/avatar:-translate-y-0.5 group-hover/avatar:from-wbo-800 group-hover/avatar:to-wbo-900 cursor-pointer select-none">
+                      {getInitials(user.name)}
+                    </div>
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-slate-800">{user.name}</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                      {roleLabels[user.role] || user.role}
+                    </p>
+                  </div>
                 </div>
-                <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#6b1421] to-[#4a0f14] text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white">
-                  {user.name?.charAt(0) || 'U'}
+
+                {/* Logout */}
+                <button
+                  onClick={logout}
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3.5 py-2 hover:border-slate-300 hover:text-slate-600 hover:bg-slate-50 hover:shadow-sm transition-all duration-200"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                  </svg>
+                  Salir
+                </button>
+              </>
+            )}
+
+            {/* Mobile avatar + hamburger */}
+            {user && (
+              <div className="lg:hidden flex items-center gap-2">
+                <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white cursor-default select-none">
+                  {getInitials(user.name)}
                 </div>
               </div>
             )}
-
-            {/* Logout */}
-            <button
-              onClick={logout}
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-3.5 py-2 hover:border-gray-300 hover:text-gray-600 transition-all duration-200"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-              </svg>
-              Salir
-            </button>
-
-            {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
@@ -169,7 +179,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white">
+        <div className="lg:hidden border-t border-slate-100 bg-white animate-fadeIn">
           <div className="px-4 py-3 space-y-1">
             {navItems.map((item) => (
               <NavLink
@@ -178,10 +188,10 @@ const Navbar = () => {
                 end={item.path === '/dashboard'}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'text-[#6b1421] bg-[#fcf0f2] font-semibold'
-                      : 'text-gray-500 hover:text-[#7a1f2b] hover:bg-gray-50'
+                      ? 'text-wbo-700 bg-wbo-50 font-semibold'
+                      : 'text-slate-500 hover:text-wbo-600 hover:bg-slate-50'
                   }`
                 }
               >
@@ -191,19 +201,19 @@ const Navbar = () => {
             ))}
           </div>
           {user && (
-            <div className="border-t border-gray-100 px-4 py-3 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6b1421] to-[#4a0f14] text-white flex items-center justify-center text-sm font-bold shrink-0">
-                {user.name?.charAt(0) || 'U'}
+            <div className="border-t border-slate-100 px-4 py-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white">
+                {getInitials(user.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                <p className="text-sm font-semibold text-slate-800 truncate">{user.name}</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider">
                   {roleLabels[user.role] || user.role}
                 </p>
               </div>
               <button
                 onClick={logout}
-                className="text-sm font-medium text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-gray-300 transition-all shrink-0"
+                className="text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3 py-1.5 hover:border-slate-300 hover:text-slate-600 transition-all shrink-0"
               >
                 Salir
               </button>

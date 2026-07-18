@@ -12,13 +12,50 @@ const levelBadge = (level) => {
     senior: 'bg-blue-100 text-blue-800',
     junior: 'bg-yellow-100 text-yellow-800',
   };
-  return map[level] || 'bg-gray-100 text-gray-500';
+  return map[level] || 'bg-slate-100 text-slate-500';
 };
 
 const statusBadge = (active) => {
   return active
     ? 'bg-green-100 text-green-700'
-    : 'bg-gray-100 text-gray-500';
+    : 'bg-slate-100 text-slate-500';
+};
+
+const levelIcon = (level) => {
+  if (level === 'elite') {
+    return (
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+      </svg>
+    );
+  }
+  if (level === 'senior') {
+    return (
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+    </svg>
+  );
+};
+
+const statusIcon = (active) => {
+  if (active) {
+    return (
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  );
 };
 
 const LEVEL_OPTIONS = [
@@ -98,10 +135,10 @@ const JudgeList = () => {
 
   if (!isStaff) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
-        <p className="text-yellow-800 font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 text-center">
+        <p className="text-slate-700 font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
         <button
-          className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+          className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
           onClick={() => navigate('/dashboard')}
         >
           Volver al Dashboard
@@ -112,17 +149,17 @@ const JudgeList = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#6b1421]" />
-        <span className="ml-3 text-gray-500 text-sm">Cargando jueces...</span>
+      <div className="bg-white rounded-xl shadow-sm flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-wbo-700" />
+        <span className="ml-3 text-slate-500 text-sm">Cargando jueces...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg text-sm">
+      <div className="bg-white rounded-xl shadow-sm flex items-center justify-center py-20">
+        <div className="bg-red-50 text-red-700 px-6 py-4 rounded-xl text-sm">
           {error}
         </div>
       </div>
@@ -130,11 +167,11 @@ const JudgeList = () => {
   }
 
   return (
-    <div>
+    <div className="animate-fadeIn">
       <div className="mb-4">
         <BackButton fallbackRoute="/dashboard" />
       </div>
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Gestión de Jueces</h2>
+      <h2 className="text-xl font-bold text-slate-900 mb-4">Gestión de Jueces</h2>
 
       {/* Filters */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
@@ -153,43 +190,45 @@ const JudgeList = () => {
       </FilterBar>
 
       {filteredJudges.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-slate-400 text-sm">
           {hasActiveFilters ? 'No se encontraron jueces con los filtros aplicados' : 'No hay jueces registrados'}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm card-minimal p-5 overflow-x-auto">
+        <div className="bg-white rounded-xl shadow-sm p-5 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nivel</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-                {user?.role === 'admin' && <th className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>}
+              <tr className="bg-wbo-700 text-white rounded-lg">
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nombre</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Email</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nivel</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Estado</th>
+                {user?.role === 'admin' && <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {filteredJudges.map((juez) => (
-                <tr key={juez.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-gray-800">{juez.name}</td>
-                  <td className="py-3 px-4 text-gray-600">{juez.email}</td>
+                <tr key={juez.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-4 font-semibold text-slate-800">{juez.name}</td>
+                  <td className="py-3 px-4 text-slate-600">{juez.email}</td>
                   <td className="py-3 px-4">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
+                      {levelIcon(juez.level)}
                       {juez.level || '—'}
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
+                      {statusIcon(juez.is_active)}
                       {juez.is_active ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   {user?.role === 'admin' && (
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:border-[#6b1421] hover:text-[#6b1421] transition-colors"
+                        <button className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:border-wbo-700 hover:text-wbo-700 hover:bg-wbo-50 transition-all duration-200 shadow-sm"
                           onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
                         <button
-                          className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm ${
                             juez.is_active
                               ? 'bg-red-500 text-white hover:bg-red-600'
                               : 'bg-green-600 text-white hover:bg-green-700'
@@ -209,23 +248,23 @@ const JudgeList = () => {
       )}
 
       {confirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setConfirmTarget(null)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTarget(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               {confirmTarget.is_active ? 'Desactivar juez' : 'Activar juez'}
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-slate-600 mb-6">
               ¿Estás seguro de que quieres {confirmTarget.is_active ? 'desactivar' : 'activar'} a <strong>{confirmTarget.name}</strong>?
             </p>
             <div className="flex gap-3 justify-end">
               <button
-                className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+                className="px-5 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors"
                 onClick={() => setConfirmTarget(null)}
               >
                 No
               </button>
               <button
-                className="px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+                className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
                 onClick={() => handleToggleActive(confirmTarget)}
               >
                 Sí

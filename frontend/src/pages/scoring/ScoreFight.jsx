@@ -21,7 +21,7 @@ const formatDate = (d) => {
 // ─── Sub-components ───
 
 const SuccessHero = ({ submittedAt }) => (
-  <div className="bg-white rounded-2xl shadow-md border-t-4 border-[#6b1421] border-x border-b border-slate-200 p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
+  <div className="bg-white rounded-2xl shadow-md border-t-4 border-wbo-700 border-x border-b border-slate-200 p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
     <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5 animate-[scaleIn_0.5s_ease-out]">
       <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -41,7 +41,7 @@ const SuccessHero = ({ submittedAt }) => (
 );
 
 const ResultCard = ({ label, value, icon, color = '#6b1421' }) => (
-  <div className="bg-white rounded-2xl border-t-4 border-[#6b1421] border-x border-b border-slate-200 shadow-sm p-5 sm:p-6 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+  <div className="bg-white rounded-2xl border-t-4 border-wbo-700 border-x border-b border-slate-200 shadow-sm p-5 sm:p-6 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
     <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3">
       <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
@@ -63,7 +63,7 @@ const FightSummaryCard = ({ fight, scoreCard, roleLabel }) => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border-t-4 border-[#6b1421] border-x border-b border-slate-200 p-6 sm:p-8 transition-all duration-200 hover:shadow-lg">
+    <div className="bg-white rounded-2xl shadow-md border-t-4 border-wbo-700 border-x border-b border-slate-200 p-6 sm:p-8 transition-all duration-200 hover:shadow-lg">
       <h3 className="text-base font-bold text-slate-900 mb-6 flex items-center gap-2">
         <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -93,7 +93,7 @@ const ActionButtons = ({ fightId, navigate }) => (
   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-[fadeIn_0.6s_ease-out]">
     <button
       onClick={() => navigate('/dashboard')}
-      className="inline-flex items-center gap-2 px-6 py-3 bg-[#6b1421] text-white rounded-xl text-sm font-bold shadow-sm hover:bg-[#4a0f14] hover:shadow-md transition-all duration-200 active:scale-[0.98]"
+      className="inline-flex items-center gap-2 px-6 py-3 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md transition-all duration-200 active:scale-[0.98]"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -302,7 +302,7 @@ const ScoreFight = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-400">Cargando tarjeta...</p>
+        <p className="text-slate-400">Cargando tarjeta...</p>
       </div>
     );
   }
@@ -313,7 +313,7 @@ const ScoreFight = () => {
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
           <p className="text-yellow-800 font-medium">{restriction}</p>
           <button
-            className="mt-4 px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors"
+            className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-lg text-sm font-semibold hover:bg-wbo-800 transition-colors"
             onClick={() => navigate(-1)}
           >
             Volver
@@ -326,7 +326,7 @@ const ScoreFight = () => {
   if (!fight || !scoreCard) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-gray-400 py-10">No se pudo cargar la información de la pelea.</p>
+        <p className="text-slate-400 py-10">No se pudo cargar la información de la pelea.</p>
       </div>
     );
   }
@@ -406,27 +406,27 @@ const ScoreFight = () => {
     );
   }
 
-  // ─── Draft View (Unchanged) ───
+  // ─── Draft View ───
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-[fadeIn_0.4s_ease-out]">
       <div className="mb-4">
         <BackButton />
       </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 m-0">Tarjeta de Puntuación</h2>
-          <p className="text-sm text-gray-400">
+          <h2 className="text-xl font-bold text-slate-900 m-0">Tarjeta de Puntuación</h2>
+          <p className="text-sm text-slate-400">
             {fight.boxer_red} vs {fight.boxer_blue}
           </p>
-          <p className="text-xs text-gray-400">{fight.event_name}</p>
+          <p className="text-xs text-slate-400">{fight.event_name}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold text-gray-700">
+          <p className="text-sm font-semibold text-slate-700">
             Rounds completos: {completedRounds} / {totalRounds}
           </p>
-          <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden mt-1">
+          <div className="w-48 h-2 bg-slate-200 rounded-full overflow-hidden mt-1">
             <div
-              className="h-full bg-[#6b1421] rounded-full transition-all duration-300"
+              className="h-full bg-wbo-700 rounded-full transition-all duration-300"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -439,9 +439,9 @@ const ScoreFight = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm card-minimal p-5">
+      <div className="bg-white rounded-xl shadow-sm p-5">
         <div className="space-y-1.5">
-          <div className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2.5 bg-[#6b1421] text-white rounded-lg text-xs font-semibold">
+          <div className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
             <span>Round</span>
             <span className="text-center">{fight.boxer_red}</span>
             <span className="text-center">{fight.boxer_blue}</span>
@@ -457,8 +457,8 @@ const ScoreFight = () => {
             const err = roundErrors[rn];
 
             return (
-              <div key={rn} className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2 bg-gray-50 even:bg-white rounded-lg">
-                <span className="font-bold text-[#6b1421] text-sm">R{rn}</span>
+              <div key={rn} className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2 bg-slate-50 even:bg-white rounded-lg">
+                <span className="font-bold text-wbo-700 text-sm">R{rn}</span>
                 <input
                   type="number"
                   min="1"
@@ -467,7 +467,7 @@ const ScoreFight = () => {
                   onChange={(e) => updateRound(rn, 'score_red', e.target.value === '' ? null : Number(e.target.value))}
                   onBlur={() => handleBlur(rn)}
                   disabled={isFinalized}
-                  className="w-full px-2 py-1.5 text-center border border-gray-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 text-sm font-bold shadow-sm hover:border-slate-300 transition-all duration-200 focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
                 />
                 <input
                   type="number"
@@ -477,7 +477,7 @@ const ScoreFight = () => {
                   onChange={(e) => updateRound(rn, 'score_blue', e.target.value === '' ? null : Number(e.target.value))}
                   onBlur={() => handleBlur(rn)}
                   disabled={isFinalized}
-                  className="w-full px-2 py-1.5 text-center border border-gray-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 text-sm font-bold shadow-sm hover:border-slate-300 transition-all duration-200 focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
                 />
                 <input
                   type="number"
@@ -488,7 +488,7 @@ const ScoreFight = () => {
                   onBlur={() => handleBlur(rn)}
                   disabled={isFinalized}
                   placeholder="-"
-                  className="w-full px-2 py-1.5 text-center border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 text-sm shadow-sm hover:border-slate-300 transition-all duration-200 focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
                 />
                 <input
                   type="text"
@@ -497,10 +497,10 @@ const ScoreFight = () => {
                   onBlur={() => handleBlur(rn)}
                   disabled={isFinalized}
                   placeholder="Notas..."
-                  className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#6b1421] focus:ring-2 focus:ring-[#6b1421]/20 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full px-2 py-1.5 rounded-xl border border-slate-200 text-sm shadow-sm hover:border-slate-300 transition-all duration-200 focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
                 />
                 <div className="flex justify-center text-xs">
-                  {saving && <span className="text-gray-400">Guardando...</span>}
+                  {saving && <span className="text-slate-400">Guardando...</span>}
                   {saved && <span className="text-green-600 font-medium">Guardado</span>}
                   {err && <span className="text-red-600" title={err}>Error</span>}
                 </div>
@@ -513,7 +513,7 @@ const ScoreFight = () => {
       <div className="mt-4 flex justify-center">
         <button
           disabled={!allComplete || finalizing}
-          className="inline-flex items-center justify-center px-6 py-3 bg-[#6b1421] text-white rounded-lg text-sm font-bold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-6 py-3 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:bg-wbo-800 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           onClick={() => setShowConfirmModal(true)}
         >
           {finalizing ? 'Enviando...' : 'Enviar tarjeta final'}
@@ -521,22 +521,22 @@ const ScoreFight = () => {
       </div>
 
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { if (!finalizing) setShowConfirmModal(false); }}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Enviar tarjeta final</h3>
-            <p className="text-sm text-gray-600 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { if (!finalizing) setShowConfirmModal(false); }}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 animate-[scaleIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Enviar tarjeta final</h3>
+            <p className="text-sm text-slate-600 mb-6">
               Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?
             </p>
             <div className="flex gap-3 justify-end">
               <button
-                className="px-5 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+                className="px-5 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors"
                 disabled={finalizing}
                 onClick={() => setShowConfirmModal(false)}
               >
                 Cancelar
               </button>
               <button
-                className="px-5 py-2.5 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
                 disabled={finalizing}
                 onClick={handleFinalize}
               >

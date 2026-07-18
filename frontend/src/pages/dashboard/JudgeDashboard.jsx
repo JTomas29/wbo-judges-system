@@ -169,7 +169,7 @@ const JudgeDashboard = () => {
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
 
       {/* ─── 1. MI PERFIL (Premium Card) ─── */}
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Top section: Avatar + Info + Stats */}
         <div className="p-6 sm:p-8">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6">

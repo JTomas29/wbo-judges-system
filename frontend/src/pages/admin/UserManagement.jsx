@@ -82,7 +82,7 @@ const UserManagement = () => {
           icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           title="Información personal"
         >
-          <div className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
             <InputField
               name="name"
               label="Nombre completo"
@@ -110,7 +110,7 @@ const UserManagement = () => {
           icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           title="Información de acceso"
         >
-          <div className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
             <InputField
               name="password"
               label="Contraseña"
@@ -133,7 +133,7 @@ const UserManagement = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center gap-3 pt-6 border-t border-slate-100 mt-7">
+        <div className="flex items-center gap-3 mt-10">
           <button
             type="submit"
             disabled={saving}

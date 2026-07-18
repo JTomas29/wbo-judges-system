@@ -23,6 +23,30 @@ export default {
           DEFAULT: '#f5f4f2', 100: '#f0eee9', 200: '#e5e2db',
         },
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.8)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        pulseDot: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.3s ease-out',
+        scaleIn: 'scaleIn 0.2s ease-out',
+        slideUp: 'slideUp 0.3s ease-out',
+        pulseDot: 'pulseDot 1.5s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

@@ -1,9 +1,9 @@
 const InputField = ({ name, label, value, onChange, placeholder, type = 'text', required, error, icon, className = '' }) => (
   <div className={className}>
-    <label htmlFor={name} className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+    <label htmlFor={name} className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
       {icon && <span className="text-slate-400">{icon}</span>}
       {label}
-      {required && <span className="text-[10px] font-medium text-red-600 bg-red-50 px-1.5 py-0.5 rounded lowercase">Obligatorio</span>}
+      {required && <span className="text-red-500 text-sm leading-none">*</span>}
     </label>
     <input
       id={name}
