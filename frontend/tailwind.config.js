@@ -40,12 +40,17 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.4' },
         },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-out',
         scaleIn: 'scaleIn 0.2s ease-out',
         slideUp: 'slideUp 0.3s ease-out',
         pulseDot: 'pulseDot 1.5s ease-in-out infinite',
+        slideInRight: 'slideInRight 0.3s ease-out',
       },
     },
   },

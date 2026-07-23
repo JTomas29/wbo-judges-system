@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logoSrc from '../../assets/logoWbo.png';
+import NotificationCenter from '../common/NotificationCenter';
 
 const roleLabels = {
   admin: 'Administrador',
@@ -139,6 +140,9 @@ const Navbar = () => {
                     </p>
                   </div>
                 </div>
+
+                {/* Notification Center */}
+                <NotificationCenter />
 
                 {/* Logout */}
                 <button
