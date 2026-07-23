@@ -63,4 +63,25 @@ Notification.deleteById = async (id, userId) => {
   return rows[0] || null;
 };
 
+Notification.getAdminAndSupervisorIds = async () => {
+  const { rows } = await pool.query(
+    "SELECT id FROM users WHERE role IN ('admin', 'supervisor') AND is_active = TRUE"
+  );
+  return rows.map((r) => r.id);
+};
+
+Notification.getAdminIds = async () => {
+  const { rows } = await pool.query(
+    "SELECT id FROM users WHERE role = 'admin' AND is_active = TRUE"
+  );
+  return rows.map((r) => r.id);
+};
+
+Notification.createForUsers = async (userIds, data) => {
+  if (!userIds || userIds.length === 0) return;
+  await Promise.all(
+    userIds.map((userId) => Notification.create({ ...data, userId }))
+  );
+};
+
 module.exports = Notification;

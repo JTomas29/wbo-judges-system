@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const Notification = require('../models/Notification');
 
 // Controlador de jueces — gestión y asignación de jueces
 exports.getAll = async (req, res, next) => {
@@ -62,6 +63,27 @@ exports.update = async (req, res, next) => {
     });
 
     if (!updated) return res.status(400).json({ message: 'No se pudo actualizar el juez' });
+
+    const adminIds = await Notification.getAdminIds();
+    await Notification.createForUsers(adminIds, {
+      type: 'system',
+      title: 'Juez actualizado',
+      message: `El juez "${updated.name}" fue actualizado en el sistema`,
+      referenceType: 'user',
+      referenceId: parseInt(id, 10),
+    });
+
+    if (finalLevel !== judge.level) {
+      await Notification.create({
+        userId: parseInt(id, 10),
+        type: 'system',
+        title: 'Nivel actualizado',
+        message: `Tu nivel fue actualizado de "${judge.level}" a "${finalLevel}"`,
+        referenceType: 'user',
+        referenceId: parseInt(id, 10),
+      });
+    }
+
     res.json(updated);
   } catch (err) {
     next(err);
@@ -77,6 +99,16 @@ exports.delete = async (req, res, next) => {
 
     const deleted = await User.deleteJudge(id);
     if (!deleted) return res.status(400).json({ message: 'No se pudo eliminar el juez' });
+
+    const adminIds = await Notification.getAdminIds();
+    await Notification.createForUsers(adminIds, {
+      type: 'system',
+      title: 'Juez eliminado',
+      message: `El juez "${judge.name}" fue eliminado del sistema`,
+      referenceType: 'user',
+      referenceId: parseInt(id, 10),
+    });
+
     res.json({ message: 'Juez eliminado correctamente', judge: deleted });
   } catch (err) {
     if (err.code === '23503') {

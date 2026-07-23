@@ -2,6 +2,7 @@ const ScoreCard = require('../models/ScoreCard');
 const RoundScore = require('../models/RoundScore');
 const Fight = require('../models/Fight');
 const JudgeAssignment = require('../models/JudgeAssignment');
+const Notification = require('../models/Notification');
 
 exports.createOrGetScorecard = async (req, res, next) => {
   try {
@@ -156,6 +157,15 @@ exports.finalizeScorecard = async (req, res, next) => {
     if (!finalized) {
       return res.status(400).json({ message: 'No se pudo finalizar la tarjeta.' });
     }
+
+    await Notification.create({
+      userId: req.user.id,
+      type: 'system',
+      title: 'Tarjeta finalizada',
+      message: `Tu tarjeta de puntuación para la pelea "${fight.event_name}" fue finalizada correctamente`,
+      referenceType: 'fight',
+      referenceId: scoreCard.fight_id,
+    });
 
     res.json({ scorecard: finalized, message: 'Tarjeta enviada correctamente.' });
   } catch (err) {

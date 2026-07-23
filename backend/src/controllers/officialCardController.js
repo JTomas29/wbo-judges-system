@@ -1,5 +1,6 @@
 const OfficialCard = require('../models/OfficialCard');
 const Fight = require('../models/Fight');
+const Notification = require('../models/Notification');
 
 exports.get = async (req, res, next) => {
   try {
@@ -70,6 +71,29 @@ exports.create = async (req, res, next) => {
     }
 
     const card = await OfficialCard.create(fightId, rounds, req.user.id);
+
+    const assignedJudges = await Fight.getAssignedJudges(fightId);
+    const judgeIds = assignedJudges.map((j) => j.id);
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'system',
+      title: 'Tarjeta oficial cargada',
+      message: `Se cargó la tarjeta oficial para la pelea "${fight.event_name}"`,
+      referenceType: 'fight',
+      referenceId: fightId,
+    });
+
+    if (judgeIds.length > 0) {
+      await Notification.createForUsers(judgeIds, {
+        type: 'system',
+        title: 'Tarjeta oficial disponible',
+        message: `La tarjeta oficial de la pelea "${fight.event_name}" fue cargada. Tu análisis de rendimiento estará pronto disponible.`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+    }
+
     res.status(201).json(card);
   } catch (err) {
     next(err);

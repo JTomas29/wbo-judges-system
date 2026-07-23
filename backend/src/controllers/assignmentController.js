@@ -1,6 +1,7 @@
 ﻿const Fight = require('../models/Fight');
 const User = require('../models/User');
 const JudgeAssignment = require('../models/JudgeAssignment');
+const Notification = require('../models/Notification');
 
 exports.assign = async (req, res, next) => {
   try {
@@ -44,6 +45,25 @@ exports.assign = async (req, res, next) => {
     if (count >= 10) return res.status(400).json({ message: 'No se pueden asignar más de 10 jueces a una pelea' });
 
     const assignment = await JudgeAssignment.create(fightId, judgeNum, assignment_type);
+
+    await Notification.create({
+      userId: judgeNum,
+      type: 'assignment',
+      title: 'Nueva asignación',
+      message: `Fuiste asignado como juez a la pelea "${fight.event_name}" (${fight.boxer_red} vs ${fight.boxer_blue}). Debes confirmar tu participación.`,
+      referenceType: 'fight',
+      referenceId: fightId,
+    });
+
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'assignment',
+      title: 'Juez asignado',
+      message: `El juez "${judge.name}" fue asignado a la pelea "${fight.event_name}"`,
+      referenceType: 'fight',
+      referenceId: fightId,
+    });
+
     res.status(201).json(assignment);
   } catch (err) {
     next(err);
@@ -82,6 +102,26 @@ exports.remove = async (req, res, next) => {
     if (fight.status === 'active') return res.status(400).json({ message: 'No se puede eliminar asignaciones de una pelea activa' });
 
     await JudgeAssignment.delete(fightNum, judgeNum);
+
+    await Notification.create({
+      userId: judgeNum,
+      type: 'assignment',
+      title: 'Asignación eliminada',
+      message: `Tu asignación como juez en la pelea "${fight.event_name}" fue eliminada`,
+      referenceType: 'fight',
+      referenceId: fightNum,
+    });
+
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    const judge = await User.findById(judgeNum);
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'assignment',
+      title: 'Asignación eliminada',
+      message: `La asignación del juez "${judge ? judge.name : judgeNum}" en la pelea "${fight.event_name}" fue eliminada`,
+      referenceType: 'fight',
+      referenceId: fightNum,
+    });
+
     res.status(204).end();
   } catch (err) {
     next(err);
@@ -119,6 +159,47 @@ exports.respond = async (req, res, next) => {
 
     const allAssignments = await JudgeAssignment.getByFight(fightId);
     const confirmedCount = allAssignments.filter(a => a.status === 'confirmed').length;
+
+    const judge = await User.findById(judgeId);
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+
+    if (response === 'confirmed') {
+      await Notification.createForUsers(adminSupervisorIds, {
+        type: 'status_change',
+        title: 'Juez confirmó participación',
+        message: `El juez "${judge.name}" confirmó su participación en la pelea "${fight.event_name}"`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+    } else {
+      await Notification.createForUsers(adminSupervisorIds, {
+        type: 'status_change',
+        title: 'Juez rechazó participación',
+        message: `El juez "${judge.name}" rechazó su participación en la pelea "${fight.event_name}"`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+    }
+
+    if (fight.status === 'pending' && updatedFight && updatedFight.status === 'active') {
+      const judgeIds = allAssignments.map((a) => a.judge_id);
+
+      await Notification.createForUsers(judgeIds, {
+        type: 'status_change',
+        title: 'Pelea activa',
+        message: `Todos los jueces confirmaron. La pelea "${fight.event_name}" está activa. Ya puedes comenzar a puntuar.`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+
+      await Notification.createForUsers(adminSupervisorIds, {
+        type: 'status_change',
+        title: 'Pelea activa',
+        message: `Todos los jueces confirmaron. La pelea "${fight.event_name}" pasó a estado activo`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+    }
 
     res.json({
       assignment: updated,

@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const ScoreCard = require('../models/ScoreCard');
 const OfficialCard = require('../models/OfficialCard');
+const Notification = require('../models/Notification');
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -97,6 +98,16 @@ exports.create = async (req, res, next) => {
     });
 
     const created = await Fight.getById(fightId);
+
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'system',
+      title: 'Nueva pelea creada',
+      message: `Se creó la pelea "${event_name.trim()}" (${boxer_red.trim()} vs ${boxer_blue.trim()})`,
+      referenceType: 'fight',
+      referenceId: fightId,
+    });
+
     res.status(201).json(created);
   } catch (err) {
     next(err);
@@ -168,6 +179,19 @@ exports.update = async (req, res, next) => {
     });
 
     const updated = await Fight.getById(id);
+
+    const assignedJudges = await Fight.getAssignedJudges(id);
+    const judgeIds = assignedJudges.map((j) => j.id);
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    const allUserIds = [...new Set([...adminSupervisorIds, ...judgeIds])];
+    await Notification.createForUsers(allUserIds, {
+      type: 'status_change',
+      title: 'Pelea modificada',
+      message: `La pelea "${event_name.trim()}" fue modificada`,
+      referenceType: 'fight',
+      referenceId: parseInt(id, 10),
+    });
+
     res.json(updated);
   } catch (err) {
     next(err);
@@ -192,6 +216,19 @@ exports.complete = async (req, res, next) => {
     }
 
     const updated = await Fight.complete(Number(id));
+
+    const assignedJudges = await Fight.getAssignedJudges(id);
+    const judgeIds = assignedJudges.map((j) => j.id);
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    const allUserIds = [...new Set([...adminSupervisorIds, ...judgeIds])];
+    await Notification.createForUsers(allUserIds, {
+      type: 'status_change',
+      title: 'Pelea finalizada',
+      message: `La pelea "${fight.event_name}" fue finalizada correctamente`,
+      referenceType: 'fight',
+      referenceId: Number(id),
+    });
+
     res.json({ message: 'Pelea finalizada correctamente.', fight: updated });
   } catch (err) {
     next(err);
@@ -307,6 +344,27 @@ exports.analyze = async (req, res, next) => {
     }
 
     const results = await Fight.analyze(Number(id));
+
+    const assignedJudges = await Fight.getAssignedJudges(id);
+    const judgeIds = assignedJudges.map((j) => j.id);
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'system',
+      title: 'Análisis completado',
+      message: `El análisis de la pelea "${fight.event_name}" fue completado exitosamente`,
+      referenceType: 'fight',
+      referenceId: Number(id),
+    });
+
+    await Notification.createForUsers(judgeIds, {
+      type: 'system',
+      title: 'Análisis disponible',
+      message: `Tu análisis de rendimiento para la pelea "${fight.event_name}" está disponible`,
+      referenceType: 'fight',
+      referenceId: Number(id),
+    });
+
     res.json({
       fight_id: Number(id),
       status: 'analyzed',
@@ -344,8 +402,30 @@ exports.remove = async (req, res, next) => {
       return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene análisis realizados' });
     }
 
+    const assignedJudges = await Fight.getAssignedJudges(id);
+    const judgeIds = assignedJudges.map((j) => j.id);
+
     await Fight.deleteAssignments(id);
     const deleted = await Fight.deleteById(id);
+
+    const eventLabel = `${fight.event_name} (${fight.boxer_red} vs ${fight.boxer_blue})`;
+    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
+    await Notification.createForUsers(adminSupervisorIds, {
+      type: 'system',
+      title: 'Pelea eliminada',
+      message: `La pelea "${eventLabel}" fue eliminada del sistema`,
+      referenceType: 'fight',
+      referenceId: parseInt(id, 10),
+    });
+    if (judgeIds.length > 0) {
+      await Notification.createForUsers(judgeIds, {
+        type: 'status_change',
+        title: 'Pelea eliminada',
+        message: `La pelea "${eventLabel}" en la que estabas asignado fue eliminada`,
+        referenceType: 'fight',
+        referenceId: parseInt(id, 10),
+      });
+    }
 
     res.json({ message: 'Pelea eliminada correctamente.' });
   } catch (err) {
