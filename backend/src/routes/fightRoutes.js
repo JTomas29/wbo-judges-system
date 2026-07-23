@@ -32,8 +32,8 @@ router.post('/:id/analyze', roleMiddleware('admin'), analyze);
 router.get('/:id/analysis', getAnalysis);
 
 // Asignaciones de jueces
-router.post('/:id/assignments', roleMiddleware('admin'), assign);
-router.delete('/:id/assignments/:judgeId', roleMiddleware('admin'), removeAssignment);
+router.post('/:id/assignments', roleMiddleware('admin', 'supervisor'), assign);
+router.delete('/:id/assignments/:judgeId', roleMiddleware('admin', 'supervisor'), removeAssignment);
 router.get('/:id/assignments', list);
 
 // Respuesta del juez (confirmar/rechazar)

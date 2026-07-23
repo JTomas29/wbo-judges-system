@@ -5,6 +5,33 @@ import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
+const SEEN_KEY = 'wbo_seen_assignments';
+
+const getSeenSet = (userId) => {
+  try {
+    const raw = localStorage.getItem(`${SEEN_KEY}_${userId}`);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const markAsSeen = (userId, fightId) => {
+  try {
+    const set = getSeenSet(userId);
+    set.add(fightId);
+    localStorage.setItem(`${SEEN_KEY}_${userId}`, JSON.stringify([...set]));
+  } catch {}
+};
+
+const markBatchAsSeen = (userId, fightIds) => {
+  try {
+    const set = getSeenSet(userId);
+    fightIds.forEach((id) => set.add(id));
+    localStorage.setItem(`${SEEN_KEY}_${userId}`, JSON.stringify([...set]));
+  } catch {}
+};
+
 const statusBadge = (status) => {
   const map = {
     pending: 'bg-amber-100 text-amber-700',
@@ -43,7 +70,8 @@ const formatDateTime = (d) => {
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-const getLeftBorder = (a) => {
+const getLeftBorder = (a, isNew) => {
+  if (isNew) return 'border-l-red-600';
   if (a.assignment_status === 'pending') return 'border-l-amber-500';
   if (a.assignment_status === 'rejected') return 'border-l-red-400';
   if (a.fight_status === 'active') return 'border-l-emerald-500';
@@ -79,6 +107,7 @@ const Confirmation = () => {
   const [responding, setResponding] = useState(null);
   const [rejecting, setRejecting] = useState(null);
   const [rejectReasons, setRejectReasons] = useState({});
+  const [seenTick, setSeenTick] = useState(0);
 
   // Filters
   const [searchEvent, setSearchEvent] = useState('');
@@ -108,6 +137,8 @@ const Confirmation = () => {
       result.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
     } else if (sortOrder === 'farthest') {
       result.sort((a, b) => new Date(b.scheduled_date) - new Date(a.scheduled_date));
+    } else {
+      result.sort((a, b) => new Date(b.assigned_at || 0) - new Date(a.assigned_at || 0));
     }
     return result;
   }, [assignments, searchEvent, filterAssignStatus, sortOrder]);
@@ -119,6 +150,13 @@ const Confirmation = () => {
   };
 
   const hasActiveFilters = searchEvent || filterAssignStatus || sortOrder;
+
+  const seenSet = useMemo(() => getSeenSet(user?.id), [user?.id, seenTick]);
+
+  const newCount = useMemo(
+    () => assignments.filter((a) => a.assignment_status === 'pending' && !seenSet.has(a.fight_id)).length,
+    [assignments, seenSet],
+  );
 
   const loadAssignments = useCallback(async () => {
     if (!token) return;
@@ -134,7 +172,25 @@ const Confirmation = () => {
     }
   }, [token]);
 
+  const markVisiblePendingAsSeen = useCallback(() => {
+    if (!user?.id) return;
+    const pendingIds = assignments
+      .filter((a) => a.assignment_status === 'pending')
+      .map((a) => a.fight_id);
+    if (pendingIds.length > 0) {
+      markBatchAsSeen(user.id, pendingIds);
+      setSeenTick((t) => t + 1);
+    }
+  }, [user?.id, assignments]);
+
   useEffect(() => { loadAssignments(); }, [loadAssignments]);
+
+  useEffect(() => {
+    if (assignments.length > 0 && user?.id) {
+      const timer = setTimeout(() => markVisiblePendingAsSeen(), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [assignments, user?.id, markVisiblePendingAsSeen]);
 
   const handleRespond = async (fightId, response, reason) => {
     setResponding(fightId);
@@ -143,6 +199,8 @@ const Confirmation = () => {
       const body = { response };
       if (reason) body.reason = reason;
       const res = await respondAssignment(fightId, body, token);
+      if (user?.id) markAsSeen(user.id, fightId);
+      setSeenTick((t) => t + 1);
       setAssignments((prev) =>
         prev.map((a) =>
           a.fight_id === fightId
@@ -236,6 +294,9 @@ const Confirmation = () => {
             <p className="text-sm text-slate-500 mt-1">Gestioná tus asignaciones a peleas</p>
           </div>
           <div className="flex gap-3">
+            {newCount > 0 && (
+              <StatCard label="Nuevas" count={newCount} dotColor="bg-red-500" icon="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            )}
             <StatCard label="Pendientes" count={pending} dotColor="bg-amber-500" icon="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             <StatCard label="Confirmadas" count={confirmed} dotColor="bg-emerald-500" icon="M5 13l4 4L19 7" />
             <StatCard label="Rechazadas" count={rejected} dotColor="bg-red-500" icon="M6 18L18 6M6 6l12 12" />
@@ -275,9 +336,10 @@ const Confirmation = () => {
         {filteredAssignments.map((a) => {
           const isPending = a.assignment_status === 'pending';
           const isActive = a.fight_status === 'active';
+          const isNew = isPending && !seenSet.has(a.fight_id);
 
           return (
-            <div key={a.fight_id} className={`bg-white rounded-2xl border border-slate-200 border-l-[5px] ${getLeftBorder(a)} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5`}>
+            <div key={a.fight_id} className={`bg-white rounded-2xl border border-slate-200 border-l-[5px] ${getLeftBorder(a, isNew)} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5${isNew ? ' ring-1 ring-red-200/60' : ''}`}>
               {a._justActivated && (
                 <div className="mx-6 mt-6 bg-emerald-50 text-emerald-700 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
                   <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -304,6 +366,14 @@ const Confirmation = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {isNew && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-600 text-white shadow-sm animate-pulse">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Nueva
+                      </span>
+                    )}
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusBadge(a.assignment_status)}`}>
                       {a.assignment_status === 'pending' ? 'Pendiente' : a.assignment_status === 'confirmed' ? 'Confirmada' : 'Rechazada'}
                     </span>
