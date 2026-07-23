@@ -12,6 +12,7 @@ const meRoutes = require('./routes/meRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const officialCardRoutes = require('./routes/officialCardRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/me', meRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/fights', officialCardRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
