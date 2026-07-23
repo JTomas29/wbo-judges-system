@@ -44,6 +44,15 @@ export default {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0)' },
         },
+        badgePulse: {
+          '0%': { boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.5)' },
+          '70%': { boxShadow: '0 0 0 6px rgba(239, 68, 68, 0)' },
+          '100%': { boxShadow: '0 0 0 0 rgba(239, 68, 68, 0)' },
+        },
+        notifSlideIn: {
+          '0%': { opacity: '0', transform: 'translateX(12px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-out',
@@ -51,6 +60,8 @@ export default {
         slideUp: 'slideUp 0.3s ease-out',
         pulseDot: 'pulseDot 1.5s ease-in-out infinite',
         slideInRight: 'slideInRight 0.3s ease-out',
+        badgePulse: 'badgePulse 2s infinite',
+        notifSlideIn: 'notifSlideIn 0.3s ease-out',
       },
     },
   },
