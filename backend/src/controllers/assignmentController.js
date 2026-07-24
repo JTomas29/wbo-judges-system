@@ -49,17 +49,8 @@ exports.assign = async (req, res, next) => {
     await Notification.create({
       userId: judgeNum,
       type: 'assignment',
-      title: 'Nueva asignación',
-      message: `Fuiste asignado como juez a la pelea "${fight.event_name}" (${fight.boxer_red} vs ${fight.boxer_blue}). Debes confirmar tu participación.`,
-      referenceType: 'fight',
-      referenceId: fightId,
-    });
-
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    await Notification.createForUsers(adminSupervisorIds, {
-      type: 'assignment',
-      title: 'Juez asignado',
-      message: `El juez "${judge.name}" fue asignado a la pelea "${fight.event_name}"`,
+      title: 'Fuiste designado para una pelea',
+      message: `Has sido asignado a la pelea "${fight.event_name}".`,
       referenceType: 'fight',
       referenceId: fightId,
     });
@@ -174,28 +165,18 @@ exports.respond = async (req, res, next) => {
     } else {
       await Notification.createForUsers(adminSupervisorIds, {
         type: 'status_change',
-        title: 'Juez rechazó participación',
-        message: `El juez "${judge.name}" rechazó su participación en la pelea "${fight.event_name}"`,
+        title: 'Designación rechazada',
+        message: `${judge.name} rechazó la designación para la pelea "${fight.event_name}"`,
         referenceType: 'fight',
         referenceId: fightId,
       });
     }
 
     if (fight.status === 'pending' && updatedFight && updatedFight.status === 'active') {
-      const judgeIds = allAssignments.map((a) => a.judge_id);
-
-      await Notification.createForUsers(judgeIds, {
-        type: 'status_change',
-        title: 'Pelea activa',
-        message: `Todos los jueces confirmaron. La pelea "${fight.event_name}" está activa. Ya puedes comenzar a puntuar.`,
-        referenceType: 'fight',
-        referenceId: fightId,
-      });
-
       await Notification.createForUsers(adminSupervisorIds, {
         type: 'status_change',
-        title: 'Pelea activa',
-        message: `Todos los jueces confirmaron. La pelea "${fight.event_name}" pasó a estado activo`,
+        title: 'Pelea lista para comenzar',
+        message: 'Todos los jueces confirmaron su participación.',
         referenceType: 'fight',
         referenceId: fightId,
       });
