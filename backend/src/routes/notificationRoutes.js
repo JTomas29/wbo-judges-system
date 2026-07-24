@@ -8,6 +8,7 @@ router.use(authMiddleware);
 // GET /api/notifications — listar notificaciones del usuario
 router.get('/', async (req, res, next) => {
   try {
+    await Notification.deleteExpired(20);
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
     const notifications = await Notification.getByUser(req.user.id, { limit, offset });

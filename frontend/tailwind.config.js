@@ -53,6 +53,10 @@ export default {
           '0%': { opacity: '0', transform: 'translateX(12px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
+        toastSlideUp: {
+          '0%': { opacity: '0', transform: 'translate(-50%, 12px)' },
+          '100%': { opacity: '1', transform: 'translate(-50%, 0)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-out',
@@ -62,6 +66,7 @@ export default {
         slideInRight: 'slideInRight 0.3s ease-out',
         badgePulse: 'badgePulse 2s infinite',
         notifSlideIn: 'notifSlideIn 0.3s ease-out',
+        toastSlideUp: 'toastSlideUp 0.3s ease-out',
       },
     },
   },

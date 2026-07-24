@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   getNotifications,
   getUnreadCount,
@@ -7,6 +8,7 @@ import {
   markAllAsRead,
   deleteNotification,
 } from '../../services/notificationService';
+import { getNotificationRoute } from '../../services/notificationNavigation';
 
 const TYPE_CONFIG = {
   assignment: {
@@ -132,22 +134,35 @@ const EmptyState = () => (
         </svg>
       </div>
     </div>
-    <p className="text-sm font-semibold text-slate-500 mb-1">Sin notificaciones</p>
-    <p className="text-xs text-slate-400 text-center max-w-[220px] leading-relaxed">
-      Cuando haya novedades en el sistema aparecerán aquí
+    <p className="text-sm font-semibold text-slate-500 mb-1">No tenés notificaciones</p>
+    <p className="text-xs text-slate-400 text-center max-w-[240px] leading-relaxed">
+      Las novedades importantes aparecerán aquí automáticamente.
     </p>
   </div>
 );
 
-const NotificationCard = ({ notification, onRead, onDelete, isNew }) => {
+const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, userRole }) => {
   const config = TYPE_CONFIG[notification.type] || TYPE_CONFIG.system;
   const isUnread = !notification.is_read;
 
+  const handleClick = () => {
+    const { path, deleted } = getNotificationRoute(notification, userRole);
+    if (isUnread) onRead(notification.id);
+    onNavigate(path, deleted);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(notification.id);
+  };
+
   return (
     <div
-      onClick={() => { if (isUnread) onRead(notification.id); }}
-      className={`group relative px-4 py-3 border-b border-slate-100/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/60 ${
-        isUnread ? 'bg-gradient-to-r from-red-50/40 via-white to-white' : ''
+      onClick={handleClick}
+      className={`group relative px-4 py-3 border-b border-slate-100/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 hover:pl-5 ${
+        isUnread
+          ? 'bg-gradient-to-r from-red-50/40 via-white to-white hover:from-red-50/60'
+          : ''
       } ${isNew ? 'animate-notifSlideIn' : ''}`}
     >
       <div className="flex gap-3">
@@ -163,11 +178,11 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew }) => {
               {notification.title}
             </p>
             <button
-              onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 shrink-0 mt-[-1px]"
+              onClick={handleDelete}
+              className="sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 shrink-0 mt-[-1px]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
               </svg>
             </button>
           </div>
@@ -190,6 +205,7 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew }) => {
 
 const NotificationCenter = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -284,9 +300,13 @@ const NotificationCenter = () => {
   };
 
   const handleDelete = async (id) => {
+    const target = notifications.find((n) => n.id === id);
+    if (!target) return;
+    const confirmed = window.confirm(`¿Eliminar la notificación "${target.title}"?`);
+    if (!confirmed) return;
     try {
       await deleteNotification(id);
-      const wasUnread = notifications.find((n) => n.id === id && !n.is_read);
+      const wasUnread = target && !target.is_read;
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       if (wasUnread) {
         setUnreadCount((prev) => Math.max(0, prev - 1));
@@ -294,6 +314,17 @@ const NotificationCenter = () => {
       }
     } catch { /* silent */ }
   };
+
+  const handleNavigate = useCallback((path, deleted) => {
+    setIsOpen(false);
+    if (deleted) {
+      navigate('/dashboard', {
+        state: { toast: { type: 'info', message: 'El contenido ya no está disponible' } },
+      });
+    } else {
+      navigate(path);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -407,6 +438,8 @@ const NotificationCenter = () => {
                         onRead={handleMarkRead}
                         onDelete={handleDelete}
                         isNew={newIds.has(n.id)}
+                        onNavigate={handleNavigate}
+                        userRole={user?.role}
                       />
                     ))}
                   </div>
@@ -421,21 +454,6 @@ const NotificationCenter = () => {
               </>
             )}
           </div>
-
-          {/* Footer */}
-          {!initialLoading && notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-slate-100 bg-white shrink-0">
-              <button
-                onClick={() => { setIsOpen(false); navigate('/notifications'); }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-wbo-700 bg-wbo-50 hover:bg-wbo-100 ring-1 ring-wbo-200/60 transition-all duration-200 hover:shadow-sm"
-              >
-                Ver todas las notificaciones
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
       )}
     </>
