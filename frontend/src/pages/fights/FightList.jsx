@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFights } from '../../services/fightService';
+import { getFights, deleteFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
 
@@ -77,7 +77,7 @@ const BoxerAvatar = ({ name }) => (
 );
 
 /* ─── Fight Card (mobile) ─── */
-const FightCard = ({ fight, onView, onEdit, canEditFlag }) => {
+const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
   const st = getStatus(fight.status);
   const pct = fight.min_judges_required > 0 ? (fight.confirmed_judges / fight.min_judges_required) * 100 : 0;
   return (
@@ -139,6 +139,17 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag }) => {
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
           Editar
         </button>
+        {onArchive && (
+          <button
+            onClick={() => onArchive(fight)}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:shadow-sm"
+            title="Archivar pelea"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -151,6 +162,9 @@ const FightList = () => {
   const [fights, setFights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [archiveTarget, setArchiveTarget] = useState(null);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveError, setArchiveError] = useState(null);
 
   const [searchEvent, setSearchEvent] = useState('');
   const [searchBoxer, setSearchBoxer] = useState('');
@@ -206,6 +220,20 @@ const FightList = () => {
   };
 
   const hasActiveFilters = searchEvent || searchBoxer || filterStatus || filterCategory || dateFrom || dateTo;
+
+  const handleArchive = async () => {
+    if (!archiveTarget) return;
+    setArchiving(true);
+    setArchiveError(null);
+    try {
+      await deleteFight(archiveTarget.id, token);
+      setArchiveTarget(null);
+      navigate('/history', { state: { toast: { type: 'success', message: 'Pelea archivada correctamente' } } });
+    } catch (err) {
+      setArchiveError(err.response?.data?.message || 'Error al archivar la pelea');
+      setArchiving(false);
+    }
+  };
 
   const totalAnalyzed = fights.filter((f) => f.status === 'analyzed').length;
   const totalPending = fights.filter((f) => f.status === 'pending').length;
@@ -395,6 +423,17 @@ const FightList = () => {
                                 Editar
                               </button>
                             )}
+                            {user?.role === 'admin' && (
+                              <button
+                                onClick={() => { setArchiveTarget(fight); setArchiveError(null); }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-red-200 text-red-600 rounded-xl hover:bg-red-50 hover:shadow-sm transition-all active:scale-[0.97]"
+                                title="Archivar pelea"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -421,6 +460,7 @@ const FightList = () => {
                 onView={(id) => navigate(`/fights/${id}`)}
                 onEdit={(id) => navigate(`/fights/${id}/edit`)}
                 canEditFlag={user?.role === 'admin' && canEdit(fight.status)}
+                onArchive={user?.role === 'admin' ? (f) => { setArchiveTarget(f); setArchiveError(null); } : null}
               />
             ))}
             <div className="text-center pt-2 pb-4">
@@ -430,6 +470,68 @@ const FightList = () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* ─── Archive Modal ─── */}
+      {archiveTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !archiving && setArchiveTarget(null)}>
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 w-full max-w-md animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setArchiveTarget(null)}
+              disabled={archiving}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Archivar Pelea</h3>
+                <p className="text-sm text-slate-500">{archiveTarget.event_name}</p>
+              </div>
+            </div>
+            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 mb-4">
+              <p className="text-sm text-slate-700">
+                <span className="font-semibold text-slate-900">{archiveTarget.boxer_red}</span> vs{' '}
+                <span className="font-semibold text-slate-900">{archiveTarget.boxer_blue}</span>
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {new Date(archiveTarget.scheduled_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <p className="text-sm text-slate-600 mb-6">
+              La pelea será archivada y <strong>ya no aparecerá en el listado principal</strong>. Esta acción no elimina tarjetas, análisis ni estadísticas.
+            </p>
+            {archiveError && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+                {archiveError}
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setArchiveTarget(null)}
+                disabled={archiving}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:shadow-sm transition-all active:scale-[0.97]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleArchive}
+                disabled={archiving}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-sm transition-all active:scale-[0.97] disabled:opacity-60"
+              >
+                {archiving ? 'Archivando...' : 'Archivar pelea'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -476,7 +476,7 @@ const FightDetails = () => {
             </div>
             <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Eliminar pelea</h3>
             <p className="text-sm text-slate-500 text-center mb-1">La pelea <strong>{fight.event_name}</strong> será archivada.</p>
-            <p className="text-xs text-slate-500 text-center mb-1">Ya no aparecerá en el listado principal. Podrás consultarla desde el Historial cuando lo necesites.</p>
+            <p className="text-xs text-slate-500 text-center mb-1">Ya no aparecerá en el listado principal.</p>
             <p className="text-xs text-slate-400 text-center mb-6">Esta acción no elimina tarjetas, análisis ni estadísticas.</p>
             {deleteError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">{deleteError}</div>

@@ -4,7 +4,7 @@ const getDashboard = async (req, res, next) => {
   try {
     const statsResult = await pool.query(`
       SELECT
-        COUNT(*)::INTEGER AS total_fights,
+        COUNT(*) FILTER (WHERE status != 'archived')::INTEGER AS total_fights,
         COUNT(*) FILTER (WHERE status = 'active')::INTEGER AS active_fights,
         COUNT(*) FILTER (WHERE status = 'completed')::INTEGER AS completed_fights
       FROM fights
@@ -32,6 +32,7 @@ const getDashboard = async (req, res, next) => {
         WHERE status = 'confirmed'
         GROUP BY fight_id
       ) ja ON ja.fight_id = f.id
+      WHERE f.status != 'archived'
       ORDER BY f.created_at DESC
       LIMIT 4
     `);

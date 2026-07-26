@@ -124,7 +124,7 @@ exports.update = async (req, res, next) => {
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
-    const nonEditable = ['completed', 'analyzed', 'cancelled'];
+    const nonEditable = ['completed', 'analyzed', 'cancelled', 'archived'];
     if (nonEditable.includes(fight.status)) {
       return res.status(400).json({ message: `No se puede editar una pelea en estado ${fight.status}` });
     }
@@ -376,7 +376,7 @@ exports.analyze = async (req, res, next) => {
   }
 };
 
-exports.remove = async (req, res, next) => {
+exports.archive = async (req, res, next) => {
   try {
     const { id } = req.params;
     const errMsg = validateFightId(id);
@@ -384,50 +384,22 @@ exports.remove = async (req, res, next) => {
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
-    const deletable = ['pending', 'cancelled'];
-    if (!deletable.includes(fight.status)) {
-      return res.status(400).json({ message: `No se puede eliminar una pelea en estado ${fight.status}` });
+    const archived = await Fight.archive(id);
+    if (!archived) {
+      return res.status(409).json({ message: 'La pelea ya se encuentra archivada' });
     }
 
-    const [officialCard, analysisSummary] = await Promise.all([
-      Fight.getOfficialCard(id),
-      Fight.getAnalysisSummary(id),
-    ]);
+    res.json({ message: 'Pelea archivada correctamente.' });
+  } catch (err) {
+    next(err);
+  }
+};
 
-    if (officialCard) {
-      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene una tarjeta oficial cargada' });
-    }
-
-    if (analysisSummary.length > 0) {
-      return res.status(400).json({ message: 'No se puede eliminar una pelea que tiene análisis realizados' });
-    }
-
-    const assignedJudges = await Fight.getAssignedJudges(id);
-    const judgeIds = assignedJudges.map((j) => j.id);
-
-    await Fight.deleteAssignments(id);
-    const deleted = await Fight.deleteById(id);
-
-    const eventLabel = `${fight.event_name} (${fight.boxer_red} vs ${fight.boxer_blue})`;
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    await Notification.createForUsers(adminSupervisorIds, {
-      type: 'system',
-      title: 'Pelea eliminada',
-      message: `La pelea "${eventLabel}" fue eliminada del sistema`,
-      referenceType: 'fight',
-      referenceId: parseInt(id, 10),
-    });
-    if (judgeIds.length > 0) {
-      await Notification.createForUsers(judgeIds, {
-        type: 'status_change',
-        title: 'Pelea eliminada',
-        message: `La pelea "${eventLabel}" en la que estabas asignado fue eliminada`,
-        referenceType: 'fight',
-        referenceId: parseInt(id, 10),
-      });
-    }
-
-    res.json({ message: 'Pelea eliminada correctamente.' });
+exports.getHistory = async (req, res, next) => {
+  try {
+    const { searchEvent, dateFrom, dateTo, weightClass } = req.query;
+    const fights = await Fight.getHistory({ searchEvent, dateFrom, dateTo, weightClass });
+    res.json(fights);
   } catch (err) {
     next(err);
   }

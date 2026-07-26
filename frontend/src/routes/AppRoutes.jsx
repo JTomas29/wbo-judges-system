@@ -18,6 +18,7 @@ import OfficialCards from '../pages/official-cards/OfficialCards';
 import FightAnalysis from '../pages/analysis/FightAnalysis';
 import Statistics from '../pages/analysis/Statistics';
 import UserManagement from '../pages/admin/UserManagement';
+import History from '../pages/history/History';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
@@ -64,6 +65,8 @@ const AppRoutes = () => (
     <Route path="/analysis/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
 
     <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+
+    <Route path="/history" element={<AdminRoute><History /></AdminRoute>} />
 
     <Route path="*" element={<Navigate to="/dashboard" replace />} />
   </Routes>

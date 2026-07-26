@@ -1,5 +1,5 @@
 ﻿const { Router } = require('express');
-const { getAll, getById, create, update, remove, complete, analyze, getAnalysis } = require('../controllers/fightController');
+const { getAll, getById, create, update, archive, complete, analyze, getAnalysis, getHistory } = require('../controllers/fightController');
 const { assign, remove: removeAssignment, list, respond } = require('../controllers/assignmentController');
 const { createOrGetScorecard, getMyScorecard, getAllScorecards } = require('../controllers/scoringController');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -9,11 +9,12 @@ const router = Router();
 
 router.use(authMiddleware);
 
+router.get('/history', roleMiddleware('admin'), getHistory);
 router.get('/', getAll);
 router.get('/:id', getById);
 router.post('/', roleMiddleware('admin', 'supervisor'), create);
 router.put('/:id', roleMiddleware('admin', 'supervisor'), update);
-router.delete('/:id', roleMiddleware('admin', 'supervisor'), remove);
+router.delete('/:id', roleMiddleware('admin'), archive);
 
 // Tarjetas de puntuación del juez
 router.post('/:id/scorecards', createOrGetScorecard);

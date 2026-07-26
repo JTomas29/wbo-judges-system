@@ -29,6 +29,7 @@ Fight.getAll = async () => {
       WHERE status = 'confirmed'
       GROUP BY fight_id
     ) ja_stats ON ja_stats.fight_id = f.id
+    WHERE f.status != 'archived'
     ORDER BY f.scheduled_date ASC
   `);
   return rows;
@@ -197,13 +198,77 @@ Fight.analyze = async (id) => {
   return rows;
 };
 
-Fight.deleteAssignments = async (fightId) => {
-  await pool.query(`DELETE FROM judge_assignments WHERE fight_id = $1`, [fightId]);
+Fight.archive = async (id) => {
+  const { rows } = await pool.query(`
+    UPDATE fights
+    SET status = 'archived', archived_at = NOW()
+    WHERE id = $1 AND status != 'archived'
+    RETURNING id, status::text
+  `, [id]);
+  return rows[0] || null;
 };
 
-Fight.deleteById = async (id) => {
-  const { rows } = await pool.query(`DELETE FROM fights WHERE id = $1 RETURNING id`, [id]);
-  return rows[0] || null;
+Fight.getHistory = async (filters = {}) => {
+  let query = `
+    SELECT
+      f.id,
+      f.event_name,
+      f.boxer_red,
+      f.boxer_blue,
+      f.scheduled_date,
+      f.weight_class,
+      f.venue,
+      f.title,
+      f.broadcaster,
+      f.status::text,
+      f.total_rounds,
+      f.archived_at,
+      f.created_at,
+      COALESCE(ar_agg.avg_match_pct, 0)::NUMERIC(5,2) AS avg_match_pct,
+      COALESCE(ar_agg.total_matches, 0)::INTEGER AS total_matches,
+      COALESCE(ar_agg.total_errors, 0)::INTEGER AS total_errors
+    FROM fights f
+    LEFT JOIN LATERAL (
+      SELECT
+        AVG(ar.match_pct) AS avg_match_pct,
+        SUM(ar.matches) AS total_matches,
+        SUM(ar.errors) AS total_errors
+      FROM analysis_results ar
+      WHERE ar.fight_id = f.id
+    ) ar_agg ON true
+    WHERE f.status = 'archived'
+  `;
+  const params = [];
+  let paramIndex = 1;
+
+  if (filters.searchEvent) {
+    query += ` AND f.event_name ILIKE $${paramIndex}`;
+    params.push(`%${filters.searchEvent}%`);
+    paramIndex++;
+  }
+
+  if (filters.dateFrom) {
+    query += ` AND f.scheduled_date >= $${paramIndex}`;
+    params.push(filters.dateFrom);
+    paramIndex++;
+  }
+
+  if (filters.dateTo) {
+    query += ` AND f.scheduled_date <= $${paramIndex}`;
+    params.push(filters.dateTo);
+    paramIndex++;
+  }
+
+  if (filters.weightClass) {
+    query += ` AND f.weight_class = $${paramIndex}`;
+    params.push(filters.weightClass);
+    paramIndex++;
+  }
+
+  query += ` ORDER BY f.archived_at DESC, f.scheduled_date DESC`;
+
+  const { rows } = await pool.query(query, params);
+  return rows;
 };
 
 module.exports = Fight;
