@@ -292,6 +292,10 @@ const ScoreFight = () => {
       const res = await finalizeScorecard(scoreCard.id, token);
       setScoreCard(res.data.scorecard);
       setShowConfirmModal(false);
+      navigate(`/scoring/${fightId}`, {
+        state: { toast: { type: 'success', message: 'Tu tarjeta fue enviada correctamente y quedó lista para su revisión.' } },
+        replace: true,
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Error al enviar la tarjeta');
     } finally {

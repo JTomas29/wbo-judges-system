@@ -80,7 +80,9 @@ const CreateFight = () => {
         referee_id: form.referee_id ? Number(form.referee_id) : undefined,
       };
       const res = await createFight(payload, token);
-      navigate(`/fights/${res.data.id}`);
+      navigate(`/fights/${res.data.id}`, {
+        state: { toast: { type: 'success', message: `La pelea "${res.data.event_name || form.event_name.trim()}" fue creada correctamente.` } },
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Error al crear la pelea');
       setLoading(false);

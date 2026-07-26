@@ -10,6 +10,7 @@ const statusConfig = {
   completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200', icon: 'check', label: 'Finalizada' },
   analyzed: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', border: 'border-violet-200', icon: 'chart', label: 'Analizada' },
   cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200', icon: 'x', label: 'Cancelada' },
+  archived: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-300', icon: 'archive', label: 'Archivada' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
@@ -45,6 +46,7 @@ const StatusIcon = ({ type }) => {
     check: 'M5 13l4 4L19 7',
     chart: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
     x: 'M6 18L18 6M6 6l12 12',
+    archive: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
   };
   return <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d={paths[type] || paths.clock} /></svg>;
 };
@@ -182,9 +184,9 @@ const FightDetails = () => {
     try {
       await deleteFight(id, token);
       setShowDeleteModal(false);
-      navigate('/fights');
+      navigate('/history', { state: { toast: { type: 'success', message: 'Pelea archivada correctamente' } } });
     } catch (err) {
-      setDeleteError(err.response?.data?.message || 'Error al eliminar la pelea');
+      setDeleteError(err.response?.data?.message || 'Error al archivar la pelea');
       setDeleting(false);
     }
   };
@@ -204,6 +206,9 @@ const FightDetails = () => {
             {formatDate(fight.scheduled_date)}
             {fight.weight_class ? ` \u00B7 ${fight.weight_class}` : ''}
           </p>
+          {fight.status === 'archived' && (
+            <p className="text-xs text-slate-400 mt-1 italic">Archivada el {formatDate(fight.archived_at)}</p>
+          )}
         </div>
         <FightStatusBadge status={fight.status} />
       </div>
@@ -412,8 +417,8 @@ const FightDetails = () => {
             {user?.role === 'admin' && (
               <button
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100"
-                disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled'}
-                title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' ? 'No se puede editar una pelea finalizada' : ''}
+                disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' || fight.status === 'archived'}
+                title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' || fight.status === 'archived' ? 'No se puede editar esta pelea' : ''}
                 onClick={() => navigate(`/fights/${fight.id}/edit`)}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -423,10 +428,9 @@ const FightDetails = () => {
 
             <div className="flex-1" />
 
-            {user?.role === 'admin' && (
+            {user?.role === 'admin' && fight.status !== 'archived' && (
               <button
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
-                disabled={fight.status !== 'pending' && fight.status !== 'cancelled'}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98]"
                 onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -471,7 +475,9 @@ const FightDetails = () => {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Eliminar pelea</h3>
-            <p className="text-sm text-slate-500 text-center mb-6">Esta acci\u00f3n eliminar\u00e1 definitivamente la pelea y no podr\u00e1 deshacerse.</p>
+            <p className="text-sm text-slate-500 text-center mb-1">La pelea <strong>{fight.event_name}</strong> será archivada.</p>
+            <p className="text-xs text-slate-500 text-center mb-1">Ya no aparecerá en el listado principal. Podrás consultarla desde el Historial cuando lo necesites.</p>
+            <p className="text-xs text-slate-400 text-center mb-6">Esta acción no elimina tarjetas, análisis ni estadísticas.</p>
             {deleteError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">{deleteError}</div>
             )}
@@ -489,7 +495,7 @@ const FightDetails = () => {
                 onClick={handleDelete}
               >
                 {deleting && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
-                {deleting ? 'Eliminando...' : 'Eliminar'}
+                {deleting ? 'Archivando...' : 'Archivar pelea'}
               </button>
             </div>
           </div>
