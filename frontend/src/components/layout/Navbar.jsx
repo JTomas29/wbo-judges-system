@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import logoSrc from '../../assets/logoWbo.png';
 import NotificationCenter from '../common/NotificationCenter';
 
@@ -17,8 +18,33 @@ const getInitials = (name) => {
   return parts.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 };
 
+const SunIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+  </svg>
+);
+
+const SunIconSm = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+);
+
+const MoonIconSm = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+  </svg>
+);
+
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -96,20 +122,20 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] sticky top-0 z-50">
+    <header className="bg-white dark:bg-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_4px_rgba(0,0,0,0.3)] sticky top-0 z-50 transition-colors duration-200">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
 
           {/* LEFT: Logo + Brand */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 ring-2 ring-slate-100 overflow-hidden">
+            <div className="w-[42px] h-[42px] rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm shrink-0 ring-2 ring-slate-100 dark:ring-slate-600 overflow-hidden">
               <img src={logoSrc} alt="WBO" className="w-full h-full object-contain p-1" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-[15px] font-bold text-slate-800 leading-tight">WBO Judges</p>
-              <p className="text-[10px] text-slate-400 leading-tight tracking-wider">Evaluation System</p>
+              <p className="text-[15px] font-bold text-slate-800 dark:text-slate-100 leading-tight">WBO Judges</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight tracking-wider">Evaluation System</p>
             </div>
-            <span className="sm:hidden text-[15px] font-bold text-slate-800">WBO</span>
+            <span className="sm:hidden text-[15px] font-bold text-slate-800 dark:text-slate-100">WBO</span>
           </div>
 
           {/* CENTER: Nav */}
@@ -122,8 +148,8 @@ const Navbar = () => {
                 className={({ isActive }) =>
                   `px-5 h-full flex items-center text-sm font-semibold gap-2 transition-all duration-200 border-b-[3px] ${
                     isActive
-                      ? 'text-wbo-700 border-wbo-700'
-                      : 'text-slate-400 border-transparent hover:text-wbo-600 hover:border-wbo-300'
+                      ? 'text-wbo-700 dark:text-wbo-400 border-wbo-700 dark:border-wbo-400'
+                      : 'text-slate-400 dark:text-slate-500 border-transparent hover:text-wbo-600 hover:border-wbo-300'
                   }`
                 }
               >
@@ -133,23 +159,32 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* RIGHT: Notifications + Profile + Logout */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          {/* RIGHT: Theme Toggle + Notifications + Profile + Logout */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {user && (
               <>
+                {/* Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
+                  title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+                >
+                  {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+                </button>
+
                 {/* Avatar + Name (desktop) */}
                 <NavLink
                   to={`/profile/${user.id}`}
-                  className="hidden sm:flex items-center gap-3 pr-4 sm:pr-5 border-r border-slate-100 rounded-xl -m-1 p-1 transition-all duration-200 hover:bg-slate-50"
+                  className="hidden sm:flex items-center gap-3 pr-4 sm:pr-5 border-r border-slate-100 dark:border-slate-700 rounded-xl -m-1 p-1 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                 >
                   <div className="relative group/avatar">
-                    <div className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white ring-offset-1 ring-offset-white transition-all duration-200 group-hover/avatar:shadow-md group-hover/avatar:-translate-y-0.5 group-hover/avatar:from-wbo-800 group-hover/avatar:to-wbo-900 cursor-pointer select-none">
+                    <div className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white dark:ring-slate-800 ring-offset-1 ring-offset-white dark:ring-offset-slate-800 transition-all duration-200 group-hover/avatar:shadow-md group-hover/avatar:-translate-y-0.5 group-hover/avatar:from-wbo-800 group-hover/avatar:to-wbo-900 cursor-pointer select-none">
                       {getInitials(user.name)}
                     </div>
                   </div>
                   <div className="leading-tight">
-                    <p className="text-sm font-semibold text-slate-800">{user.name}</p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.name}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
                       {roleLabels[user.role] || user.role}
                     </p>
                   </div>
@@ -161,7 +196,7 @@ const Navbar = () => {
                 {/* Logout */}
                 <button
                   onClick={logout}
-                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3.5 py-2 hover:border-slate-300 hover:text-slate-600 hover:bg-slate-50 hover:shadow-sm transition-all duration-200"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-sm transition-all duration-200"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -175,7 +210,7 @@ const Navbar = () => {
             {user && (
               <div className="lg:hidden flex items-center gap-2">
                 <NavLink to={`/profile/${user.id}`} onClick={() => setMobileOpen(false)}>
-                  <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white cursor-pointer select-none">
+                  <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white dark:ring-slate-800 cursor-pointer select-none">
                     {getInitials(user.name)}
                   </div>
                 </NavLink>
@@ -183,7 +218,7 @@ const Navbar = () => {
             )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all duration-200"
+              className="lg:hidden p-2 rounded-xl text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
@@ -199,7 +234,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-slate-100 bg-white animate-fadeIn">
+        <div className="lg:hidden border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 animate-fadeIn transition-colors duration-200">
           <div className="px-4 py-3 space-y-1">
             {navItems.map((item) => (
               <NavLink
@@ -210,8 +245,8 @@ const Navbar = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'text-wbo-700 bg-wbo-50 font-semibold'
-                      : 'text-slate-500 hover:text-wbo-600 hover:bg-slate-50'
+                      ? 'text-wbo-700 dark:text-wbo-400 bg-wbo-50 dark:bg-wbo-900/30 font-semibold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-wbo-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`
                 }
               >
@@ -219,17 +254,26 @@ const Navbar = () => {
                 {item.label}
               </NavLink>
             ))}
+
+            {/* Mobile theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-wbo-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
+            >
+              {theme === 'light' ? <MoonIconSm /> : <SunIconSm />}
+              {theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+            </button>
           </div>
           {user && (
-            <div className="border-t border-slate-100 px-4 py-3 space-y-2">
+            <div className="border-t border-slate-100 dark:border-slate-700 px-4 py-3 space-y-2">
               <NavLink
                 to={`/profile/${user.id}`}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'text-wbo-700 bg-wbo-50 font-semibold'
-                      : 'text-slate-500 hover:text-wbo-600 hover:bg-slate-50'
+                      ? 'text-wbo-700 dark:text-wbo-400 bg-wbo-50 dark:bg-wbo-900/30 font-semibold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-wbo-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`
                 }
               >
@@ -239,18 +283,18 @@ const Navbar = () => {
                 Mi Perfil
               </NavLink>
               <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white dark:ring-slate-800">
                   {getInitials(user.name)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 truncate">{user.name}</p>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{user.name}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                     {roleLabels[user.role] || user.role}
                   </p>
                 </div>
                 <button
                   onClick={logout}
-                  className="text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3 py-1.5 hover:border-slate-300 hover:text-slate-600 transition-all shrink-0"
+                  className="text-sm font-medium text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-all shrink-0"
                 >
                   Salir
                 </button>
