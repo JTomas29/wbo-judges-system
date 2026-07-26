@@ -377,6 +377,7 @@ exports.analyze = async (req, res, next) => {
 };
 
 exports.archive = async (req, res, next) => {
+  console.log('ARCHIVE NUEVO - fightId:', req.params.id);
   try {
     const { id } = req.params;
     const errMsg = validateFightId(id);
