@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { getMyAssignments, respondAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
@@ -34,22 +35,22 @@ const markBatchAsSeen = (userId, fightIds) => {
 
 const statusBadge = (status) => {
   const map = {
-    pending: 'bg-amber-100 text-amber-700',
-    confirmed: 'bg-emerald-100 text-emerald-700',
-    rejected: 'bg-red-100 text-red-700',
+    pending: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+    confirmed: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+    rejected: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
   };
-  return map[status] || 'bg-slate-100 text-slate-600';
+  return map[status] || 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
 };
 
 const fightStatusBadge = (status) => {
   const map = {
-    pending: 'bg-slate-100 text-slate-600',
-    active: 'bg-emerald-100 text-emerald-700',
-    completed: 'bg-blue-100 text-blue-700',
-    analyzed: 'bg-violet-100 text-violet-700',
-    cancelled: 'bg-red-100 text-red-700',
+    pending: 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300',
+    active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+    completed: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+    analyzed: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300',
+    cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
   };
-  return map[status] || 'bg-slate-100 text-slate-600';
+  return map[status] || 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
 };
 
 const assignmentTypeLabel = (type) => {
@@ -78,19 +79,19 @@ const getLeftBorder = (a, isNew) => {
   if (a.fight_status === 'completed') return 'border-l-red-500';
   if (a.fight_status === 'analyzed') return 'border-l-violet-500';
   if (a.assignment_status === 'confirmed') return 'border-l-emerald-500';
-  return 'border-l-slate-300';
+  return 'border-l-slate-300 dark:border-l-slate-600';
 };
 
 const StatCard = ({ label, count, icon, dotColor }) => (
-  <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl shadow-sm px-4 py-3 min-w-[130px] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-    <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
-      <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+  <div className="flex items-center gap-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm px-4 py-3 min-w-[130px] transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
+    <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+      <svg className="w-4 h-4 text-red-700 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
       </svg>
     </div>
     <div>
-      <p className="text-xl font-bold text-slate-900 leading-none">{count}</p>
-      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+      <p className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] leading-none">{count}</p>
+      <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">{label}</p>
     </div>
     <span className={`w-1.5 h-1.5 rounded-full ${dotColor} ml-auto`} />
   </div>
@@ -99,6 +100,7 @@ const StatCard = ({ label, count, icon, dotColor }) => (
 const Confirmation = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const isJudge = user?.role === 'judge';
 
   const [assignments, setAssignments] = useState([]);
@@ -109,7 +111,6 @@ const Confirmation = () => {
   const [rejectReasons, setRejectReasons] = useState({});
   const [seenTick, setSeenTick] = useState(0);
 
-  // Filters
   const [searchEvent, setSearchEvent] = useState('');
   const [filterAssignStatus, setFilterAssignStatus] = useState('');
   const [sortOrder, setSortOrder] = useState('');
@@ -243,23 +244,23 @@ const Confirmation = () => {
   };
 
   if (!isJudge) return (
-    <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
-      <div className="bg-amber-50 text-amber-700 px-6 py-4 rounded-xl text-sm font-semibold">Solo los jueces pueden acceder a esta página</div>
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
+      <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-6 py-4 rounded-xl text-sm font-semibold">Solo los jueces pueden acceder a esta página</div>
     </div>
   );
 
   if (loading) return (
-    <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
       <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
-        <span className="text-sm text-slate-500 font-medium">Cargando asignaciones...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando asignaciones...</span>
       </div>
     </div>
   );
 
   if (error) return (
-    <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
-      <div className="bg-red-50 text-red-700 px-6 py-4 rounded-xl text-sm font-semibold">{error}</div>
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl text-sm font-semibold">{error}</div>
     </div>
   );
 
@@ -268,21 +269,21 @@ const Confirmation = () => {
   const rejected = assignments.filter(a => a.assignment_status === 'rejected').length;
 
   if (assignments.length === 0) return (
-    <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-slate-300 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-2">No tenés designaciones pendientes</h3>
-        <p className="text-sm text-slate-500">Cuando un administrador te asigne una pelea aparecerá aquí.</p>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">No tenés designaciones pendientes</h3>
+        <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Cuando un administrador te asigne una pelea aparecerá aquí.</p>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-slate-50 min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-10 sm:pb-12">
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-10 sm:pb-12">
       {/* ─── Header ─── */}
       <div className="max-w-[1440px] mx-auto mb-8">
         <div className="mb-4">
@@ -290,10 +291,12 @@ const Confirmation = () => {
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Mis Designaciones</h1>
-            <p className="text-sm text-slate-500 mt-1">Gestioná tus asignaciones a peleas</p>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">Mis Designaciones</h1>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Aquí puedes consultar todas las peleas asignadas y su estado actual.</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 overflow-x-auto pb-1">
             {newCount > 0 && (
               <StatCard label="Nuevas" count={newCount} dotColor="bg-red-500" icon="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             )}
@@ -339,9 +342,9 @@ const Confirmation = () => {
           const isNew = isPending && !seenSet.has(a.fight_id);
 
           return (
-            <div key={a.fight_id} className={`bg-white rounded-2xl border border-slate-200 border-l-[5px] ${getLeftBorder(a, isNew)} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5${isNew ? ' ring-1 ring-red-200/60' : ''}`}>
+            <div key={a.fight_id} className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-l-[5px] ${getLeftBorder(a, isNew)} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5${isNew ? ' ring-1 ring-red-200/60 dark:ring-red-800/40' : ''}`}>
               {a._justActivated && (
-                <div className="mx-6 mt-6 bg-emerald-50 text-emerald-700 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+                <div className="mx-6 mt-6 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
                   <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -353,14 +356,14 @@ const Confirmation = () => {
               <div className="px-6 pt-6 pb-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0 flex-1">
-                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-                      <svg className="w-6 h-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                    <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+                      <svg className="w-6 h-6 text-red-700 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                       </svg>
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-xl font-bold text-slate-900 truncate">{a.event_name}</h2>
-                      <p className="text-sm text-slate-500 mt-0.5">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{a.event_name}</h2>
+                      <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">
                         {a.venue ? `${a.venue}${a.weight_class ? ` · ${a.weight_class}` : ''}` : (a.weight_class || 'Sin detalles')}
                       </p>
                     </div>
@@ -382,7 +385,7 @@ const Confirmation = () => {
                     </span>
                     <button
                       onClick={() => navigate(`/scoring/${a.fight_id}`)}
-                      className="w-12 h-12 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-700 hover:border-red-200 hover:shadow-sm transition-all duration-200"
+                      className="w-12 h-12 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800/40 hover:shadow-sm transition-all duration-250"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -396,51 +399,51 @@ const Confirmation = () => {
               <div className="px-6 pb-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   <div>
-                    <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Fecha
                     </p>
-                    <p className="text-base font-semibold text-slate-900">{formatDate(a.scheduled_date)}</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{formatDate(a.scheduled_date)}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Boxeador rojo
                     </p>
-                    <p className="text-base font-semibold text-slate-900">{a.boxer_red}</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_red}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Boxeador azul
                     </p>
-                    <p className="text-base font-semibold text-slate-900">{a.boxer_blue}</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_blue}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       Lugar
                     </p>
-                    <p className="text-base font-semibold text-slate-900 truncate">{a.venue || '\u2014'}</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC] truncate">{a.venue || '\u2014'}</p>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
+                  <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     Tipo de asignación
                   </p>
-                  <p className="text-base font-semibold text-slate-900">{assignmentTypeLabel(a.assignment_type)}</p>
+                  <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{assignmentTypeLabel(a.assignment_type)}</p>
                 </div>
               </div>
 
@@ -449,10 +452,10 @@ const Confirmation = () => {
                 {isPending ? (
                   <div>
                     {rejecting === a.fight_id ? (
-                      <div className="bg-red-50 rounded-xl p-5 mb-3 border border-red-100">
-                        <label className="block text-xs font-semibold text-red-700 uppercase tracking-wider mb-2">Motivo del rechazo *</label>
+                      <div className="bg-red-50 dark:bg-red-900/10 rounded-xl p-5 mb-3 border border-red-100 dark:border-red-800/30">
+                        <label className="block text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider mb-2">Motivo del rechazo *</label>
                         <textarea
-                          className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-800/20 resize-none mb-3 bg-white"
+                          className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-800/20 resize-none mb-3 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
                           rows={3}
                           placeholder="Explique por qué no puede aceptar la designación..."
                           value={rejectReasons[a.fight_id] || ''}
@@ -461,14 +464,14 @@ const Confirmation = () => {
                         <div className="flex gap-2">
                           <button
                             disabled={responding === a.fight_id}
-                            className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                             onClick={() => confirmReject(a.fight_id)}
                           >
                             {responding === a.fight_id ? 'Enviando...' : 'Enviar rechazo'}
                           </button>
                           <button
                             disabled={responding === a.fight_id}
-                            className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-all"
+                            className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-all duration-250"
                             onClick={() => cancelReject(a.fight_id)}
                           >
                             Cancelar
@@ -479,7 +482,7 @@ const Confirmation = () => {
                       <div className="flex gap-3">
                         <button
                           disabled={responding === a.fight_id}
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-all duration-250 shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
                           onClick={() => handleRespond(a.fight_id, 'confirmed')}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -489,7 +492,7 @@ const Confirmation = () => {
                         </button>
                         <button
                           disabled={responding === a.fight_id}
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800/40 hover:text-red-600 dark:hover:text-red-400 transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
                           onClick={() => startReject(a.fight_id)}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -502,21 +505,21 @@ const Confirmation = () => {
                   </div>
                 ) : a.assignment_status === 'rejected' && a.rejection_reason ? (
                   <div>
-                    <p className="text-xs text-slate-500 mb-2">Respondiste: {formatDateTime(a.responded_at)}</p>
-                    <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm border border-red-100">{a.rejection_reason}</div>
+                    <p className="text-xs text-slate-500 dark:text-[#94A3B8] mb-2">Respondiste: {formatDateTime(a.responded_at)}</p>
+                    <div className="bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm border border-red-100 dark:border-red-800/30">{a.rejection_reason}</div>
                   </div>
                 ) : a.assignment_status === 'confirmed' ? (
                   <div>
                     {isActive && a.scorecard_status === 'finalized' ? (
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-semibold border border-emerald-100">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-sm font-semibold border border-emerald-100 dark:border-emerald-800/30">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                           Tarjeta enviada correctamente
                         </div>
                         <button
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-red-800 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-50 transition-all active:scale-[0.98]"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-red-800 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.98]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -528,7 +531,7 @@ const Confirmation = () => {
                       </div>
                     ) : isActive ? (
                       <button
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]"
                         onClick={() => navigate(`/scoring/${a.fight_id}`)}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -537,25 +540,25 @@ const Confirmation = () => {
                         Puntuar pelea
                       </button>
                     ) : a.fight_status === 'completed' || a.fight_status === 'analyzed' ? (
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-slate-500 text-sm font-semibold border border-slate-200">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-sm font-semibold border border-slate-200 dark:border-[#1E293B]">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         La pelea ya finalizó
                       </div>
                     ) : a.fight_status === 'pending' ? (
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-slate-500 text-sm font-semibold border border-slate-200">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-sm font-semibold border border-slate-200 dark:border-[#1E293B]">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Esperando que la pelea comience
                       </div>
                     ) : (
-                      <p className="text-sm text-slate-500">Respondiste: {formatDateTime(a.responded_at)}</p>
+                      <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Respondiste: {formatDateTime(a.responded_at)}</p>
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">Respondiste: {formatDateTime(a.responded_at)}</p>
+                  <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Respondiste: {formatDateTime(a.responded_at)}</p>
                 )}
               </div>
             </div>
