@@ -16,32 +16,32 @@ const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, 
         </div>
       )}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h1>
-        {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight">{title}</h1>
+        {subtitle && <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">{subtitle}</p>}
       </div>
     </div>
 
     {/* Messages */}
     {error && (
-      <div className="mb-5 flex items-center gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-        <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+      <div className="mb-5 flex items-center gap-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-4 py-3">
+        <svg className="w-4 h-4 text-red-500 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-sm font-medium text-red-700">{error}</p>
+        <p className="text-sm font-medium text-red-700 dark:text-red-300">{error}</p>
       </div>
     )}
 
     {success && (
-      <div className="mb-5 flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-        <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+      <div className="mb-5 flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-xl px-4 py-3">
+        <svg className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-sm font-medium text-emerald-700">{success}</p>
+        <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{success}</p>
       </div>
     )}
 
     {/* Card */}
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden">
       <div className="h-1 bg-gradient-to-r from-red-800 to-red-900" />
       <div className="p-8 sm:p-10">
         {children}

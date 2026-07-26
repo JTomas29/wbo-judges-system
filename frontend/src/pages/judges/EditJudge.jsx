@@ -98,7 +98,7 @@ const EditJudge = () => {
   if (user && user.role !== 'admin') {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">
           No tienes permisos para editar jueces.
         </div>
       </div>
@@ -108,21 +108,21 @@ const EditJudge = () => {
   if (loading) return (
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
-        <span className="text-sm text-slate-500 font-medium">Cargando juez...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando juez...</span>
       </div>
     </div>
   );
 
   if (error && !form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">{error}</div>
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">{error}</div>
     </div>
   );
 
   if (!form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">Juez no encontrado</div>
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">Juez no encontrado</div>
     </div>
   );
 
@@ -136,7 +136,7 @@ const EditJudge = () => {
     >
       <div className="flex items-center gap-2 mb-8">
         <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulseDot" />
-        <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">Editando</span>
+        <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800/40">Editando</span>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -178,13 +178,13 @@ const EditJudge = () => {
             />
             {/* Estado Activo / Inactivo */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Estado</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] mb-1.5">Estado</label>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, is_active: !form.is_active })}
                   className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 ${
-                    form.is_active ? 'bg-emerald-500' : 'bg-slate-300'
+                    form.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
                   }`}
                 >
                   <span
@@ -193,7 +193,7 @@ const EditJudge = () => {
                     }`}
                   />
                 </button>
-                <span className={`text-sm font-medium ${form.is_active ? 'text-emerald-700' : 'text-slate-500'}`}>
+                <span className={`text-sm font-medium ${form.is_active ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                   {form.is_active ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
@@ -206,7 +206,7 @@ const EditJudge = () => {
           icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           title="Cambiar contraseña"
         >
-          <p className="text-xs text-slate-500 mb-4 -mt-2">Deja los campos vacíos si no deseas cambiar la contraseña.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 -mt-2">Deja los campos vacíos si no deseas cambiar la contraseña.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
             <InputField
               name="password"
@@ -234,7 +234,7 @@ const EditJudge = () => {
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-250 active:scale-[0.98]"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -245,14 +245,14 @@ const EditJudge = () => {
             <button
               type="button"
               onClick={() => navigate('/admin/users')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -265,27 +265,27 @@ const EditJudge = () => {
 
       {/* ── Delete Modal ── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 w-full max-w-sm animate-[fadeIn_0.2s_ease-out]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] p-6 w-full max-w-sm animate-[fadeIn_0.2s_ease-out]">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
+              <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Eliminar Juez</h3>
-                <p className="text-sm text-slate-500">Esta acción no se puede deshacer.</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Eliminar Juez</h3>
+                <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Esta acción no se puede deshacer.</p>
               </div>
             </div>
-            <p className="text-sm text-slate-600 mb-6">
-              ¿Estás seguro de que deseas eliminar a <span className="font-semibold text-slate-900">{form.name}</span>?
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+              ¿Estás seguro de que deseas eliminar a <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{form.name}</span>?
             </p>
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
+                className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-all duration-250"
               >
                 Cancelar
               </button>
@@ -293,7 +293,7 @@ const EditJudge = () => {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-250 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {deleting ? 'Eliminando...' : 'Sí, Eliminar'}
               </button>

@@ -103,21 +103,21 @@ const EditFight = () => {
   if (loading) return (
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
-        <span className="text-sm text-slate-500 font-medium">Cargando pelea...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando pelea...</span>
       </div>
     </div>
   );
 
   if (error && !form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">{error}</div>
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">{error}</div>
     </div>
   );
 
   if (!form) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">Pelea no encontrada</div>
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">Pelea no encontrada</div>
     </div>
   );
 
@@ -131,7 +131,7 @@ const EditFight = () => {
     >
       <div className="flex items-center gap-2 mb-8">
         <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulseDot" />
-        <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">Editando</span>
+        <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800/40">Editando</span>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -265,7 +265,7 @@ const EditFight = () => {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -275,7 +275,7 @@ const EditFight = () => {
           <button
             type="button"
             onClick={() => navigate(`/fights/${id}`)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
           >
             Cancelar
           </button>
