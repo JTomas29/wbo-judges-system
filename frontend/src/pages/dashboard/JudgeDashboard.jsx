@@ -494,7 +494,7 @@ const JudgeDashboard = () => {
           {[
             { label: 'Mis Designaciones', path: '/judges/confirmation', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
             { label: 'Mis Estadísticas', path: '/analysis/statistics', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-            { label: 'Mi Perfil', path: '/judges/confirmation', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+            { label: 'Mi Perfil', path: `/profile/${user.id}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
           ].map((btn) => (
             <button key={btn.label} onClick={() => navigate(btn.path)}
               className={`group relative overflow-hidden rounded-xl p-4 sm:p-5 text-left transition-all duration-300 active:scale-[0.98] ${

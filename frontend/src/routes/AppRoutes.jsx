@@ -11,6 +11,7 @@ import JudgeList from '../pages/judges/JudgeList';
 import EditJudge from '../pages/judges/EditJudge';
 import AssignJudges from '../pages/judges/AssignJudges';
 import Confirmation from '../pages/judges/Confirmation';
+import JudgeProfile from '../pages/judges/JudgeProfile';
 import ScoreFight from '../pages/scoring/ScoreFight';
 import LiveScore from '../pages/scoring/LiveScore';
 import OfficialCards from '../pages/official-cards/OfficialCards';
@@ -51,6 +52,8 @@ const AppRoutes = () => (
     <Route path="/judges/:id/edit" element={<AdminRoute><EditJudge /></AdminRoute>} />
     <Route path="/judges/assign/:fightId" element={<ProtectedRoute><AssignJudges /></ProtectedRoute>} />
     <Route path="/judges/confirmation" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
+    <Route path="/judges/:judgeId/profile" element={<ProtectedRoute><JudgeProfile /></ProtectedRoute>} />
+    <Route path="/profile/:userId" element={<ProtectedRoute><JudgeProfile /></ProtectedRoute>} />
 
     <Route path="/scoring/:fightId" element={<ProtectedRoute><ScoreFight /></ProtectedRoute>} />
     <Route path="/scoring/live/:fightId" element={<ProtectedRoute><LiveScore /></ProtectedRoute>} />

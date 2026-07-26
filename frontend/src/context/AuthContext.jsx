@@ -32,7 +32,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('wbo_token', data.token);
     localStorage.setItem('wbo_user', JSON.stringify(data.user));
     setToken(data.token);
-    setUser(data.user);
+    try {
+      const meRes = await getMeRequest();
+      setUser(meRes.user);
+    } catch {
+      setUser(data.user);
+    }
     return data;
   }, []);
 

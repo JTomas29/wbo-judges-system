@@ -201,3 +201,14 @@ exports.myAssignments = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getJudgeAssignments = async (req, res, next) => {
+  try {
+    const judgeId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(judgeId) || judgeId < 1) return res.status(400).json({ message: 'ID de juez inválido' });
+    const assignments = await JudgeAssignment.getByJudgeId(judgeId);
+    res.json(assignments);
+  } catch (err) {
+    next(err);
+  }
+};

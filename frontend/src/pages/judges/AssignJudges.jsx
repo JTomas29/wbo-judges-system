@@ -111,6 +111,57 @@ const formatDateTime = (d) => {
   return new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
+const RejectionModal = ({ assignment, onClose }) => {
+  if (!assignment) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+              <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-bold text-slate-800">Motivo del rechazo</h3>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-150">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="px-6 py-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white shadow-sm">
+              {assignment.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-800">{assignment.name}</p>
+              <p className="text-xs text-slate-400">{formatDateTime(assignment.responded_at)}</p>
+            </div>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-4 ring-1 ring-slate-100">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Motivo</p>
+            {assignment.rejection_reason ? (
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{assignment.rejection_reason}</p>
+            ) : (
+              <p className="text-sm text-slate-400 italic">El juez no indicó un motivo para el rechazo.</p>
+            )}
+          </div>
+        </div>
+        <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+          <button onClick={onClose}
+            className="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-all duration-200">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AssignJudges = () => {
   const { fightId } = useParams();
   const navigate = useNavigate();
@@ -127,6 +178,7 @@ const AssignJudges = () => {
   const [selectedType, setSelectedType] = useState('evaluator');
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState(null);
+  const [rejectionModal, setRejectionModal] = useState(null);
 
   const loadData = useCallback(async () => {
     if (!token) return;
@@ -424,7 +476,19 @@ const AssignJudges = () => {
                     <td className="py-3.5 px-5 text-slate-500 text-xs hidden md:table-cell">{a.email}</td>
                     <td className="py-3.5 px-5 hidden lg:table-cell">{levelBadge(a.level)}</td>
                     <td className="py-3.5 px-5 text-slate-600 text-xs hidden lg:table-cell">{assignmentTypeLabel(a.assignment_type)}</td>
-                    <td className="py-3.5 px-5">{statusBadge(a.status)}</td>
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-2">
+                        {statusBadge(a.status)}
+                        {a.status === 'rejected' && (
+                          <button
+                            onClick={() => setRejectionModal(a)}
+                            className="text-[11px] font-semibold text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded-lg transition-all duration-200 whitespace-nowrap"
+                          >
+                            Ver motivo
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3.5 px-5 text-slate-400 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.assigned_at)}</td>
                     <td className="py-3.5 px-5 text-slate-400 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.responded_at)}</td>
                     {canManage && (
@@ -450,6 +514,8 @@ const AssignJudges = () => {
       <div>
         <BackButton fallbackRoute="/dashboard" />
       </div>
+
+      <RejectionModal assignment={rejectionModal} onClose={() => setRejectionModal(null)} />
     </div>
   );
 };

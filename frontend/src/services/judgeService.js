@@ -49,3 +49,9 @@ export const getMyAssignments = (token) =>
   axios.get(`${API_URL}/me/assignments`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+// Asignaciones de un juez específico (admin/supervisor)
+export const getJudgeAssignments = (judgeId, token) =>
+  axios.get(`${API_URL}/judges/${judgeId}/assignments`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });

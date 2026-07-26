@@ -127,7 +127,10 @@ const Navbar = () => {
             {user && (
               <>
                 {/* Avatar + Name (desktop) */}
-                <div className="hidden sm:flex items-center gap-3 pr-4 sm:pr-5 border-r border-slate-100">
+                <NavLink
+                  to={`/profile/${user.id}`}
+                  className="hidden sm:flex items-center gap-3 pr-4 sm:pr-5 border-r border-slate-100 rounded-xl -m-1 p-1 transition-all duration-200 hover:bg-slate-50"
+                >
                   <div className="relative group/avatar">
                     <div className="w-[42px] h-[42px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0 ring-2 ring-white ring-offset-1 ring-offset-white transition-all duration-200 group-hover/avatar:shadow-md group-hover/avatar:-translate-y-0.5 group-hover/avatar:from-wbo-800 group-hover/avatar:to-wbo-900 cursor-pointer select-none">
                       {getInitials(user.name)}
@@ -139,7 +142,7 @@ const Navbar = () => {
                       {roleLabels[user.role] || user.role}
                     </p>
                   </div>
-                </div>
+                </NavLink>
 
                 {/* Notification Center */}
                 <NotificationCenter />
@@ -160,9 +163,11 @@ const Navbar = () => {
             {/* Mobile avatar + hamburger */}
             {user && (
               <div className="lg:hidden flex items-center gap-2">
-                <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white cursor-default select-none">
-                  {getInitials(user.name)}
-                </div>
+                <NavLink to={`/profile/${user.id}`} onClick={() => setMobileOpen(false)}>
+                  <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white cursor-pointer select-none">
+                    {getInitials(user.name)}
+                  </div>
+                </NavLink>
               </div>
             )}
             <button
@@ -205,22 +210,40 @@ const Navbar = () => {
             ))}
           </div>
           {user && (
-            <div className="border-t border-slate-100 px-4 py-3 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white">
-                {getInitials(user.name)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-800 truncate">{user.name}</p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider">
-                  {roleLabels[user.role] || user.role}
-                </p>
-              </div>
-              <button
-                onClick={logout}
-                className="text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3 py-1.5 hover:border-slate-300 hover:text-slate-600 transition-all shrink-0"
+            <div className="border-t border-slate-100 px-4 py-3 space-y-2">
+              <NavLink
+                to={`/profile/${user.id}`}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'text-wbo-700 bg-wbo-50 font-semibold'
+                      : 'text-slate-500 hover:text-wbo-600 hover:bg-slate-50'
+                  }`
+                }
               >
-                Salir
-              </button>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Mi Perfil
+              </NavLink>
+              <div className="flex items-center gap-3 px-3 py-2">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white">
+                  {getInitials(user.name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{user.name}</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">
+                    {roleLabels[user.role] || user.role}
+                  </p>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-sm font-medium text-slate-400 border border-slate-200 rounded-xl px-3 py-1.5 hover:border-slate-300 hover:text-slate-600 transition-all shrink-0"
+                >
+                  Salir
+                </button>
+              </div>
             </div>
           )}
         </div>
