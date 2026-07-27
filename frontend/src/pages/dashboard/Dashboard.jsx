@@ -5,14 +5,14 @@ import { getDashboard } from '../../services/dashboardService';
 import JudgeDashboard from './JudgeDashboard';
 
 const statusColors = {
-  scheduled: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Programada', icon: 'clock' },
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Activa', icon: 'zap' },
-  completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', label: 'Finalizada', icon: 'check' },
-  cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', label: 'Cancelada', icon: 'x' },
+  scheduled: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', label: 'Programada', icon: 'clock', border: 'border-amber-200 dark:border-amber-800/50' },
+  active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', label: 'Activa', icon: 'zap', border: 'border-emerald-200 dark:border-emerald-800/50' },
+  completed: { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500', label: 'Finalizada', icon: 'check', border: 'border-blue-200 dark:border-blue-800/50' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500', label: 'Cancelada', icon: 'x', border: 'border-red-200 dark:border-red-800/50' },
 };
 
 const getStatusColor = (status) =>
-  statusColors[status] || { bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-400', label: status };
+  statusColors[status] || { bg: 'bg-slate-50 dark:bg-slate-700/30', text: 'text-slate-500 dark:text-slate-300', dot: 'bg-slate-400', label: status, border: 'border-slate-200 dark:border-slate-600' };
 
 const judgeInitials = (name) =>
   name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??';
@@ -26,13 +26,13 @@ const formatDate = (dateStr) => {
 const levelBadge = (level) => {
   if (!level) return null;
   const colors = {
-    junior: 'bg-blue-100 text-blue-700',
-    intermediate: 'bg-amber-100 text-amber-700',
-    senior: 'bg-purple-100 text-purple-700',
-    elite: 'bg-green-100 text-green-700',
+    junior: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+    intermediate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+    senior: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+    elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   };
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${colors[level] || 'bg-slate-100 text-slate-600'}`}>
+    <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
       {level}
     </span>
   );
@@ -92,13 +92,13 @@ const KpiIcon = ({ type }) => {
 
 /* ─── KPI Card ─── */
 const KpiCard = ({ label, value, icon, trend, desc, color }) => (
-  <div className={`group bg-white rounded-2xl border border-slate-200 ${color.top} shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
+  <div className={`group bg-white rounded-2xl border border-slate-200 ${color.top} shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:bg-[#111827] dark:border-[#1E293B]`}>
     <div className="flex items-start justify-between mb-3">
       <div className={`w-11 h-11 rounded-full ${color.bg} flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm`}>
         <span className={color.text}><KpiIcon type={icon} /></span>
       </div>
       {trend && (
-        <span className={`flex items-center gap-0.5 text-[11px] font-semibold ${trend.up ? 'text-emerald-600' : 'text-red-500'}`}>
+        <span className={`flex items-center gap-0.5 text-[11px] font-semibold ${trend.up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
           <svg className={`w-3 h-3 ${trend.up ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
           </svg>
@@ -106,11 +106,11 @@ const KpiCard = ({ label, value, icon, trend, desc, color }) => (
         </span>
       )}
     </div>
-    <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-none mb-1">
+    <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-none mb-1 dark:text-[#F8FAFC]">
       <AnimatedCounter value={value} />
     </p>
-    <p className="text-sm font-bold text-slate-800">{label}</p>
-    {desc && <p className="text-[11px] text-slate-400 mt-0.5">{desc}</p>}
+    <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC]">{label}</p>
+    {desc && <p className="text-[11px] text-slate-400 mt-0.5 dark:text-slate-500">{desc}</p>}
   </div>
 );
 
@@ -120,25 +120,25 @@ const QuickActionCard = ({ icon, title, desc, onClick, primary }) => (
     onClick={onClick}
     className={`group relative flex items-start gap-4 p-4 rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] text-left w-full ${
       primary
-        ? 'bg-red-800 border-red-800 hover:bg-red-900 hover:shadow-md text-white'
-        : 'bg-white border-slate-200 hover:shadow-md hover:border-red-200 text-slate-900'
+        ? 'bg-red-800 border-red-800 hover:bg-red-900 hover:shadow-md text-white dark:bg-red-800 dark:border-red-800 dark:hover:bg-red-900'
+        : 'bg-white border-slate-200 hover:shadow-md hover:border-red-200 text-slate-900 dark:bg-[#111827] dark:border-[#1E293B] dark:hover:border-red-800/50 dark:text-[#F8FAFC]'
     }`}
   >
     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 ${
       primary
         ? 'bg-white/15 group-hover:bg-white/20'
-        : 'bg-red-50 group-hover:bg-red-100'
+        : 'bg-red-50 group-hover:bg-red-100 dark:bg-[#1F2937] dark:group-hover:bg-[#1F2937]'
     }`}>
       <span className={primary ? 'text-white' : 'text-red-700'}>{icon}</span>
     </div>
     <div className="flex-1 min-w-0">
-      <p className={`text-sm font-bold transition-colors ${primary ? 'text-white' : 'text-slate-900 group-hover:text-red-800'}`}>{title}</p>
-      <p className={`text-xs mt-0.5 ${primary ? 'text-red-100' : 'text-slate-500'}`}>{desc}</p>
+      <p className={`text-sm font-bold transition-colors ${primary ? 'text-white' : 'text-slate-900 group-hover:text-red-800 dark:text-[#F8FAFC] dark:group-hover:text-red-400'}`}>{title}</p>
+      <p className={`text-xs mt-0.5 ${primary ? 'text-red-100' : 'text-slate-500 dark:text-[#94A3B8]'}`}>{desc}</p>
     </div>
     <svg className={`w-4 h-4 transition-all duration-200 shrink-0 mt-2 ${
       primary
         ? 'text-red-200 group-hover:text-white group-hover:translate-x-0.5'
-        : 'text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5'
+        : 'text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 dark:text-slate-600 dark:group-hover:text-red-400'
     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
     </svg>
@@ -149,7 +149,7 @@ const QuickActionCard = ({ icon, title, desc, onClick, primary }) => (
 const StatusBadge = ({ status }) => {
   const st = getStatusColor(status);
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold shadow-sm ${st.bg} ${st.text} border ${st.bg.replace('bg-', 'border-').replace('50', '200')}`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold shadow-sm ${st.bg} ${st.text} border ${st.border || st.bg.replace('bg-', 'border-').replace('50', '200')}`}>
       <StatusIcon type={st.icon} />
       {st.label}
     </span>
@@ -158,15 +158,15 @@ const StatusBadge = ({ status }) => {
 
 /* ─── System Status Item ─── */
 const SystemStatusItem = ({ label, status, uptime }) => (
-  <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
+  <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0 dark:border-[#1E293B]">
     <div className="flex items-center gap-2.5">
       <span className="relative flex w-2 h-2">
         {status === 'ok' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />}
         <span className={`relative inline-flex rounded-full w-2 h-2 ${status === 'ok' ? 'bg-emerald-500' : 'bg-red-500'}`} />
       </span>
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-slate-700 dark:text-[#94A3B8]">{label}</span>
     </div>
-    {uptime && <span className="text-[11px] text-slate-400">{uptime}</span>}
+    {uptime && <span className="text-[11px] text-slate-400 dark:text-slate-500">{uptime}</span>}
   </div>
 );
 
@@ -182,25 +182,25 @@ const JudgeCard = ({ judge, index }) => {
   const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 60 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
-    <div className="group bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+    <div className="group bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.from} ${c.to} text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm`}>
           {judgeInitials(judge.name)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-slate-900 truncate group-hover:text-red-800 transition-colors">{judge.name}</p>
+          <p className="text-sm font-bold text-slate-900 truncate group-hover:text-red-800 transition-colors dark:text-[#F8FAFC] dark:group-hover:text-red-400">{judge.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             {judge.level && levelBadge(judge.level)}
-            {judge.level && <span className="text-slate-300">|</span>}
-            <span className="text-[11px] text-slate-400">{judge.total_analyzed || 0} peleas</span>
+            {judge.level && <span className="text-slate-300 dark:text-slate-600">|</span>}
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">{judge.total_analyzed || 0} peleas</span>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-bold text-slate-800">{pct.toFixed(0)}%</span>
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Precisión</span>
+        <span className="text-xs font-bold text-slate-800 dark:text-[#94A3B8]">{pct.toFixed(0)}%</span>
+        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-slate-500">Precisión</span>
       </div>
-      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
         <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -240,23 +240,23 @@ const Dashboard = () => {
     return (
       <div className="space-y-6 animate-pulse">
         <div className="flex gap-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-8 w-28 bg-slate-200 rounded-xl" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-8 w-28 bg-slate-200 rounded-xl dark:bg-[#1F2937]" />)}
         </div>
-        <div className="h-10 w-64 bg-slate-200 rounded-xl" />
+        <div className="h-10 w-64 bg-slate-200 rounded-xl dark:bg-[#1F2937]" />
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 h-[150px]">
-              <div className="h-10 w-10 bg-slate-100 rounded-xl mb-4" />
-              <div className="h-8 w-16 bg-slate-100 rounded mb-2" />
-              <div className="h-3 w-24 bg-slate-100 rounded" />
+            <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 h-[150px] dark:bg-[#111827] dark:border-[#1E293B]">
+              <div className="h-10 w-10 bg-slate-100 rounded-xl mb-4 dark:bg-[#1F2937]" />
+              <div className="h-8 w-16 bg-slate-100 rounded mb-2 dark:bg-[#1F2937]" />
+              <div className="h-3 w-24 bg-slate-100 rounded dark:bg-[#1F2937]" />
             </div>
           ))}
         </div>
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-          <div className="xl:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 h-[420px]" />
+          <div className="xl:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 h-[420px] dark:bg-[#111827] dark:border-[#1E293B]" />
           <div className="xl:col-span-8 space-y-5">
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 h-[320px]" />
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 h-[260px]" />
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 h-[320px] dark:bg-[#111827] dark:border-[#1E293B]" />
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 h-[260px] dark:bg-[#111827] dark:border-[#1E293B]" />
           </div>
         </div>
       </div>
@@ -266,13 +266,13 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4 dark:bg-red-900/30">
+          <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-slate-800 mb-2">Error al cargar</h3>
-        <p className="text-sm text-slate-500 mb-6">{error}</p>
+        <h3 className="text-lg font-bold text-slate-800 mb-2 dark:text-[#F8FAFC]">Error al cargar</h3>
+        <p className="text-sm text-slate-500 mb-6 dark:text-[#94A3B8]">{error}</p>
         <button
           onClick={fetchData}
           className="px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
@@ -308,20 +308,20 @@ const Dashboard = () => {
     <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
 
       {/* ── Header Section ── */}
-      <div className="bg-gradient-to-b from-slate-50/80 to-transparent rounded-2xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-6 sm:pb-7 -mt-5 sm:-mt-6 mb-2">
+      <div className="bg-gradient-to-b from-slate-50/80 to-transparent rounded-2xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-6 sm:pb-7 -mt-5 sm:-mt-6 mb-2 dark:from-[#0B1120]/80 dark:to-transparent">
         <div className="max-w-[1440px] mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm dark:bg-[#111827] dark:border-[#1E293B]">
                 <span className="relative flex w-2.5 h-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-emerald-500" />
                 </span>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Sistema Activo</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest dark:text-[#94A3B8]">Sistema Activo</span>
               </div>
-              <span className="text-xs text-slate-300">/</span>
-              <span className="text-xs text-slate-400 tracking-wide">
-                <span className="text-slate-500 font-medium">WBO</span> / Dashboard
+              <span className="text-xs text-slate-300 dark:text-slate-600">/</span>
+              <span className="text-xs text-slate-400 tracking-wide dark:text-slate-500">
+                <span className="text-slate-500 font-medium dark:text-[#94A3B8]">WBO</span> / Dashboard
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -350,11 +350,11 @@ const Dashboard = () => {
           <div className="mt-5 relative">
             <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-red-800 to-red-600 hidden sm:block" />
             <div className="sm:pl-5">
-              <h1 className="text-[30px] sm:text-[38px] font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-[30px] sm:text-[38px] font-extrabold text-slate-900 tracking-tight leading-tight dark:text-[#F8FAFC]">
                 Panel de Control
               </h1>
-              <p className="text-sm text-slate-400 mt-1.5 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <p className="text-sm text-slate-400 mt-1.5 flex items-center gap-2 dark:text-slate-500">
+                <svg className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Última actualización: {now}
@@ -366,13 +366,13 @@ const Dashboard = () => {
 
       {isEmpty ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 dark:bg-[#1F2937]">
+            <svg className="w-8 h-8 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-800 mb-2">No hay datos disponibles</h3>
-          <p className="text-sm text-slate-400 mb-6">Aún no se han registrado peleas o jueces en el sistema.</p>
+          <h3 className="text-lg font-bold text-slate-800 mb-2 dark:text-[#F8FAFC]">No hay datos disponibles</h3>
+          <p className="text-sm text-slate-400 mb-6 dark:text-slate-500">Aún no se han registrado peleas o jueces en el sistema.</p>
           {user?.role !== 'judge' && (
             <button
               onClick={() => navigate('/fights/create')}
@@ -461,9 +461,9 @@ const Dashboard = () => {
             <div className="xl:col-span-4 space-y-5">
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Acciones Rápidas</p>
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Operaciones</h3>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md dark:bg-[#111827] dark:border-[#1E293B]">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Acciones Rápidas</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-4 dark:text-[#F8FAFC]">Operaciones</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {user?.role !== 'judge' && (
                     <QuickActionCard
@@ -502,9 +502,9 @@ const Dashboard = () => {
               </div>
 
               {/* System Status */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Estado del Sistema</p>
-                <h3 className="text-lg font-bold text-slate-900 mb-3">Servicios</h3>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Estado del Sistema</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-3 dark:text-[#F8FAFC]">Servicios</h3>
                 <div className="divide-y divide-slate-100">
                   <SystemStatusItem label="Base de datos" status="ok" uptime="Conectada" />
                   <SystemStatusItem label="API REST" status="ok" uptime="Activa" />
@@ -515,20 +515,20 @@ const Dashboard = () => {
 
               {/* Status Distribution (mini chart) */}
               {statusDistribution.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Distribución</p>
-                  <h3 className="text-lg font-bold text-slate-900 mb-4">Estado de peleas</h3>
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Distribución</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 dark:text-[#F8FAFC]">Estado de peleas</h3>
                   <div className="space-y-3">
                     {statusDistribution.map((s) => (
                       <div key={s.key}>
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
                             <span className={`w-2 h-2 rounded-full ${s.dot}`} />
-                            <span className="text-sm font-medium text-slate-700">{s.label}</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-[#94A3B8]">{s.label}</span>
                           </div>
-                          <span className="text-sm font-bold text-slate-900">{s.count}</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{s.count}</span>
                         </div>
-                        <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
                           <div
                             className={`h-full rounded-full transition-all duration-700 ${s.dot.replace('bg-', 'bg-')}`}
                             style={{ width: `${(s.count / maxStatusCount) * 100}%` }}
@@ -546,11 +546,11 @@ const Dashboard = () => {
             <div className="xl:col-span-8 space-y-5">
 
               {/* Recent Activity Table */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+                <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between dark:border-[#1E293B]">
                   <div>
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Actividad Reciente</p>
-                    <h3 className="text-lg font-bold text-slate-900">Últimos Combates</h3>
+                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Actividad Reciente</p>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">Últimos Combates</h3>
                   </div>
                   {user?.role !== 'judge' && (
                     <button
@@ -572,13 +572,13 @@ const Dashboard = () => {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-slate-50/80">
-                        <tr className="border-b border-slate-200">
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Combate</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">Fecha</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Rounds</th>
-                          <th className="text-center py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Jueces</th>
-                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Estado</th>
+                      <thead className="bg-slate-50/80 dark:bg-[#0B1120]/80">
+                        <tr className="border-b border-slate-200 dark:border-[#1E293B]">
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide dark:text-[#94A3B8]">Combate</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Fecha</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide dark:text-[#94A3B8] hidden lg:table-cell">Rounds</th>
+                          <th className="text-center py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide dark:text-[#94A3B8] hidden lg:table-cell">Jueces</th>
+                          <th className="text-left py-3.5 px-6 text-[11px] font-semibold text-slate-500 uppercase tracking-wide dark:text-[#94A3B8]">Estado</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -587,18 +587,18 @@ const Dashboard = () => {
                           return (
                             <tr
                               key={fight.id}
-                              className="border-b border-slate-100 hover:bg-red-50/40 transition-all duration-200 cursor-pointer"
+                              className="border-b border-slate-100 hover:bg-red-50/40 transition-all duration-200 cursor-pointer dark:border-[#1E293B] dark:hover:bg-[#1A2435]"
                               onClick={() => navigate(`/fights/${fight.id}`)}
                             >
                               <td className="py-4 px-6">
-                                <p className="text-sm font-bold text-slate-900 truncate">{fight.event_name}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-sm font-bold text-slate-900 truncate dark:text-[#F8FAFC]">{fight.event_name}</p>
+                                <p className="text-xs text-slate-500 mt-0.5 dark:text-[#94A3B8]">
                                   {fight.boxer_red} vs {fight.boxer_blue}
                                 </p>
                               </td>
-                              <td className="py-4 px-6 text-slate-500 whitespace-nowrap hidden md:table-cell text-xs">{formatDate(fight.scheduled_date)}</td>
+                              <td className="py-4 px-6 text-slate-500 whitespace-nowrap hidden md:table-cell text-xs dark:text-[#94A3B8]">{formatDate(fight.scheduled_date)}</td>
                               <td className="py-4 px-6 hidden lg:table-cell">
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300">
                                   {fight.total_rounds} rounds
                                 </span>
                               </td>
@@ -618,22 +618,22 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">
-                    Mostrando <span className="font-semibold text-slate-600">{recent_fights.length}</span> de{' '}
-                    <span className="font-semibold text-slate-600">{stats.total_fights}</span> peleas
+                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between dark:border-[#1E293B]">
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    Mostrando <span className="font-semibold text-slate-600 dark:text-[#94A3B8]">{recent_fights.length}</span> de{' '}
+                    <span className="font-semibold text-slate-600 dark:text-[#94A3B8]">{stats.total_fights}</span> peleas
                   </p>
-                  <p className="text-xs text-slate-300">Temporada 2026</p>
+                  <p className="text-xs text-slate-300 dark:text-slate-600">Temporada 2026</p>
                 </div>
               </div>
 
               {/* Judges Detail Cards */}
               {active_judges.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Cuerpo de Árbitros</p>
-                      <h3 className="text-lg font-bold text-slate-900">Jueces Destacados</h3>
+                      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Cuerpo de Árbitros</p>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">Jueces Destacados</h3>
                     </div>
                     {user?.role !== 'judge' && (
                       <button
@@ -658,9 +658,9 @@ const Dashboard = () => {
 
               {/* Timeline / Recent Activity Log */}
               {recent_fights.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Actividad en Tiempo Real</p>
-                  <h3 className="text-lg font-bold text-slate-900 mb-4">Eventos Recientes</h3>
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Actividad en Tiempo Real</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 dark:text-[#F8FAFC]">Eventos Recientes</h3>
                   <div className="space-y-0">
                     {recent_fights.slice(0, 5).map((fight, i) => {
                       const st = getStatusColor(fight.status);
@@ -670,16 +670,16 @@ const Dashboard = () => {
                         : '--:--';
                       return (
                         <div key={fight.id} className="relative flex gap-4 pb-4 last:pb-0 group/timeline">
-                          {!isLast && <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-200 group-last/timeline:hidden" />}
-                          <div className={`relative w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.bg} transition-transform duration-200 group-hover/timeline:scale-110`}>
+                          {!isLast && <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-200 dark:bg-[#1E293B] group-last/timeline:hidden" />}
+                          <div className={`relative w-6 h-6 rounded-full border-2 border-white dark:border-[#111827] shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.bg} transition-transform duration-200 group-hover/timeline:scale-110`}>
                             <div className={`w-2 h-2 rounded-full ${st.dot}`} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-slate-900 truncate">{fight.event_name}</p>
-                              <span className="text-[11px] text-slate-400 shrink-0">{hour}</span>
+                              <p className="text-sm font-semibold text-slate-900 truncate dark:text-[#F8FAFC]">{fight.event_name}</p>
+                              <span className="text-[11px] text-slate-400 shrink-0 dark:text-slate-500">{hour}</span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-0.5">{fight.boxer_red} vs {fight.boxer_blue}</p>
+                            <p className="text-xs text-slate-500 mt-0.5 dark:text-[#94A3B8]">{fight.boxer_red} vs {fight.boxer_blue}</p>
                             <div className="mt-1">
                               <StatusBadge status={fight.status} />
                             </div>

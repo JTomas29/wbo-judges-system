@@ -6,19 +6,19 @@ import BackButton from '../../components/common/BackButton';
 
 const statusBadge = (status) => {
   if (!status) return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       Sin tarjeta
     </span>
   );
   if (status === 'draft') return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       Draft
     </span>
   );
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
       Finalizada
     </span>
@@ -92,13 +92,13 @@ const LiveScore = () => {
   };
 
   if (loading) {
-    return <p className="text-slate-400 py-10">Cargando...</p>;
+    return <p className="text-slate-400 py-10 dark:text-[#94A3B8]">Cargando...</p>;
   }
 
   if (error && !fight) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-        <p className="text-red-700">{error}</p>
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6 dark:bg-red-900/30 dark:border-red-800/50">
+        <p className="text-red-700 dark:text-red-300">{error}</p>
         <button
           className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
           onClick={() => navigate(-1)}
@@ -118,11 +118,11 @@ const LiveScore = () => {
       </div>
       <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 m-0">Puntuación en Vivo</h2>
-          <p className="text-sm text-slate-400">
+          <h2 className="text-xl font-bold text-slate-900 m-0 dark:text-[#F8FAFC]">Puntuación en Vivo</h2>
+          <p className="text-sm text-slate-400 dark:text-[#94A3B8]">
             {fight?.event_name} — {fight?.boxer_red} vs {fight?.boxer_blue}
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Estado: <span className="font-semibold">{fight?.status}</span>
           </p>
         </div>
@@ -142,7 +142,7 @@ const LiveScore = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden dark:bg-[#111827] dark:border dark:border-[#1E293B]">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-wbo-700 text-white text-xs uppercase tracking-wider rounded-xl">
@@ -154,20 +154,20 @@ const LiveScore = () => {
               <th className="text-right px-5 py-3.5 font-semibold">Resultado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
             {entries.length === 0 && (
               <tr>
-                <td colSpan="6" className="px-4 py-8 text-center text-slate-400">
+                <td colSpan="6" className="px-4 py-8 text-center text-slate-400 dark:text-[#94A3B8]">
                   No hay jueces confirmados para esta pelea.
                 </td>
               </tr>
             )}
             {entries.map((e, i) => (
-              <tr key={e.judge_id} className={`hover:bg-slate-50 transition-colors ${i % 2 === 0 ? 'even:bg-slate-50' : ''}`}>
-                <td className="px-4 py-3 font-medium text-slate-900">{e.judge_name}</td>
-                <td className="px-4 py-3 text-slate-500 capitalize">{e.level}</td>
-                <td className="px-4 py-3 text-slate-500 capitalize">{e.assignment_type}</td>
-                <td className="px-4 py-3 text-center text-slate-700">
+              <tr key={e.judge_id} className={`hover:bg-slate-50 transition-colors dark:hover:bg-[#1A2435] ${i % 2 === 0 ? 'even:bg-slate-50 dark:even:bg-[#0B1120]' : ''}`}>
+                <td className="px-4 py-3 font-medium text-slate-900 dark:text-[#F8FAFC]">{e.judge_name}</td>
+                <td className="px-4 py-3 text-slate-500 capitalize dark:text-[#94A3B8]">{e.level}</td>
+                <td className="px-4 py-3 text-slate-500 capitalize dark:text-[#94A3B8]">{e.assignment_type}</td>
+                <td className="px-4 py-3 text-center text-slate-700 dark:text-[#94A3B8]">
                   {e.completed_rounds} / {e.total_rounds}
                 </td>
                 <td className="px-4 py-3 text-center">{statusBadge(e.scorecard_status)}</td>
@@ -202,16 +202,16 @@ const LiveScore = () => {
 };
 
 const ResultCell = ({ entry }) => {
-  if (!entry.scorecard_status) return <span className="text-slate-400 text-xs">Sin comenzar</span>;
-  if (entry.scorecard_status === 'draft') return <span className="text-amber-600 text-xs font-semibold">En progreso</span>;
+  if (!entry.scorecard_status) return <span className="text-slate-400 text-xs dark:text-slate-500">Sin comenzar</span>;
+  if (entry.scorecard_status === 'draft') return <span className="text-amber-600 text-xs font-semibold dark:text-amber-400">En progreso</span>;
 
   const winner = entry.winner || 'Empate';
   return (
     <div className="leading-tight">
-      <span className="font-bold text-slate-900">
+      <span className="font-bold text-slate-900 dark:text-[#F8FAFC]">
         {entry.total_score_red} – {entry.total_score_blue}
       </span>
-      <span className="block text-xs text-slate-500 mt-0.5">Ganador: {winner}</span>
+      <span className="block text-xs text-slate-500 mt-0.5 dark:text-[#94A3B8]">Ganador: {winner}</span>
     </div>
   );
 };

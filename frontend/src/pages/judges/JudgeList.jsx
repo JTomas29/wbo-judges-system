@@ -8,17 +8,17 @@ import FilterBar, { FilterInput, FilterSelect } from '../../components/common/Fi
 
 const levelBadge = (level) => {
   const map = {
-    elite: 'bg-green-100 text-green-800',
-    senior: 'bg-blue-100 text-blue-800',
-    junior: 'bg-yellow-100 text-yellow-800',
+    elite: 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
+    senior: 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50',
+    junior: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50',
   };
-  return map[level] || 'bg-slate-100 text-slate-500';
+  return map[level] || 'bg-slate-100 text-slate-500 dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600';
 };
 
 const statusBadge = (active) => {
   return active
-    ? 'bg-green-100 text-green-700'
-    : 'bg-slate-100 text-slate-500';
+    ? 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50'
+    : 'bg-slate-100 text-slate-500 dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600';
 };
 
 const levelIcon = (level) => {
@@ -135,8 +135,8 @@ const JudgeList = () => {
 
   if (!isStaff) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 text-center">
-        <p className="text-slate-700 font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
+      <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm p-6 text-center">
+        <p className="text-slate-700 dark:text-[#F8FAFC] font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
         <button
           className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
           onClick={() => navigate('/dashboard')}
@@ -149,17 +149,17 @@ const JudgeList = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-wbo-700" />
-        <span className="ml-3 text-slate-500 text-sm">Cargando jueces...</span>
+      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-[#374151] border-t-wbo-700" />
+        <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando jueces...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm flex items-center justify-center py-20">
-        <div className="bg-red-50 text-red-700 px-6 py-4 rounded-xl text-sm">
+      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm flex items-center justify-center py-20">
+        <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl text-sm">
           {error}
         </div>
       </div>
@@ -171,7 +171,7 @@ const JudgeList = () => {
       <div className="mb-4">
         <BackButton fallbackRoute="/dashboard" />
       </div>
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Gestión de Jueces</h2>
+      <h2 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-4">Gestión de Jueces</h2>
 
       {/* Filters */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
@@ -190,14 +190,14 @@ const JudgeList = () => {
       </FilterBar>
 
       {filteredJudges.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-slate-400 text-sm">
+        <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-10 text-center text-slate-400 dark:text-[#94A3B8] text-sm">
           {hasActiveFilters ? 'No se encontraron jueces con los filtros aplicados' : 'No hay jueces registrados'}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm p-5 overflow-x-auto">
+        <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-5 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-wbo-700 text-white rounded-lg">
+              <tr className="bg-wbo-700 dark:bg-red-900/50 text-white rounded-lg">
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nombre</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Email</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nivel</th>
@@ -207,9 +207,9 @@ const JudgeList = () => {
             </thead>
             <tbody>
               {filteredJudges.map((juez) => (
-                <tr key={juez.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-slate-800">{juez.name}</td>
-                  <td className="py-3 px-4 text-slate-600">{juez.email}</td>
+                <tr key={juez.id} className="border-b border-slate-100 dark:border-[#1E293B] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1A2435] transition-colors">
+                  <td className="py-3 px-4 font-semibold text-slate-800 dark:text-[#F8FAFC]">{juez.name}</td>
+                  <td className="py-3 px-4 text-slate-600 dark:text-[#94A3B8]">{juez.email}</td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
                       {levelIcon(juez.level)}
@@ -226,7 +226,7 @@ const JudgeList = () => {
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
                         <button
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:border-red-300 hover:text-red-700 hover:bg-red-50 transition-all duration-200 shadow-sm"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:border-red-300 dark:hover:border-red-800/50 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200 shadow-sm"
                           onClick={() => navigate(`/profile/${juez.id}`)}>
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -236,7 +236,7 @@ const JudgeList = () => {
                         </button>
                         {user?.role === 'admin' && (
                           <>
-                            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:border-wbo-700 hover:text-wbo-700 hover:bg-wbo-50 transition-all duration-200 shadow-sm"
+                            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:border-wbo-700 dark:hover:border-red-800/50 hover:text-wbo-700 dark:hover:text-red-400 hover:bg-wbo-50 dark:hover:bg-red-900/30 transition-all duration-200 shadow-sm"
                               onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
                             <button
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm ${
@@ -261,17 +261,17 @@ const JudgeList = () => {
       )}
 
       {confirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTarget(null)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-sm" onClick={() => setConfirmTarget(null)}>
+          <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">
               {confirmTarget.is_active ? 'Desactivar juez' : 'Activar juez'}
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
-              ¿Estás seguro de que quieres {confirmTarget.is_active ? 'desactivar' : 'activar'} a <strong>{confirmTarget.name}</strong>?
+            <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-6">
+              ¿Estás seguro de que quieres {confirmTarget.is_active ? 'desactivar' : 'activar'} a <strong className="text-slate-800 dark:text-[#F8FAFC]">{confirmTarget.name}</strong>?
             </p>
             <div className="flex gap-3 justify-end">
               <button
-                className="px-5 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors"
+                className="px-5 py-2.5 bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#F8FAFC] border border-slate-200 dark:border-[#374151] rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-[#374151] transition-colors"
                 onClick={() => setConfirmTarget(null)}
               >
                 No

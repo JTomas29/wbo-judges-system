@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFightHistory } from '../../services/historyService';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterDate, FilterSelect } from '../../components/common/FilterBar';
 
 const statusConfig = {
@@ -29,14 +30,14 @@ const StatusIcon = ({ type }) => {
 };
 
 const StatCard = ({ icon, value, label, color }) => (
-  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+  <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
     <div className="flex items-center gap-3">
       <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center shrink-0`}>
         <span className="text-white text-sm font-bold">{icon}</span>
       </div>
       <div>
-        <p className="text-xl font-bold text-slate-900 leading-none">{value}</p>
-        <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+        <p className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] leading-none">{value}</p>
+        <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">{label}</p>
       </div>
     </div>
   </div>
@@ -75,15 +76,15 @@ const History = () => {
   if (loading) return (
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
-        <span className="text-sm text-slate-500 font-medium">Cargando historial...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando historial...</span>
       </div>
     </div>
   );
 
   if (error) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">{error}</div>
+      <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:text-red-300">{error}</div>
     </div>
   );
 
@@ -93,8 +94,8 @@ const History = () => {
       {/* ═══ HEADER ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-tight">Historial de Peleas</h1>
-          <p className="text-sm text-slate-500 mt-1">Peleas archivadas del sistema.</p>
+          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight leading-tight">Historial de Peleas</h1>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">Peleas archivadas del sistema.</p>
         </div>
       </div>
 
@@ -131,60 +132,60 @@ const History = () => {
       {/* ═══ CONTENT ═══ */}
       {fights.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center mb-5">
-            <svg className="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <div className="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-[#1F2937] flex items-center justify-center mb-5">
+            <svg className="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-800 mb-2">No hay peleas archivadas</h3>
-          <p className="text-sm text-slate-500">Las peleas archivadas aparecerán aquí.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-[#F8FAFC] mb-2">No hay peleas archivadas</h3>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Las peleas archivadas aparecerán aquí.</p>
         </div>
       ) : (
         <>
           {/* ─── Desktop Table ─── */}
-          <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+          <div className="hidden sm:block bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/80">
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Evento</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Rojo</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Azul</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Fecha</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden xl:table-cell">Categoría</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Estado</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Archivada</th>
-                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Acciones</th>
+                  <tr className="border-b border-slate-200 dark:border-[#1E293B] bg-slate-50/80 dark:bg-[#0B1120]">
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Evento</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Rojo</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Azul</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Fecha</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Categoría</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Estado</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Archivada</th>
+                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {fights.map((fight) => {
                     const cfg = getStatus(fight.status);
                     return (
-                      <tr key={fight.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors duration-150">
+                      <tr key={fight.id} className="border-b border-slate-100 dark:border-[#1E293B] last:border-0 hover:bg-slate-50/50 dark:hover:bg-[#1A2435] transition-colors duration-150">
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-2.5">
                             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-sm">
                               {initials(fight.event_name)}
                             </span>
-                            <span className="text-sm font-semibold text-slate-800 truncate max-w-[180px]">{fight.event_name}</span>
+                            <span className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC] truncate max-w-[180px]">{fight.event_name}</span>
                           </div>
                         </td>
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-[9px] font-bold shrink-0">R</span>
-                            <span className="text-sm font-medium text-slate-700 truncate max-w-[120px]">{fight.boxer_red}</span>
+                            <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 flex items-center justify-center text-[9px] font-bold shrink-0">R</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-[#F8FAFC] truncate max-w-[120px]">{fight.boxer_red}</span>
                           </div>
                         </td>
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-bold shrink-0">A</span>
-                            <span className="text-sm font-medium text-slate-700 truncate max-w-[120px]">{fight.boxer_blue}</span>
+                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center text-[9px] font-bold shrink-0">A</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-[#F8FAFC] truncate max-w-[120px]">{fight.boxer_blue}</span>
                           </div>
                         </td>
-                        <td className="py-4 px-5 text-sm text-slate-500 hidden lg:table-cell">{formatDate(fight.scheduled_date)}</td>
+                        <td className="py-4 px-5 text-sm text-slate-500 dark:text-[#94A3B8] hidden lg:table-cell">{formatDate(fight.scheduled_date)}</td>
                         <td className="py-4 px-5 hidden xl:table-cell">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-[#1F2937] text-slate-600 dark:text-[#94A3B8] border border-slate-200 dark:border-[#374151]">
                             {fight.weight_class || '\u2014'}
                           </span>
                         </td>
@@ -194,11 +195,11 @@ const History = () => {
                             {cfg.label}
                           </span>
                         </td>
-                        <td className="py-4 px-5 text-sm text-slate-500 hidden lg:table-cell">{formatDate(fight.archived_at)}</td>
+                        <td className="py-4 px-5 text-sm text-slate-500 dark:text-[#94A3B8] hidden lg:table-cell">{formatDate(fight.archived_at)}</td>
                         <td className="py-4 px-5 text-center">
                           <button
                             onClick={() => setSelectedFight(fight)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:shadow-sm transition-all active:scale-[0.97]"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] text-slate-600 dark:text-[#F8FAFC] rounded-xl hover:bg-slate-50 dark:hover:bg-[#374151] hover:shadow-sm transition-all active:scale-[0.97]"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             Ver
@@ -217,7 +218,7 @@ const History = () => {
             {fights.map((fight) => {
               const cfg = getStatus(fight.status);
               return (
-                <div key={fight.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 transition-all duration-200 hover:shadow-md">
+                <div key={fight.id} className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
@@ -226,8 +227,8 @@ const History = () => {
                         </svg>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-900 truncate">{fight.event_name}</p>
-                        <p className="text-xs text-slate-500">{fight.weight_class || '\u2014'}</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.event_name}</p>
+                        <p className="text-xs text-slate-500 dark:text-[#94A3B8]">{fight.weight_class || '\u2014'}</p>
                       </div>
                     </div>
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold ${cfg.bg} ${cfg.text} border ${cfg.border}`}>
@@ -237,26 +238,26 @@ const History = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Rojo</p>
-                      <p className="text-sm font-medium text-slate-800">{fight.boxer_red}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Rojo</p>
+                      <p className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{fight.boxer_red}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Azul</p>
-                      <p className="text-sm font-medium text-slate-800">{fight.boxer_blue}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Azul</p>
+                      <p className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{fight.boxer_blue}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Fecha</p>
-                      <p className="text-sm text-slate-600">{formatDate(fight.scheduled_date)}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Fecha</p>
+                      <p className="text-sm text-slate-600 dark:text-[#94A3B8]">{formatDate(fight.scheduled_date)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Archivada</p>
-                      <p className="text-sm text-slate-600">{formatDate(fight.archived_at)}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archivada</p>
+                      <p className="text-sm text-slate-600 dark:text-[#94A3B8]">{formatDate(fight.archived_at)}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2 pt-3 border-t border-slate-100">
+                  <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-[#1E293B]">
                     <button
                       onClick={() => setSelectedFight(fight)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-100 transition-all active:scale-[0.97] border border-slate-200"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-[#1F2937] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-[#374151] transition-all active:scale-[0.97] border border-slate-200 dark:border-[#374151]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                       Ver detalle
@@ -272,88 +273,88 @@ const History = () => {
       {/* ═══ DETAIL MODAL ═══ */}
       {selectedFight && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedFight(null)}>
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 w-full max-w-lg animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setSelectedFight(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+          <div className="absolute inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm" />
+          <div className="relative bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] p-6 sm:p-8 w-full max-w-lg animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setSelectedFight(null)} className="absolute top-4 right-4 text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#1F2937] flex items-center justify-center">
+                <svg className="w-5 h-5 text-slate-500 dark:text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">{selectedFight.event_name}</h3>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">ARCHIVADA</span>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.event_name}</h3>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-[#1F2937] text-slate-600 dark:text-[#94A3B8] border border-slate-200 dark:border-[#374151]">ARCHIVADA</span>
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 mb-5">
+            <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-4 mb-5">
               <div className="flex items-center justify-center gap-4">
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold mx-auto mb-1">R</div>
-                  <p className="text-sm font-bold text-slate-900">{selectedFight.boxer_red}</p>
-                  <p className="text-[10px] text-slate-400 uppercase">Rojo</p>
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 flex items-center justify-center text-xs font-bold mx-auto mb-1">R</div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.boxer_red}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Rojo</p>
                 </div>
-                <div className="px-3 py-1 rounded-full bg-slate-200 text-slate-500 text-xs font-bold">VS</div>
+                <div className="px-3 py-1 rounded-full bg-slate-200 dark:bg-[#374151] text-slate-500 dark:text-[#94A3B8] text-xs font-bold">VS</div>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold mx-auto mb-1">A</div>
-                  <p className="text-sm font-bold text-slate-900">{selectedFight.boxer_blue}</p>
-                  <p className="text-[10px] text-slate-400 uppercase">Azul</p>
+                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center text-xs font-bold mx-auto mb-1">A</div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.boxer_blue}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Azul</p>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-sm mb-5">
-              <div className="bg-white rounded-xl border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Fecha</p>
-                <p className="text-sm font-semibold text-slate-800">{formatDate(selectedFight.scheduled_date)}</p>
+              <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Fecha</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{formatDate(selectedFight.scheduled_date)}</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Categoría</p>
-                <p className="text-sm font-semibold text-slate-800">{selectedFight.weight_class || '\u2014'}</p>
+              <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Categoría</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.weight_class || '\u2014'}</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Rounds</p>
-                <p className="text-sm font-semibold text-slate-800">{selectedFight.total_rounds}</p>
+              <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Rounds</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.total_rounds}</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Archivada</p>
-                <p className="text-sm font-semibold text-slate-800">{formatDate(selectedFight.archived_at)}</p>
+              <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archivada</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{formatDate(selectedFight.archived_at)}</p>
               </div>
               {selectedFight.venue && (
-                <div className="bg-white rounded-xl border border-slate-200 p-3">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Sede</p>
-                  <p className="text-sm font-semibold text-slate-800">{selectedFight.venue}</p>
+                <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Sede</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.venue}</p>
                 </div>
               )}
               {selectedFight.broadcaster && (
-                <div className="bg-white rounded-xl border border-slate-200 p-3">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Transmisión</p>
-                  <p className="text-sm font-semibold text-slate-800">{selectedFight.broadcaster}</p>
+                <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Transmisión</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.broadcaster}</p>
                 </div>
               )}
             </div>
 
             {Number(selectedFight.total_matches) > 0 && (
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 mb-5">
-                <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wide mb-2">Análisis</p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/50 p-4 mb-5">
+                <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-2">Análisis</p>
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <p className="text-lg font-bold text-blue-700">{Number(selectedFight.avg_match_pct).toFixed(1)}%</p>
-                    <p className="text-[10px] text-blue-500">Promedio</p>
+                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{Number(selectedFight.avg_match_pct).toFixed(1)}%</p>
+                    <p className="text-[10px] text-blue-500 dark:text-blue-400">Promedio</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-emerald-700">{selectedFight.total_matches}</p>
-                    <p className="text-[10px] text-emerald-500">Coincidencias</p>
+                    <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{selectedFight.total_matches}</p>
+                    <p className="text-[10px] text-emerald-500 dark:text-emerald-400">Coincidencias</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-red-600">{selectedFight.total_errors}</p>
-                    <p className="text-[10px] text-red-500">Errores</p>
+                    <p className="text-lg font-bold text-red-600 dark:text-red-400">{selectedFight.total_errors}</p>
+                    <p className="text-[10px] text-red-500 dark:text-red-400">Errores</p>
                   </div>
                 </div>
               </div>
@@ -361,7 +362,7 @@ const History = () => {
 
             <button
               onClick={() => setSelectedFight(null)}
-              className="w-full px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:shadow-sm transition-all active:scale-[0.97]"
+              className="w-full px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#F8FAFC] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] rounded-xl hover:bg-slate-50 dark:hover:bg-[#374151] hover:shadow-sm transition-all active:scale-[0.97]"
             >
               Cerrar
             </button>

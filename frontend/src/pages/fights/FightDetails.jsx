@@ -5,12 +5,12 @@ import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 
 const statusConfig = {
-  pending: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', icon: 'clock', label: 'Pendiente' },
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', icon: 'zap', label: 'Activa' },
-  completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200', icon: 'check', label: 'Finalizada' },
-  analyzed: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', border: 'border-violet-200', icon: 'chart', label: 'Analizada' },
-  cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200', icon: 'x', label: 'Cancelada' },
-  archived: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-300', icon: 'archive', label: 'Archivada' },
+  pending: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/50', icon: 'clock', label: 'Pendiente' },
+  active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'zap', label: 'Activa' },
+  completed: { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500', border: 'border-blue-200 dark:border-blue-800/50', icon: 'check', label: 'Finalizada' },
+  analyzed: { bg: 'bg-violet-50 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-300', dot: 'bg-violet-500', border: 'border-violet-200 dark:border-violet-800/50', icon: 'chart', label: 'Analizada' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500', border: 'border-red-200 dark:border-red-800/50', icon: 'x', label: 'Cancelada' },
+  archived: { bg: 'bg-slate-100 dark:bg-slate-800/30', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400', border: 'border-slate-300 dark:border-slate-700', icon: 'archive', label: 'Archivada' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
@@ -18,19 +18,19 @@ const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text:
 const levelBadge = (level) => {
   if (!level) return null;
   const colors = {
-    junior: 'bg-blue-100 text-blue-700',
-    intermediate: 'bg-amber-100 text-amber-700',
-    senior: 'bg-purple-100 text-purple-700',
-    elite: 'bg-green-100 text-green-700',
+    junior: 'bg-blue-100 text-blue-700 dark:bg-amber-900/30 dark:text-amber-300',
+    intermediate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+    senior: 'bg-purple-100 text-purple-700 dark:bg-blue-900/30 dark:text-blue-300',
+    elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   };
-  return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold capitalize ${colors[level] || 'bg-slate-100 text-slate-600'}`}>{level}</span>;
+  return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold capitalize ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'}`}>{level}</span>;
 };
 
 const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Evaluador de \u00c1rbitro' : 'Evaluador';
 
 const statusBadge = (status) => {
-  const m = { confirmed: 'bg-emerald-100 text-emerald-700', pending: 'bg-amber-100 text-amber-700', rejected: 'bg-red-100 text-red-700' };
-  return m[status] || 'bg-slate-100 text-slate-600';
+  const m = { confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300', rejected: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' };
+  return m[status] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400';
 };
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '\u2014';
@@ -62,61 +62,61 @@ const FightStatusBadge = ({ status }) => {
 };
 
 const SummaryBadge = ({ icon, label, value }) => (
-  <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+  <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
     <div className="flex items-center gap-3">
-      <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0 dark:bg-[#1F2937]">
         <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
         </svg>
       </div>
       <div>
-        <p className="text-sm font-bold text-slate-900 leading-none">{value}</p>
-        <p className="text-[11px] text-slate-500 mt-0.5">{label}</p>
+        <p className="text-sm font-bold text-slate-900 leading-none dark:text-[#F8FAFC]">{value}</p>
+        <p className="text-[11px] text-slate-500 mt-0.5 dark:text-[#94A3B8]">{label}</p>
       </div>
     </div>
   </div>
 );
 
 const InfoCard = ({ icon, label, value, color }) => (
-  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
     <div className="flex items-start gap-3">
-      <div className={`w-9 h-9 rounded-lg ${color || 'bg-red-50'} flex items-center justify-center shrink-0`}>
+      <div className={`w-9 h-9 rounded-lg ${color || 'bg-red-50'} flex items-center justify-center shrink-0 dark:bg-[#1F2937]`}>
         <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
         </svg>
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
-        <p className="text-sm font-bold text-slate-900 truncate">{value || '\u2014'}</p>
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5 dark:text-[#94A3B8]">{label}</p>
+        <p className="text-sm font-bold text-slate-900 truncate dark:text-[#F8FAFC]">{value || '\u2014'}</p>
       </div>
     </div>
   </div>
 );
 
 const FighterCard = ({ name, corner, color }) => (
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 text-center">
+  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 text-center dark:bg-[#111827] dark:border-[#1E293B]">
     <div className={`w-16 h-16 rounded-2xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-white shadow-sm ${color}`}>
       {initials(name)}
     </div>
-    <p className="text-lg font-bold text-slate-900">{name}</p>
-    <span className={`inline-block mt-1.5 px-3 py-0.5 rounded-full text-[11px] font-semibold ${corner === 'red' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+    <p className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">{name}</p>
+    <span className={`inline-block mt-1.5 px-3 py-0.5 rounded-full text-[11px] font-semibold ${corner === 'red' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'}`}>
       Esquina {corner === 'red' ? 'Roja' : 'Azul'}
     </span>
   </div>
 );
 
 const JudgeRow = ({ judge }) => (
-  <tr className="border-b border-slate-50 hover:bg-red-50/40 transition-colors">
+  <tr className="border-b border-slate-50 hover:bg-red-50/40 transition-colors dark:border-[#1E293B] dark:hover:bg-[#1A2435]">
     <td className="py-3.5 px-5">
       <div className="flex items-center gap-3">
         <span className="w-8 h-8 rounded-full bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-sm">
           {initials(judge.name)}
         </span>
-        <span className="text-sm font-semibold text-slate-900">{judge.name}</span>
+        <span className="text-sm font-semibold text-slate-900 dark:text-[#F8FAFC]">{judge.name}</span>
       </div>
     </td>
     <td className="py-3.5 px-5">{levelBadge(judge.level)}</td>
-    <td className="py-3.5 px-5 text-sm text-slate-600">{assignmentLabel(judge.assignment_type)}</td>
+    <td className="py-3.5 px-5 text-sm text-slate-600 dark:text-[#94A3B8]">{assignmentLabel(judge.assignment_type)}</td>
     <td className="py-3.5 px-5">
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize ${statusBadge(judge.status)}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${judge.status === 'confirmed' ? 'bg-emerald-500' : judge.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
@@ -156,21 +156,21 @@ const FightDetails = () => {
   if (loading) return (
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800" />
-        <span className="text-sm text-slate-500 font-medium">Cargando pelea...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800 dark:border-[#374151]" />
+        <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Cargando pelea...</span>
       </div>
     </div>
   );
 
   if (error) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">{error}</div>
+      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">{error}</div>
     </div>
   );
 
   if (!fight) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700">Pelea no encontrada</div>
+      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">Pelea no encontrada</div>
     </div>
   );
 
@@ -200,14 +200,14 @@ const FightDetails = () => {
       {/* ═══ HEADER ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-tight">{fight.event_name}</h1>
-          <p className="text-base text-slate-500 mt-1 font-semibold">{fight.boxer_red} vs {fight.boxer_blue}</p>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-tight dark:text-[#F8FAFC]">{fight.event_name}</h1>
+          <p className="text-base text-slate-500 mt-1 font-semibold dark:text-[#94A3B8]">{fight.boxer_red} vs {fight.boxer_blue}</p>
+          <p className="text-sm text-slate-400 mt-0.5 dark:text-slate-500">
             {formatDate(fight.scheduled_date)}
             {fight.weight_class ? ` \u00B7 ${fight.weight_class}` : ''}
           </p>
           {fight.status === 'archived' && (
-            <p className="text-xs text-slate-400 mt-1 italic">Archivada el {formatDate(fight.archived_at)}</p>
+            <p className="text-xs text-slate-400 mt-1 italic dark:text-slate-500">Archivada el {formatDate(fight.archived_at)}</p>
           )}
         </div>
         <FightStatusBadge status={fight.status} />
@@ -231,14 +231,14 @@ const FightDetails = () => {
       {/* ═══ INFO GRID ═══ */}
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center dark:bg-[#1F2937]">
             <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Información</p>
-            <h3 className="text-base font-bold text-slate-900">Detalles de la pelea</h3>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Información</p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Detalles de la pelea</h3>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -254,54 +254,54 @@ const FightDetails = () => {
       </div>
 
       {/* ═══ NOTES ═══ */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md dark:bg-[#111827] dark:border-[#1E293B]">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center dark:bg-[#1F2937]">
             <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Información adicional</p>
-            <h3 className="text-base font-bold text-slate-900">Notas del combate</h3>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Información adicional</p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Notas del combate</h3>
           </div>
         </div>
         {fight.notes ? (
-          <p className="text-sm text-slate-700 leading-relaxed">{fight.notes}</p>
+          <p className="text-sm text-slate-700 leading-relaxed dark:text-[#94A3B8]">{fight.notes}</p>
         ) : (
           <div className="flex items-center gap-3 py-2">
-            <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
-            <p className="text-sm text-slate-400 italic">No hay observaciones registradas.</p>
+            <p className="text-sm text-slate-400 italic dark:text-slate-500">No hay observaciones registradas.</p>
           </div>
         )}
       </div>
 
       {/* ═══ JUDGES ═══ */}
       {fight.assigned_judges?.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-          <div className="px-6 pt-5 pb-3 border-b border-slate-100">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md dark:bg-[#111827] dark:border-[#1E293B]">
+          <div className="px-6 pt-5 pb-3 border-b border-slate-100 dark:border-[#1E293B]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center dark:bg-[#1F2937]">
                 <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Cuerpo de Árbitros</p>
-                <h3 className="text-base font-bold text-slate-900">Jueces Asignados</h3>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Cuerpo de Árbitros</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Jueces Asignados</h3>
               </div>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Nombre</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Nivel</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Rol</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Estado</th>
+                <tr className="border-b border-slate-100 dark:border-[#1E293B]">
+                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Nombre</th>
+                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Nivel</th>
+                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Rol</th>
+                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,16 +316,16 @@ const FightDetails = () => {
 
       {/* ═══ JUDGE SCORING ═══ */}
       {canScore && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md dark:bg-[#111827] dark:border-[#1E293B]">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center dark:bg-[#1F2937]">
               <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
               </svg>
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Puntuación</p>
-              <h3 className="text-base font-bold text-slate-900">Tu tarjeta de puntuación</h3>
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Puntuación</p>
+              <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Tu tarjeta de puntuación</h3>
             </div>
           </div>
           <button
@@ -342,17 +342,17 @@ const FightDetails = () => {
 
       {/* ═══ ACTIONS ═══ */}
       {isStaff && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md dark:bg-[#111827] dark:border-[#1E293B]">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center dark:bg-[#1F2937]">
               <svg className="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Gestión</p>
-              <h3 className="text-base font-bold text-slate-900">Acciones</h3>
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Gestión</p>
+              <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Acciones</h3>
             </div>
           </div>
 
@@ -370,7 +370,7 @@ const FightDetails = () => {
             )}
 
             <button
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100 dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155] dark:disabled:hover:bg-[#0B1120]"
               disabled={fight.status !== 'pending'}
               onClick={() => navigate(`/judges/assign/${fight.id}`)}
             >
@@ -379,7 +379,7 @@ const FightDetails = () => {
             </button>
 
             <button
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100 dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155] dark:disabled:hover:bg-[#0B1120]"
               disabled={fight.status !== 'active'}
               title={fight.status !== 'active' ? 'La pelea debe estar activa' : ''}
               onClick={() => navigate(`/scoring/live/${fight.id}`)}
@@ -390,7 +390,7 @@ const FightDetails = () => {
 
             {user?.role === 'admin' && (
               <button
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100 dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155] dark:disabled:hover:bg-[#0B1120]"
                 disabled={fight.status !== 'completed' || !fight.official_card || analyzing}
                 title={fight.status !== 'completed' || !fight.official_card ? 'La pelea debe estar finalizada y tener tarjeta oficial' : ''}
                 onClick={async () => {
@@ -416,7 +416,7 @@ const FightDetails = () => {
 
             {user?.role === 'admin' && (
               <button
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-300 disabled:active:scale-100 dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155] dark:disabled:hover:bg-[#0B1120]"
                 disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' || fight.status === 'archived'}
                 title={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' || fight.status === 'archived' ? 'No se puede editar esta pelea' : ''}
                 onClick={() => navigate(`/fights/${fight.id}/edit`)}
@@ -430,7 +430,7 @@ const FightDetails = () => {
 
             {user?.role === 'admin' && fight.status !== 'archived' && (
               <button
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-all active:scale-[0.98] dark:text-red-400 dark:bg-[#0B1120] dark:border-red-800/50 dark:hover:bg-red-900/20"
                 onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -440,8 +440,8 @@ const FightDetails = () => {
           </div>
 
           {analyzeError && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
-              <p className="text-sm font-medium text-red-700">{analyzeError}</p>
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 dark:bg-red-900/30 dark:border-red-800/50">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">{analyzeError}</p>
             </div>
           )}
         </div>
@@ -450,14 +450,14 @@ const FightDetails = () => {
       {/* ═══ FOOTER BUTTONS ═══ */}
       <div className="flex gap-3 flex-wrap">
         <button
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md active:scale-[0.98] dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155]"
           onClick={() => navigate(`/official-cards/${fight.id}`)}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Ver Tarjetas
         </button>
         <button
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md active:scale-[0.98] dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435] dark:hover:border-[#334155]"
           onClick={() => navigate(`/analysis/${fight.id}`)}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
@@ -468,22 +468,22 @@ const FightDetails = () => {
       {/* ═══ DELETE MODAL ═══ */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { if (!deleting) { setShowDeleteModal(false); setDeleteError(null); } }}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
-            <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 animate-[fadeIn_0.2s_ease-out] dark:bg-[#111827] dark:border dark:border-[#1E293B]" onClick={(e) => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4 dark:bg-red-900/30">
+              <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">Eliminar pelea</h3>
-            <p className="text-sm text-slate-500 text-center mb-1">La pelea <strong>{fight.event_name}</strong> será archivada.</p>
-            <p className="text-xs text-slate-500 text-center mb-1">Ya no aparecerá en el listado principal.</p>
-            <p className="text-xs text-slate-400 text-center mb-6">Esta acción no elimina tarjetas, análisis ni estadísticas.</p>
+            <h3 className="text-lg font-bold text-slate-900 text-center mb-2 dark:text-[#F8FAFC]">Eliminar pelea</h3>
+            <p className="text-sm text-slate-500 text-center mb-1 dark:text-[#94A3B8]">La pelea <strong>{fight.event_name}</strong> será archivada.</p>
+            <p className="text-xs text-slate-500 text-center mb-1 dark:text-slate-500">Ya no aparecerá en el listado principal.</p>
+            <p className="text-xs text-slate-400 text-center mb-6 dark:text-slate-500">Esta acción no elimina tarjetas, análisis ni estadísticas.</p>
             {deleteError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">{deleteError}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">{deleteError}</div>
             )}
             <div className="flex gap-3 justify-center">
               <button
-                className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all"
+                className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435]"
                 disabled={deleting}
                 onClick={() => { setShowDeleteModal(false); setDeleteError(null); }}
               >
