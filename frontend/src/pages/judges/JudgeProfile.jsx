@@ -3,7 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getJudgeById, getJudgeAssignments, getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
-import BackButton from '../../components/common/BackButton';
+import DetailPageHeader from '../../components/detail/DetailPageHeader';
+import DetailSummaryCard from '../../components/detail/DetailSummaryCard';
+import DetailSection from '../../components/detail/DetailSection';
+import { UserGroupIcon, CheckBadgeIcon, BoltIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 const LEVEL_BADGE = {
   elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
@@ -12,7 +15,7 @@ const LEVEL_BADGE = {
 };
 
 const FORMAT_DATE = (d) => {
-  if (!d) return '\u2014';
+  if (!d) return '—';
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
@@ -29,8 +32,8 @@ const StatBlock = ({ label, value, icon }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
       </svg>
     </div>
-    <p className="text-2xl font-bold text-slate-900 leading-none dark:text-[#F8FAFC]">{value}</p>
-    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mt-1 dark:text-[#94A3B8]">{label}</p>
+    <p className="text-2xl font-bold text-slate-900 leading-none dark:text-[#F8FAFC] m-0">{value}</p>
+    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mt-1 dark:text-[#94A3B8] m-0">{label}</p>
   </div>
 );
 
@@ -131,8 +134,7 @@ const JudgeProfile = () => {
     return (
       <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
         <div className="bg-white rounded-xl shadow-sm px-6 py-4 text-center dark:bg-red-900/30 dark:border dark:border-red-800/50">
-          <p className="text-red-600 text-sm dark:text-red-300">{error}</p>
-          <BackButton fallbackRoute={isOwnProfile ? '/dashboard' : '/judges'} />
+          <p className="text-red-600 text-sm dark:text-red-300 m-0">{error}</p>
         </div>
       </div>
     );
@@ -160,15 +162,29 @@ const JudgeProfile = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-fadeIn">
 
-      <div className="mb-4">
-        <BackButton fallbackRoute={isOwnProfile ? '/dashboard' : '/judges'} />
-      </div>
+      <DetailPageHeader
+        title={judge?.name}
+        subtitle={judge?.email}
+        description={`Ingreso: ${FORMAT_DATE(judge?.created_at)}`}
+        backFallback={isOwnProfile ? '/dashboard' : '/judges'}
+      >
+        <div className="flex items-center gap-2">
+          <Badge className="bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50">
+            Juez
+          </Badge>
+          <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
+            {judge?.level || '—'}
+          </Badge>
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+            {judge?.is_active ? 'Activo' : 'Inactivo'}
+          </span>
+        </div>
+      </DetailPageHeader>
 
-      {/* ─── Profile Card ─── */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden dark:bg-[#111827] dark:border-[#1E293B]">
         <div className="p-6 sm:p-8">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-            {/* Left: Avatar + Info */}
             <div className="flex items-start gap-5 flex-1 min-w-0">
               <div className="shrink-0">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-md">
@@ -176,53 +192,20 @@ const JudgeProfile = () => {
                 </div>
               </div>
               <div className="min-w-0 pt-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight truncate dark:text-[#F8FAFC]">{judge?.name}</h1>
-                <p className="text-sm text-slate-500 mt-0.5 dark:text-[#94A3B8]">{judge?.email}</p>
-                <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                  <Badge className="bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50">
-                    Juez
-                  </Badge>
-                  <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
-                    {judge?.level || '\u2014'}
-                  </Badge>
-                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                    {judge?.is_active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 mt-3 dark:text-[#94A3B8]">
-                  Ingreso: {FORMAT_DATE(judge?.created_at)}
-                </p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight truncate dark:text-[#F8FAFC] m-0">{judge?.name}</h1>
+                <p className="text-sm text-slate-500 mt-0.5 dark:text-[#94A3B8] m-0">{judge?.email}</p>
               </div>
             </div>
 
-            {/* Right: Stats blocks */}
             {stats && totalFights > 0 && (
               <div className="shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto lg:min-w-[420px]">
-                <StatBlock
-                  label="Precisión"
-                  value={`${precision}%`}
-                  icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-                <StatBlock
-                  label="Peleas evaluadas"
-                  value={totalFights}
-                  icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-                <StatBlock
-                  label="Rounds evaluados"
-                  value={totalRounds}
-                  icon="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-                <StatBlock
-                  label="Peleas analizadas"
-                  value={analyzedCount}
-                  icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
+                <StatBlock label="Precisión" value={`${precision}%`} icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <StatBlock label="Peleas evaluadas" value={totalFights} icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <StatBlock label="Rounds evaluados" value={totalRounds} icon="M13 10V3L4 14h7v7l9-11h-7z" />
+                <StatBlock label="Peleas analizadas" value={analyzedCount} icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </div>
             )}
 
-            {/* Stats loading */}
             {loading && (
               <div className="shrink-0 flex items-center gap-3 py-4 px-6">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-red-800" />
@@ -230,40 +213,26 @@ const JudgeProfile = () => {
               </div>
             )}
 
-            {/* Stats empty */}
             {!loading && stats && totalFights === 0 && (
               <div className="shrink-0 py-4 px-6 text-center">
-                <p className="text-sm text-slate-400">Aún no hay datos de rendimiento.</p>
-                <p className="text-xs text-slate-300 mt-0.5">Completó su primera pelea para ver estadísticas.</p>
+                <p className="text-sm text-slate-400 dark:text-[#64748B] m-0">Aún no hay datos de rendimiento.</p>
+                <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5 m-0">Completó su primera pelea para ver estadísticas.</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* ─── Assignment Counters ─── */}
       {totalAssigned > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {[
-            { label: 'Pendientes', value: pendingConfirm, color: 'bg-amber-500' },
-            { label: 'Confirmadas', value: confirmedCount, color: 'bg-emerald-500' },
-            { label: 'Activas', value: activeScoring, color: 'bg-blue-500' },
-            { label: 'Analizadas', value: analyzedCount, color: 'bg-violet-500' },
-          ].map((c) => (
-            <div key={c.label} className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl shadow-sm px-4 py-3 min-w-[130px] dark:bg-[#111827] dark:border-[#1E293B]">
-              <div>
-                <p className="text-xl font-bold text-slate-900 leading-none dark:text-[#F8FAFC]">{c.value}</p>
-                <p className="text-xs text-slate-500 mt-0.5 dark:text-[#94A3B8]">{c.label}</p>
-              </div>
-              <span className={`w-1.5 h-1.5 rounded-full ${c.color} ml-auto`} />
-            </div>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <DetailSummaryCard icon={UserGroupIcon} label="Pendientes" value={pendingConfirm} />
+          <DetailSummaryCard icon={CheckBadgeIcon} label="Confirmadas" value={confirmedCount} />
+          <DetailSummaryCard icon={BoltIcon} label="Activas" value={activeScoring} />
+          <DetailSummaryCard icon={ChartBarIcon} label="Analizadas" value={analyzedCount} />
         </div>
       )}
 
-      {/* ─── Assignments History ─── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 dark:bg-[#111827] dark:border-[#1E293B]">
-        <h2 className="text-lg font-bold text-slate-900 mb-5 dark:text-[#F8FAFC]">Designaciones</h2>
+      <DetailSection icon={UserGroupIcon} title="Designaciones" description="Historial de peleas asignadas">
         {assignments.length === 0 ? (
           <div className="py-10 text-center">
             <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3 dark:bg-[#1F2937]">
@@ -271,8 +240,8 @@ const JudgeProfile = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-slate-600 dark:text-[#94A3B8]">Sin designaciones</p>
-            <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">Este juez aún no tiene peleas asignadas.</p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-[#94A3B8] m-0">Sin designaciones</p>
+            <p className="text-xs text-slate-400 mt-1 dark:text-slate-500 m-0">Este juez aún no tiene peleas asignadas.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -282,8 +251,8 @@ const JudgeProfile = () => {
               return (
                 <div key={a.fight_id} className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 dark:bg-[#0B1120] dark:border-[#1E293B]">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 truncate dark:text-[#F8FAFC]">{a.event_name}</p>
-                    <p className="text-xs text-slate-500 mt-0.5 truncate dark:text-[#94A3B8]">
+                    <p className="text-sm font-semibold text-slate-800 truncate dark:text-[#F8FAFC] m-0">{a.event_name}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate dark:text-[#94A3B8] m-0">
                       {a.boxer_red} vs {a.boxer_blue} · {FORMAT_DATE(a.scheduled_date)}
                     </p>
                   </div>
@@ -295,12 +264,10 @@ const JudgeProfile = () => {
             })}
           </div>
         )}
-      </div>
+      </DetailSection>
 
-      {/* ─── Performance History ─── */}
       {stats?.history && stats.history.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 dark:bg-[#111827] dark:border-[#1E293B]">
-          <h2 className="text-lg font-bold text-slate-900 mb-5 dark:text-[#F8FAFC]">Rendimiento</h2>
+        <DetailSection icon={ChartBarIcon} title="Rendimiento" description="Historial de precisión y resultados">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -333,7 +300,7 @@ const JudgeProfile = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </DetailSection>
       )}
 
     </div>

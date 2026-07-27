@@ -2,7 +2,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
-import BackButton from '../../components/common/BackButton';
+import DetailPageHeader from '../../components/detail/DetailPageHeader';
+import DetailSection from '../../components/detail/DetailSection';
+import { PageActionButton } from '../../components/detail/PageActions';
+import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const OfficialCards = () => {
   const { fightId } = useParams();
@@ -114,9 +117,9 @@ const OfficialCards = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="bg-white rounded-2xl shadow-sm px-10 py-12 text-center max-w-md w-full">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-wbo-700 mx-auto" />
-          <span className="ml-3 text-slate-500 text-sm">Cargando tarjeta oficial...</span>
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
+          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta oficial...</span>
         </div>
       </div>
     );
@@ -125,13 +128,13 @@ const OfficialCards = () => {
   if (error && !card) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-white rounded-2xl shadow-sm px-10 py-12 text-center max-w-md w-full">
-          <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+          <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p className="text-yellow-900 font-medium text-base leading-relaxed">{error}</p>
+          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">{error}</p>
           <button
             className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
@@ -144,19 +147,19 @@ const OfficialCards = () => {
   }
 
   if (!fight) {
-    return <p className="text-slate-400 py-10">Pelea no encontrada.</p>;
+    return <p className="text-slate-400 dark:text-[#64748B] py-10 text-center">Pelea no encontrada.</p>;
   }
 
   if (!isAdmin && !card) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-white rounded-2xl shadow-sm px-10 py-12 text-center max-w-md w-full">
-          <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+          <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p className="text-yellow-900 font-medium text-base leading-relaxed">Solo los administradores pueden crear la tarjeta oficial.</p>
+          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Solo los administradores pueden crear la tarjeta oficial.</p>
           <button
             className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
@@ -170,58 +173,43 @@ const OfficialCards = () => {
 
   return (
     <div className="max-w-[900px] animate-fadeIn">
-      <div className="mb-4">
-        <BackButton />
-      </div>
-      <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 m-0">
-            {card ? 'Tarjeta Oficial' : 'Cargar Tarjeta Oficial'}
-          </h2>
-          <p className="text-sm text-slate-400">
-            {fight.boxer_red} vs {fight.boxer_blue}
-          </p>
-          <p className="text-xs text-slate-400">{fight.event_name}</p>
-        </div>
-        {card && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-            </svg>
-            Finalizada
-          </span>
-        )}
-      </div>
+      <DetailPageHeader
+        title={card ? 'Tarjeta Oficial' : 'Cargar Tarjeta Oficial'}
+        subtitle={`${fight.boxer_red} vs ${fight.boxer_blue}`}
+        description={fight.event_name}
+        status={card ? 'completed' : undefined}
+        backFallback="/fights"
+      />
 
       {error && card && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 mb-4">
+          <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
         </div>
       )}
 
       {card ? (
-        <div className="bg-white rounded-xl shadow-sm p-5">
+        <DetailSection icon={ClipboardDocumentCheckIcon} title="Resultado de la Tarjeta Oficial">
           <div className="text-center mb-6">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-3">
+              <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Tarjeta oficial cargada correctamente.</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-1 m-0">Tarjeta oficial cargada correctamente.</h3>
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6">
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Rojo</p>
-              <p className="text-2xl font-extrabold text-slate-900">{card.total_score_red}</p>
+            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Total Rojo</p>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.total_score_red}</p>
             </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Azul</p>
-              <p className="text-2xl font-extrabold text-slate-900">{card.total_score_blue}</p>
+            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Total Azul</p>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.total_score_blue}</p>
             </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Ganador</p>
-              <p className="text-sm font-extrabold text-slate-900">{card.winner || 'Empate'}</p>
+            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Ganador</p>
+              <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.winner || 'Empate'}</p>
             </div>
           </div>
 
@@ -232,73 +220,71 @@ const OfficialCards = () => {
               <span className="text-center">{fight.boxer_blue}</span>
             </div>
             {card.rounds.map((r) => (
-              <div key={r.round_number} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 even:bg-white rounded-lg">
-                <span className="font-bold text-wbo-700 text-sm">R{r.round_number}</span>
-                <span className="text-center font-bold text-slate-800">{r.score_red}</span>
-                <span className="text-center font-bold text-slate-800">{r.score_blue}</span>
+              <div key={r.round_number} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
+                <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{r.round_number}</span>
+                <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_red}</span>
+                <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_blue}</span>
               </div>
             ))}
           </div>
-        </div>
+        </DetailSection>
       ) : (
-        <>
-          <div className="bg-white rounded-xl shadow-sm p-5">
-            <div className="space-y-1.5">
-              <div className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-                <span>Round</span>
-                <span className="text-center">{fight.boxer_red}</span>
-                <span className="text-center">{fight.boxer_blue}</span>
-              </div>
-              {Array.from({ length: totalRounds }, (_, i) => {
-                const rn = i + 1;
-                const data = rounds[rn] || {};
-                return (
-                  <div key={rn} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 even:bg-white rounded-lg">
-                    <span className="font-bold text-wbo-700 text-sm">R{rn}</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={data.score_red ?? ''}
-                      onChange={(e) => handleChange(rn, 'score_red', e.target.value)}
-                      className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 shadow-sm hover:border-slate-300 transition-all duration-200"
-                    />
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={data.score_blue ?? ''}
-                      onChange={(e) => handleChange(rn, 'score_blue', e.target.value)}
-                      className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 shadow-sm hover:border-slate-300 transition-all duration-200"
-                    />
-                  </div>
-                );
-              })}
+        <DetailSection icon={ClipboardDocumentCheckIcon} title="Cargar Puntuaciones" description="Ingresá el puntaje de cada round para ambos boxeadores">
+          <div className="space-y-1.5">
+            <div className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
+              <span>Round</span>
+              <span className="text-center">{fight.boxer_red}</span>
+              <span className="text-center">{fight.boxer_blue}</span>
             </div>
+            {Array.from({ length: totalRounds }, (_, i) => {
+              const rn = i + 1;
+              const data = rounds[rn] || {};
+              return (
+                <div key={rn} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
+                  <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{rn}</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={data.score_red ?? ''}
+                    onChange={(e) => handleChange(rn, 'score_red', e.target.value)}
+                    className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={data.score_blue ?? ''}
+                    onChange={(e) => handleChange(rn, 'score_blue', e.target.value)}
+                    className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                  />
+                </div>
+              );
+            })}
           </div>
 
-          <div className="mt-4 flex justify-center">
-            <button
-              disabled={!allComplete || saving}
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl shadow-sm text-sm font-bold bg-wbo-700 text-white hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          <div className="mt-6 flex justify-center">
+            <PageActionButton
               onClick={() => setShowConfirm(true)}
+              disabled={!allComplete || saving}
+              loading={saving}
             >
-              {saving ? 'Guardando...' : 'Guardar tarjeta oficial'}
-            </button>
+              Guardar tarjeta oficial
+            </PageActionButton>
           </div>
-        </>
+        </DetailSection>
       )}
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { if (!saving) setShowConfirm(false); }}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Guardar tarjeta oficial</h3>
-            <p className="text-sm text-slate-600 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm" onClick={() => { if (!saving) setShowConfirm(false); }}>
+          <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-100 dark:border-[#1E293B] shadow-xl w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2 m-0">Guardar tarjeta oficial</h3>
+            <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-6 m-0">
               Una vez guardada no podrá modificarse. ¿Deseás continuar?
             </p>
             <div className="flex gap-3 justify-end">
               <button
-                className="px-5 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors"
+                className="px-5 py-2.5 bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 disabled={saving}
                 onClick={() => setShowConfirm(false)}
               >
