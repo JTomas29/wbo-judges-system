@@ -4,6 +4,7 @@ import { getFights, deleteFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
+import { BaseModal, ModalHeader, ModalFooter, ModalButton } from '../../components/common/modals';
 
 const canEdit = (status) => status === 'pending' || status === 'active';
 
@@ -473,67 +474,40 @@ const FightList = () => {
         </>
       )}
 
-      {/* ─── Archive Modal ─── */}
-      {archiveTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !archiving && setArchiveTarget(null)}>
-          <div className="absolute inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm" />
-          <div className="relative bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] p-6 sm:p-8 w-full max-w-md animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setArchiveTarget(null)}
-              disabled={archiving}
-              className="absolute top-4 right-4 text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">Archivar Pelea</h3>
-                <p className="text-sm text-slate-500 dark:text-[#94A3B8]">{archiveTarget.event_name}</p>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-4 mb-4">
-              <p className="text-sm text-slate-700 dark:text-[#F8FAFC]">
-                <span className="font-semibold">{archiveTarget.boxer_red}</span> vs{' '}
-                <span className="font-semibold">{archiveTarget.boxer_blue}</span>
-              </p>
-              <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">
-                {new Date(archiveTarget.scheduled_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </p>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-6">
-              La pelea será archivada y <strong className="text-slate-800 dark:text-[#F8FAFC]">ya no aparecerá en el listado principal</strong>. Esta acción no elimina tarjetas, análisis ni estadísticas.
+      <BaseModal isOpen={!!archiveTarget} onClose={() => !archiving && setArchiveTarget(null)}>
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl p-6">
+          <ModalHeader
+            title="Archivar Pelea"
+            description={archiveTarget?.event_name}
+            type="danger"
+          />
+          <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#1E293B] p-4 mb-4">
+            <p className="text-sm text-slate-700 dark:text-[#F8FAFC] m-0">
+              <span className="font-semibold">{archiveTarget?.boxer_red}</span> vs{' '}
+              <span className="font-semibold">{archiveTarget?.boxer_blue}</span>
             </p>
-            {archiveError && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-300">
-                {archiveError}
-              </div>
-            )}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setArchiveTarget(null)}
-                disabled={archiving}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#F8FAFC] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] rounded-xl hover:bg-slate-50 dark:hover:bg-[#374151] hover:shadow-sm transition-all active:scale-[0.97]"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleArchive}
-                disabled={archiving}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-sm transition-all active:scale-[0.97] disabled:opacity-60"
-              >
-                {archiving ? 'Archivando...' : 'Archivar pelea'}
-              </button>
-            </div>
+            <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1 m-0">
+              {archiveTarget && new Date(archiveTarget.scheduled_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
           </div>
+          <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-0 m-0">
+            La pelea será archivada y <strong className="text-slate-800 dark:text-[#F8FAFC]">ya no aparecerá en el listado principal</strong>. Esta acción no elimina tarjetas, análisis ni estadísticas.
+          </p>
+          {archiveError && (
+            <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-sm text-red-700 dark:text-red-300">
+              {archiveError}
+            </div>
+          )}
+          <ModalFooter>
+            <ModalButton variant="secondary" onClick={() => setArchiveTarget(null)} disabled={archiving}>
+              Cancelar
+            </ModalButton>
+            <ModalButton variant="danger" onClick={handleArchive} loading={archiving}>
+              {archiving ? 'Archivando...' : 'Archivar pelea'}
+            </ModalButton>
+          </ModalFooter>
         </div>
-      )}
+      </BaseModal>
     </div>
   );
 };

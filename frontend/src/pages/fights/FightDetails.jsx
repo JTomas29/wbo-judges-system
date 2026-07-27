@@ -6,6 +6,7 @@ import DetailPageHeader from '../../components/detail/DetailPageHeader';
 import DetailSummaryCard from '../../components/detail/DetailSummaryCard';
 import DetailSection from '../../components/detail/DetailSection';
 import ActionPanel, { ActionButton } from '../../components/detail/ActionPanel';
+import { DeleteModal } from '../../components/common/modals';
 import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 const statusConfig = {
@@ -335,41 +336,17 @@ const FightDetails = () => {
         </ActionButton>
       </ActionPanel>
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm" onClick={() => { if (!deleting) { setShowDeleteModal(false); setDeleteError(null); } }}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 animate-[fadeIn_0.2s_ease-out] dark:bg-[#111827] dark:border dark:border-[#1E293B]" onClick={(e) => e.stopPropagation()}>
-            <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4 dark:bg-red-900/30">
-              <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2 dark:text-[#F8FAFC] m-0">Eliminar pelea</h3>
-            <p className="text-sm text-slate-500 text-center mb-1 dark:text-[#94A3B8] m-0">La pelea <strong>{fight.event_name}</strong> será archivada.</p>
-            <p className="text-xs text-slate-500 text-center mb-1 dark:text-slate-500 m-0">Ya no aparecerá en el listado principal.</p>
-            <p className="text-xs text-slate-400 text-center mb-6 dark:text-slate-500 m-0">Esta acción no elimina tarjetas, análisis ni estadísticas.</p>
-            {deleteError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">{deleteError}</div>
-            )}
-            <div className="flex gap-3 justify-center">
-              <button
-                className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all dark:text-[#94A3B8] dark:bg-[#0B1120] dark:border-[#1E293B] dark:hover:bg-[#1A2435]"
-                disabled={deleting}
-                onClick={() => { setShowDeleteModal(false); setDeleteError(null); }}
-              >
-                Cancelar
-              </button>
-              <button
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-                disabled={deleting}
-                onClick={handleDelete}
-              >
-                {deleting && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
-                {deleting ? 'Archivando...' : 'Archivar pelea'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeleteError(null); }}
+        onConfirm={handleDelete}
+        title="Archivar pelea"
+        itemName={fight.event_name}
+        description={<>La pelea <strong>{fight.event_name}</strong> será archivada. Ya no aparecerá en el listado principal. Esta acción no elimina tarjetas, análisis ni estadísticas.</>}
+        confirmLabel={deleting ? 'Archivando...' : 'Archivar pelea'}
+        loading={deleting}
+        error={deleteError}
+      />
     </div>
   );
 };

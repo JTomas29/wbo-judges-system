@@ -115,9 +115,8 @@ const formatDateTime = (d) => {
 const RejectionModal = ({ assignment, onClose }) => {
   if (!assignment) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#111827] rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn overflow-hidden border border-slate-200 dark:border-[#1E293B]">
+    <BaseModal isOpen={true} onClose={onClose} zIndex="z-[100]">
+      <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
@@ -125,7 +124,7 @@ const RejectionModal = ({ assignment, onClose }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC]">Motivo del rechazo</h3>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">Motivo del rechazo</h3>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1E293B] transition-all duration-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -139,16 +138,16 @@ const RejectionModal = ({ assignment, onClose }) => {
               {assignment.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC]">{assignment.name}</p>
-              <p className="text-xs text-slate-400 dark:text-[#94A3B8]">{formatDateTime(assignment.responded_at)}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{assignment.name}</p>
+              <p className="text-xs text-slate-400 dark:text-[#94A3B8] m-0">{formatDateTime(assignment.responded_at)}</p>
             </div>
           </div>
           <div className="bg-slate-50 dark:bg-[#0B1120] rounded-xl p-4 ring-1 ring-slate-100 dark:ring-[#1E293B]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Motivo</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 m-0">Motivo</p>
             {assignment.rejection_reason ? (
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">{assignment.rejection_reason}</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line m-0">{assignment.rejection_reason}</p>
             ) : (
-              <p className="text-sm text-slate-400 dark:text-slate-500 italic">El juez no indicó un motivo para el rechazo.</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic m-0">El juez no indicó un motivo para el rechazo.</p>
             )}
           </div>
         </div>
@@ -159,7 +158,7 @@ const RejectionModal = ({ assignment, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 

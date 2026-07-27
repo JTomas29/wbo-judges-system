@@ -7,6 +7,7 @@ import DetailPageHeader from '../../components/detail/DetailPageHeader';
 import DetailSection from '../../components/detail/DetailSection';
 import DetailSummaryCard from '../../components/detail/DetailSummaryCard';
 import { PageActionButton } from '../../components/detail/PageActions';
+import { ConfirmModal } from '../../components/common/modals';
 import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 
 const formatDateTime = (d) => {
@@ -500,33 +501,16 @@ const ScoreFight = () => {
         </PageActionButton>
       </div>
 
-      {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm" onClick={() => { if (!finalizing) setShowConfirmModal(false); }}>
-          <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-100 dark:border-[#1E293B] shadow-xl w-full max-w-md mx-4 p-6 animate-[scaleIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2 m-0">Enviar tarjeta final</h3>
-            <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-6 m-0">
-              Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                className="px-5 py-2.5 bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                disabled={finalizing}
-                onClick={() => setShowConfirmModal(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                disabled={finalizing}
-                onClick={handleFinalize}
-              >
-                {finalizing && <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
-                {finalizing ? 'Enviando...' : 'Enviar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => { if (!finalizing) setShowConfirmModal(false); }}
+        onConfirm={handleFinalize}
+        title="Enviar tarjeta final"
+        description="Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?"
+        confirmLabel={finalizing ? 'Enviando...' : 'Enviar'}
+        type="warning"
+        loading={finalizing}
+      />
     </div>
   );
 };

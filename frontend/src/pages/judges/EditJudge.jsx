@@ -6,6 +6,7 @@ import FormCard from '../../components/common/FormCard';
 import FormSection from '../../components/common/FormSection';
 import InputField from '../../components/common/InputField';
 import SelectField from '../../components/common/SelectField';
+import { DeleteModal } from '../../components/common/modals';
 
 const LEVELS = ['Sin Asignar', 'Principiante', 'Intermedio', 'Avanzado'];
 
@@ -263,44 +264,14 @@ const EditJudge = () => {
         </div>
       </form>
 
-      {/* ── Delete Modal ── */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] p-6 w-full max-w-sm animate-[fadeIn_0.2s_ease-out]">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Eliminar Juez</h3>
-                <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Esta acción no se puede deshacer.</p>
-              </div>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-              ¿Estás seguro de que deseas eliminar a <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{form.name}</span>?
-            </p>
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-all duration-250"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-250 shadow-sm active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {deleting ? 'Eliminando...' : 'Sí, Eliminar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Eliminar Juez"
+        itemName={form.name}
+        loading={deleting}
+      />
     </FormCard>
   );
 };

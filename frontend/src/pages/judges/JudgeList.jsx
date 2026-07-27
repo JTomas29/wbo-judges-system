@@ -5,6 +5,7 @@ import { updateJudge } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
+import { ConfirmModal } from '../../components/common/modals';
 
 const levelBadge = (level) => {
   const map = {
@@ -260,32 +261,16 @@ const JudgeList = () => {
         </div>
       )}
 
-      {confirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-sm" onClick={() => setConfirmTarget(null)}>
-          <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-slate-200 dark:border-[#1E293B] w-full max-w-md mx-4 p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">
-              {confirmTarget.is_active ? 'Desactivar juez' : 'Activar juez'}
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-6">
-              ¿Estás seguro de que quieres {confirmTarget.is_active ? 'desactivar' : 'activar'} a <strong className="text-slate-800 dark:text-[#F8FAFC]">{confirmTarget.name}</strong>?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                className="px-5 py-2.5 bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#F8FAFC] border border-slate-200 dark:border-[#374151] rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-[#374151] transition-colors"
-                onClick={() => setConfirmTarget(null)}
-              >
-                No
-              </button>
-              <button
-                className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
-                onClick={() => handleToggleActive(confirmTarget)}
-              >
-                Sí
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={!!confirmTarget}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={() => handleToggleActive(confirmTarget)}
+        title={confirmTarget?.is_active ? 'Desactivar juez' : 'Activar juez'}
+        description={<>¿Estás seguro de que quieres {confirmTarget?.is_active ? 'desactivar' : 'activar'} a <strong className="text-slate-800 dark:text-[#F8FAFC]">{confirmTarget?.name}</strong>?</>}
+        confirmLabel={confirmTarget?.is_active ? 'Sí, desactivar' : 'Sí, activar'}
+        cancelLabel="No"
+        type="warning"
+      />
     </div>
   );
 };
