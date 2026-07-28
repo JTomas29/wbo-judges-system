@@ -3,6 +3,15 @@ const { pool } = require('../config/db');
 const Notification = {};
 
 Notification.create = async ({ userId, type, title, message, referenceType = null, referenceId = null }) => {
+  if (referenceType && referenceId) {
+    const { rows: existing } = await pool.query(
+      `SELECT id FROM notifications
+       WHERE user_id = $1 AND type = $2 AND reference_type = $3 AND reference_id = $4`,
+      [userId, type, referenceType, referenceId]
+    );
+    if (existing.length > 0) return existing[0];
+  }
+
   const { rows } = await pool.query(
     `INSERT INTO notifications (user_id, type, title, message, reference_type, reference_id)
      VALUES ($1, $2, $3, $4, $5, $6)

@@ -49,14 +49,7 @@ const LiveScore = () => {
         getFightById(fightId, token),
         getScorecards(fightId, token),
       ]);
-      const f = fightRes.data;
-      if (f.status !== 'active') {
-        setFight(f);
-        setError('El seguimiento en vivo solo está disponible para peleas activas.');
-        setLoading(false);
-        return;
-      }
-      setFight(f);
+      setFight(fightRes.data);
       setEntries(scRes.data);
       setError(null);
     } catch (err) {
@@ -126,14 +119,16 @@ const LiveScore = () => {
             Estado: <span className="font-semibold">{fight?.status}</span>
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:border-wbo-700 hover:text-wbo-700 hover:bg-wbo-50 transition-all duration-200 shadow-sm"
-            onClick={fetchData}
-          >
-            Actualizar
-          </button>
-        </div>
+        {fight?.status === 'active' && (
+          <div className="flex gap-2">
+            <button
+              className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:border-wbo-700 hover:text-wbo-700 hover:bg-wbo-50 transition-all duration-200 shadow-sm"
+              onClick={fetchData}
+            >
+              Actualizar
+            </button>
+          </div>
+        )}
       </div>
 
       {error && (

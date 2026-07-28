@@ -198,6 +198,13 @@ Fight.analyze = async (id) => {
   return rows;
 };
 
+Fight.updateMinJudgesRequired = async (fightId, count) => {
+  await pool.query(
+    'UPDATE fights SET min_judges_required = $1 WHERE id = $2',
+    [count, fightId]
+  );
+};
+
 Fight.archive = async (id) => {
   const { rows } = await pool.query(`
     UPDATE fights

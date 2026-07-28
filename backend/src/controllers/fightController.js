@@ -2,7 +2,6 @@
 const User = require('../models/User');
 const ScoreCard = require('../models/ScoreCard');
 const OfficialCard = require('../models/OfficialCard');
-const Notification = require('../models/Notification');
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -99,15 +98,6 @@ exports.create = async (req, res, next) => {
 
     const created = await Fight.getById(fightId);
 
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    await Notification.createForUsers(adminSupervisorIds, {
-      type: 'system',
-      title: 'Nueva pelea creada',
-      message: `Se creó la pelea "${event_name.trim()}" (${boxer_red.trim()} vs ${boxer_blue.trim()})`,
-      referenceType: 'fight',
-      referenceId: fightId,
-    });
-
     res.status(201).json(created);
   } catch (err) {
     next(err);
@@ -180,18 +170,6 @@ exports.update = async (req, res, next) => {
 
     const updated = await Fight.getById(id);
 
-    const assignedJudges = await Fight.getAssignedJudges(id);
-    const judgeIds = assignedJudges.map((j) => j.id);
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    const allUserIds = [...new Set([...adminSupervisorIds, ...judgeIds])];
-    await Notification.createForUsers(allUserIds, {
-      type: 'status_change',
-      title: 'Pelea modificada',
-      message: `La pelea "${event_name.trim()}" fue modificada`,
-      referenceType: 'fight',
-      referenceId: parseInt(id, 10),
-    });
-
     res.json(updated);
   } catch (err) {
     next(err);
@@ -217,22 +195,16 @@ exports.complete = async (req, res, next) => {
 
     const updated = await Fight.complete(Number(id));
 
-    const assignedJudges = await Fight.getAssignedJudges(id);
-    const judgeIds = assignedJudges.map((j) => j.id);
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    const allUserIds = [...new Set([...adminSupervisorIds, ...judgeIds])];
-    await Notification.createForUsers(allUserIds, {
-      type: 'status_change',
-      title: 'Pelea finalizada',
-      message: `La pelea "${fight.event_name}" fue finalizada correctamente`,
-      referenceType: 'fight',
-      referenceId: Number(id),
-    });
-
     res.json({ message: 'Pelea finalizada correctamente.', fight: updated });
   } catch (err) {
     next(err);
   }
+};
+
+const computeWinner = (scoreRed, scoreBlue) => {
+  if (scoreRed > scoreBlue) return 'red';
+  if (scoreBlue > scoreRed) return 'blue';
+  return 'draw';
 };
 
 exports.getAnalysis = async (req, res, next) => {
@@ -248,28 +220,76 @@ exports.getAnalysis = async (req, res, next) => {
     }
 
     const officialCard = await OfficialCard.findByFight(Number(id));
-
     const analysisResults = await Fight.getAnalysisSummary(Number(id));
     const roundDetail = await Fight.getRoundDetail(Number(id));
-    const consistency = await Fight.getJudgeConsistency(Number(id));
 
-    const judgesAnalysis = analysisResults.map((ar) => ({
-      judge_id: ar.judge_id,
-      judge_name: ar.judge_name,
-      rounds: roundDetail
-        .filter((r) => r.judge_id === ar.judge_id)
-        .map((r) => ({
-          round_number: r.round_number,
-          official_score_red: r.official_score_red,
-          official_score_blue: r.official_score_blue,
-          judge_score_red: r.judge_score_red,
-          judge_score_blue: r.judge_score_blue,
-          result: r.judge_score_red === r.official_score_red && r.judge_score_blue === r.official_score_blue ? 'OK' : 'ERROR',
-        })),
-      matches: ar.matches,
-      errors: ar.errors,
-      match_pct: ar.match_pct,
+    const officialRounds = (officialCard?.rounds || []).map((r) => ({
+      round_number: r.round_number,
+      score_red: r.score_red,
+      score_blue: r.score_blue,
+      winner: computeWinner(r.score_red, r.score_blue),
     }));
+
+    const judges = analysisResults.map((ar) => {
+      const judgeRounds = roundDetail
+        .filter((r) => r.judge_id === ar.judge_id)
+        .map((r) => {
+          const matchExact = r.judge_score_red === r.official_score_red && r.judge_score_blue === r.official_score_blue;
+          const officialWinner = computeWinner(r.official_score_red, r.official_score_blue);
+          const judgeWinner = computeWinner(r.judge_score_red, r.judge_score_blue);
+          return {
+            round_number: r.round_number,
+            score_red: r.judge_score_red,
+            score_blue: r.judge_score_blue,
+            winner: judgeWinner,
+            match_exact: matchExact,
+            match_winner: officialWinner === judgeWinner,
+          };
+        });
+
+      const exactMatches = judgeRounds.filter((r) => r.match_exact).length;
+      const exactErrors = judgeRounds.filter((r) => !r.match_exact).length;
+      const winnerMatches = judgeRounds.filter((r) => r.match_winner).length;
+      const winnerErrors = judgeRounds.filter((r) => !r.match_winner).length;
+
+      return {
+        id: ar.judge_id,
+        name: ar.judge_name,
+        rounds: judgeRounds,
+        total_score_red: judgeRounds.reduce((sum, r) => sum + r.score_red, 0),
+        total_score_blue: judgeRounds.reduce((sum, r) => sum + r.score_blue, 0),
+        exact_matches: exactMatches,
+        exact_errors: exactErrors,
+        exact_match_pct: judgeRounds.length > 0 ? Math.round((exactMatches / judgeRounds.length) * 100) : 0,
+        winner_matches: winnerMatches,
+        winner_errors: winnerErrors,
+        winner_match_pct: judgeRounds.length > 0 ? Math.round((winnerMatches / judgeRounds.length) * 100) : 0,
+      };
+    });
+
+    const totalRounds = officialRounds.length;
+    let roundsOk = 0;
+    let roundsError = 0;
+    judges.forEach((j) => {
+      j.rounds.forEach((r) => {
+        if (r.match_exact) roundsOk++; else roundsError++;
+      });
+    });
+
+    const fightsOk = judges.filter((j) => j.exact_errors === 0).length;
+    const fightsError = judges.filter((j) => j.exact_errors > 0).length;
+
+    const perRoundSummary = officialRounds.map((or) => {
+      let ok = 0, errors = 0, winnerOk = 0, winnerErrors = 0;
+      judges.forEach((j) => {
+        const jr = j.rounds.find((r) => r.round_number === or.round_number);
+        if (jr) {
+          if (jr.match_exact) ok++; else errors++;
+          if (jr.match_winner) winnerOk++; else winnerErrors++;
+        }
+      });
+      return { round_number: or.round_number, errors, ok, winner_errors: winnerErrors, winner_ok: winnerOk };
+    });
 
     const response = {
       fight: {
@@ -278,35 +298,54 @@ exports.getAnalysis = async (req, res, next) => {
         boxer_red: fight.boxer_red,
         boxer_blue: fight.boxer_blue,
         scheduled_date: fight.scheduled_date,
+        total_rounds: fight.total_rounds,
+        status: fight.status,
         venue: fight.venue,
         weight_class: fight.weight_class,
-        status: fight.status,
       },
-      official_card: officialCard
-        ? {
-            total_score_red: officialCard.total_score_red,
-            total_score_blue: officialCard.total_score_blue,
-            winner: officialCard.winner,
-            rounds: (officialCard.rounds || []).map((r) => ({
-              round_number: r.round_number,
-              score_red: r.score_red,
-              score_blue: r.score_blue,
-            })),
-          }
-        : null,
-      judges_analysis: judgesAnalysis,
-      consistency,
+      summary: {
+        total_judges: judges.length,
+        total_rounds: totalRounds,
+        rounds_ok: roundsOk,
+        rounds_error: roundsError,
+        fights_ok: fightsOk,
+        fights_error: fightsError,
+      },
+      official_card: {
+        rounds: officialRounds,
+        total_score_red: officialCard?.total_score_red || 0,
+        total_score_blue: officialCard?.total_score_blue || 0,
+      },
+      judges,
+      per_round_summary: perRoundSummary,
     };
 
     if (req.user.role === 'judge') {
-      const myAnalysis = judgesAnalysis.find((j) => j.judge_id === req.user.id);
+      const myAnalysis = judges.find((j) => j.id === req.user.id);
       if (!myAnalysis) {
         return res.status(403).json({ message: 'No tienes análisis disponible para esta pelea.' });
       }
       return res.json({
         ...response,
-        judges_analysis: [myAnalysis],
-        consistency: [],
+        summary: {
+          ...response.summary,
+          total_judges: 1,
+          rounds_ok: myAnalysis.exact_matches,
+          rounds_error: myAnalysis.exact_errors,
+          fights_ok: myAnalysis.exact_errors === 0 ? 1 : 0,
+          fights_error: myAnalysis.exact_errors > 0 ? 1 : 0,
+        },
+        judges: [myAnalysis],
+        per_round_summary: perRoundSummary.map((pr) => {
+          const jr = myAnalysis.rounds.find((r) => r.round_number === pr.round_number);
+          return {
+            round_number: pr.round_number,
+            ok: jr?.match_exact ? 1 : 0,
+            errors: jr?.match_exact ? 0 : 1,
+            winner_ok: jr?.match_winner ? 1 : 0,
+            winner_errors: jr?.match_winner ? 0 : 1,
+          };
+        }),
       });
     }
 
@@ -344,26 +383,6 @@ exports.analyze = async (req, res, next) => {
     }
 
     const results = await Fight.analyze(Number(id));
-
-    const assignedJudges = await Fight.getAssignedJudges(id);
-    const judgeIds = assignedJudges.map((j) => j.id);
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-
-    await Notification.createForUsers(adminSupervisorIds, {
-      type: 'system',
-      title: 'Análisis completado',
-      message: `El análisis de la pelea "${fight.event_name}" fue completado exitosamente`,
-      referenceType: 'fight',
-      referenceId: Number(id),
-    });
-
-    await Notification.createForUsers(judgeIds, {
-      type: 'system',
-      title: 'Análisis disponible',
-      message: `Tu análisis de rendimiento para la pelea "${fight.event_name}" está disponible`,
-      referenceType: 'fight',
-      referenceId: Number(id),
-    });
 
     res.json({
       fight_id: Number(id),

@@ -22,7 +22,6 @@ const OfficialCards = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
-  const isAdmin = user?.role === 'admin';
   const totalRounds = fight?.total_rounds || 0;
 
   const allComplete = totalRounds > 0 && Array.from({ length: totalRounds }, (_, i) => i + 1).every(
@@ -151,7 +150,7 @@ const OfficialCards = () => {
     return <p className="text-slate-400 dark:text-[#64748B] py-10 text-center">Pelea no encontrada.</p>;
   }
 
-  if (!isAdmin && !card) {
+  if (!isStaff && !card) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
@@ -160,7 +159,7 @@ const OfficialCards = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Solo los administradores pueden crear la tarjeta oficial.</p>
+          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Solo el personal autorizado puede crear la tarjeta oficial.</p>
           <button
             className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
@@ -173,7 +172,7 @@ const OfficialCards = () => {
   }
 
   return (
-    <div className="max-w-[900px] animate-fadeIn">
+    <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-6 animate-fadeIn">
       <DetailPageHeader
         title={card ? 'Tarjeta Oficial' : 'Cargar Tarjeta Oficial'}
         subtitle={`${fight.boxer_red} vs ${fight.boxer_blue}`}
@@ -214,57 +213,65 @@ const OfficialCards = () => {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-              <span>Round</span>
-              <span className="text-center">{fight.boxer_red}</span>
-              <span className="text-center">{fight.boxer_blue}</span>
-            </div>
-            {card.rounds.map((r) => (
-              <div key={r.round_number} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
-                <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{r.round_number}</span>
-                <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_red}</span>
-                <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_blue}</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[400px]">
+              <div className="space-y-1.5">
+                <div className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
+                  <span>Round</span>
+                  <span className="text-center">{fight.boxer_red}</span>
+                  <span className="text-center">{fight.boxer_blue}</span>
+                </div>
+                {card.rounds.map((r) => (
+                  <div key={r.round_number} className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
+                    <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{r.round_number}</span>
+                    <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_red}</span>
+                    <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_blue}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </DetailSection>
       ) : (
         <DetailSection icon={ClipboardDocumentCheckIcon} title="Cargar Puntuaciones" description="Ingresá el puntaje de cada round para ambos boxeadores">
-          <div className="space-y-1.5">
-            <div className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-              <span>Round</span>
-              <span className="text-center">{fight.boxer_red}</span>
-              <span className="text-center">{fight.boxer_blue}</span>
-            </div>
-            {Array.from({ length: totalRounds }, (_, i) => {
-              const rn = i + 1;
-              const data = rounds[rn] || {};
-              return (
-                <div key={rn} className="grid grid-cols-[70px_1fr_1fr] gap-2 items-center px-3 py-2 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
-                  <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{rn}</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={data.score_red ?? ''}
-                    onChange={(e) => handleChange(rn, 'score_red', e.target.value)}
-                    className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                  />
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={data.score_blue ?? ''}
-                    onChange={(e) => handleChange(rn, 'score_blue', e.target.value)}
-                    className="w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                  />
+          <div className="overflow-x-auto">
+            <div className="min-w-[400px]">
+              <div className="space-y-1.5">
+                <div className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
+                  <span>Round</span>
+                  <span className="text-center">{fight.boxer_red}</span>
+                  <span className="text-center">{fight.boxer_blue}</span>
                 </div>
-              );
-            })}
+                {Array.from({ length: totalRounds }, (_, i) => {
+                  const rn = i + 1;
+                  const data = rounds[rn] || {};
+                  return (
+                    <div key={rn} className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
+                      <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{rn}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={data.score_red ?? ''}
+                        onChange={(e) => handleChange(rn, 'score_red', e.target.value)}
+                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                      />
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={data.score_blue ?? ''}
+                        onChange={(e) => handleChange(rn, 'score_blue', e.target.value)}
+                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex justify-end">
             <PageActionButton
               onClick={() => setShowConfirm(true)}
               disabled={!allComplete || saving}

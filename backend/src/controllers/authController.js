@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
-const Notification = require('../models/Notification');
 
 const SALT_ROUNDS = 10;
 
@@ -36,16 +35,6 @@ authController.register = async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
     const user = await User.create({ name: name.trim(), email: email.trim(), passwordHash, role: role || 'judge' });
-
-    const adminIds = await Notification.getAdminIds();
-    const roleLabel = (role || 'judge') === 'supervisor' ? 'supervisor' : (role || 'judge') === 'judge' ? 'juez' : 'administrador';
-    await Notification.createForUsers(adminIds, {
-      type: 'system',
-      title: `Nuevo ${roleLabel} registrado`,
-      message: `${user.name} fue registrado como ${roleLabel} en el sistema`,
-      referenceType: 'user',
-      referenceId: user.id,
-    });
 
     const token = generateToken({ id: user.id, role: user.role });
 

@@ -177,8 +177,18 @@ const FightDetails = () => {
         <DetailSummaryCard icon={MapPinIcon} label="Lugar" value={fight.venue || '—'} />
         <DetailSummaryCard icon={CalendarIcon} label="Fecha" value={formatDate(fight.scheduled_date)} />
         <DetailSummaryCard icon={BoltIcon} label="Rounds" value={`${fight.total_rounds} rounds`} />
-        <DetailSummaryCard icon={UserGroupIcon} label="Jueces asignados" value={fight.assigned_judges?.length || 0} />
-        <DetailSummaryCard icon={CheckBadgeIcon} label="Estado" value={getStatus(fight.status).label} accent />
+        <DetailSummaryCard
+          icon={UserGroupIcon}
+          label="Jueces"
+          value={`${fight.assigned_judges?.length || 0} asignados`}
+          accent={false}
+        />
+        <DetailSummaryCard
+          icon={CheckBadgeIcon}
+          label="Confirmados"
+          value={`${fight.assigned_judges?.filter(j => j.status === 'confirmed').length || 0}/${fight.assigned_judges?.length || 0}`}
+          accent
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -194,7 +204,7 @@ const FightDetails = () => {
             { icon: Cog6ToothIcon, label: 'Categoría', value: fight.weight_class },
             { icon: CheckBadgeIcon, label: 'Título', value: fight.title },
             { icon: BoltIcon, label: 'Rounds', value: `${fight.total_rounds} rounds` },
-            { icon: UserGroupIcon, label: 'Jueces requeridos', value: fight.min_judges_required },
+            { icon: UserGroupIcon, label: 'Jueces asignados', value: `${fight.assigned_judges?.length || 0} / 10` },
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
               <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -258,7 +268,7 @@ const FightDetails = () => {
       {isStaff && (
         <DetailSection icon={Cog6ToothIcon} title="Acciones" description="Gestión de la pelea">
           <ActionPanel>
-            {user?.role === 'admin' && (
+            {isStaff && (
               <ActionButton
                 onClick={() => navigate(`/official-cards/${fight.id}`)}
                 disabled={fight.status !== 'completed'}
@@ -280,7 +290,7 @@ const FightDetails = () => {
             >
               Seguimiento en vivo
             </ActionButton>
-            {user?.role === 'admin' && (
+            {isStaff && (
               <ActionButton
                 variant="secondary"
                 disabled={fight.status !== 'completed' || !fight.official_card || analyzing}

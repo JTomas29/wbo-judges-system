@@ -23,11 +23,11 @@ router.get('/:id/scorecards/mine', getMyScorecard);
 // Vista en vivo para admin/supervisor — progreso de todos los jueces
 router.get('/:id/scorecards', roleMiddleware('admin', 'supervisor'), getAllScorecards);
 
-// Finalizar pelea (admin)
-router.post('/:id/complete', roleMiddleware('admin'), complete);
+// Finalizar pelea (admin, supervisor)
+router.post('/:id/complete', roleMiddleware('admin', 'supervisor'), complete);
 
-// Ejecutar análisis (admin)
-router.post('/:id/analyze', roleMiddleware('admin'), analyze);
+// Ejecutar análisis (admin, supervisor)
+router.post('/:id/analyze', roleMiddleware('admin', 'supervisor'), analyze);
 
 // Ver análisis (admin, supervisor, judge)
 router.get('/:id/analysis', getAnalysis);

@@ -6,6 +6,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import BackButton from '../../components/common/BackButton';
 
+const MIN_JUDGES = 3;
+const MAX_JUDGES = 10;
+
 const statusBadge = (status) => {
   const configs = {
     pending: {
@@ -176,7 +179,6 @@ const AssignJudges = () => {
   const [error, setError] = useState(null);
 
   const [selectedJudge, setSelectedJudge] = useState('');
-  const [selectedType, setSelectedType] = useState('evaluator');
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState(null);
   const [rejectionModal, setRejectionModal] = useState(null);
@@ -208,13 +210,12 @@ const AssignJudges = () => {
   const unassignedJudges = availableJudges.filter((j) => !assignedIds.has(j.id));
 
   const handleAssign = async () => {
-    if (!selectedJudge || !selectedType) return;
+    if (!selectedJudge) return;
     setAssignError(null);
     setAssigning(true);
     try {
-      await createAssignment(fightId, { judge_id: Number(selectedJudge), assignment_type: selectedType }, token);
+      await createAssignment(fightId, { judge_id: Number(selectedJudge), assignment_type: 'evaluator' }, token);
       setSelectedJudge('');
-      setSelectedType('evaluator');
       await loadData();
     } catch (err) {
       setAssignError(err.response?.data?.message || 'Error al asignar juez');
@@ -283,13 +284,14 @@ const AssignJudges = () => {
   );
 
   const confirmedCount = assignments.filter((a) => a.status === 'confirmed').length;
-  const minRequired = fight?.min_judges_required || 0;
-  const progressPct = minRequired > 0 ? Math.min((confirmedCount / minRequired) * 100, 100) : 0;
-  const progressColor = confirmedCount >= minRequired && minRequired > 0
+  const totalAssigned = assignments.length;
+  const progressPct = totalAssigned > 0 ? Math.min((confirmedCount / totalAssigned) * 100, 100) : 0;
+  const progressColor = confirmedCount >= totalAssigned && totalAssigned > 0
     ? 'bg-emerald-500'
-    : confirmedCount >= 3
+    : progressPct >= 50
       ? 'bg-amber-500'
       : 'bg-red-500';
+  const atMax = totalAssigned >= MAX_JUDGES;
 
   return (
     <div className="animate-fadeIn space-y-5">
@@ -319,7 +321,7 @@ const AssignJudges = () => {
             </div>
             <span className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">
               {confirmedCount}
-              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500"> / {minRequired}</span>
+              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500"> / {assignments.length}</span>
             </span>
           </div>
           <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-700/50 overflow-hidden">
@@ -327,6 +329,25 @@ const AssignJudges = () => {
               className={`h-full rounded-full transition-all duration-700 ease-out ${progressColor}`}
               style={{ width: `${progressPct}%` }}
             />
+          </div>
+          <div className="flex items-center justify-between mt-2.5">
+            <div className="flex items-center gap-1.5">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                assignments.length >= MAX_JUDGES
+                  ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400'
+                  : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+              }`}>
+                {assignments.length} / {MAX_JUDGES} asignados
+              </span>
+              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                Mínimo requerido: {MIN_JUDGES}
+              </span>
+            </div>
+            {assignments.length < MIN_JUDGES && (
+              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 m-0">
+                Debés asignar al menos {MIN_JUDGES} jueces para continuar.
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -414,7 +435,7 @@ const AssignJudges = () => {
       )}
 
       {/* ── Nueva Asignación ── */}
-      {canManage && (
+      {canManage && !atMax && (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
           <div className="px-5 py-3.5 bg-slate-50 dark:bg-[#0B1120] border-b border-slate-200 dark:border-[#1E293B] flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
@@ -436,14 +457,6 @@ const AssignJudges = () => {
                   ))}
                 </select>
               </div>
-              <div className="min-w-[180px] flex-1">
-                <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Tipo</label>
-                <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
-                  <option value="evaluator">Evaluador del combate</option>
-                  <option value="referee_evaluator">Evaluador del árbitro</option>
-                </select>
-              </div>
               <button disabled={!selectedJudge || assigning}
                 className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-red-800 text-white rounded-xl text-sm font-bold hover:bg-red-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
                 onClick={handleAssign}>
@@ -455,6 +468,32 @@ const AssignJudges = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {canManage && atMax && (
+        <div className="bg-slate-50 dark:bg-[#0B1120] rounded-2xl border border-slate-200 dark:border-[#1E293B] p-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center">
+            <svg className="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 m-0">
+            Se alcanzó el máximo de {MAX_JUDGES} jueces.
+          </p>
+        </div>
+      )}
+
+      {/* ── Finalizar Designación ── */}
+      {canManage && totalAssigned >= MIN_JUDGES && (
+        <button
+          onClick={() => navigate(`/fights/${fightId}`)}
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-wbo-700 text-white rounded-2xl text-sm font-bold hover:bg-[#4a0f14] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Finalizar designación
+        </button>
       )}
 
       {/* ── Tabla ── */}

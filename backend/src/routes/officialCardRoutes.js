@@ -8,6 +8,6 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/:id/official-card', get);
-router.post('/:id/official-card', roleMiddleware('admin'), create);
+router.post('/:id/official-card', roleMiddleware('admin', 'supervisor'), create);
 
 module.exports = router;

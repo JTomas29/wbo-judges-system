@@ -46,6 +46,9 @@ exports.assign = async (req, res, next) => {
 
     const assignment = await JudgeAssignment.create(fightId, judgeNum, assignment_type);
 
+    const totalAssigned = await JudgeAssignment.getCount(fightId);
+    await Fight.updateMinJudgesRequired(fightId, totalAssigned);
+
     await Notification.create({
       userId: judgeNum,
       type: 'assignment',
@@ -94,24 +97,8 @@ exports.remove = async (req, res, next) => {
 
     await JudgeAssignment.delete(fightNum, judgeNum);
 
-    await Notification.create({
-      userId: judgeNum,
-      type: 'assignment',
-      title: 'Asignación eliminada',
-      message: `Tu asignación como juez en la pelea "${fight.event_name}" fue eliminada`,
-      referenceType: 'fight',
-      referenceId: fightNum,
-    });
-
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-    const judge = await User.findById(judgeNum);
-    await Notification.createForUsers(adminSupervisorIds, {
-      type: 'assignment',
-      title: 'Asignación eliminada',
-      message: `La asignación del juez "${judge ? judge.name : judgeNum}" en la pelea "${fight.event_name}" fue eliminada`,
-      referenceType: 'fight',
-      referenceId: fightNum,
-    });
+    const totalAfterRemove = await JudgeAssignment.getCount(fightNum);
+    await Fight.updateMinJudgesRequired(fightNum, totalAfterRemove);
 
     res.status(204).end();
   } catch (err) {
@@ -158,7 +145,7 @@ exports.respond = async (req, res, next) => {
       await Notification.createForUsers(adminSupervisorIds, {
         type: 'status_change',
         title: 'Juez confirmó participación',
-        message: `El juez "${judge.name}" confirmó su participación en la pelea "${fight.event_name}"`,
+        message: `${judge.name} confirmó su participación en la pelea "${fight.boxer_red} vs ${fight.boxer_blue}"`,
         referenceType: 'fight',
         referenceId: fightId,
       });
@@ -166,17 +153,7 @@ exports.respond = async (req, res, next) => {
       await Notification.createForUsers(adminSupervisorIds, {
         type: 'status_change',
         title: 'Designación rechazada',
-        message: `${judge.name} rechazó la designación para la pelea "${fight.event_name}"`,
-        referenceType: 'fight',
-        referenceId: fightId,
-      });
-    }
-
-    if (fight.status === 'pending' && updatedFight && updatedFight.status === 'active') {
-      await Notification.createForUsers(adminSupervisorIds, {
-        type: 'status_change',
-        title: 'Pelea lista para comenzar',
-        message: 'Todos los jueces confirmaron su participación.',
+        message: `${judge.name} rechazó la designación para la pelea "${fight.boxer_red} vs ${fight.boxer_blue}"`,
         referenceType: 'fight',
         referenceId: fightId,
       });
