@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import logoSrc from '../../assets/logoWbo.png';
+import logoSrcDark from '../../assets/logoWboModoOscuro.png';
 import NotificationCenter from '../common/NotificationCenter';
 
 const roleLabels = {
@@ -129,7 +130,7 @@ const Navbar = () => {
           {/* LEFT: Logo + Brand */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-[42px] h-[42px] rounded-full bg-white dark:bg-[#1E293B] flex items-center justify-center shrink-0 ring-2 ring-slate-100 dark:ring-[#334155] overflow-hidden transition-all duration-200">
-              <img src={logoSrc} alt="WBO" className="w-full h-full object-contain p-1" />
+              <img src={theme === 'dark' ? logoSrcDark : logoSrc} alt="WBO" className="w-full h-full object-contain p-1" />
             </div>
             <div className="hidden sm:block">
               <p className="text-[15px] font-bold text-slate-900 dark:text-[#F8FAFC] leading-tight transition-colors duration-200">WBO Judges</p>

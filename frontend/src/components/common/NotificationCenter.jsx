@@ -12,9 +12,9 @@ import { getNotificationRoute } from '../../services/notificationNavigation';
 
 const TYPE_CONFIG = {
   assignment: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-600',
-    ring: 'ring-blue-100',
+    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    text: 'text-blue-600 dark:text-blue-400',
+    ring: 'ring-blue-100 dark:ring-blue-800/30',
     dot: 'bg-blue-500',
     label: 'Asignación',
     icon: (
@@ -24,9 +24,9 @@ const TYPE_CONFIG = {
     ),
   },
   status_change: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-600',
-    ring: 'ring-amber-100',
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    text: 'text-amber-600 dark:text-amber-400',
+    ring: 'ring-amber-100 dark:ring-amber-800/30',
     dot: 'bg-amber-500',
     label: 'Estado',
     icon: (
@@ -36,9 +36,9 @@ const TYPE_CONFIG = {
     ),
   },
   reminder: {
-    bg: 'bg-red-50',
-    text: 'text-red-600',
-    ring: 'ring-red-100',
+    bg: 'bg-red-50 dark:bg-red-900/20',
+    text: 'text-red-600 dark:text-red-400',
+    ring: 'ring-red-100 dark:ring-red-800/30',
     dot: 'bg-red-500',
     label: 'Recordatorio',
     icon: (
@@ -48,9 +48,9 @@ const TYPE_CONFIG = {
     ),
   },
   system: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-600',
-    ring: 'ring-emerald-100',
+    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    ring: 'ring-emerald-100 dark:ring-emerald-800/30',
     dot: 'bg-emerald-500',
     label: 'Sistema',
     icon: (
@@ -108,13 +108,13 @@ const getRelativeTime = (dateStr) => {
 };
 
 const SkeletonCard = () => (
-  <div className="px-4 py-3.5 border-b border-slate-100/80 animate-pulse">
+  <div className="px-4 py-3.5 border-b border-slate-100/80 dark:border-[#1E293B]/60 animate-pulse">
     <div className="flex gap-3">
-      <div className="w-9 h-9 rounded-xl bg-slate-100 shrink-0" />
+      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1E293B] shrink-0" />
       <div className="flex-1 space-y-2">
-        <div className="h-3 bg-slate-100 rounded-lg w-3/4" />
-        <div className="h-2.5 bg-slate-50 rounded-lg w-full" />
-        <div className="h-2 bg-slate-50 rounded-lg w-1/4 mt-1" />
+        <div className="h-3 bg-slate-100 dark:bg-[#1E293B] rounded-lg w-3/4" />
+        <div className="h-2.5 bg-slate-50 dark:bg-[#1F2937] rounded-lg w-full" />
+        <div className="h-2 bg-slate-50 dark:bg-[#1F2937] rounded-lg w-1/4 mt-1" />
       </div>
     </div>
   </div>
@@ -123,19 +123,19 @@ const SkeletonCard = () => (
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center py-20 px-6">
     <div className="relative mb-5">
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center ring-1 ring-slate-200/60">
-        <svg className="w-9 h-9 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.2">
+      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#1E293B] dark:to-[#1F2937] flex items-center justify-center ring-1 ring-slate-200/60 dark:ring-[#334155]">
+        <svg className="w-9 h-9 text-slate-300 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
         </svg>
       </div>
-      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center ring-1 ring-slate-200">
-        <svg className="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-[#0F172A] flex items-center justify-center ring-1 ring-slate-200 dark:ring-[#1E293B]">
+        <svg className="w-3 h-3 text-slate-300 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
       </div>
     </div>
-    <p className="text-sm font-semibold text-slate-500 mb-1">No tenés notificaciones</p>
-    <p className="text-xs text-slate-400 text-center max-w-[240px] leading-relaxed">
+    <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8] mb-1">No tenés notificaciones</p>
+    <p className="text-xs text-slate-400 dark:text-slate-500 text-center max-w-[240px] leading-relaxed">
       Las novedades importantes aparecerán aquí automáticamente.
     </p>
   </div>
@@ -159,9 +159,9 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
   return (
     <div
       onClick={handleClick}
-      className={`group relative px-4 py-3 border-b border-slate-100/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 hover:pl-5 ${
+      className={`group relative px-4 py-3 border-b border-slate-100/60 dark:border-[#1E293B]/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-[#1E293B]/40 hover:pl-5 ${
         isUnread
-          ? 'bg-gradient-to-r from-red-50/40 via-white to-white hover:from-red-50/60'
+          ? 'bg-gradient-to-r from-red-50/40 via-white to-white dark:from-red-900/10 dark:via-[#0F172A] dark:to-[#0F172A] hover:from-red-50/60 dark:hover:from-red-900/15'
           : ''
       } ${isNew ? 'animate-notifSlideIn' : ''}`}
     >
@@ -169,28 +169,28 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
         <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ring-1 ${config.bg} ${config.text} ${config.ring}`}>
           {config.icon}
           {isUnread && (
-            <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${config.dot} ring-1.5 ring-white`} />
+            <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${config.dot} ring-1.5 ring-white dark:ring-[#0F172A]`} />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className={`text-[13px] leading-snug pr-1 ${isUnread ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}>
+            <p className={`text-[13px] leading-snug pr-1 ${isUnread ? 'font-semibold text-slate-800 dark:text-[#F8FAFC]' : 'font-medium text-slate-600 dark:text-[#CBD5E1]'}`}>
               {notification.title}
             </p>
             <button
               onClick={handleDelete}
-              className="sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 shrink-0 mt-[-1px]"
+              className="sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 shrink-0 mt-[-1px]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
               </svg>
             </button>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-slate-400 dark:text-[#94A3B8] mt-0.5 line-clamp-2 leading-relaxed">
             {notification.message}
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] text-slate-400 font-medium">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
               {getRelativeTime(notification.created_at)}
             </span>
             <span className={`text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${config.bg} ${config.text} opacity-70`}>
@@ -351,15 +351,15 @@ const NotificationCenter = () => {
         onClick={() => setIsOpen(!isOpen)}
         className={`relative p-2 rounded-xl transition-all duration-200 ${
           isOpen
-            ? 'text-wbo-700 bg-wbo-50'
-            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+            ? 'text-wbo-700 bg-wbo-50 dark:text-wbo-400 dark:bg-wbo-500/10'
+            : 'text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.06]'
         }`}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white animate-badgePulse">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white dark:ring-[#0F172A] animate-badgePulse">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -367,22 +367,22 @@ const NotificationCenter = () => {
 
       {/* Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-50 transition-opacity duration-300" />
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-[2px] z-50 transition-opacity duration-300" />
       )}
 
       {/* Drawer */}
       {isOpen && (
         <div
           ref={panelRef}
-          className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-50 flex flex-col animate-slideInRight"
+          className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white dark:bg-[#0F172A] shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] z-50 flex flex-col animate-slideInRight"
         >
           {/* Header */}
-          <div className="px-5 py-4 border-b border-slate-100 bg-white/95 backdrop-blur-sm shrink-0">
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-[#1E293B] bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-sm shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-[15px] font-bold text-slate-800">Notificaciones</h2>
+                <h2 className="text-[15px] font-bold text-slate-800 dark:text-[#F8FAFC]">Notificaciones</h2>
                 {unreadCount > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 ring-1 ring-red-200/60 animate-scaleIn">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40 animate-scaleIn">
                     {unreadCount}
                   </span>
                 )}
@@ -391,14 +391,14 @@ const NotificationCenter = () => {
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="text-[11px] font-medium text-wbo-700 hover:text-wbo-800 hover:bg-wbo-50 px-2.5 py-1.5 rounded-lg transition-all duration-150"
+                    className="text-[11px] font-medium text-wbo-700 dark:text-wbo-400 hover:text-wbo-800 dark:hover:text-wbo-300 hover:bg-wbo-50 dark:hover:bg-wbo-500/10 px-2.5 py-1.5 rounded-lg transition-all duration-150"
                   >
                     Marcar todo leído
                   </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-150"
+                  className="p-1.5 rounded-lg text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-150"
                 >
                   <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -412,7 +412,7 @@ const NotificationCenter = () => {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto overscroll-contain"
+            className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin"
           >
             {initialLoading ? (
               <div>
@@ -426,8 +426,8 @@ const NotificationCenter = () => {
               <>
                 {grouped.map((group) => (
                   <div key={group.label}>
-                    <div className="sticky top-0 z-10 px-4 py-2 bg-slate-50/90 backdrop-blur-sm border-b border-slate-100/60">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="sticky top-0 z-10 px-4 py-2 bg-slate-50/90 dark:bg-[#0B1120]/90 backdrop-blur-sm border-b border-slate-100/60 dark:border-[#1E293B]/60">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                         {group.label}
                       </p>
                     </div>
