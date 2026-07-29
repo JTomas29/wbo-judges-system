@@ -80,6 +80,7 @@ const statConfig = {
     color: 'text-blue-600 dark:text-blue-400',
     bg: 'bg-blue-50 dark:bg-blue-900/30',
     ring: 'ring-blue-100 dark:ring-blue-800/40',
+    topColor: '#2563eb',
   },
   total_rounds: {
     icon: (
@@ -90,6 +91,7 @@ const statConfig = {
     color: 'text-violet-600 dark:text-violet-400',
     bg: 'bg-violet-50 dark:bg-violet-900/30',
     ring: 'ring-violet-100 dark:ring-violet-800/40',
+    topColor: '#7c3aed',
   },
   rounds_ok: {
     icon: (
@@ -100,6 +102,7 @@ const statConfig = {
     color: 'text-emerald-600 dark:text-emerald-400',
     bg: 'bg-emerald-50 dark:bg-emerald-900/30',
     ring: 'ring-emerald-100 dark:ring-emerald-800/40',
+    topColor: '#059669',
   },
   rounds_error: {
     icon: (
@@ -110,6 +113,7 @@ const statConfig = {
     color: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-900/30',
     ring: 'ring-red-100 dark:ring-red-800/40',
+    topColor: '#dc2626',
   },
   fights_ok: {
     icon: (
@@ -120,6 +124,7 @@ const statConfig = {
     color: 'text-emerald-600 dark:text-emerald-400',
     bg: 'bg-emerald-50 dark:bg-emerald-900/30',
     ring: 'ring-emerald-100 dark:ring-emerald-800/40',
+    topColor: '#059669',
   },
   fights_error: {
     icon: (
@@ -130,6 +135,7 @@ const statConfig = {
     color: 'text-amber-600 dark:text-amber-400',
     bg: 'bg-amber-50 dark:bg-amber-900/30',
     ring: 'ring-amber-100 dark:ring-amber-800/40',
+    topColor: '#d97706',
   },
 };
 
@@ -138,7 +144,7 @@ const statKeys = ['total_judges', 'total_rounds', 'rounds_ok', 'rounds_error', '
 const StatCard = ({ statKey, value }) => {
   const cfg = statConfig[statKey];
   return (
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group" style={{ borderTopColor: cfg.topColor }}>
       <div className={`w-10 h-10 rounded-xl ${cfg.bg} ring-1 ${cfg.ring} flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110`}>
         <span className={cfg.color}>{cfg.icon}</span>
       </div>
@@ -158,22 +164,22 @@ statConfig.fights_error.label = 'Con Error';
 const WinnerBadge = ({ winner }) => {
   if (winner === 'red') {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50">
-        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
+        <span className="w-2 h-2 rounded-sm bg-red-500" />
         Rojo
       </span>
     );
   }
   if (winner === 'blue') {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800/50">
-        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800/50 shadow-sm">
+        <span className="w-2 h-2 rounded-sm bg-blue-500" />
         Azul
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-600">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-600 shadow-sm">
       Empate
     </span>
   );
@@ -193,7 +199,7 @@ const EvaluationMatrix = ({
   totalLabel,
   renderJudgeTotal,
 }) => (
-  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700/20 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
     <div className="px-6 py-4 border-b border-slate-200 dark:border-[#1E293B]">
       <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{title}</h3>
       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 m-0">{subtitle}</p>
@@ -201,42 +207,42 @@ const EvaluationMatrix = ({
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse min-w-[500px]">
         <thead>
-          <tr className="bg-wbo-700 text-white">
-            <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
+          <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
             {judges.map((j) => (
-              <th key={j.id} className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
+              <th key={j.id} className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
                 {abbreviate(j.name)}
               </th>
             ))}
-            <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-red-200">Errores</th>
-            <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-emerald-200 last:rounded-tr-2xl">OK</th>
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-red-200">Errores</th>
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-emerald-200 last:rounded-tr-2xl">OK</th>
           </tr>
         </thead>
         <tbody>
           {perRoundSummary.map((pr, idx) => (
             <tr
               key={pr.round_number}
-              className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
-                idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/50 dark:bg-[#0B1120]'
+              className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
+                idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/40 dark:bg-[#0B1120]'
               }`}
             >
-              <td className="py-3 px-4 text-center font-bold text-slate-600 dark:text-slate-300 tabular-nums text-xs">
+              <td className="py-3.5 px-4 text-center font-bold text-slate-600 dark:text-slate-300 tabular-nums text-xs">
                 R{pr.round_number}
               </td>
               {judges.map((j) => {
                 const jr = j.rounds.find((r) => r.round_number === pr.round_number);
                 const matched = jr?.[matchField];
                 return (
-                  <td key={j.id} className="py-3 px-4 text-center">
+                  <td key={j.id} className="py-3.5 px-4 text-center">
                     {matched ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shadow-sm">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                         OK
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -246,8 +252,8 @@ const EvaluationMatrix = ({
                   </td>
                 );
               })}
-              <td className="py-3 px-4 text-center">
-                <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-1 rounded-full text-xs font-bold tabular-nums ring-1 ${
+              <td className="py-3.5 px-4 text-center">
+                <span className={`inline-flex items-center justify-center min-w-[32px] px-2.5 py-1 rounded-full text-xs font-bold tabular-nums ring-1 shadow-sm ${
                   pr[errorField] > 0
                     ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-red-200 dark:ring-red-800/50'
                     : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/50'
@@ -255,8 +261,8 @@ const EvaluationMatrix = ({
                   {pr[errorField]}
                 </span>
               </td>
-              <td className="py-3 px-4 text-center">
-                <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-1 rounded-full text-xs font-bold tabular-nums ring-1 ${
+              <td className="py-3.5 px-4 text-center">
+                <span className={`inline-flex items-center justify-center min-w-[32px] px-2.5 py-1 rounded-full text-xs font-bold tabular-nums ring-1 shadow-sm ${
                   pr[okField] === summary.total_judges
                     ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/50'
                     : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-red-200 dark:ring-red-800/50'
@@ -268,19 +274,19 @@ const EvaluationMatrix = ({
           ))}
         </tbody>
         <tfoot>
-          <tr className="bg-slate-100 dark:bg-slate-800/60 border-t-2 border-slate-200 dark:border-[#1E293B]">
-            <td className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 first:rounded-bl-2xl">
+          <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
+            <td className="py-4 px-4 text-center text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 first:rounded-bl-2xl">
               {totalLabel}
             </td>
             {judges.map((j) => (
-              <td key={j.id} className="py-3.5 px-4 text-center text-sm font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums">
+              <td key={j.id} className="py-4 px-4 text-center text-sm font-bold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
                 {renderJudgeTotal(j)}
               </td>
             ))}
-            <td className="py-3.5 px-4 text-center text-sm font-bold text-red-700 dark:text-red-400 tabular-nums">
+            <td className="py-4 px-4 text-center text-sm font-bold text-red-700 dark:text-red-400 tabular-nums">
               {judges.reduce((sum, j) => sum + (j[judgeTotalErrors] ?? 0), 0)}
             </td>
-            <td className="py-3.5 px-4 text-center text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums last:rounded-br-2xl">
+            <td className="py-4 px-4 text-center text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums last:rounded-br-2xl">
               {judges.reduce((sum, j) => sum + (j[judgeTotalOk] ?? 0), 0)}
             </td>
           </tr>
@@ -334,12 +340,12 @@ const FightAnalysis = () => {
       : judges;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 space-y-8 animate-[fadeIn_0.3s_ease-out]">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 space-y-10 animate-[fadeIn_0.3s_ease-out]">
 
       {/* ── Header ── */}
       <div className="space-y-4">
         <BackButton fallbackRoute="/fights" />
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 md:p-6 transition-all duration-300 hover:shadow-md">
+        <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-5 md:p-6 transition-all duration-300 hover:shadow-lg">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight m-0 leading-tight">
@@ -371,7 +377,7 @@ const FightAnalysis = () => {
                 </span>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 ring-1 ring-violet-200 dark:ring-violet-800/50 shrink-0 self-start">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white shadow-sm ring-1 ring-violet-700/30 shrink-0 self-start">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -383,7 +389,10 @@ const FightAnalysis = () => {
 
       {/* ── Section 1: Summary Stats ── */}
       <div>
-        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 m-0">Resumen del análisis</h2>
+        <div className="flex items-center gap-2.5 mb-4">
+          <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Resumen del análisis</h2>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {statKeys.map((key) => (
             <StatCard key={key} statKey={key} value={summary[key]} />
@@ -394,9 +403,12 @@ const FightAnalysis = () => {
       {/* ── Section 2: Official Card ── */}
       {official_card && (
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 m-0">Resultado oficial</h2>
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-[#1E293B] flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Resultado oficial</h2>
+          </div>
+          <div className="bg-gradient-to-br from-white to-slate-50/60 dark:from-[#111827] dark:to-[#141d2f] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-[#1E293B] bg-wbo-50/40 dark:bg-wbo-900/20 flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-wbo-700/10 dark:bg-wbo-700/20 flex items-center justify-center">
                 <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -407,34 +419,34 @@ const FightAnalysis = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse min-w-[360px]">
                 <thead>
-                  <tr className="bg-wbo-700 text-white">
-                    <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
-                    <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
-                      <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-300" />Rojo</span>
-                    </th>
-                    <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
-                      <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-300" />Azul</span>
-                    </th>
-                    <th className="py-3 px-4 text-center text-[11px] font-bold uppercase tracking-wider last:rounded-tr-2xl">Ganador</th>
-                  </tr>
+          <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-300" />Rojo</span>
+            </th>
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-300" />Azul</span>
+            </th>
+            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider last:rounded-tr-2xl">Ganador</th>
+          </tr>
                 </thead>
                 <tbody>
                   {official_card.rounds?.map((r, idx) => (
-                    <tr
-                      key={r.round_number}
-                      className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
-                        idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/50 dark:bg-[#0B1120]'
-                      }`}
-                    >
-                      <td className="py-3 px-4 text-center font-bold text-slate-500 dark:text-slate-400 tabular-nums text-xs">
-                        R{r.round_number}
-                      </td>
-                      <td className="py-3 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
-                        {r.score_red}
-                      </td>
-                      <td className="py-3 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
-                        {r.score_blue}
-                      </td>
+              <tr
+                key={r.round_number}
+                className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
+                  idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/40 dark:bg-[#0B1120]'
+                }`}
+              >
+                <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400 tabular-nums text-xs">
+                  R{r.round_number}
+                </td>
+                <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
+                  {r.score_red}
+                </td>
+                <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
+                  {r.score_blue}
+                </td>
                       <td className="py-3 px-4 text-center">
                         <WinnerBadge winner={r.winner} />
                       </td>
@@ -442,14 +454,14 @@ const FightAnalysis = () => {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-slate-100 dark:bg-slate-800/60 border-t-2 border-slate-200 dark:border-[#1E293B]">
-                    <td className="py-4 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 first:rounded-bl-2xl">
+                  <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
+                    <td className="py-4 px-4 text-center text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 first:rounded-bl-2xl">
                       TOTAL
                     </td>
-                    <td className="py-4 px-4 text-center text-xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
+                    <td className="py-4 px-4 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
                       {official_card.total_score_red}
                     </td>
-                    <td className="py-4 px-4 text-center text-xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
+                    <td className="py-4 px-4 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
                       {official_card.total_score_blue}
                     </td>
                     <td className="py-4 px-4 text-center last:rounded-br-2xl">
@@ -472,7 +484,10 @@ const FightAnalysis = () => {
       {/* ── Section 3: Matrix match_exact ── */}
       {visibleJudges?.length > 0 && per_round_summary?.length > 0 && (
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 m-0">Evaluación</h2>
+          <div className="flex items-center gap-2.5 mb-4">
+            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Evaluación</h2>
+          </div>
           <EvaluationMatrix
             title="Matriz de Evaluación"
             subtitle="Coincidencia exacta de puntajes por juez y round"
@@ -493,7 +508,10 @@ const FightAnalysis = () => {
       {/* ── Section 4: Matrix match_winner ── */}
       {visibleJudges?.length > 0 && per_round_summary?.length > 0 && (
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 m-0">Mismo Ganador</h2>
+          <div className="flex items-center gap-2.5 mb-4">
+            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Mismo Ganador</h2>
+          </div>
           <EvaluationMatrix
             title="Mismo Ganador"
             subtitle="Coincidencia del ganador por juez y round"
