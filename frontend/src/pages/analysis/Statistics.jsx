@@ -114,6 +114,10 @@ const Statistics = () => {
   }, [token, user?.role]);
 
   const openJudgeDetail = (judge) => {
+    if (user?.role !== 'judge') {
+      navigate(`/profile/${judge.id}`);
+      return;
+    }
     setSelectedJudge(judge);
     setHistoryLoading(true);
     setHistoryError(null);
