@@ -3,9 +3,30 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
 import BackButton from '../../components/common/BackButton';
+import {
+  CalendarIcon,
+  MapPinIcon,
+  BoltIcon,
+  ChartBarIcon,
+  ClipboardDocumentCheckIcon,
+  CheckIcon,
+  ExclamationTriangleIcon,
+  UserGroupIcon,
+  HashtagIcon,
+  TrophyIcon,
+  CheckBadgeIcon,
+  ScaleIcon,
+  XCircleIcon,
+  ArrowTrendingUpIcon,
+} from '@heroicons/react/24/outline';
 
-const formatDate = (d) =>
-  d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+const pageWrapper =
+  'bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16';
+
+const formatDate = (d) => {
+  if (!d) return '\u2014';
+  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
 const abbreviate = (name) => {
   if (!name) return '??';
@@ -14,31 +35,47 @@ const abbreviate = (name) => {
   return `${parts[0]} ${parts[parts.length - 1][0]}.`;
 };
 
-const Skeleton = () => (
-  <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-7 animate-fadeIn">
-    <div className="space-y-3">
-      <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
-      <div className="h-9 w-72 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
-      <div className="h-5 w-56 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+const initials = (name = '') =>
+  name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+
+const WinnerBadge = ({ winner }) => {
+  if (winner === 'red') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
+        <span className="w-2 h-2 rounded-sm bg-red-500" />
+        Rojo
+      </span>
+    );
+  }
+  if (winner === 'blue') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800/50 shadow-sm">
+        <span className="w-2 h-2 rounded-sm bg-blue-500" />
+        Azul
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-600 shadow-sm">
+      Empate
+    </span>
+  );
+};
+
+const LoadingState = () => (
+  <div className={`${pageWrapper} flex items-center justify-center`}>
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
+      <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
+      <span className="block mt-4 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando análisis de la pelea...</span>
     </div>
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
-      ))}
-    </div>
-    <div className="h-52 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
-    <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
-    <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
   </div>
 );
 
 const ErrorState = ({ message, onBack }) => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg px-10 py-12 text-center max-w-md w-full mx-4">
-      <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-5">
-        <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-        </svg>
+  <div className={`${pageWrapper} flex items-center justify-center min-h-[60vh]`}>
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md animate-[fadeIn_0.3s_ease-out]">
+      <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-5">
+        <ExclamationTriangleIcon className="w-7 h-7 text-red-500 dark:text-red-400" />
       </div>
       <p className="text-slate-800 dark:text-[#F8FAFC] font-semibold text-base leading-relaxed m-0">{message}</p>
       <button
@@ -52,12 +89,10 @@ const ErrorState = ({ message, onBack }) => (
 );
 
 const EmptyState = ({ onBack }) => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg px-10 py-12 text-center max-w-md w-full mx-4">
-      <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-5">
-        <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4l2.25-2.25m0 0l2.25-2.25M12 13.5V3.75m0 0l2.25 2.25M12 3.75L9.75 6" />
-        </svg>
+  <div className={`${pageWrapper} flex items-center justify-center min-h-[60vh]`}>
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md animate-[fadeIn_0.3s_ease-out]">
+      <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-5">
+        <ChartBarIcon className="w-7 h-7 text-slate-400 dark:text-slate-500" />
       </div>
       <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No existen resultados para esta pelea.</p>
       <button
@@ -70,231 +105,306 @@ const EmptyState = ({ onBack }) => (
   </div>
 );
 
-const statConfig = {
-  total_judges: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-      </svg>
-    ),
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-50 dark:bg-blue-900/30',
-    ring: 'ring-blue-100 dark:ring-blue-800/40',
-    topColor: '#2563eb',
-  },
-  total_rounds: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-      </svg>
-    ),
-    color: 'text-violet-600 dark:text-violet-400',
-    bg: 'bg-violet-50 dark:bg-violet-900/30',
-    ring: 'ring-violet-100 dark:ring-violet-800/40',
-    topColor: '#7c3aed',
-  },
-  rounds_ok: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-50 dark:bg-emerald-900/30',
-    ring: 'ring-emerald-100 dark:ring-emerald-800/40',
-    topColor: '#059669',
-  },
-  rounds_error: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    color: 'text-red-600 dark:text-red-400',
-    bg: 'bg-red-50 dark:bg-red-900/30',
-    ring: 'ring-red-100 dark:ring-red-800/40',
-    topColor: '#dc2626',
-  },
-  fights_ok: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.996.123-1.97.346-2.916.654a10.03 10.03 0 00-.723.779 6.48 6.48 0 01-.758-1.194 6.48 6.48 0 01-.384-2.456c0-.384.033-.76.097-1.13M12 10.5a3 3 0 11-6 0 3 3 0 016 0zm0 0v1.5m0-1.5c0 .621-.504 1.125-1.125 1.125H4.875c-.621 0-1.125-.504-1.125-1.125m11.25 0c.621 0 1.125.504 1.125 1.125v5.25c0 .621-.504 1.125-1.125 1.125h-5.25c-.621 0-1.125-.504-1.125-1.125v-5.25c0-.621.504-1.125 1.125-1.125" />
-      </svg>
-    ),
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-50 dark:bg-emerald-900/30',
-    ring: 'ring-emerald-100 dark:ring-emerald-800/40',
-    topColor: '#059669',
-  },
-  fights_error: {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-      </svg>
-    ),
-    color: 'text-amber-600 dark:text-amber-400',
-    bg: 'bg-amber-50 dark:bg-amber-900/30',
-    ring: 'ring-amber-100 dark:ring-amber-800/40',
-    topColor: '#d97706',
-  },
+const statAccents = {
+  blue: { border: 'border-t-blue-500', chip: 'bg-blue-50 dark:bg-blue-900/20', color: 'text-blue-600 dark:text-blue-400', value: 'text-blue-700 dark:text-blue-400' },
+  violet: { border: 'border-t-violet-500', chip: 'bg-violet-50 dark:bg-violet-900/20', color: 'text-violet-600 dark:text-violet-400', value: 'text-violet-700 dark:text-violet-400' },
+  emerald: { border: 'border-t-emerald-500', chip: 'bg-emerald-50 dark:bg-emerald-900/20', color: 'text-emerald-600 dark:text-emerald-400', value: 'text-emerald-600 dark:text-emerald-400' },
+  red: { border: 'border-t-red-500', chip: 'bg-red-50 dark:bg-red-900/20', color: 'text-red-600 dark:text-red-400', value: 'text-red-700 dark:text-red-400' },
+  gold: { border: 'border-t-gold', chip: 'bg-gold/10', color: 'text-gold dark:text-gold-light', value: 'text-gold dark:text-gold-light' },
+  amber: { border: 'border-t-amber-500', chip: 'bg-amber-50 dark:bg-amber-900/20', color: 'text-amber-600 dark:text-amber-500', value: 'text-amber-600 dark:text-amber-500' },
 };
 
-const statKeys = ['total_judges', 'total_rounds', 'rounds_ok', 'rounds_error', 'fights_ok', 'fights_error'];
+const statItems = [
+  { key: 'total_judges', label: 'Jueces analizados', icon: UserGroupIcon, accent: 'blue' },
+  { key: 'total_rounds', label: 'Rounds analizados', icon: ChartBarIcon, accent: 'violet' },
+  { key: 'rounds_ok', label: 'Rounds exactos', icon: CheckBadgeIcon, accent: 'emerald' },
+  { key: 'rounds_error', label: 'Rounds con error', icon: ExclamationTriangleIcon, accent: 'red' },
+  { key: 'fights_ok', label: 'Tarjetas perfectas', icon: TrophyIcon, accent: 'gold' },
+  { key: 'fights_error', label: 'Tarjetas con error', icon: XCircleIcon, accent: 'amber' },
+];
 
-const StatCard = ({ statKey, value }) => {
-  const cfg = statConfig[statKey];
+const StatCard = ({ icon: Icon, label, value, accent = 'slate', delay = 0 }) => {
+  const a = statAccents[accent];
   return (
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] shadow-sm p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group" style={{ borderTopColor: cfg.topColor }}>
-      <div className={`w-10 h-10 rounded-xl ${cfg.bg} ring-1 ${cfg.ring} flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110`}>
-        <span className={cfg.color}>{cfg.icon}</span>
+    <div
+      className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-md p-4 sm:p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 animate-[fadeIn_0.4s_ease-out] group`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className={`w-9 h-9 rounded-xl ${a.chip} flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-110`}>
+        <Icon className={`w-4.5 h-4.5 ${a.color}`} />
       </div>
-      <p className="text-3xl font-extrabold text-slate-900 dark:text-[#F8FAFC] leading-none m-0 tabular-nums">{value}</p>
-      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 m-0">{statConfig[statKey].label}</p>
+      <p className={`text-2xl sm:text-3xl font-extrabold ${a.value} m-0 leading-none tabular-nums`}>{value}</p>
+      <p className="text-[10px] font-semibold text-slate-500 dark:text-[#64748B] uppercase tracking-wider mt-1.5 m-0">{label}</p>
     </div>
   );
 };
 
-statConfig.total_judges.label = 'Jueces';
-statConfig.total_rounds.label = 'Rounds';
-statConfig.rounds_ok.label = 'Rounds OK';
-statConfig.rounds_error.label = 'Rounds Error';
-statConfig.fights_ok.label = 'Peleas OK';
-statConfig.fights_error.label = 'Con Error';
+const AnalysisHeader = ({ fight }) => {
+  const infoItems = [
+    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
+    { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
+    { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
+    { icon: HashtagIcon, label: 'Rounds', value: `${fight?.total_rounds ?? 0} rounds` },
+  ];
 
-const WinnerBadge = ({ winner }) => {
-  if (winner === 'red') {
+  return (
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 shadow-inner">
+            <ChartBarIcon className="w-7 h-7 text-red-200" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Análisis de Pelea</p>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
+              {fight?.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight?.boxer_blue}
+            </h1>
+            <p className="text-sm text-red-100/90 mt-0.5 m-0">{fight?.event_name}</p>
+          </div>
+          <div className="ml-auto shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gold/15 text-gold-light ring-1 ring-gold/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold-light" />
+              Analizada
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="px-6 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
+        {infoItems.map((item) => (
+          <div key={item.label} className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
+              <item.icon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">{item.label}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{item.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SectionCard = ({ Icon, title, description, children, delay = 0 }) => (
+  <div
+    className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]"
+    style={{ animationDelay: `${delay}ms` }}
+  >
+    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+        <Icon className="w-4 h-4 text-white" />
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">{title}</h3>
+        {description && <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">{description}</p>}
+      </div>
+    </div>
+    {children}
+  </div>
+);
+
+const RoundBadge = ({ roundNumber }) => (
+  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-wbo-50 dark:bg-wbo-900/20 text-wbo-700 dark:text-wbo-300 ring-1 ring-wbo-200/60 dark:ring-wbo-800/40">
+    R{roundNumber}
+  </span>
+);
+
+const OfficialCardTable = ({ fight, card }) => {
+  const overallWinner =
+    card.total_score_red > card.total_score_blue ? 'red' : card.total_score_blue > card.total_score_red ? 'blue' : 'draw';
+
+  return (
+    <SectionCard Icon={ClipboardDocumentCheckIcon} title="Resultado Oficial" description="Puntajes de la tarjeta oficial">
+      <div className="overflow-x-auto scrollbar-thin">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
+              <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider">Round</th>
+              <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
+              <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
+              <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider">Ganador</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+            {card.rounds.map((r, i) => (
+              <tr key={r.round_number} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
+                <td className="px-5 py-3"><RoundBadge roundNumber={r.round_number} /></td>
+                <td className="px-5 py-3 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{r.score_red}</td>
+                <td className="px-5 py-3 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{r.score_blue}</td>
+                <td className="px-5 py-3 text-center"><WinnerBadge winner={r.winner} /></td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
+              <td className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">Total</td>
+              <td className="px-5 py-3.5 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">{card.total_score_red}</td>
+              <td className="px-5 py-3.5 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">{card.total_score_blue}</td>
+              <td className="px-5 py-3.5 text-center"><WinnerBadge winner={overallWinner} /></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </SectionCard>
+  );
+};
+
+const CoincidenceBadge = ({ matchExact, matchWinner }) => {
+  if (matchExact) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
-        <span className="w-2 h-2 rounded-sm bg-red-500" />
-        Rojo
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shadow-sm">
+        <CheckIcon className="w-3 h-3" />
+        Exacto
       </span>
     );
   }
-  if (winner === 'blue') {
+  if (matchWinner) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800/50 shadow-sm">
-        <span className="w-2 h-2 rounded-sm bg-blue-500" />
-        Azul
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-800/50 shadow-sm">
+        <ScaleIcon className="w-3 h-3" />
+        Ganador
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-600 shadow-sm">
-      Empate
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
+      <XCircleIcon className="w-3 h-3" />
+      Error
     </span>
   );
 };
 
-const EvaluationMatrix = ({
-  title,
-  subtitle,
-  judges,
-  perRoundSummary,
-  summary,
-  matchField,
-  errorField,
-  okField,
-  judgeTotalErrors,
-  judgeTotalOk,
-  totalLabel,
-  renderJudgeTotal,
-}) => (
-  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700/20 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
-    <div className="px-6 py-4 border-b border-slate-200 dark:border-[#1E293B]">
-      <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{title}</h3>
-      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 m-0">{subtitle}</p>
+const RoundComparisonCard = ({ round, judges, summary }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#334155] transition-all duration-200 animate-[fadeIn_0.4s_ease-out] overflow-hidden">
+    <div className="px-4 sm:px-5 py-3 border-b border-slate-100 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B1120]/50 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex items-center gap-2.5">
+        <RoundBadge roundNumber={round.round_number} />
+        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-sm font-extrabold tabular-nums">{round.score_red}</span>
+        <span className="text-slate-400 dark:text-slate-500 font-bold text-xs">–</span>
+        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-sm font-extrabold tabular-nums">{round.score_blue}</span>
+      </div>
+      <WinnerBadge winner={round.winner} />
     </div>
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse min-w-[500px]">
-        <thead>
-          <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
-            {judges.map((j) => (
-              <th key={j.id} className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
-                {abbreviate(j.name)}
-              </th>
-            ))}
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-red-200">Errores</th>
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider text-emerald-200 last:rounded-tr-2xl">OK</th>
-          </tr>
-        </thead>
-        <tbody>
-          {perRoundSummary.map((pr, idx) => (
-            <tr
-              key={pr.round_number}
-              className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
-                idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/40 dark:bg-[#0B1120]'
-              }`}
-            >
-              <td className="py-3.5 px-4 text-center font-bold text-slate-600 dark:text-slate-300 tabular-nums text-xs">
-                R{pr.round_number}
-              </td>
-              {judges.map((j) => {
-                const jr = j.rounds.find((r) => r.round_number === pr.round_number);
-                const matched = jr?.[matchField];
-                return (
-                  <td key={j.id} className="py-3.5 px-4 text-center">
-                    {matched ? (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shadow-sm">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        OK
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        ERROR
-                      </span>
-                    )}
-                  </td>
-                );
-              })}
-              <td className="py-3.5 px-4 text-center">
-                <span className={`inline-flex items-center justify-center min-w-[32px] px-2.5 py-1 rounded-full text-xs font-bold tabular-nums ring-1 shadow-sm ${
-                  pr[errorField] > 0
-                    ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-red-200 dark:ring-red-800/50'
-                    : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/50'
-                }`}>
-                  {pr[errorField]}
-                </span>
-              </td>
-              <td className="py-3.5 px-4 text-center">
-                <span className={`inline-flex items-center justify-center min-w-[32px] px-2.5 py-1 rounded-full text-xs font-bold tabular-nums ring-1 shadow-sm ${
-                  pr[okField] === summary.total_judges
-                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/50'
-                    : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-red-200 dark:ring-red-800/50'
-                }`}>
-                  {pr[okField]}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
-            <td className="py-4 px-4 text-center text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 first:rounded-bl-2xl">
-              {totalLabel}
-            </td>
-            {judges.map((j) => (
-              <td key={j.id} className="py-4 px-4 text-center text-sm font-bold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
-                {renderJudgeTotal(j)}
-              </td>
-            ))}
-            <td className="py-4 px-4 text-center text-sm font-bold text-red-700 dark:text-red-400 tabular-nums">
-              {judges.reduce((sum, j) => sum + (j[judgeTotalErrors] ?? 0), 0)}
-            </td>
-            <td className="py-4 px-4 text-center text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums last:rounded-br-2xl">
-              {judges.reduce((sum, j) => sum + (j[judgeTotalOk] ?? 0), 0)}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+    <div className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+      {judges.map((j) => {
+        const jr = j.rounds.find((r) => r.round_number === round.round_number);
+        if (!jr) return null;
+        return (
+          <div key={j.id} className="flex items-center justify-between gap-2 px-4 sm:px-5 py-2.5 hover:bg-wbo-50/30 dark:hover:bg-[#1A2435]/40 transition-colors duration-150">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 text-white text-[10px] font-bold flex items-center justify-center shrink-0 shadow-sm">
+                {initials(j.name)}
+              </span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">{abbreviate(j.name)}</span>
+            </div>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="inline-flex items-center gap-1.5 text-xs font-extrabold tabular-nums">
+                <span className="text-red-600 dark:text-red-400">{jr.score_red}</span>
+                <span className="text-slate-300 dark:text-slate-600">·</span>
+                <span className="text-blue-600 dark:text-blue-400">{jr.score_blue}</span>
+              </span>
+              <CoincidenceBadge matchExact={jr.match_exact} matchWinner={jr.match_winner} />
+            </div>
+          </div>
+        );
+      })}
     </div>
+    {summary && (
+      <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B1120]/40 flex items-center gap-4">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+          <CheckBadgeIcon className="w-3.5 h-3.5" />
+          {summary.ok} exactos
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500 dark:text-red-400">
+          <XCircleIcon className="w-3.5 h-3.5" />
+          {summary.errors} errores
+        </span>
+        {summary.winner_ok !== undefined && (
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+            <ScaleIcon className="w-3.5 h-3.5" />
+            {summary.winner_ok} mismo ganador
+          </span>
+        )}
+      </div>
+    )}
   </div>
 );
+
+const ProgressBar = ({ pct, gradient }) => (
+  <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
+    <div className={`h-full rounded-full transition-all duration-700 ${gradient}`} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
+  </div>
+);
+
+const JudgePerformanceCard = ({ judge, index }) => {
+  const perfect = judge.exact_errors === 0;
+  return (
+    <div
+      className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-5 animate-[fadeIn_0.45s_ease-out]"
+      style={{ animationDelay: `${index * 70}ms` }}
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-wbo-700 to-wbo-800 text-white text-sm font-bold flex items-center justify-center shrink-0 shadow-sm">
+          {initials(judge.name)}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate m-0">{judge.name}</h4>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-extrabold tabular-nums">{judge.total_score_red}</span>
+            <span className="text-slate-300 dark:text-slate-600 text-xs font-bold">–</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-extrabold tabular-nums">{judge.total_score_blue}</span>
+          </div>
+        </div>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ring-1 shrink-0 ${
+          perfect
+            ? 'bg-gold/10 text-gold dark:text-gold-light ring-gold/30'
+            : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
+        }`}>
+          {perfect ? (
+            <>
+              <TrophyIcon className="w-3.5 h-3.5" />
+              Perfecta
+            </>
+          ) : (
+            <>
+              <XCircleIcon className="w-3.5 h-3.5" />
+              {judge.exact_errors} {judge.exact_errors === 1 ? 'error' : 'errores'}
+            </>
+          )}
+        </span>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
+              <CheckBadgeIcon className="w-3.5 h-3.5 text-emerald-500" />
+              Precisión exacta
+            </span>
+            <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">{judge.exact_match_pct}%</span>
+          </div>
+          <ProgressBar pct={judge.exact_match_pct} gradient="bg-gradient-to-r from-emerald-500 to-emerald-600" />
+          <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">
+            {judge.exact_matches} de {judge.exact_matches + judge.exact_errors} rounds idénticos
+          </p>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
+              <ScaleIcon className="w-3.5 h-3.5 text-blue-500" />
+              Mismo ganador
+            </span>
+            <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 tabular-nums">{judge.winner_match_pct}%</span>
+          </div>
+          <ProgressBar pct={judge.winner_match_pct} gradient="bg-gradient-to-r from-blue-500 to-blue-600" />
+          <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">
+            {judge.winner_matches} de {judge.winner_matches + judge.winner_errors} rounds con el mismo ganador
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FightAnalysis = () => {
   const { fightId } = useParams();
@@ -328,7 +438,7 @@ const FightAnalysis = () => {
     return () => { cancelled = true; };
   }, [fightId, token, user]);
 
-  if (loading) return <Skeleton />;
+  if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onBack={() => navigate(-1)} />;
   if (!data?.fight) return <EmptyState onBack={() => navigate(-1)} />;
 
@@ -340,205 +450,54 @@ const FightAnalysis = () => {
       : judges;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 space-y-10 animate-[fadeIn_0.3s_ease-out]">
-
-      {/* ── Header ── */}
-      <div className="space-y-4">
-        <BackButton fallbackRoute="/fights" />
-        <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-5 md:p-6 transition-all duration-300 hover:shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight m-0 leading-tight">
-                {fight.event_name}
-              </h1>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1.5 m-0">
-                {fight.boxer_red} <span className="text-slate-400 dark:text-slate-500 font-normal">vs</span> {fight.boxer_blue}
-              </p>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                  </svg>
-                  {formatDate(fight.scheduled_date)}
-                </span>
-                {fight.weight_class && (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                    </svg>
-                    {fight.weight_class}
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                  </svg>
-                  {fight.total_rounds} rounds
-                </span>
-              </div>
-            </div>
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white shadow-sm ring-1 ring-violet-700/30 shrink-0 self-start">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Analizada
-            </span>
-          </div>
+    <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mb-1">
+          <BackButton fallbackRoute="/fights" />
         </div>
-      </div>
 
-      {/* ── Section 1: Summary Stats ── */}
-      <div>
-        <div className="flex items-center gap-2.5 mb-4">
-          <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Resumen del análisis</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-          {statKeys.map((key) => (
-            <StatCard key={key} statKey={key} value={summary[key]} />
+        <AnalysisHeader fight={fight} />
+
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {statItems.map((s, i) => (
+            <StatCard key={s.key} icon={s.icon} label={s.label} value={summary[s.key] ?? 0} accent={s.accent} delay={i * 60} />
           ))}
         </div>
+
+        {official_card && (
+          <OfficialCardTable fight={fight} card={official_card} />
+        )}
+
+        {official_card && visibleJudges.length > 0 && (
+          <SectionCard Icon={ScaleIcon} title="Comparación por Round" description="Tarjeta oficial vs cada juez, round por round">
+            <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {official_card.rounds.map((r) => {
+                const pr = per_round_summary.find((p) => p.round_number === r.round_number);
+                return <RoundComparisonCard key={r.round_number} round={r} judges={visibleJudges} summary={pr} />;
+              })}
+            </div>
+          </SectionCard>
+        )}
+
+        {visibleJudges.length > 0 && (
+          <SectionCard Icon={ArrowTrendingUpIcon} title="Desempeño de los Jueces" description="Precisión y coincidencia de cada tarjeta">
+            <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {visibleJudges.map((j, i) => (
+                <JudgePerformanceCard key={j.id} judge={j} index={i} />
+              ))}
+            </div>
+          </SectionCard>
+        )}
+
+        {visibleJudges.length === 0 && (
+          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-12 text-center animate-[fadeIn_0.3s_ease-out]">
+            <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+              <UserGroupIcon className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No hay análisis disponible para los jueces de esta pelea.</p>
+          </div>
+        )}
       </div>
-
-      {/* ── Section 2: Official Card ── */}
-      {official_card && (
-        <div>
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Resultado oficial</h2>
-          </div>
-          <div className="bg-gradient-to-br from-white to-slate-50/60 dark:from-[#111827] dark:to-[#141d2f] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-[#1E293B] bg-wbo-50/40 dark:bg-wbo-900/20 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-wbo-700/10 dark:bg-wbo-700/20 flex items-center justify-center">
-                <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">Tarjeta Oficial</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse min-w-[360px]">
-                <thead>
-          <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider first:rounded-tl-2xl">#</th>
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
-              <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-300" />Rojo</span>
-            </th>
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">
-              <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-300" />Azul</span>
-            </th>
-            <th className="py-3.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider last:rounded-tr-2xl">Ganador</th>
-          </tr>
-                </thead>
-                <tbody>
-                  {official_card.rounds?.map((r, idx) => (
-              <tr
-                key={r.round_number}
-                className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
-                  idx % 2 === 0 ? 'bg-white dark:bg-[#111827]' : 'bg-slate-50/40 dark:bg-[#0B1120]'
-                }`}
-              >
-                <td className="py-3.5 px-4 text-center font-bold text-slate-500 dark:text-slate-400 tabular-nums text-xs">
-                  R{r.round_number}
-                </td>
-                <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
-                  {r.score_red}
-                </td>
-                <td className="py-3.5 px-4 text-center font-bold text-slate-800 dark:text-[#F8FAFC] tabular-nums text-base">
-                  {r.score_blue}
-                </td>
-                      <td className="py-3 px-4 text-center">
-                        <WinnerBadge winner={r.winner} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
-                    <td className="py-4 px-4 text-center text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 first:rounded-bl-2xl">
-                      TOTAL
-                    </td>
-                    <td className="py-4 px-4 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
-                      {official_card.total_score_red}
-                    </td>
-                    <td className="py-4 px-4 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">
-                      {official_card.total_score_blue}
-                    </td>
-                    <td className="py-4 px-4 text-center last:rounded-br-2xl">
-                      {official_card.total_score_red > official_card.total_score_blue ? (
-                        <WinnerBadge winner="red" />
-                      ) : official_card.total_score_blue > official_card.total_score_red ? (
-                        <WinnerBadge winner="blue" />
-                      ) : (
-                        <WinnerBadge winner="draw" />
-                      )}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Section 3: Matrix match_exact ── */}
-      {visibleJudges?.length > 0 && per_round_summary?.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Evaluación</h2>
-          </div>
-          <EvaluationMatrix
-            title="Matriz de Evaluación"
-            subtitle="Coincidencia exacta de puntajes por juez y round"
-            judges={visibleJudges}
-            perRoundSummary={per_round_summary}
-            summary={summary}
-            matchField="match_exact"
-            errorField="errors"
-            okField="ok"
-            judgeTotalErrors="exact_errors"
-            judgeTotalOk="exact_matches"
-            totalLabel="TOTAL"
-            renderJudgeTotal={(j) => `${j.total_score_red}-${j.total_score_blue}`}
-          />
-        </div>
-      )}
-
-      {/* ── Section 4: Matrix match_winner ── */}
-      {visibleJudges?.length > 0 && per_round_summary?.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="w-1 h-5 bg-wbo-700 rounded-full shrink-0" />
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 m-0">Mismo Ganador</h2>
-          </div>
-          <EvaluationMatrix
-            title="Mismo Ganador"
-            subtitle="Coincidencia del ganador por juez y round"
-            judges={visibleJudges}
-            perRoundSummary={per_round_summary}
-            summary={summary}
-            matchField="match_winner"
-            errorField="winner_errors"
-            okField="winner_ok"
-            judgeTotalErrors="winner_errors"
-            judgeTotalOk="winner_matches"
-            totalLabel="TOTAL ROUNDS MISMO GANADOR"
-            renderJudgeTotal={(j) => j.winner_matches ?? 0}
-          />
-        </div>
-      )}
-
-      {visibleJudges?.length === 0 && (
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-12 text-center">
-          <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4l2.25-2.25m0 0l2.25-2.25M12 13.5V3.75m0 0l2.25 2.25M12 3.75L9.75 6" />
-            </svg>
-          </div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No hay análisis disponible para los jueces de esta pelea.</p>
-        </div>
-      )}
     </div>
   );
 };
