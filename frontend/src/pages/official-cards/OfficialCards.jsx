@@ -2,15 +2,28 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
-import DetailPageHeader from '../../components/detail/DetailPageHeader';
-import { PageActionButton } from '../../components/detail/PageActions';
+import BackButton from '../../components/common/BackButton';
 import { ConfirmModal } from '../../components/common/modals';
-import { ClipboardDocumentCheckIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import {
+  ClipboardDocumentCheckIcon,
+  CalendarIcon,
+  MapPinIcon,
+  BoltIcon,
+  ChartBarIcon,
+  CheckIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  DocumentCheckIcon,
+  TrophyIcon,
+} from '@heroicons/react/24/outline';
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 };
+
+const roundComplete = (r) =>
+  r && Number(r.score_red) >= 1 && Number(r.score_red) <= 10 && Number(r.score_blue) >= 1 && Number(r.score_blue) <= 10;
 
 const accentMap = {
   red: { border: 'border-t-red-500', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-700 dark:text-red-400', valueColor: 'text-red-700 dark:text-red-400' },
@@ -140,51 +153,249 @@ const RoundsResultTable = ({ fight, card }) => (
   </SectionCard>
 );
 
-const RoundsInputTable = ({ fight, rounds, totalRounds, onChange }) => (
-  <SectionCard Icon={ClipboardDocumentCheckIcon} title="Cargar Puntuaciones" description="Ingresá el puntaje de cada round para ambos boxeadores">
-    <div className="overflow-x-auto scrollbar-thin">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-wbo-700 text-white">
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
-            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
-            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
-          {Array.from({ length: totalRounds }, (_, i) => {
-            const rn = i + 1;
-            const data = rounds[rn] || {};
-            return (
-              <tr key={rn} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
-                <td className="px-5 py-3.5"><RoundBadge roundNumber={rn} /></td>
-                <td className="px-4 py-3.5 text-center">
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={data.score_red ?? ''}
-                    onChange={(e) => onChange(rn, 'score_red', e.target.value)}
-                    className="w-full max-w-[90px] mx-auto px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold shadow-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                  />
-                </td>
-                <td className="px-4 py-3.5 text-center">
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={data.score_blue ?? ''}
-                    onChange={(e) => onChange(rn, 'score_blue', e.target.value)}
-                    className="w-full max-w-[90px] mx-auto px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold shadow-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+const scoreRedInput = "w-full px-4 py-3.5 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md";
+
+const scoreBlueInput = "w-full px-4 py-3.5 text-center rounded-xl text-lg font-extrabold text-blue-700 dark:text-blue-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-900/60 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 focus:shadow-md";
+
+const OfficialHeaderCard = ({ fight }) => {
+  const infoItems = [
+    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
+    { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
+    { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
+    { icon: ChartBarIcon, label: 'Rounds', value: `${fight?.total_rounds ?? 0} rounds` },
+  ];
+
+  return (
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 shadow-inner">
+            <ClipboardDocumentCheckIcon className="w-7 h-7 text-red-200" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Tarjeta Oficial</p>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
+              {fight?.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight?.boxer_blue}
+            </h1>
+            <p className="text-sm text-red-100/90 mt-0.5 m-0">{fight?.event_name}</p>
+          </div>
+          <div className="ml-auto shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Completada
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="px-6 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
+        {infoItems.map((item) => (
+          <div key={item.label} className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
+              <item.icon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">{item.label}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{item.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  </SectionCard>
+  );
+};
+
+const OfficialProgressCard = ({ completed, total, pct, allComplete }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md p-5 sm:p-6 animate-[fadeIn_0.35s_ease-out]">
+    <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-xl bg-wbo-50 dark:bg-wbo-900/20 flex items-center justify-center shrink-0">
+          <BoltIcon className="w-5 h-5 text-wbo-700 dark:text-wbo-400" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Progreso de la carga</h3>
+          <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">
+            {allComplete ? '¡Todos los rounds cargados!' : `${completed} de ${total} rounds cargados`}
+          </p>
+        </div>
+      </div>
+      <span className="text-2xl font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums shrink-0">{pct}%</span>
+    </div>
+    <div className="w-full h-3.5 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-700 ease-out ${allComplete ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-wbo-600 to-wbo-700'}`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+    <p className={`text-xs font-semibold mt-2.5 m-0 flex items-center gap-1.5 ${allComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-[#94A3B8]'}`}>
+      {allComplete ? (
+        <>
+          <CheckIcon className="w-4 h-4 shrink-0" />
+          Tarjeta lista para guardar
+        </>
+      ) : (
+        <>
+          {pct}% completado
+          {total - completed > 0 && <> · {total - completed} {total - completed === 1 ? 'round pendiente' : 'rounds pendientes'}</>}
+        </>
+      )}
+    </p>
+  </div>
+);
+
+const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onChange }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#334155] transition-all duration-200 animate-[fadeIn_0.4s_ease-out]">
+    <div className="px-4 sm:px-5 py-3 border-b border-slate-100 dark:border-[#1E293B] rounded-t-2xl bg-slate-50/60 dark:bg-[#0B1120]/50 flex flex-wrap items-center justify-between gap-2">
+      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-wbo-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 2c-2.5 0-4.5 2-4.5 4.5V9H6a2 2 0 00-2 2v4a2 2 0 002 2h1.5v3h9v-3H18a2 2 0 002-2v-4a2 2 0 00-2-2h-1.5V6.5C16.5 4 14.5 2 12 2z" />
+        </svg>
+        Round {roundNumber}
+      </span>
+      {complete && (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <CheckIcon className="w-3.5 h-3.5" />
+          Completado
+        </span>
+      )}
+    </div>
+    <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+          <span className="w-2.5 h-2.5 rounded-full bg-wbo-600 dark:bg-red-400 shrink-0" />
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Rojo</span>
+          <span className="truncate">{boxerRed}</span>
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="10"
+          value={data.score_red ?? ''}
+          onChange={(e) => onChange('score_red', e.target.value)}
+          placeholder="10"
+          className={scoreRedInput}
+        />
+      </div>
+      <div>
+        <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0" />
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Azul</span>
+          <span className="truncate">{boxerBlue}</span>
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="10"
+          value={data.score_blue ?? ''}
+          onChange={(e) => onChange('score_blue', e.target.value)}
+          placeholder="10"
+          className={scoreBlueInput}
+        />
+      </div>
+    </div>
+  </div>
+);
+
+const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplete }) => {
+  const winner = redTotal > blueTotal ? 'Rojo' : blueTotal > redTotal ? 'Azul' : 'Empate';
+  const winnerCls = redTotal > blueTotal
+    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/40'
+    : blueTotal > redTotal
+      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-200 dark:ring-blue-800/40'
+      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700';
+  const pct = total ? Math.round((completed / total) * 100) : 0;
+
+  return (
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden sticky top-6 animate-[fadeIn_0.5s_ease-out]">
+      <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+          <ChartBarIcon className="w-4 h-4 text-white" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen</h3>
+      </div>
+      <div className="p-5 space-y-5">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200/70 dark:ring-emerald-800/40">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 m-0">Completados</p>
+            <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300 m-0 tabular-nums">{completed} <span className="text-sm font-bold text-emerald-500 dark:text-emerald-500">/ {total}</span></p>
+          </div>
+          <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/70 dark:ring-amber-800/40">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 m-0">Pendientes</p>
+            <p className="text-2xl font-extrabold text-amber-700 dark:text-amber-300 m-0 tabular-nums">{total - completed}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] mb-2 m-0 flex items-center gap-1.5">
+            <DocumentCheckIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            Puntaje parcial
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+                <span className="w-2 h-2 rounded-full bg-wbo-600 dark:bg-red-400" />
+                Rojo
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-sm font-extrabold tabular-nums">{redTotal}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+                <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
+                Azul
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-sm font-extrabold tabular-nums">{blueTotal}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0 flex items-center gap-1.5">
+            <TrophyIcon className="w-3.5 h-3.5 text-gold dark:text-gold-light" />
+            Ganador parcial
+          </p>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ring-1 ${winnerCls}`}>{winner}</span>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Rounds cargados</p>
+            <span className="text-xs font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums">{pct}%</span>
+          </div>
+          <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
+            <div className={`h-full rounded-full transition-all duration-700 ${allComplete ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-wbo-600 to-wbo-700'}`} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Estado de validación</p>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ${
+            allComplete
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
+              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
+          }`}>
+            {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
+            {allComplete ? 'Lista para guardar' : 'Incompleta'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SubmitButton = ({ onClick, disabled, saving }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled || saving}
+    className="inline-flex items-center justify-center gap-2 px-10 py-3.5 rounded-xl text-base font-bold text-white bg-gradient-to-r from-wbo-700 to-wbo-800 shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:from-wbo-800 hover:to-wbo-900 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md"
+  >
+    {saving ? (
+      <span className="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full" />
+    ) : (
+      <CheckIcon className="w-5 h-5" />
+    )}
+    {saving ? 'Guardando...' : 'Guardar Tarjeta Oficial'}
+  </button>
 );
 
 const OfficialCards = () => {
@@ -293,10 +504,12 @@ const OfficialCards = () => {
     }
   };
 
+  const pageWrapper = "bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16";
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+      <div className={`${pageWrapper} flex items-center justify-center`}>
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
           <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta oficial...</span>
         </div>
@@ -306,8 +519,8 @@ const OfficialCards = () => {
 
   if (error && !card) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+      <div className={`${pageWrapper} flex items-center justify-center min-h-[60vh]`}>
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
           <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-5">
             <svg className="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -326,13 +539,13 @@ const OfficialCards = () => {
   }
 
   if (!fight) {
-    return <p className="text-slate-400 dark:text-[#64748B] py-10 text-center">Pelea no encontrada.</p>;
+    return <p className={`${pageWrapper} text-slate-400 dark:text-[#64748B] py-10 text-center`}>Pelea no encontrada.</p>;
   }
 
   if (!isStaff && !card) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
+      <div className={`${pageWrapper} flex items-center justify-center min-h-[60vh]`}>
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
           <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-5">
             <svg className="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -352,81 +565,140 @@ const OfficialCards = () => {
 
   if (card) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 space-y-8 md:space-y-10 animate-[fadeIn_0.3s_ease-out]">
-
-        <FightHeaderCard fight={fight} />
-
-        {error && card && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
-            <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+      <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="mb-1">
+            <BackButton fallbackRoute="/fights" />
           </div>
-        )}
 
-        <SuccessHero />
+          <FightHeaderCard fight={fight} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
-          <ResultCard
-            label="Total Rojo"
-            value={card.total_score_red}
-            icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            accent="red"
-          />
-          <ResultCard
-            label="Total Azul"
-            value={card.total_score_blue}
-            icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            accent="blue"
-          />
-          <ResultCard
-            label="Ganador"
-            value={card.winner || 'Empate'}
-            icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            accent="gold"
-          />
+          {error && card && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
+              <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+            </div>
+          )}
+
+          <SuccessHero />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
+            <ResultCard
+              label="Total Rojo"
+              value={card.total_score_red}
+              icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              accent="red"
+            />
+            <ResultCard
+              label="Total Azul"
+              value={card.total_score_blue}
+              icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              accent="blue"
+            />
+            <ResultCard
+              label="Ganador"
+              value={card.winner || 'Empate'}
+              icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              accent="gold"
+            />
+          </div>
+
+          <RoundsResultTable fight={fight} card={card} />
         </div>
-
-        <RoundsResultTable fight={fight} card={card} />
       </div>
     );
   }
 
+  const completed = Array.from({ length: totalRounds }, (_, i) => i + 1).filter((rn) => roundComplete(rounds[rn])).length;
+  const pct = totalRounds ? Math.round((completed / totalRounds) * 100) : 0;
+  const redTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce((acc, rn) => acc + (Number(rounds[rn]?.score_red) || 0), 0);
+  const blueTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce((acc, rn) => acc + (Number(rounds[rn]?.score_blue) || 0), 0);
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-[fadeIn_0.4s_ease-out]">
-      <DetailPageHeader
-        title="Cargar Tarjeta Oficial"
-        subtitle={`${fight.boxer_red} vs ${fight.boxer_blue}`}
-        description={fight.event_name}
-        backFallback="/fights"
-      />
-
-      {error && !card && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 mb-4">
-          <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+    <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mb-1">
+          <BackButton fallbackRoute="/fights" />
         </div>
-      )}
 
-      <RoundsInputTable fight={fight} rounds={rounds} totalRounds={totalRounds} onChange={handleChange} />
+        <OfficialHeaderCard fight={fight} />
 
-      <div className="mt-6 flex justify-center">
-        <PageActionButton
-          onClick={() => setShowConfirm(true)}
-          disabled={!allComplete || saving}
+        {error && !card && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out] flex items-start gap-3">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
+            <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+          </div>
+        )}
+
+        <OfficialProgressCard completed={completed} total={totalRounds} pct={pct} allComplete={allComplete} />
+
+        <div className="flex flex-col xl:flex-row gap-6">
+          <div className="flex-1 min-w-0 space-y-4">
+            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.4s_ease-out]">
+              <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+                  <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
+                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Cargá el puntaje de cada round</p>
+                </div>
+              </div>
+              <div className="p-4 sm:p-5 space-y-4">
+                {Array.from({ length: totalRounds }, (_, i) => {
+                  const rn = i + 1;
+                  const data = rounds[rn] || {};
+                  return (
+                    <RoundInputCard
+                      key={rn}
+                      roundNumber={rn}
+                      data={data}
+                      boxerRed={fight.boxer_red}
+                      boxerBlue={fight.boxer_blue}
+                      complete={roundComplete(rn)}
+                      onChange={(field, value) => handleChange(rn, field, value)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <aside className="hidden xl:block w-72 shrink-0">
+            <OfficialSummaryCard
+              completed={completed}
+              total={totalRounds}
+              redTotal={redTotal}
+              blueTotal={blueTotal}
+              allComplete={allComplete}
+            />
+          </aside>
+        </div>
+
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md p-5 sm:p-6 animate-[fadeIn_0.5s_ease-out]">
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-[#1E293B] mb-5">
+            <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <p className="text-xs text-slate-500 dark:text-[#94A3B8] m-0 leading-relaxed">
+              Revisá la carga antes de guardar. Una vez guardada la tarjeta oficial no podrá modificarse.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <SubmitButton onClick={() => setShowConfirm(true)} disabled={!allComplete} saving={saving} />
+          </div>
+        </div>
+
+        <ConfirmModal
+          isOpen={showConfirm}
+          onClose={() => { if (!saving) setShowConfirm(false); }}
+          onConfirm={handleSave}
+          title="Guardar tarjeta oficial"
+          description="Una vez guardada no podrá modificarse. ¿Deseás continuar?"
+          confirmLabel={saving ? 'Guardando...' : 'Guardar'}
+          type="warning"
           loading={saving}
-        >
-          Guardar tarjeta oficial
-        </PageActionButton>
+        />
       </div>
-
-      <ConfirmModal
-        isOpen={showConfirm}
-        onClose={() => { if (!saving) setShowConfirm(false); }}
-        onConfirm={handleSave}
-        title="Guardar tarjeta oficial"
-        description="Una vez guardada no podrá modificarse. ¿Deseás continuar?"
-        confirmLabel={saving ? 'Guardando...' : 'Guardar'}
-        type="warning"
-        loading={saving}
-      />
     </div>
   );
 };
