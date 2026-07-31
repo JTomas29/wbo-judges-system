@@ -13,6 +13,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const officialCardRoutes = require('./routes/officialCardRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const refereeRoutes = require('./routes/refereeRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/fights', officialCardRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/referees', refereeRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
