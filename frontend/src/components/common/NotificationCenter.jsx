@@ -295,16 +295,18 @@ const NotificationCenter = () => {
 
   const handleClearAll = async () => {
     setClearing(true);
+    setFeedback(null);
     try {
       await deleteAllNotifications();
       setNotifications([]);
       setUnreadCount(0);
       prevUnreadRef.current = 0;
       setFeedback({ type: 'success', message: 'Bandeja de notificaciones vaciada correctamente.' });
+      setShowClearModal(false);
+      setTimeout(() => setIsOpen(false), 1200);
     } catch {
       setFeedback({ type: 'error', message: 'Error al vaciar la bandeja de notificaciones.' });
     } finally {
-      setShowClearModal(false);
       setClearing(false);
       setTimeout(() => setFeedback(null), 4000);
     }
@@ -351,13 +353,14 @@ const NotificationCenter = () => {
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e) => {
+      if (showClearModal) return;
       if (panelRef.current && !panelRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, showClearModal]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -507,7 +510,7 @@ const NotificationCenter = () => {
       )}
       <ConfirmModal
         isOpen={showClearModal}
-        onClose={() => setShowClearModal(false)}
+        onClose={() => { if (!clearing) setShowClearModal(false); }}
         onConfirm={handleClearAll}
         title="Vaciar bandeja de notificaciones"
         description="Se eliminarán todas las notificaciones de forma permanente. Esta acción no se puede deshacer."
