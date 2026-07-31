@@ -13,8 +13,14 @@ const ROUNDS = [4, 6, 8, 10, 12];
 
 const todayStr = new Date().toISOString().split('T')[0];
 
+const primaryBtnClass =
+  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-bold text-white bg-wbo-700 shadow-md shadow-wbo-700/20 hover:bg-wbo-800 hover:shadow-lg hover:shadow-wbo-700/25 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100';
+
+const secondaryBtnClass =
+  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-semibold text-slate-600 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] shadow-sm hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] active:translate-y-0 transition-all duration-200';
+
 const CreateFight = () => {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -94,10 +100,10 @@ const CreateFight = () => {
   return (
     <FormCard
       title="Crear Nueva Pelea"
-      subtitle="Complete la información para registrar una nueva pelea."
+      subtitle="Registrar una nueva pelea para futuras designaciones y análisis."
       backRoute="/fights"
       error={error}
-      icon="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+      icon="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
     >
       <form onSubmit={handleSubmit}>
 
@@ -105,8 +111,9 @@ const CreateFight = () => {
         <FormSection
           icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           title="Información del combate"
+          subtitle="Datos principales de la pelea y el evento"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               className="sm:col-span-2"
               name="event_name"
@@ -151,8 +158,9 @@ const CreateFight = () => {
         <FormSection
           icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           title="Participantes"
+          subtitle="Boxeadores que protagonizarán el combate"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="boxer_red"
               label="Boxeador Rojo"
@@ -178,8 +186,9 @@ const CreateFight = () => {
         <FormSection
           icon="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
           title="Información del evento"
+          subtitle="Lugar, televisora y detalles adicionales"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="venue"
               label="Lugar"
@@ -216,6 +225,7 @@ const CreateFight = () => {
         <FormSection
           icon="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
           title="Observaciones"
+          subtitle="Notas internas (opcional)"
         >
           <TextareaField
             name="notes"
@@ -227,11 +237,11 @@ const CreateFight = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center gap-3 mt-10">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-9">
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className={primaryBtnClass}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -241,8 +251,11 @@ const CreateFight = () => {
           <button
             type="button"
             onClick={() => navigate('/fights')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
+            className={secondaryBtnClass}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
             Cancelar
           </button>
         </div>

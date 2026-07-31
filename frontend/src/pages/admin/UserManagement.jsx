@@ -11,6 +11,9 @@ const ROLES = [
   { value: 'supervisor', label: 'Supervisor' },
 ];
 
+const primaryBtnClass =
+  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-bold text-white bg-wbo-700 shadow-md shadow-wbo-700/20 hover:bg-wbo-800 hover:shadow-lg hover:shadow-wbo-700/25 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100';
+
 const UserManagement = () => {
   const { token } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'judge' });
@@ -68,7 +71,7 @@ const UserManagement = () => {
   return (
     <FormCard
       title="Crear Nuevo Usuario"
-      subtitle="Complete los datos para crear un nuevo usuario en el sistema."
+      subtitle="Registrar un nuevo usuario para acceder al sistema."
       backRoute="/dashboard"
       error={serverError}
       success={success}
@@ -81,8 +84,9 @@ const UserManagement = () => {
         <FormSection
           icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           title="Información personal"
+          subtitle="Datos de identificación del usuario"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="name"
               label="Nombre completo"
@@ -109,8 +113,9 @@ const UserManagement = () => {
         <FormSection
           icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           title="Información de acceso"
+          subtitle="Credenciales para iniciar sesión"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="password"
               label="Contraseña"
@@ -133,14 +138,14 @@ const UserManagement = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center gap-3 mt-10">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-9">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className={primaryBtnClass}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             {saving ? 'Creando...' : 'Crear Usuario'}
           </button>
