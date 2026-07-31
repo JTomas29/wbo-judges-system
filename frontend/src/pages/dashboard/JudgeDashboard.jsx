@@ -348,6 +348,11 @@ const JudgeDashboard = () => {
                   rejected: 'border-l-red-500',
                 }[state] || 'border-l-slate-300 dark:border-l-slate-600';
 
+                const isExpired = a.assignment_status === 'confirmed' &&
+                  a.scorecard_status !== 'finalized' &&
+                  new Date(a.scheduled_date) < new Date() &&
+                  (a.fight_status === 'pending' || a.fight_status === 'active');
+
                 return (
                   <div key={a.fight_id} className={`group bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-l-[5px] ${borderAccent} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-[#334155]`}>
                     {/* Header */}
@@ -367,15 +372,23 @@ const JudgeDashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <Badge className={`${meta.bg} ${meta.color} rounded-full`}>
-                            {meta.label}
-                          </Badge>
-                          <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0"
-                            onClick={() => navigate(`/scoring/${a.fight_id}`)}>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                            </svg>
-                          </button>
+                          {isExpired ? (
+                            <Badge className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-full">
+                              Puntuación vencida
+                            </Badge>
+                          ) : (
+                            <Badge className={`${meta.bg} ${meta.color} rounded-full`}>
+                              {meta.label}
+                            </Badge>
+                          )}
+                          {!isExpired && (
+                            <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0"
+                              onClick={() => navigate(`/scoring/${a.fight_id}`)}>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -432,13 +445,16 @@ const JudgeDashboard = () => {
                           {responding === a.fight_id ? 'Confirmando...' : 'Confirmar participación'}
                         </button>
                       )}
-                      {state === 'confirmed' && (
+                      {isExpired && (
+                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl">Puntuación vencida · La fecha de esta pelea ya expiró</div>
+                      )}
+                      {!isExpired && state === 'confirmed' && (
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-xl">{progressText} · Esperando inicio</div>
                       )}
-                      {state === 'active' && a.scorecard_status === 'finalized' && (
+                      {!isExpired && state === 'active' && a.scorecard_status === 'finalized' && (
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Tarjeta enviada</div>
                       )}
-                      {state === 'active' && a.scorecard_status !== 'finalized' && (
+                      {!isExpired && state === 'active' && a.scorecard_status !== 'finalized' && (
                         <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
                           Puntuar pelea

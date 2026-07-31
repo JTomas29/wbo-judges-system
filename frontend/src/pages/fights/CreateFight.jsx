@@ -11,6 +11,8 @@ import TextareaField from '../../components/common/TextareaField';
 
 const ROUNDS = [4, 6, 8, 10, 12];
 
+const todayStr = new Date().toISOString().split('T')[0];
+
 const CreateFight = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
@@ -131,6 +133,7 @@ const CreateFight = () => {
               value={form.scheduled_date}
               onChange={handleChange}
               required
+              min={todayStr}
               error={fieldErrors.scheduled_date}
             />
             <SelectField

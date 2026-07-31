@@ -144,6 +144,7 @@ const ScoreFight = () => {
   const [restriction, setRestriction] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
+  const [expired, setExpired] = useState(false);
 
   const totalRounds = fight?.total_rounds || 0;
   const isFinalized = scoreCard?.status === 'finalized';
@@ -211,6 +212,12 @@ const ScoreFight = () => {
           return;
         }
 
+        if (f.scheduled_date && new Date(f.scheduled_date) < new Date()) {
+          setExpired(true);
+          setLoading(false);
+          return;
+        }
+
         if (f.status !== 'active') {
           setRestriction('Esta pelea no está disponible para puntuar.');
           setLoading(false);
@@ -239,6 +246,11 @@ const ScoreFight = () => {
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
+        if (err.response?.status === 409) {
+          setExpired(true);
+          setLoading(false);
+          return;
+        }
         const msg = err.response?.data?.message || 'Error al cargar la tarjeta';
         setRestriction(msg);
         setLoading(false);
@@ -288,6 +300,10 @@ const ScoreFight = () => {
         setJustSavedRound((prev) => (prev === roundNum ? null : prev));
       }, 2000);
     } catch (err) {
+      if (err.response?.status === 409) {
+        setExpired(true);
+        return;
+      }
       const msg = err.response?.data?.message || 'Error al guardar';
       if (msg.includes('finalizada')) {
         setError('La tarjeta ya fue enviada y no puede modificarse.');
@@ -311,6 +327,10 @@ const ScoreFight = () => {
         replace: true,
       });
     } catch (err) {
+      if (err.response?.status === 409) {
+        setExpired(true);
+        return;
+      }
       setError(err.response?.data?.message || 'Error al enviar la tarjeta');
     } finally {
       setFinalizing(false);
@@ -323,6 +343,30 @@ const ScoreFight = () => {
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
           <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (expired) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg p-10 sm:p-14 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-2 m-0">Período de puntuación vencido</h2>
+          <p className="text-slate-500 dark:text-[#94A3B8] mb-6 m-0 max-w-md mx-auto">
+            La fecha programada para esta pelea ya pasó y no se recibió tu tarjeta a tiempo.
+          </p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]"
+          >
+            Volver al Dashboard
+          </button>
         </div>
       </div>
     );

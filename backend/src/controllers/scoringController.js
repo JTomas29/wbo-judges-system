@@ -3,6 +3,11 @@ const RoundScore = require('../models/RoundScore');
 const Fight = require('../models/Fight');
 const JudgeAssignment = require('../models/JudgeAssignment');
 
+const isFightExpired = (fight) => {
+  if (!fight || !fight.scheduled_date) return false;
+  return new Date(fight.scheduled_date) < new Date();
+};
+
 exports.createOrGetScorecard = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -16,6 +21,9 @@ exports.createOrGetScorecard = async (req, res, next) => {
 
     const fight = await Fight.getById(fightId);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+    if (isFightExpired(fight)) {
+      return res.status(409).json({ message: 'La pelea ya finalizó y el período de puntuación ha vencido.' });
+    }
     if (fight.status !== 'active') {
       return res.status(400).json({ message: 'La pelea no está en estado activo' });
     }
@@ -75,6 +83,11 @@ exports.saveRound = async (req, res, next) => {
 
     if (scoreCard.status !== 'draft') {
       return res.status(400).json({ message: 'La tarjeta ya está finalizada y no se puede modificar' });
+    }
+
+    const fightForRound = await Fight.getById(scoreCard.fight_id);
+    if (!fightForRound || isFightExpired(fightForRound)) {
+      return res.status(409).json({ message: 'La pelea ya finalizó y el período de puntuación ha vencido.' });
     }
 
     if (score_red == null || score_blue == null) {
@@ -145,6 +158,9 @@ exports.finalizeScorecard = async (req, res, next) => {
     const fight = await Fight.getById(scoreCard.fight_id);
     if (!fight || fight.status !== 'active') {
       return res.status(400).json({ message: 'La pelea ya no está activa.' });
+    }
+    if (isFightExpired(fight)) {
+      return res.status(409).json({ message: 'La pelea ya finalizó y el período de puntuación ha vencido.' });
     }
 
     const roundCount = await ScoreCard.getRoundCount(scoreCardId);

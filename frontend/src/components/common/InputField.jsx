@@ -1,4 +1,4 @@
-const InputField = ({ name, label, value, onChange, placeholder, type = 'text', required, error, icon, className = '' }) => (
+const InputField = ({ name, label, value, onChange, placeholder, type = 'text', required, error, icon, className = '', ...rest }) => (
   <div className={className}>
     <label htmlFor={name} className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide mb-1.5">
       {icon && <span className="text-slate-400 dark:text-slate-500">{icon}</span>}
@@ -12,6 +12,7 @@ const InputField = ({ name, label, value, onChange, placeholder, type = 'text', 
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      {...rest}
       className={`w-full px-3.5 py-2.5 border rounded-xl text-sm transition-all duration-250 outline-none ${
         error
           ? 'border-red-300 dark:border-red-700 text-red-900 dark:text-red-300 placeholder-red-300 dark:placeholder-red-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'

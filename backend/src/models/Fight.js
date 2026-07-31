@@ -110,7 +110,8 @@ Fight.getAssignedJudges = async (fightId) => {
       u.email,
       u.level::text AS level,
       ja.assignment_type::text,
-      ja.status::text
+      ja.status::text,
+      ja.rejection_reason
     FROM judge_assignments ja
     JOIN users u ON u.id = ja.judge_id
     WHERE ja.fight_id = $1

@@ -1,20 +1,19 @@
 const TITLE_ROUTE_MAP = [
   {
     match: (title) => title === 'Fuiste designado para una pelea',
-    route: () => '/judges/confirmation',
+    route: (_title, _refType, refId) => `/fights/${refId}`,
   },
   {
     match: (title) => title === 'Asignación eliminada',
-    route: (_title, _refType, _refId, role) =>
-      role === 'judge' ? '/judges/confirmation' : `/judges/assign/${_refId}`,
+    route: (_title, _refType, refId) => `/fights/${refId}`,
   },
   {
     match: (title) => title === 'Juez confirmó participación',
-    route: (_title, _refType, refId) => `/judges/assign/${refId}`,
+    route: (_title, _refType, refId) => `/fights/${refId}`,
   },
   {
     match: (title) => title === 'Designación rechazada',
-    route: (_title, _refType, refId) => `/judges/assign/${refId}`,
+    route: (_title, _refType, refId) => `/fights/${refId}`,
   },
   {
     match: (title) => title === 'Pelea lista para comenzar',
