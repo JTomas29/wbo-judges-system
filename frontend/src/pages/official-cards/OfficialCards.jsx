@@ -3,10 +3,189 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
 import DetailPageHeader from '../../components/detail/DetailPageHeader';
-import DetailSection from '../../components/detail/DetailSection';
 import { PageActionButton } from '../../components/detail/PageActions';
 import { ConfirmModal } from '../../components/common/modals';
-import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import { ClipboardDocumentCheckIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/outline';
+
+const formatDate = (d) => {
+  if (!d) return '\u2014';
+  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const accentMap = {
+  red: { border: 'border-t-red-500', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-700 dark:text-red-400', valueColor: 'text-red-700 dark:text-red-400' },
+  blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400', valueColor: 'text-blue-700 dark:text-blue-400' },
+  gold: { border: 'border-t-gold', iconBg: 'bg-gold/10', iconColor: 'text-gold dark:text-gold-light', valueColor: 'text-gold dark:text-gold-light' },
+};
+
+const ResultCard = ({ label, value, icon, accent = 'red' }) => {
+  const a = accentMap[accent];
+  return (
+    <div className={`bg-gradient-to-br from-white to-slate-50/60 dark:from-[#111827] dark:to-[#141d2f] rounded-2xl border border-slate-100 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-sm p-5 sm:p-6 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group`}>
+      <div className={`w-10 h-10 rounded-xl ${a.iconBg} flex items-center justify-center mx-auto mb-3 transition-transform duration-200 group-hover:scale-110`}>
+        <svg className={`w-5 h-5 ${a.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+        </svg>
+      </div>
+      <p className={`text-3xl sm:text-4xl font-extrabold ${a.valueColor} mb-0.5 m-0`}>{value}</p>
+      <p className="text-[11px] font-semibold text-slate-500 dark:text-[#64748B] uppercase tracking-wider m-0">{label}</p>
+    </div>
+  );
+};
+
+const SuccessHero = () => (
+  <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
+    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 flex items-center justify-center mx-auto mb-5 animate-[scaleIn_0.5s_ease-out] shadow-md ring-1 ring-green-200/50 dark:ring-green-800/40">
+      <svg className="w-8 h-8 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-3 m-0 tracking-tight">Tarjeta oficial cargada correctamente</h2>
+    <p className="text-base text-slate-500 dark:text-[#94A3B8] max-w-md mx-auto m-0">
+      La tarjeta fue registrada exitosamente y ya no puede modificarse.
+    </p>
+  </div>
+);
+
+const FightHeaderCard = ({ fight }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 sm:p-6 animate-[fadeIn_0.3s_ease-out]">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="min-w-0">
+        <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 leading-tight tracking-tight">
+          {fight.event_name}
+        </h1>
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1 m-0">
+          {fight.boxer_red} <span className="text-slate-400 dark:text-slate-500 font-normal">vs</span> {fight.boxer_blue}
+        </p>
+      </div>
+      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shrink-0 self-start sm:self-center">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Finalizada
+      </span>
+    </div>
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
+      <div className="flex items-center gap-2">
+        <CalendarIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+        <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-semibold text-slate-600 dark:text-slate-300">Fecha:</span> {formatDate(fight.scheduled_date)}
+        </span>
+      </div>
+      {fight.weight_class && (
+        <div className="flex items-center gap-2">
+          <svg className="w-4 h-4 text-gold dark:text-gold-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+          </svg>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Categoría:</span> {fight.weight_class}
+          </span>
+        </div>
+      )}
+      {fight.venue && (
+        <div className="flex items-center gap-2">
+          <MapPinIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Lugar:</span> {fight.venue}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const SectionCard = ({ Icon, title, description, children }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden animate-[fadeIn_0.6s_ease-out]">
+    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B]">
+      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-wbo-50 to-wbo-100/60 dark:from-wbo-900/20 dark:to-wbo-800/10 flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">{title}</h3>
+        {description && <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">{description}</p>}
+      </div>
+    </div>
+    {children}
+  </div>
+);
+
+const RoundBadge = ({ roundNumber }) => (
+  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-wbo-50 dark:bg-wbo-900/20 text-wbo-700 dark:text-wbo-300 ring-1 ring-wbo-200/60 dark:ring-wbo-800/40">
+    R{roundNumber}
+  </span>
+);
+
+const RoundsResultTable = ({ fight, card }) => (
+  <SectionCard Icon={ClipboardDocumentCheckIcon} title="Puntuación por Round" description="Detalle de cada asalto">
+    <div className="overflow-x-auto scrollbar-thin">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-wbo-700 text-white">
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+          {card.rounds.map((r, i) => (
+            <tr key={r.round_number} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
+              <td className="px-5 py-3"><RoundBadge roundNumber={r.round_number} /></td>
+              <td className="px-5 py-3 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{r.score_red}</td>
+              <td className="px-5 py-3 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{r.score_blue}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </SectionCard>
+);
+
+const RoundsInputTable = ({ fight, rounds, totalRounds, onChange }) => (
+  <SectionCard Icon={ClipboardDocumentCheckIcon} title="Cargar Puntuaciones" description="Ingresá el puntaje de cada round para ambos boxeadores">
+    <div className="overflow-x-auto scrollbar-thin">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-wbo-700 text-white">
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+          {Array.from({ length: totalRounds }, (_, i) => {
+            const rn = i + 1;
+            const data = rounds[rn] || {};
+            return (
+              <tr key={rn} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
+                <td className="px-5 py-3.5"><RoundBadge roundNumber={rn} /></td>
+                <td className="px-4 py-3.5 text-center">
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={data.score_red ?? ''}
+                    onChange={(e) => onChange(rn, 'score_red', e.target.value)}
+                    className="w-full max-w-[90px] mx-auto px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold shadow-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                  />
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={data.score_blue ?? ''}
+                    onChange={(e) => onChange(rn, 'score_blue', e.target.value)}
+                    className="w-full max-w-[90px] mx-auto px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold shadow-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+                  />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </SectionCard>
+);
 
 const OfficialCards = () => {
   const { fightId } = useParams();
@@ -171,117 +350,72 @@ const OfficialCards = () => {
     );
   }
 
+  if (card) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 space-y-8 md:space-y-10 animate-[fadeIn_0.3s_ease-out]">
+
+        <FightHeaderCard fight={fight} />
+
+        {error && card && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
+            <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+          </div>
+        )}
+
+        <SuccessHero />
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
+          <ResultCard
+            label="Total Rojo"
+            value={card.total_score_red}
+            icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            accent="red"
+          />
+          <ResultCard
+            label="Total Azul"
+            value={card.total_score_blue}
+            icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            accent="blue"
+          />
+          <ResultCard
+            label="Ganador"
+            value={card.winner || 'Empate'}
+            icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            accent="gold"
+          />
+        </div>
+
+        <RoundsResultTable fight={fight} card={card} />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-6 animate-fadeIn">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-[fadeIn_0.4s_ease-out]">
       <DetailPageHeader
-        title={card ? 'Tarjeta Oficial' : 'Cargar Tarjeta Oficial'}
+        title="Cargar Tarjeta Oficial"
         subtitle={`${fight.boxer_red} vs ${fight.boxer_blue}`}
         description={fight.event_name}
-        status={card ? 'completed' : undefined}
         backFallback="/fights"
       />
 
-      {error && card && (
+      {error && !card && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 mb-4">
           <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
         </div>
       )}
 
-      {card ? (
-        <DetailSection icon={ClipboardDocumentCheckIcon} title="Resultado de la Tarjeta Oficial">
-          <div className="text-center mb-6">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-1 m-0">Tarjeta oficial cargada correctamente.</h3>
-          </div>
+      <RoundsInputTable fight={fight} rounds={rounds} totalRounds={totalRounds} onChange={handleChange} />
 
-          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6">
-            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Total Rojo</p>
-              <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.total_score_red}</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Total Azul</p>
-              <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.total_score_blue}</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-              <p className="text-[10px] sm:text-xs text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-1 m-0">Ganador</p>
-              <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{card.winner || 'Empate'}</p>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <div className="min-w-[400px]">
-              <div className="space-y-1.5">
-                <div className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-                  <span>Round</span>
-                  <span className="text-center">{fight.boxer_red}</span>
-                  <span className="text-center">{fight.boxer_blue}</span>
-                </div>
-                {card.rounds.map((r) => (
-                  <div key={r.round_number} className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
-                    <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{r.round_number}</span>
-                    <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_red}</span>
-                    <span className="text-center font-bold text-slate-800 dark:text-[#F8FAFC]">{r.score_blue}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </DetailSection>
-      ) : (
-        <DetailSection icon={ClipboardDocumentCheckIcon} title="Cargar Puntuaciones" description="Ingresá el puntaje de cada round para ambos boxeadores">
-          <div className="overflow-x-auto">
-            <div className="min-w-[400px]">
-              <div className="space-y-1.5">
-                <div className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-                  <span>Round</span>
-                  <span className="text-center">{fight.boxer_red}</span>
-                  <span className="text-center">{fight.boxer_blue}</span>
-                </div>
-                {Array.from({ length: totalRounds }, (_, i) => {
-                  const rn = i + 1;
-                  const data = rounds[rn] || {};
-                  return (
-                    <div key={rn} className="grid grid-cols-[70px_1fr_1fr] gap-3 items-center px-4 py-2.5 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
-                      <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{rn}</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={data.score_red ?? ''}
-                        onChange={(e) => handleChange(rn, 'score_red', e.target.value)}
-                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                      />
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={data.score_blue ?? ''}
-                        onChange={(e) => handleChange(rn, 'score_blue', e.target.value)}
-                        className="w-full px-3 py-2 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <PageActionButton
-              onClick={() => setShowConfirm(true)}
-              disabled={!allComplete || saving}
-              loading={saving}
-            >
-              Guardar tarjeta oficial
-            </PageActionButton>
-          </div>
-        </DetailSection>
-      )}
+      <div className="mt-6 flex justify-center">
+        <PageActionButton
+          onClick={() => setShowConfirm(true)}
+          disabled={!allComplete || saving}
+          loading={saving}
+        >
+          Guardar tarjeta oficial
+        </PageActionButton>
+      </div>
 
       <ConfirmModal
         isOpen={showConfirm}

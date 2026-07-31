@@ -3,12 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById } from '../../services/fightService';
 import { getMyScorecard, createScorecard, saveRound, finalizeScorecard } from '../../services/scoringService';
-import DetailPageHeader from '../../components/detail/DetailPageHeader';
-import DetailSection from '../../components/detail/DetailSection';
-import DetailSummaryCard from '../../components/detail/DetailSummaryCard';
+import BackButton from '../../components/common/BackButton';
 import { PageActionButton } from '../../components/detail/PageActions';
 import { ConfirmModal } from '../../components/common/modals';
-import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon, BoltIcon, CheckIcon, ChatBubbleOvalLeftIcon, ChartBarIcon, ClockIcon, ExclamationTriangleIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const formatDateTime = (d) => {
   if (!d) return '';
@@ -23,7 +21,13 @@ const formatDate = (d) => {
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const inputBase = "w-full px-2 py-1.5 text-center rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] text-sm font-bold shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed";
+const inputRedBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+
+const inputBlueBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-blue-700 dark:text-blue-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-900/60 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+
+const refereeInputBase = "w-full max-w-[90px] mx-auto px-3 py-2.5 text-center rounded-xl text-base font-bold placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-amber-300 dark:hover:border-amber-900/60 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+
+const notesInputBase = "w-full px-4 py-3.5 rounded-xl text-sm text-slate-800 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:border-wbo-700 focus:ring-4 focus:ring-wbo-700/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
 const SuccessHero = ({ submittedAt }) => (
   <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
@@ -55,7 +59,7 @@ const accentMap = {
 const ResultCard = ({ label, value, icon, accent = 'red' }) => {
   const a = accentMap[accent];
   return (
-    <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-sm p-5 sm:p-6 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group`}>
+    <div className={`bg-gradient-to-br from-white to-slate-50/60 dark:from-[#111827] dark:to-[#141d2f] rounded-2xl border border-slate-100 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-sm p-5 sm:p-6 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group`}>
       <div className={`w-10 h-10 rounded-xl ${a.iconBg} flex items-center justify-center mx-auto mb-3 transition-transform duration-200 group-hover:scale-110`}>
         <svg className={`w-5 h-5 ${a.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
@@ -100,6 +104,217 @@ const FightSummaryCard = ({ fight, scoreCard, roleLabel }) => {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const RoundBadge = ({ roundNumber }) => (
+  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-wbo-50 dark:bg-wbo-900/20 text-wbo-700 dark:text-wbo-300 ring-1 ring-wbo-200/60 dark:ring-wbo-800/40">
+    R{roundNumber}
+  </span>
+);
+
+const RoundsTable = ({ fight, roundData, totalRounds }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden animate-[fadeIn_0.55s_ease-out]">
+    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B]">
+      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-wbo-50 to-wbo-100/60 dark:from-wbo-900/20 dark:to-wbo-800/10 flex items-center justify-center shrink-0">
+        <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+        </svg>
+      </div>
+      <div>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
+        <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Detalle de cada asalto</p>
+      </div>
+    </div>
+    <div className="overflow-x-auto scrollbar-thin">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-wbo-700 text-white">
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Árbitro</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Notas</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+          {Array.from({ length: totalRounds }, (_, i) => {
+            const rn = i + 1;
+            const data = roundData[rn] || {};
+            return (
+              <tr key={rn} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
+                <td className="px-5 py-3.5"><RoundBadge roundNumber={rn} /></td>
+                <td className="px-5 py-3.5 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.score_red ?? '\u2014'}</td>
+                <td className="px-5 py-3.5 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.score_blue ?? '\u2014'}</td>
+                <td className="px-5 py-3.5 text-center font-bold text-slate-700 dark:text-[#94A3B8] tabular-nums">{data.referee_score ?? '\u2014'}</td>
+                <td className="px-5 py-3.5 text-slate-500 dark:text-[#64748B] text-xs italic max-w-[220px] truncate">{data.referee_notes || '\u2014'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const DraftRoundBadge = ({ roundNumber }) => (
+  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-wbo-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40">
+    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2c-2.5 0-4.5 2-4.5 4.5V9H6a2 2 0 00-2 2v4a2 2 0 002 2h1.5v3h9v-3H18a2 2 0 002-2v-4a2 2 0 00-2-2h-1.5V6.5C16.5 4 14.5 2 12 2z" />
+    </svg>
+    Round {roundNumber}
+  </span>
+);
+
+const DraftHeader = ({ fight, allComplete }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+    <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 shadow-inner">
+          <svg className="w-7 h-7 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 2c-2.5 0-4.5 2-4.5 4.5V9H6a2 2 0 00-2 2v4a2 2 0 002 2h1.5v3h9v-3H18a2 2 0 002-2v-4a2 2 0 00-2-2h-1.5V6.5C16.5 4 14.5 2 12 2z" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Tarjeta de Puntuación</p>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
+            {fight.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight.boxer_blue}
+          </h1>
+          <p className="text-sm text-red-100/90 mt-0.5 m-0">{fight.event_name}</p>
+        </div>
+        <div className="ml-auto shrink-0 hidden sm:block">
+          <span className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold ring-1 ${
+            allComplete
+              ? 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30'
+              : 'bg-amber-500/15 text-amber-200 ring-amber-400/30'
+          }`}>
+            {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
+            {allComplete ? 'Lista para enviar' : 'En carga'}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div className="px-6 py-4 sm:px-8 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
+          <CalendarIcon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Fecha</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{formatDate(fight.scheduled_date)}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
+          <svg className="w-4 h-4 text-gold dark:text-gold-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Categoría</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{fight.weight_class || '\u2014'}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
+          <BoltIcon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Rounds</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{fight.total_rounds} rounds</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm border ${
+          allComplete
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/40'
+            : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/40'
+        }`}>
+          {allComplete ? <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <ClockIcon className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Tarjeta</p>
+          <p className={`text-sm font-bold m-0 truncate ${allComplete ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+            {allComplete ? 'Lista para enviar' : 'En carga'}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md p-5 sm:p-6 animate-[fadeIn_0.35s_ease-out]">
+    <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-xl bg-wbo-50 dark:bg-wbo-900/20 flex items-center justify-center shrink-0">
+          <BoltIcon className="w-5 h-5 text-wbo-700 dark:text-wbo-400" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Progreso de la carga</h3>
+          <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">
+            {allComplete ? '¡Todos los rounds cargados!' : `${completedRounds} de ${totalRounds} rounds cargados`}
+          </p>
+        </div>
+      </div>
+      <span className="text-2xl font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums shrink-0">{progressPct}%</span>
+    </div>
+    <div className="w-full h-3.5 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-700 ease-out ${allComplete ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-wbo-600 to-wbo-700'}`}
+        style={{ width: `${progressPct}%` }}
+      />
+    </div>
+    <p className={`text-xs font-semibold mt-2.5 m-0 flex items-center gap-1.5 ${allComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-[#94A3B8]'}`}>
+      {allComplete ? (
+        <>
+          <CheckIcon className="w-4 h-4 shrink-0" />
+          Tarjeta lista para enviar
+        </>
+      ) : (
+        <>
+          {progressPct}% completado
+          {totalRounds - completedRounds > 0 && <> · {totalRounds - completedRounds} {totalRounds - completedRounds === 1 ? 'round pendiente' : 'rounds pendientes'}</>}
+        </>
+      )}
+    </p>
+  </div>
+);
+
+const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
+  const items = [
+    { label: 'Rounds completados', value: `${completedRounds} / ${totalRounds}`, strong: true },
+    { label: 'Total cargados', value: `${totalRounds} rounds` },
+    { label: 'Pendientes', value: `${totalRounds - completedRounds} ${totalRounds - completedRounds === 1 ? 'round' : 'rounds'}` },
+  ];
+  return (
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden sticky top-6">
+      <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+          <ChartBarIcon className="w-4 h-4 text-white" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen</h3>
+      </div>
+      <div className="p-5 space-y-4">
+        {items.map((item) => (
+          <div key={item.label}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-0.5 m-0">{item.label}</p>
+            <p className={`text-base font-extrabold m-0 ${item.strong ? 'text-slate-900 dark:text-[#F8FAFC]' : 'text-slate-600 dark:text-[#94A3B8]'}`}>{item.value}</p>
+          </div>
+        ))}
+        <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Estado</p>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ${
+            allComplete
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
+              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
+          }`}>
+            {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
+            {allComplete ? 'Lista para enviar' : 'En carga'}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -487,6 +702,10 @@ const ScoreFight = () => {
         </div>
 
         <div className="animate-[fadeIn_0.6s_ease-out]">
+          <RoundsTable fight={fight} roundData={roundData} totalRounds={totalRounds} />
+        </div>
+
+        <div className="animate-[fadeIn_0.6s_ease-out]">
           <FightSummaryCard fight={fight} scoreCard={scoreCard} roleLabel={roleLabel} />
         </div>
 
@@ -496,123 +715,201 @@ const ScoreFight = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-[fadeIn_0.4s_ease-out]">
-      <DetailPageHeader
-        title="Tarjeta de Puntuación"
-        subtitle={`${fight.boxer_red} vs ${fight.boxer_blue}`}
-        description={fight.event_name}
-        backFallback="/scoring/live"
-      >
-        <div className="text-right">
-          <p className="text-sm font-semibold text-slate-700 dark:text-[#94A3B8] m-0">
-            Rounds completos: {completedRounds} / {totalRounds}
-          </p>
-          <div className="w-48 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mt-1">
-            <div
-              className="h-full bg-wbo-700 rounded-full transition-all duration-300"
-              style={{ width: `${progressPct}%` }}
+    <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16 animate-[fadeIn_0.4s_ease-out]">
+      <div className="max-w-6xl mx-auto space-y-6">
+
+        <div className="mb-1">
+          <BackButton fallbackRoute="/scoring/live" />
+        </div>
+
+        <DraftHeader fight={fight} allComplete={allComplete} />
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
+            <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
+          </div>
+        )}
+
+        <div className="flex flex-col xl:flex-row gap-6">
+          <div className="flex-1 min-w-0 space-y-6">
+
+            <ProgressCard
+              completedRounds={completedRounds}
+              totalRounds={totalRounds}
+              progressPct={progressPct}
+              allComplete={allComplete}
             />
-          </div>
-        </div>
-      </DetailPageHeader>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 mb-4">
-          <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
-        </div>
-      )}
-
-      <DetailSection title="Puntuación por Round">
-        <div className="space-y-1.5">
-          <div className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2.5 bg-wbo-700 text-white rounded-lg text-xs font-semibold">
-            <span>Round</span>
-            <span className="text-center">{fight.boxer_red}</span>
-            <span className="text-center">{fight.boxer_blue}</span>
-            <span className="text-center">Árbitro</span>
-            <span className="text-center">Notas</span>
-            <span className="text-center"></span>
-          </div>
-          {Array.from({ length: totalRounds }, (_, i) => {
-            const rn = i + 1;
-            const data = roundData[rn] || {};
-            const saving = savingRound === rn;
-            const saved = justSavedRound === rn;
-            const err = roundErrors[rn];
-
-            return (
-              <div key={rn} className="grid grid-cols-[70px_1fr_1fr_90px_1fr_80px] gap-2 items-center px-3 py-2 bg-slate-50 dark:bg-[#1F2937] even:bg-white dark:even:bg-[#111827] rounded-lg border border-slate-100 dark:border-[#1E293B]">
-                <span className="font-bold text-wbo-700 dark:text-wbo-400 text-sm">R{rn}</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={data.score_red ?? ''}
-                  onChange={(e) => updateRound(rn, 'score_red', e.target.value === '' ? null : Number(e.target.value))}
-                  onBlur={() => handleBlur(rn)}
-                  disabled={isFinalized}
-                  className={inputBase}
-                />
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={data.score_blue ?? ''}
-                  onChange={(e) => updateRound(rn, 'score_blue', e.target.value === '' ? null : Number(e.target.value))}
-                  onBlur={() => handleBlur(rn)}
-                  disabled={isFinalized}
-                  className={inputBase}
-                />
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={data.referee_score ?? ''}
-                  onChange={(e) => updateRound(rn, 'referee_score', e.target.value === '' ? null : Number(e.target.value))}
-                  onBlur={() => handleBlur(rn)}
-                  disabled={isFinalized}
-                  placeholder="-"
-                  className={inputBase}
-                />
-                <input
-                  type="text"
-                  value={data.referee_notes || ''}
-                  onChange={(e) => updateRound(rn, 'referee_notes', e.target.value)}
-                  onBlur={() => handleBlur(rn)}
-                  disabled={isFinalized}
-                  placeholder="Notas..."
-                  className={inputBase}
-                />
-                <div className="flex justify-center text-xs">
-                  {saving && <span className="text-slate-400 dark:text-slate-500">Guardando...</span>}
-                  {saved && <span className="text-green-600 dark:text-green-400 font-medium">Guardado</span>}
-                  {err && <span className="text-red-600 dark:text-red-400" title={err}>Error</span>}
+            {/* ── Puntuación por Round ── */}
+            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.4s_ease-out]">
+              <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+                  <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
+                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Completá la puntuación de cada boxeador</p>
                 </div>
               </div>
-            );
-          })}
+
+              <div className="p-4 sm:p-5 space-y-4">
+                {Array.from({ length: totalRounds }, (_, i) => {
+                  const rn = i + 1;
+                  const data = roundData[rn] || {};
+                  const saving = savingRound === rn;
+                  const saved = justSavedRound === rn;
+                  const err = roundErrors[rn];
+                  const hasReferee = data.referee_score != null && data.referee_score !== '';
+
+                  return (
+                    <div
+                      key={rn}
+                      className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#334155] transition-all duration-200 animate-[fadeIn_0.4s_ease-out]"
+                      style={{ animationDelay: `${i * 70}ms` }}
+                    >
+                      <div className="px-4 sm:px-5 py-3 border-b border-slate-100 dark:border-[#1E293B] rounded-t-2xl bg-slate-50/60 dark:bg-[#0B1120]/50 flex flex-wrap items-center justify-between gap-2">
+                        <DraftRoundBadge roundNumber={rn} />
+                        <div className="flex items-center gap-3 text-xs">
+                          {saving && (
+                            <span className="inline-flex items-center gap-1.5 text-slate-400 dark:text-slate-500 font-medium">
+                              <span className="animate-spin h-3 w-3 border-2 border-slate-300 dark:border-slate-600 border-t-slate-500 dark:border-t-slate-300 rounded-full" />
+                              Guardando...
+                            </span>
+                          )}
+                          {saved && (
+                            <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-semibold">
+                              <CheckIcon className="w-3.5 h-3.5" />
+                              Guardado
+                            </span>
+                          )}
+                          {err && (
+                            <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-semibold" title={err}>
+                              <ExclamationTriangleIcon className="w-3.5 h-3.5" />
+                              Error
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-4 sm:p-5 grid grid-cols-2 xl:grid-cols-[1fr_1fr_150px_1.4fr] gap-4">
+                        <div>
+                          <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Rojo</span>
+                            <span className="truncate">{fight.boxer_red}</span>
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={data.score_red ?? ''}
+                            onChange={(e) => updateRound(rn, 'score_red', e.target.value === '' ? null : Number(e.target.value))}
+                            onBlur={() => handleBlur(rn)}
+                            disabled={isFinalized}
+                            placeholder="10"
+                            className={inputRedBase}
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Azul</span>
+                            <span className="truncate">{fight.boxer_blue}</span>
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={data.score_blue ?? ''}
+                            onChange={(e) => updateRound(rn, 'score_blue', e.target.value === '' ? null : Number(e.target.value))}
+                            onBlur={() => handleBlur(rn)}
+                            disabled={isFinalized}
+                            placeholder="10"
+                            className={inputBlueBase}
+                          />
+                        </div>
+                        <div className="col-span-2 xl:col-span-1">
+                          <label className="block mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wide">Árbitro</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={data.referee_score ?? ''}
+                            onChange={(e) => updateRound(rn, 'referee_score', e.target.value === '' ? null : Number(e.target.value))}
+                            onBlur={() => handleBlur(rn)}
+                            disabled={isFinalized}
+                            placeholder={'\u2014'}
+                            className={`${refereeInputBase} ${hasReferee ? 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/40' : ''}`}
+                          />
+                          {!hasReferee && (
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 text-center m-0">Sin observación</p>
+                          )}
+                        </div>
+                        <div className="col-span-2 xl:col-span-1">
+                          <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
+                            <ChatBubbleOvalLeftIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                            Notas
+                          </label>
+                          <input
+                            type="text"
+                            value={data.referee_notes || ''}
+                            onChange={(e) => updateRound(rn, 'referee_notes', e.target.value)}
+                            onBlur={() => handleBlur(rn)}
+                            disabled={isFinalized}
+                            placeholder="Agregar observaciones del round..."
+                            className={notesInputBase}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Footer ── */}
+            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md p-5 sm:p-6 animate-[fadeIn_0.5s_ease-out]">
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-[#1E293B] mb-5">
+                <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] m-0 leading-relaxed">
+                  Revisá la puntuación antes de enviarla. Una vez enviada no podrá modificarse.
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <PageActionButton
+                  onClick={() => setShowConfirmModal(true)}
+                  disabled={!allComplete || finalizing}
+                  loading={finalizing}
+                  icon={CheckIcon}
+                  className="px-10 py-3.5 text-base shadow-md"
+                >
+                  {finalizing ? 'Enviando tarjeta...' : 'Enviar Tarjeta Oficial'}
+                </PageActionButton>
+              </div>
+            </div>
+
+          </div>
+
+          <aside className="hidden xl:block w-72 shrink-0">
+            <SummarySidebar
+              completedRounds={completedRounds}
+              totalRounds={totalRounds}
+              allComplete={allComplete}
+            />
+          </aside>
         </div>
-      </DetailSection>
 
-      <div className="mt-6 flex justify-center">
-        <PageActionButton
-          onClick={() => setShowConfirmModal(true)}
-          disabled={!allComplete || finalizing}
+        <ConfirmModal
+          isOpen={showConfirmModal}
+          onClose={() => { if (!finalizing) setShowConfirmModal(false); }}
+          onConfirm={handleFinalize}
+          title="Enviar tarjeta final"
+          description="Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?"
+          confirmLabel={finalizing ? 'Enviando...' : 'Enviar'}
+          type="warning"
           loading={finalizing}
-        >
-          Enviar tarjeta final
-        </PageActionButton>
+        />
       </div>
-
-      <ConfirmModal
-        isOpen={showConfirmModal}
-        onClose={() => { if (!finalizing) setShowConfirmModal(false); }}
-        onConfirm={handleFinalize}
-        title="Enviar tarjeta final"
-        description="Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?"
-        confirmLabel={finalizing ? 'Enviando...' : 'Enviar'}
-        type="warning"
-        loading={finalizing}
-      />
     </div>
   );
 };
