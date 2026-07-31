@@ -93,6 +93,14 @@ Notification.createForUsers = async (userIds, data) => {
   );
 };
 
+Notification.deleteAllByUser = async (userId) => {
+  const { rowCount } = await pool.query(
+    'DELETE FROM notifications WHERE user_id = $1',
+    [userId]
+  );
+  return rowCount;
+};
+
 Notification.deleteExpired = async (days = 20) => {
   const { rowCount } = await pool.query(
     `DELETE FROM notifications WHERE created_at < NOW() - INTERVAL '1 day' * $1`,

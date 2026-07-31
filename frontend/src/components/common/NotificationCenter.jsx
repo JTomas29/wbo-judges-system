@@ -7,8 +7,10 @@ import {
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  deleteAllNotifications,
 } from '../../services/notificationService';
 import { getNotificationRoute } from '../../services/notificationNavigation';
+import ConfirmModal from './modals/ConfirmModal';
 
 const TYPE_CONFIG = {
   assignment: {
@@ -214,6 +216,9 @@ const NotificationCenter = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
   const [newIds, setNewIds] = useState(new Set());
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [feedback, setFeedback] = useState(null);
   const prevUnreadRef = useRef(0);
   const scrollRef = useRef(null);
   const panelRef = useRef(null);
@@ -286,6 +291,23 @@ const NotificationCenter = () => {
       setUnreadCount(0);
       prevUnreadRef.current = 0;
     } catch { /* silent */ }
+  };
+
+  const handleClearAll = async () => {
+    setClearing(true);
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+      setUnreadCount(0);
+      prevUnreadRef.current = 0;
+      setFeedback({ type: 'success', message: 'Bandeja de notificaciones vaciada correctamente.' });
+    } catch {
+      setFeedback({ type: 'error', message: 'Error al vaciar la bandeja de notificaciones.' });
+    } finally {
+      setShowClearModal(false);
+      setClearing(false);
+      setTimeout(() => setFeedback(null), 4000);
+    }
   };
 
   const handleMarkRead = async (id) => {
@@ -378,29 +400,47 @@ const NotificationCenter = () => {
         >
           {/* Header */}
           <div className="px-5 py-4 border-b border-slate-100 dark:border-[#1E293B] bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-sm shrink-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <h2 className="text-[15px] font-bold text-slate-800 dark:text-[#F8FAFC]">Notificaciones</h2>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <h2 className="text-[15px] font-bold text-slate-800 dark:text-[#F8FAFC] truncate">Notificaciones</h2>
                 {unreadCount > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40 animate-scaleIn">
-                    {unreadCount}
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40 animate-scaleIn shrink-0">
+                    {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1">
-                {unreadCount > 0 && (
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                {notifications.length > 0 && (
                   <button
-                    onClick={handleMarkAllRead}
-                    className="text-[11px] font-medium text-wbo-700 dark:text-wbo-400 hover:text-wbo-800 dark:hover:text-wbo-300 hover:bg-wbo-50 dark:hover:bg-wbo-500/10 px-2.5 py-1.5 rounded-lg transition-all duration-150"
+                    onClick={() => setShowClearModal(true)}
+                    className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                    title="Vaciar bandeja"
+                    aria-label="Vaciar bandeja"
                   >
-                    Marcar todo leído
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
                   </button>
                 )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-wbo-700 dark:hover:text-wbo-400 hover:bg-wbo-50 dark:hover:bg-wbo-500/10 transition-all duration-200"
+                    title="Marcar todas como leídas"
+                    aria-label="Marcar todas como leídas"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </button>
+                )}
+                <div className="w-px h-5 bg-slate-200 dark:bg-[#1E293B] mx-0.5 sm:mx-1 hidden sm:block" />
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-150"
+                  className="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200"
+                  aria-label="Cerrar"
                 >
-                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -414,6 +454,15 @@ const NotificationCenter = () => {
             onScroll={handleScroll}
             className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin"
           >
+            {feedback && (
+              <div className={`mx-4 mt-3 mb-1 px-4 py-2.5 rounded-xl text-sm font-medium ring-1 ${
+                feedback.type === 'success'
+                  ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-red-200 dark:ring-red-800/40'
+              }`}>
+                {feedback.message}
+              </div>
+            )}
             {initialLoading ? (
               <div>
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -456,6 +505,17 @@ const NotificationCenter = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={handleClearAll}
+        title="Vaciar bandeja de notificaciones"
+        description="Se eliminarán todas las notificaciones de forma permanente. Esta acción no se puede deshacer."
+        confirmLabel="Vaciar bandeja"
+        cancelLabel="Cancelar"
+        danger
+        loading={clearing}
+      />
     </>
   );
 };

@@ -483,19 +483,6 @@ const AssignJudges = () => {
         </div>
       )}
 
-      {/* ── Finalizar Designación ── */}
-      {canManage && totalAssigned >= MIN_JUDGES && (
-        <button
-          onClick={() => navigate(`/fights/${fightId}`)}
-          className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-wbo-700 text-white rounded-2xl text-sm font-bold hover:bg-[#4a0f14] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-          Finalizar designación
-        </button>
-      )}
-
       {/* ── Tabla ── */}
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-250 hover:shadow-md">
         {assignments.length === 0 ? (

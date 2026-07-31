@@ -52,6 +52,16 @@ router.patch('/read-all', async (req, res, next) => {
   }
 });
 
+// DELETE /api/notifications — eliminar todas las notificaciones del usuario
+router.delete('/', async (req, res, next) => {
+  try {
+    const deleted = await Notification.deleteAllByUser(req.user.id);
+    res.json({ message: 'Notificaciones eliminadas correctamente', deleted });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // DELETE /api/notifications/:id — eliminar una notificación
 router.delete('/:id', async (req, res, next) => {
   try {
