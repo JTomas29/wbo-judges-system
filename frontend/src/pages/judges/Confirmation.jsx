@@ -348,7 +348,7 @@ const Confirmation = () => {
                   <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  La pelea alcanzó el mínimo de jueces confirmados y quedó activa.
+                  La pelea quedó activa. Ya podés cargar tu tarjeta de puntuación.
                 </div>
               )}
 

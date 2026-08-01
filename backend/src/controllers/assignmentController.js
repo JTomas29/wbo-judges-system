@@ -159,7 +159,7 @@ exports.respond = async (req, res, next) => {
       assignment: updated,
       fight_status: updatedFight.status,
       confirmed_count: confirmedCount,
-      required_count: updatedFight.min_judges_required,
+      required_count: 1,
     });
   } catch (err) {
     next(err);
