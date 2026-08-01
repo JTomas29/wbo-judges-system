@@ -16,11 +16,10 @@ import ScoreFight from '../pages/scoring/ScoreFight';
 import LiveScore from '../pages/scoring/LiveScore';
 import OfficialCards from '../pages/official-cards/OfficialCards';
 import FightAnalysis from '../pages/analysis/FightAnalysis';
-import Statistics from '../pages/analysis/Statistics';
+import Ranking from '../pages/ranking/Ranking';
 import UserManagement from '../pages/admin/UserManagement';
 import History from '../pages/history/History';
 import RefereeList from '../pages/referees/RefereeList';
-import RefereeRanking from '../pages/referees/RefereeRanking';
 import RefereeProfile from '../pages/referees/RefereeProfile';
 
 const ProtectedRoute = ({ children }) => {
@@ -78,11 +77,13 @@ const AppRoutes = () => (
     <Route path="/official-cards/:fightId" element={<ProtectedRoute><OfficialCards /></ProtectedRoute>} />
 
     <Route path="/analysis/:fightId" element={<ProtectedRoute><FightAnalysis /></ProtectedRoute>} />
-    <Route path="/analysis/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
+    <Route path="/analysis/statistics" element={<Navigate to="/ranking?tab=jueces" replace />} />
+
+    <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
 
     <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
     <Route path="/admin/referees" element={<AdminRoute><RefereeList /></AdminRoute>} />
-    <Route path="/referees/ranking" element={<SupervisorRoute><RefereeRanking /></SupervisorRoute>} />
+    <Route path="/referees/ranking" element={<Navigate to="/ranking?tab=arbitros" replace />} />
     <Route path="/referees/:id/profile" element={<SupervisorRoute><RefereeProfile /></SupervisorRoute>} />
 
     <Route path="/history" element={<AdminRoute><History /></AdminRoute>} />

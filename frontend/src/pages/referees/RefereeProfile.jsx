@@ -219,7 +219,7 @@ const RefereeProfile = () => {
       <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
         <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-6 text-center max-w-md">
           <p className="text-amber-800 dark:text-amber-300 font-medium">{error}</p>
-          <button onClick={() => navigate('/referees/ranking')} className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
+          <button onClick={() => navigate('/ranking?tab=arbitros')} className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
             Volver al ranking
           </button>
         </div>
@@ -238,7 +238,7 @@ const RefereeProfile = () => {
 
         {/* Back */}
         <div className="mb-2">
-          <BackButton fallbackRoute="/referees/ranking" />
+          <BackButton fallbackRoute="/ranking?tab=arbitros" />
         </div>
 
         {/* Profile Header */}

@@ -82,6 +82,7 @@ Referee.getRanking = async () => {
       r.last_name,
       r.license_number,
       r.federation,
+      r.active,
       COALESCE(es.total_fights, 0) AS total_fights,
       COALESCE(es.average_score, 0) AS average_score,
       COALESCE(es.average_deduction, 0) AS average_deduction,
@@ -98,10 +99,18 @@ Referee.getRanking = async () => {
       ) AS position
     FROM referees r
     LEFT JOIN eval_stats es ON es.referee_id = r.id
-    WHERE r.active = TRUE
     ORDER BY position
   `);
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    total_fights: Number(row.total_fights),
+    average_score: Number(row.average_score),
+    average_deduction: Number(row.average_deduction),
+    average_final_score: Number(row.average_final_score),
+    best_score: Number(row.best_score),
+    worst_score: Number(row.worst_score),
+    position: Number(row.position),
+  }));
 };
 
 // ─── PROFILE ────────────────────────────────────────────────────────────────
@@ -138,7 +147,17 @@ Referee.getProfile = async (id) => {
     LEFT JOIN eval_stats es ON es.referee_id = r.id
     WHERE r.id = $1
   `, [id]);
-  return rows[0] || null;
+  if (!rows[0]) return null;
+  const { ...profile } = rows[0];
+  return {
+    ...profile,
+    total_fights: Number(profile.total_fights),
+    average_score: Number(profile.average_score),
+    average_deduction: Number(profile.average_deduction),
+    average_final_score: Number(profile.average_final_score),
+    best_score: Number(profile.best_score),
+    worst_score: Number(profile.worst_score),
+  };
 };
 
 Referee.getEvaluationHistory = async (refereeId) => {

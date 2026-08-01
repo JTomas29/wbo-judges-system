@@ -17,7 +17,7 @@ const Sidebar = () => {
       ? [
           { label: 'Peleas', path: '/fights', icon: '▣' },
           { label: 'Jueces', path: '/judges', icon: '⚖' },
-          { label: 'Análisis', path: '/analysis/statistics', icon: '▤' },
+          { label: 'Ranking', path: '/ranking', icon: '▤' },
         ]
       : []),
     ...(user?.role === 'admin'
