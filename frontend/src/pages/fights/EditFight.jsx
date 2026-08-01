@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFightById, updateFight } from '../../services/fightService';
-import { getJudges } from '../../services/judgeService';
+import { getReferees } from '../../services/refereeService';
 import { useAuth } from '../../context/AuthContext';
 import FormCard from '../../components/common/FormCard';
 import FormSection from '../../components/common/FormSection';
@@ -26,9 +26,9 @@ const EditFight = () => {
     if (!token) return;
     Promise.all([
       getFightById(id, token),
-      getJudges(token),
+      getReferees(),
     ])
-      .then(([fightRes, judgesRes]) => {
+      .then(([fightRes, refereesRes]) => {
         const f = fightRes.data;
         setForm({
           event_name: f.event_name || '',
@@ -43,7 +43,7 @@ const EditFight = () => {
           referee_id: f.referee_id ? String(f.referee_id) : '',
           notes: f.notes || '',
         });
-        setReferees(judgesRes.data);
+        setReferees(refereesRes.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -241,7 +241,7 @@ const EditFight = () => {
               value={form.referee_id}
               onChange={handleChange}
               placeholder="— Sin asignar —"
-              options={referees.map((r) => ({ value: r.id, label: r.name }))}
+              options={referees.map((r) => ({ value: r.id, label: r.full_name }))}
             />
           </div>
         </FormSection>

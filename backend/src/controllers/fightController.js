@@ -1,5 +1,6 @@
 ﻿const Fight = require('../models/Fight');
 const User = require('../models/User');
+const Referee = require('../models/Referee');
 const ScoreCard = require('../models/ScoreCard');
 const OfficialCard = require('../models/OfficialCard');
 
@@ -71,13 +72,21 @@ exports.create = async (req, res, next) => {
     }
 
     if (referee_id) {
+      console.log('TRACE create BODY:', req.body);
+      console.log('TRACE create referee_id:', referee_id);
+      console.log('TRACE create typeof referee_id:', typeof referee_id);
       const refId = parseInt(referee_id, 10);
+      console.log('TRACE create refId (parseInt):', refId);
       if (!Number.isInteger(refId) || refId < 1) {
         return res.status(400).json({ message: 'referee_id inválido' });
       }
-      const referee = await User.findById(refId);
+      const referee = await Referee.getById(refId);
+      console.log('TRACE create Referee encontrado:', referee);
       if (!referee) {
         return res.status(400).json({ message: 'El referee_id indicado no existe' });
+      }
+      if (!referee.active) {
+        return res.status(400).json({ message: 'No se puede asignar un árbitro inactivo' });
       }
     }
 
@@ -144,13 +153,21 @@ exports.update = async (req, res, next) => {
     }
 
     if (referee_id) {
+      console.log('TRACE update BODY:', req.body);
+      console.log('TRACE update referee_id:', referee_id);
+      console.log('TRACE update typeof referee_id:', typeof referee_id);
       const refId = parseInt(referee_id, 10);
+      console.log('TRACE update refId (parseInt):', refId);
       if (!Number.isInteger(refId) || refId < 1) {
         return res.status(400).json({ message: 'referee_id inválido' });
       }
-      const referee = await User.findById(refId);
+      const referee = await Referee.getById(refId);
+      console.log('TRACE update Referee encontrado:', referee);
       if (!referee) {
         return res.status(400).json({ message: 'El referee_id indicado no existe' });
+      }
+      if (!referee.active) {
+        return res.status(400).json({ message: 'No se puede asignar un árbitro inactivo' });
       }
     }
 

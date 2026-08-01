@@ -18,6 +18,7 @@ CREATE TYPE fight_status AS ENUM (
     'pending',    -- Programada, aún no comienza
     'active',     -- En curso
     'completed',  -- Finalizada
+    'analyzed',   -- Analizada
     'cancelled'   -- Cancelada
 );
 
@@ -318,7 +319,62 @@ CREATE INDEX idx_analysis_judge ON analysis_results (judge_id);
 COMMENT ON TABLE analysis_results IS 'Resultados del análisis que compara cada juez contra cada tarjeta oficial. Se regenera cada vez que se ejecuta el análisis.';
 
 -- ============================================================
--- 10. VISTA: v_judge_performance
+-- 10. TABLA: referee_evaluations
+-- ============================================================
+-- Propósito: Almacena la evaluación del árbitro realizada por
+-- el supervisor al finalizar una pelea analizada.
+-- Solo puede existir UNA evaluación por pelea.
+-- ============================================================
+CREATE TABLE referee_evaluations (
+    id              SERIAL PRIMARY KEY,
+    fight_id        INTEGER          NOT NULL,
+    referee_id      INTEGER          NOT NULL,
+    supervisor_id   INTEGER          NOT NULL,
+    score           SMALLINT         NOT NULL DEFAULT 0,
+    point_deduction SMALLINT         NOT NULL DEFAULT 0,
+    final_score     SMALLINT         NOT NULL DEFAULT 0,
+    comments        TEXT,
+    created_at      TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_ref_eval_fight FOREIGN KEY (fight_id)
+        REFERENCES fights (id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_ref_eval_referee FOREIGN KEY (referee_id)
+        REFERENCES referees (id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_ref_eval_supervisor FOREIGN KEY (supervisor_id)
+        REFERENCES users (id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_ref_eval_fight UNIQUE (fight_id),
+    CONSTRAINT chk_ref_eval_score CHECK (
+        score BETWEEN 0 AND 100
+    ),
+    CONSTRAINT chk_ref_eval_deduction CHECK (
+        point_deduction BETWEEN 0 AND 5
+    ),
+    CONSTRAINT chk_ref_eval_final_score CHECK (
+        final_score >= 0
+    ),
+    CONSTRAINT chk_ref_eval_comments CHECK (
+        char_length(comments) <= 500
+    )
+);
+
+CREATE INDEX idx_ref_eval_fight ON referee_evaluations (fight_id);
+CREATE INDEX idx_ref_eval_referee ON referee_evaluations (referee_id);
+CREATE INDEX idx_ref_eval_supervisor ON referee_evaluations (supervisor_id);
+
+COMMENT ON TABLE referee_evaluations IS 'Evaluación del árbitro por pelea. Solo una por pelea (UNIQUE fight_id).';
+COMMENT ON COLUMN referee_evaluations.score IS 'Calificación del árbitro (0-100)';
+COMMENT ON COLUMN referee_evaluations.point_deduction IS 'Descuento por penalizaciones (0-5)';
+COMMENT ON COLUMN referee_evaluations.final_score IS 'Puntaje final = score - point_deduction';
+
+-- ============================================================
+-- 11. VISTA: v_judge_performance
 -- ============================================================
 -- Propósito: Vista consolidada del rendimiento de cada juez
 -- por pelea, promediando las 3 tarjetas oficiales.
@@ -348,7 +404,7 @@ GROUP BY ar.fight_id, ar.judge_id, u.name, f.event_name;
 COMMENT ON VIEW v_judge_performance IS 'Vista que consolida el rendimiento de cada juez por pelea, promediando las 3 comparaciones contra tarjetas oficiales.';
 
 -- ============================================================
--- 11. VISTA: v_fight_summary
+-- 12. VISTA: v_fight_summary
 -- ============================================================
 -- Propósito: Resumen de cada pelea con indicadores clave.
 -- ============================================================
@@ -387,7 +443,7 @@ GROUP BY f.id, u.name;
 COMMENT ON VIEW v_fight_summary IS 'Vista de resumen que muestra el estado completo de cada pelea';
 
 -- ============================================================
--- 12. FUNCIÓN: fn_calculate_analysis
+-- 13. FUNCIÓN: fn_calculate_analysis
 -- ============================================================
 -- Propósito: Función que ejecuta el análisis completo de una
 -- pelea. Compara cada tarjeta de juez contra cada tarjeta
@@ -454,7 +510,7 @@ $$ LANGUAGE plpgsql;
 COMMENT ON FUNCTION fn_calculate_analysis IS 'Ejecuta el análisis completo de una pelea: compara cada juez vs cada tarjeta oficial round por round.';
 
 -- ============================================================
--- 13. TRIGGER: actualizar updated_at automáticamente
+-- 14. TRIGGER: actualizar updated_at automáticamente
 -- ============================================================
 CREATE OR REPLACE FUNCTION fn_set_updated_at()
 RETURNS TRIGGER AS $$
@@ -474,8 +530,13 @@ CREATE TRIGGER trg_fights_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION fn_set_updated_at();
 
+CREATE TRIGGER trg_referee_evaluations_updated_at
+    BEFORE UPDATE ON referee_evaluations
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_set_updated_at();
+
 -- ============================================================
--- 14. TRIGGER: actualizar totales en score_cards
+-- 15. TRIGGER: actualizar totales en score_cards
 -- ============================================================
 CREATE OR REPLACE FUNCTION fn_update_score_card_totals()
 RETURNS TRIGGER AS $$
@@ -503,7 +564,7 @@ CREATE TRIGGER trg_round_scores_update_totals
     EXECUTE FUNCTION fn_update_score_card_totals();
 
 -- ============================================================
--- 15. TRIGGER: actualizar totales en official_cards
+-- 16. TRIGGER: actualizar totales en official_cards
 -- ============================================================
 CREATE OR REPLACE FUNCTION fn_update_official_card_totals()
 RETURNS TRIGGER AS $$
@@ -531,7 +592,7 @@ CREATE TRIGGER trg_official_round_scores_update_totals
     EXECUTE FUNCTION fn_update_official_card_totals();
 
 -- ============================================================
--- 16. SEED DATA (opcional — solo para desarrollo)
+-- 17. SEED DATA (opcional — solo para desarrollo)
 -- ============================================================
 -- Password: "password" con bcrypt (hash generado)
 INSERT INTO users (name, email, password_hash, role) VALUES

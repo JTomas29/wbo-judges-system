@@ -15,14 +15,14 @@ Fight.getAll = async () => {
       f.title,
       f.broadcaster,
       f.referee_id,
-      u_ref.name AS referee_name,
+      CONCAT_WS(' ', r.first_name, r.last_name) AS referee_name,
       f.status::text,
       f.min_judges_required,
       f.total_rounds,
       f.created_at,
       COALESCE(ja_stats.confirmed_count, 0)::INTEGER AS confirmed_judges
     FROM fights f
-    LEFT JOIN users u_ref ON u_ref.id = f.referee_id
+    LEFT JOIN referees r ON r.id = f.referee_id
     LEFT JOIN (
       SELECT fight_id, COUNT(*) AS confirmed_count
       FROM judge_assignments
@@ -51,11 +51,19 @@ Fight.getById = async (id) => {
       f.notes,
       f.status::text,
       f.referee_id,
-      u_ref.name AS referee_name,
+      CONCAT_WS(' ', r.first_name, r.last_name) AS referee_name,
+      CASE WHEN r.id IS NULL THEN NULL ELSE json_build_object(
+        'id', r.id,
+        'first_name', r.first_name,
+        'last_name', r.last_name,
+        'license_number', r.license_number,
+        'federation', r.federation,
+        'active', r.active
+      ) END AS referee,
       f.min_judges_required,
       f.created_at
     FROM fights f
-    LEFT JOIN users u_ref ON u_ref.id = f.referee_id
+    LEFT JOIN referees r ON r.id = f.referee_id
     WHERE f.id = $1
   `, [id]);
   return rows[0] || null;

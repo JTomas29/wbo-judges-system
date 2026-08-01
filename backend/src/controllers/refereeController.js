@@ -3,6 +3,35 @@ const Referee = require('../models/Referee');
 // Controlador de árbitros — CRUD completo de la entidad independiente Referee.
 // El árbitro NO es un usuario del sistema: no tiene login, JWT, email ni contraseña.
 
+// ─── RANKING ────────────────────────────────────────────────────────────────
+
+exports.getRanking = async (req, res, next) => {
+  try {
+    const ranking = await Referee.getRanking();
+    res.json(ranking);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── PROFILE ────────────────────────────────────────────────────────────────
+
+exports.getProfile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const profile = await Referee.getProfile(id);
+    if (!profile) return res.status(404).json({ message: 'Árbitro no encontrado' });
+
+    const history = await Referee.getEvaluationHistory(id);
+
+    res.json({ profile, history });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── CRUD ───────────────────────────────────────────────────────────────────
+
 exports.getAll = async (req, res, next) => {
   try {
     const referees = await Referee.getAll();
@@ -25,7 +54,7 @@ exports.getById = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { first_name, last_name, license_number, federation, phone } = req.body;
+    const { first_name, last_name, license_number, federation, phone, active } = req.body;
 
     if (!first_name || !first_name.trim()) {
       return res.status(400).json({ message: 'El nombre es obligatorio' });
@@ -40,6 +69,7 @@ exports.create = async (req, res, next) => {
       license_number: license_number !== undefined ? String(license_number).trim() || null : null,
       federation: federation !== undefined ? String(federation).trim() || null : null,
       phone: phone !== undefined ? String(phone).trim() || null : null,
+      active: active !== undefined ? active === true || active === 'true' : true,
     });
 
     res.status(201).json(referee);
@@ -51,7 +81,7 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { first_name, last_name, license_number, federation, phone } = req.body;
+    const { first_name, last_name, license_number, federation, phone, active } = req.body;
 
     const existing = await Referee.getById(id);
     if (!existing) return res.status(404).json({ message: 'Árbitro no encontrado' });
@@ -69,6 +99,7 @@ exports.update = async (req, res, next) => {
       license_number: license_number !== undefined ? String(license_number).trim() || null : null,
       federation: federation !== undefined ? String(federation).trim() || null : null,
       phone: phone !== undefined ? String(phone).trim() || null : null,
+      active: active !== undefined ? active === true || active === 'true' : existing.active,
     });
 
     if (!referee) return res.status(400).json({ message: 'No se pudo actualizar el árbitro' });

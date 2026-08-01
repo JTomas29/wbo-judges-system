@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createFight } from '../../services/fightService';
-import { getJudges } from '../../services/judgeService';
+import { getReferees } from '../../services/refereeService';
 import { useAuth } from '../../context/AuthContext';
 import FormCard from '../../components/common/FormCard';
 import FormSection from '../../components/common/FormSection';
@@ -42,11 +42,10 @@ const CreateFight = () => {
   const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
-    if (!token) return;
-    getJudges(token)
+    getReferees()
       .then((res) => setReferees(res.data))
       .catch(() => {});
-  }, [token]);
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -87,6 +86,8 @@ const CreateFight = () => {
         notes: form.notes.trim() || undefined,
         referee_id: form.referee_id ? Number(form.referee_id) : undefined,
       };
+      console.log('Referee seleccionado:', referees.find((r) => String(r.id) === String(form.referee_id)));
+      console.log('Body enviado:', payload);
       const res = await createFight(payload, token);
       navigate(`/fights/${res.data.id}`, {
         state: { toast: { type: 'success', message: `La pelea "${res.data.event_name || form.event_name.trim()}" fue creada correctamente.` } },
@@ -216,7 +217,7 @@ const CreateFight = () => {
               value={form.referee_id}
               onChange={handleChange}
               placeholder="— Sin asignar —"
-              options={referees.map((r) => ({ value: r.id, label: r.name }))}
+              options={referees.map((r) => ({ value: r.id, label: r.full_name }))}
             />
           </div>
         </FormSection>

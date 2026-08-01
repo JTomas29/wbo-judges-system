@@ -19,10 +19,26 @@ import FightAnalysis from '../pages/analysis/FightAnalysis';
 import Statistics from '../pages/analysis/Statistics';
 import UserManagement from '../pages/admin/UserManagement';
 import History from '../pages/history/History';
+import RefereeList from '../pages/referees/RefereeList';
+import RefereeRanking from '../pages/referees/RefereeRanking';
+import RefereeProfile from '../pages/referees/RefereeProfile';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuth();
   return token ? children : <Navigate to="/login" replace />;
+};
+
+const SupervisorRoute = ({ children }) => {
+  const { token, user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-wbo-700 border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  if (!token) return <Navigate to="/login" replace />;
+  if (user?.role !== 'admin' && user?.role !== 'supervisor') return <Navigate to="/dashboard" replace />;
+
+  return children;
 };
 
 const AdminRoute = ({ children }) => {
@@ -65,6 +81,9 @@ const AppRoutes = () => (
     <Route path="/analysis/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
 
     <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+    <Route path="/admin/referees" element={<AdminRoute><RefereeList /></AdminRoute>} />
+    <Route path="/referees/ranking" element={<SupervisorRoute><RefereeRanking /></SupervisorRoute>} />
+    <Route path="/referees/:id/profile" element={<SupervisorRoute><RefereeProfile /></SupervisorRoute>} />
 
     <Route path="/history" element={<AdminRoute><History /></AdminRoute>} />
 

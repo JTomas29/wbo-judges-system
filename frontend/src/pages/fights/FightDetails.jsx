@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
 import ActionPanel, { ActionButton } from '../../components/detail/ActionPanel';
+import RefereeEvaluationSection from '../../components/detail/RefereeEvaluation';
 import { DeleteModal } from '../../components/common/modals';
 import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
@@ -432,6 +433,82 @@ const FightDetails = () => {
         <SummaryCard icon={UserGroupIcon} label="Jueces" value={`${fight.assigned_judges?.length || 0} asignados`} accent="emerald" />
         <SummaryCard icon={CheckBadgeIcon} label="Confirmados" value={`${fight.assigned_judges?.filter(j => j.status === 'confirmed').length || 0}/${fight.assigned_judges?.length || 0}`} accent="blue" />
       </div>
+
+      {/* ── Referee card ── */}
+      <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-violet-500 shadow-sm p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Árbitro</h3>
+            <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Oficial del combate</p>
+          </div>
+        </div>
+        {fight.referee ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Nombre</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.first_name} {fight.referee.last_name}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Licencia</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.license_number || '—'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Federación</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.federation || '—'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
+              <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Estado</p>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${fight.referee.active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${fight.referee.active ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  {fight.referee.active ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 py-2">
+            <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No se ha asignado un árbitro a esta pelea.</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Referee Evaluation ── */}
+      <RefereeEvaluationSection fight={fight} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <FighterCard name={fight.boxer_red} corner="red" color="bg-gradient-to-br from-red-700 to-red-900" />

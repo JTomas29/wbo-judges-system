@@ -34,10 +34,6 @@ exports.assign = async (req, res, next) => {
     if (judge.role !== 'judge') return res.status(400).json({ message: 'El usuario debe tener role judge' });
     if (!judge.is_active) return res.status(400).json({ message: 'El juez no está activo' });
 
-    if (fight.referee_id && judgeNum === fight.referee_id) {
-      return res.status(400).json({ message: 'No se puede asignar al árbitro de la pelea como juez' });
-    }
-
     const existing = await JudgeAssignment.findOne(fightId, judgeNum);
     if (existing) return res.status(400).json({ message: 'El juez ya está asignado a esta pelea' });
 

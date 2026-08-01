@@ -78,11 +78,11 @@ const Navbar = () => {
       : []),
     ...(user?.role !== 'judge'
       ? [{
-          label: 'Jueces',
-          path: '/judges',
+          label: 'Ranking Árbitros',
+          path: '/referees/ranking',
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
           ),
         }]
@@ -105,6 +105,17 @@ const Navbar = () => {
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+            </svg>
+          ),
+        }]
+      : []),
+    ...(user?.role === 'admin'
+      ? [{
+          label: 'Árbitros',
+          path: '/admin/referees',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3l2 2h4l2-2M9 3v2a2 2 0 01-2 2H5a2 2 0 00-2 2v2a2 2 0 002 2h2m2-10v2a2 2 0 002 2h2a2 2 0 002-2V3m0 0v2a2 2 0 002 2h2a2 2 0 002-2v-2M9 3h6M3 13v6a2 2 0 002 2h14a2 2 0 002-2v-6M3 13l2.5-2.5M7 13l2.5-2.5M11 13l2.5-2.5M15 13l2.5-2.5M19 13l2.5-2.5" />
             </svg>
           ),
         }]

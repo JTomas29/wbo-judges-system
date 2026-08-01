@@ -14,6 +14,7 @@ const officialCardRoutes = require('./routes/officialCardRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const refereeRoutes = require('./routes/refereeRoutes');
+const refereeEvaluationRoutes = require('./routes/refereeEvaluationRoutes');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/fights', officialCardRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/referees', refereeRoutes);
+app.use('/api/referee-evaluations', refereeEvaluationRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

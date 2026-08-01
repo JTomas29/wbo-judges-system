@@ -23,6 +23,9 @@ const Sidebar = () => {
     ...(user?.role === 'admin'
       ? [{ label: 'Usuarios', path: '/admin/users', icon: '👤' }]
       : []),
+    ...(user?.role === 'admin'
+      ? [{ label: 'Árbitros', path: '/admin/referees', icon: '⚑' }]
+      : []),
   ];
 
   return (
