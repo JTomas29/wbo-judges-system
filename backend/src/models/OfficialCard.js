@@ -12,7 +12,7 @@ OfficialCard.findByFight = async (fightId) => {
   if (!card) return null;
 
   const roundsRes = await pool.query(`
-    SELECT id, round_number, score_red, score_blue
+    SELECT id, round_number, score_red, score_blue, deduction_red, deduction_blue, final_score_red, final_score_blue
     FROM official_round_scores
     WHERE official_card_id = $1
     ORDER BY round_number
@@ -36,13 +36,20 @@ OfficialCard.create = async (fightId, rounds, userId) => {
     const values = [];
     const params = [];
     rounds.forEach((r, i) => {
-      const offset = i * 4;
-      params.push(card.id, r.round_number, r.score_red, r.score_blue);
-      values.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
+      const offset = i * 6;
+      params.push(
+        card.id,
+        r.round_number,
+        r.score_red,
+        r.score_blue,
+        r.deduction_red ?? 0,
+        r.deduction_blue ?? 0
+      );
+      values.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6})`);
     });
 
     await client.query(`
-      INSERT INTO official_round_scores (official_card_id, round_number, score_red, score_blue)
+      INSERT INTO official_round_scores (official_card_id, round_number, score_red, score_blue, deduction_red, deduction_blue)
       VALUES ${values.join(', ')}
     `, params);
 
@@ -55,7 +62,7 @@ OfficialCard.create = async (fightId, rounds, userId) => {
     const updated = updatedRes.rows[0];
 
     const roundsRes = await pool.query(`
-      SELECT id, round_number, score_red, score_blue
+      SELECT id, round_number, score_red, score_blue, deduction_red, deduction_blue, final_score_red, final_score_blue
       FROM official_round_scores
       WHERE official_card_id = $1
       ORDER BY round_number

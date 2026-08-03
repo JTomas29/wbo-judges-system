@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
+import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import { ConfirmModal } from '../../components/common/modals';
 import {
@@ -22,8 +23,19 @@ const formatDate = (d) => {
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const roundComplete = (r) =>
-  r && Number(r.score_red) >= 1 && Number(r.score_red) <= 10 && Number(r.score_blue) >= 1 && Number(r.score_blue) <= 10;
+const roundComplete = (r) => {
+  if (!r) return false;
+  const sRed = Number(r.score_red);
+  const sBlue = Number(r.score_blue);
+  const dRed = Number(r.deduction_red || 0);
+  const dBlue = Number(r.deduction_blue || 0);
+  return sRed >= 1 && sRed <= 10 && sBlue >= 1 && sBlue <= 10
+    && dRed >= 0 && dRed <= 2 && dBlue >= 0 && dBlue <= 2
+    && sRed - dRed >= 1 && sBlue - dBlue >= 1;
+};
+
+const computeFinal = (score, deduction) =>
+  score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
 
 const accentMap = {
   red: { border: 'border-t-red-500', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-700 dark:text-red-400', valueColor: 'text-red-700 dark:text-red-400' },
@@ -143,8 +155,18 @@ const RoundsResultTable = ({ fight, card }) => (
           {card.rounds.map((r, i) => (
             <tr key={r.round_number} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
               <td className="px-5 py-3"><RoundBadge roundNumber={r.round_number} /></td>
-              <td className="px-5 py-3 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{r.score_red}</td>
-              <td className="px-5 py-3 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{r.score_blue}</td>
+              <td className="px-5 py-3 text-center">
+                <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{r.final_score_red ?? r.score_red}</span>
+                {r.deduction_red > 0 && (
+                  <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{r.deduction_red}</span>
+                )}
+              </td>
+              <td className="px-5 py-3 text-center">
+                <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{r.final_score_blue ?? r.score_blue}</span>
+                {r.deduction_blue > 0 && (
+                  <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{r.deduction_blue}</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -162,7 +184,7 @@ const OfficialHeaderCard = ({ fight }) => {
     { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
     { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
-    { icon: ChartBarIcon, label: 'Rounds', value: `${fight?.total_rounds ?? 0} rounds` },
+    { icon: ChartBarIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
   ];
 
   return (
@@ -276,6 +298,24 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           placeholder="10"
           className={scoreRedInput}
         />
+        <label className="mt-2 block">
+          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+          <select
+            value={data.deduction_red ?? 0}
+            onChange={(e) => onChange('deduction_red', e.target.value)}
+            className="w-full px-2 py-1.5 text-center rounded-lg text-sm font-bold text-red-700 dark:text-red-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10"
+          >
+            <option value={0}>0</option>
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+          </select>
+        </label>
+        <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${Number(data.deduction_red || 0) > 0 ? 'text-red-700 dark:text-red-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
+          Final: {computeFinal(data.score_red, data.deduction_red) ?? '\u2014'}
+          {Number(data.deduction_red || 0) > 0 && (
+            <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
+          )}
+        </p>
       </div>
       <div>
         <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
@@ -292,6 +332,24 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           placeholder="10"
           className={scoreBlueInput}
         />
+        <label className="mt-2 block">
+          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+          <select
+            value={data.deduction_blue ?? 0}
+            onChange={(e) => onChange('deduction_blue', e.target.value)}
+            className="w-full px-2 py-1.5 text-center rounded-lg text-sm font-bold text-blue-700 dark:text-blue-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+          >
+            <option value={0}>0</option>
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+          </select>
+        </label>
+        <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${Number(data.deduction_blue || 0) > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
+          Final: {computeFinal(data.score_blue, data.deduction_blue) ?? '\u2014'}
+          {Number(data.deduction_blue || 0) > 0 && (
+            <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
+          )}
+        </p>
       </div>
     </div>
   </div>
@@ -412,13 +470,10 @@ const OfficialCards = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
-  const totalRounds = fight?.total_rounds || 0;
+  const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
 
   const allComplete = totalRounds > 0 && Array.from({ length: totalRounds }, (_, i) => i + 1).every(
-    (rn) => {
-      const r = rounds[rn];
-      return r && Number(r.score_red) >= 1 && Number(r.score_red) <= 10 && Number(r.score_blue) >= 1 && Number(r.score_blue) <= 10;
-    }
+    (rn) => roundComplete(rounds[rn])
   );
 
   useEffect(() => {
@@ -454,13 +509,18 @@ const OfficialCards = () => {
           setCard(cardRes.data);
           const rd = {};
           cardRes.data.rounds.forEach((r) => {
-            rd[r.round_number] = { score_red: r.score_red, score_blue: r.score_blue };
+            rd[r.round_number] = {
+              score_red: r.score_red,
+              score_blue: r.score_blue,
+              deduction_red: Number(r.deduction_red || 0),
+              deduction_blue: Number(r.deduction_blue || 0),
+            };
           });
           setRounds(rd);
         } else {
           const rd = {};
-          Array.from({ length: f.total_rounds }, (_, i) => {
-            rd[i + 1] = { score_red: '', score_blue: '' };
+          Array.from({ length: getEffectiveTotalRounds(f) }, (_, i) => {
+            rd[i + 1] = { score_red: '', score_blue: '', deduction_red: 0, deduction_blue: 0 };
           });
           setRounds(rd);
         }
@@ -492,6 +552,8 @@ const OfficialCards = () => {
           round_number: Number(rn),
           score_red: Number(data.score_red),
           score_blue: Number(data.score_blue),
+          deduction_red: Number(data.deduction_red || 0),
+          deduction_blue: Number(data.deduction_blue || 0),
         })),
       };
       const res = await createOfficialCard(fightId, payload, token);
@@ -573,6 +635,20 @@ const OfficialCards = () => {
 
           <FightHeaderCard fight={fight} />
 
+          {isEarlyResult(fight) && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out]">
+              <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
+                  Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+                </p>
+                <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
+                  La tarjeta oficial incluye solo los rounds efectivamente disputados.
+                </p>
+              </div>
+            </div>
+          )}
+
           {error && card && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
               <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
@@ -610,8 +686,14 @@ const OfficialCards = () => {
 
   const completed = Array.from({ length: totalRounds }, (_, i) => i + 1).filter((rn) => roundComplete(rounds[rn])).length;
   const pct = totalRounds ? Math.round((completed / totalRounds) * 100) : 0;
-  const redTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce((acc, rn) => acc + (Number(rounds[rn]?.score_red) || 0), 0);
-  const blueTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce((acc, rn) => acc + (Number(rounds[rn]?.score_blue) || 0), 0);
+  const redTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce(
+    (acc, rn) => acc + (Number(rounds[rn]?.score_red) || 0) - (Number(rounds[rn]?.deduction_red) || 0),
+    0
+  );
+  const blueTotal = Array.from({ length: totalRounds }, (_, i) => i + 1).reduce(
+    (acc, rn) => acc + (Number(rounds[rn]?.score_blue) || 0) - (Number(rounds[rn]?.deduction_blue) || 0),
+    0
+  );
 
   return (
     <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
@@ -621,6 +703,20 @@ const OfficialCards = () => {
         </div>
 
         <OfficialHeaderCard fight={fight} />
+
+        {isEarlyResult(fight) && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out]">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
+                Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+              </p>
+              <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
+                Solo se cargan los rounds efectivamente disputados (hasta el round {totalRounds}).
+              </p>
+            </div>
+          </div>
+        )}
 
         {error && !card && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out] flex items-start gap-3">

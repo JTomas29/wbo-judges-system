@@ -57,6 +57,10 @@ export default {
           '0%': { opacity: '0', transform: 'translate(-50%, 12px)' },
           '100%': { opacity: '1', transform: 'translate(-50%, 0)' },
         },
+        dropdownIn: {
+          '0%': { opacity: '0', transform: 'translateY(-4px) scale(0.98)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-out',
@@ -67,6 +71,7 @@ export default {
         badgePulse: 'badgePulse 2s infinite',
         notifSlideIn: 'notifSlideIn 0.3s ease-out',
         toastSlideUp: 'toastSlideUp 0.3s ease-out',
+        dropdownIn: 'dropdownIn 0.16s ease-out',
       },
     },
   },

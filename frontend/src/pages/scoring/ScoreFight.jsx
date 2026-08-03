@@ -3,9 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById } from '../../services/fightService';
 import { getMyScorecard, createScorecard, saveRound, finalizeScorecard } from '../../services/scoringService';
+import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import { PageActionButton } from '../../components/detail/PageActions';
 import { ConfirmModal } from '../../components/common/modals';
+import DeductionSelect from '../../components/common/DeductionSelect';
 import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon, BoltIcon, CheckIcon, ChatBubbleOvalLeftIcon, ChartBarIcon, ClockIcon, ExclamationTriangleIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const formatDateTime = (d) => {
@@ -21,11 +23,23 @@ const formatDate = (d) => {
   return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+const roundFromServer = (rs) => ({
+  score_red: rs.score_red,
+  score_blue: rs.score_blue,
+  deduction_red: Number(rs.deduction_red || 0),
+  deduction_blue: Number(rs.deduction_blue || 0),
+  final_score_red: rs.final_score_red,
+  final_score_blue: rs.final_score_blue,
+  notes: rs.notes || '',
+});
+
+// Puntaje final del round considerando el descuento (se muestra en vivo en la carga)
+const computeFinal = (score, deduction) =>
+  score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
+
 const inputRedBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
 const inputBlueBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-blue-700 dark:text-blue-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-900/60 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
-
-const refereeInputBase = "w-full max-w-[90px] mx-auto px-3 py-2.5 text-center rounded-xl text-base font-bold placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-amber-300 dark:hover:border-amber-900/60 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
 const notesInputBase = "w-full px-4 py-3.5 rounded-xl text-sm text-slate-800 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:border-wbo-700 focus:ring-4 focus:ring-wbo-700/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
@@ -135,7 +149,6 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
             <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
-            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Árbitro</th>
             <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Notas</th>
           </tr>
         </thead>
@@ -146,10 +159,19 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
             return (
               <tr key={rn} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
                 <td className="px-5 py-3.5"><RoundBadge roundNumber={rn} /></td>
-                <td className="px-5 py-3.5 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.score_red ?? '\u2014'}</td>
-                <td className="px-5 py-3.5 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.score_blue ?? '\u2014'}</td>
-                <td className="px-5 py-3.5 text-center font-bold text-slate-700 dark:text-[#94A3B8] tabular-nums">{data.referee_score ?? '\u2014'}</td>
-                <td className="px-5 py-3.5 text-slate-500 dark:text-[#64748B] text-xs italic max-w-[220px] truncate">{data.referee_notes || '\u2014'}</td>
+                <td className="px-5 py-3.5 text-center">
+                  <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.final_score_red ?? '\u2014'}</span>
+                  {data.deduction_red > 0 && (
+                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
+                  )}
+                </td>
+                <td className="px-5 py-3.5 text-center">
+                  <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.final_score_blue ?? '\u2014'}</span>
+                  {data.deduction_blue > 0 && (
+                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
+                  )}
+                </td>
+                <td className="px-5 py-3.5 text-slate-500 dark:text-[#64748B] text-xs italic max-w-[220px] truncate">{data.notes || '\u2014'}</td>
               </tr>
             );
           })}
@@ -223,7 +245,7 @@ const DraftHeader = ({ fight, allComplete }) => (
         </div>
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Rounds</p>
-          <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{fight.total_rounds} rounds</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{getEffectiveTotalRounds(fight)} rounds</p>
         </div>
       </div>
       <div className="flex items-center gap-2.5 min-w-0">
@@ -332,7 +354,7 @@ const ActionButtons = ({ navigate }) => (
       Volver al Dashboard
     </button>
     <button
-      onClick={() => navigate('/judges/confirmation')}
+      onClick={() => navigate('/judges/assignments')}
       className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-sm font-semibold hover:border-red-200 dark:hover:border-red-800/40 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -359,13 +381,15 @@ const ScoreFight = () => {
   const [restriction, setRestriction] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
-  const [expired, setExpired] = useState(false);
 
-  const totalRounds = fight?.total_rounds || 0;
+  const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
+  const earlyEnded = fight ? isEarlyResult(fight) : false;
   const isFinalized = scoreCard?.status === 'finalized';
 
   const completedRounds = Object.keys(roundData).filter(
     (r) => roundData[r]?.score_red >= 1 && roundData[r]?.score_blue >= 1
+      && (roundData[r]?.score_red - (roundData[r]?.deduction_red || 0)) >= 1
+      && (roundData[r]?.score_blue - (roundData[r]?.deduction_blue || 0)) >= 1
   ).length;
   const allComplete = completedRounds >= totalRounds && totalRounds > 0;
   const progressPct = totalRounds > 0 ? Math.round((completedRounds / totalRounds) * 100) : 0;
@@ -415,25 +439,14 @@ const ScoreFight = () => {
           setScoreCard(myRes.data.score_card);
           const rd = {};
           myRes.data.round_scores.forEach((rs) => {
-            rd[rs.round_number] = {
-              score_red: rs.score_red,
-              score_blue: rs.score_blue,
-              referee_score: rs.referee_score,
-              referee_notes: rs.referee_notes || '',
-            };
+            rd[rs.round_number] = roundFromServer(rs);
           });
           setRoundData(rd);
           setLoading(false);
           return;
         }
 
-        if (f.scheduled_date && new Date(f.scheduled_date) < new Date()) {
-          setExpired(true);
-          setLoading(false);
-          return;
-        }
-
-        if (f.status !== 'active') {
+        if (!isEarlyResult(f) && f.status !== 'active') {
           setRestriction('Esta pelea no está disponible para puntuar.');
           setLoading(false);
           return;
@@ -448,12 +461,7 @@ const ScoreFight = () => {
           setScoreCard(myRes.data.score_card);
           const rd = {};
           myRes.data.round_scores.forEach((rs) => {
-            rd[rs.round_number] = {
-              score_red: rs.score_red,
-              score_blue: rs.score_blue,
-              referee_score: rs.referee_score,
-              referee_notes: rs.referee_notes || '',
-            };
+            rd[rs.round_number] = roundFromServer(rs);
           });
           setRoundData(rd);
         }
@@ -461,11 +469,6 @@ const ScoreFight = () => {
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
-        if (err.response?.status === 409) {
-          setExpired(true);
-          setLoading(false);
-          return;
-        }
         const msg = err.response?.data?.message || 'Error al cargar la tarjeta';
         setRestriction(msg);
         setLoading(false);
@@ -479,7 +482,7 @@ const ScoreFight = () => {
   const updateRound = useCallback((roundNum, field, value) => {
     if (isFinalized) return;
     setRoundData((prev) => {
-      const current = prev[roundNum] || { score_red: null, score_blue: null, referee_score: null, referee_notes: '' };
+      const current = prev[roundNum] || { score_red: null, score_blue: null, notes: '' };
       return { ...prev, [roundNum]: { ...current, [field]: value } };
     });
     setRoundErrors((prev) => {
@@ -515,16 +518,56 @@ const ScoreFight = () => {
         setJustSavedRound((prev) => (prev === roundNum ? null : prev));
       }, 2000);
     } catch (err) {
-      if (err.response?.status === 409) {
-        setExpired(true);
-        return;
-      }
       const msg = err.response?.data?.message || 'Error al guardar';
       if (msg.includes('finalizada')) {
         setError('La tarjeta ya fue enviada y no puede modificarse.');
       } else {
         setRoundErrors((prev) => ({ ...prev, [roundNum]: msg }));
       }
+    } finally {
+      setSavingRound((prev) => (prev === roundNum ? null : prev));
+    }
+  }, [roundData, scoreCard, token, isFinalized]);
+
+  const handleDeductionChange = useCallback(async (roundNum, field, value) => {
+    if (isFinalized) return;
+    const data = roundData[roundNum] || { score_red: null, score_blue: null, notes: '' };
+    const next = { ...data, [field]: Number(value) };
+
+    const sRed = next.score_red != null && next.score_red !== '' ? Number(next.score_red) : null;
+    const sBlue = next.score_blue != null && next.score_blue !== '' ? Number(next.score_blue) : null;
+
+    if (
+      (sRed != null && sRed - next.deduction_red < 1) ||
+      (sBlue != null && sBlue - next.deduction_blue < 1)
+    ) {
+      setRoundErrors((prev) => ({
+        ...prev,
+        [roundNum]: 'El descuento no puede dejar un puntaje por debajo de 1',
+      }));
+      return;
+    }
+
+    setRoundData((prev) => ({ ...prev, [roundNum]: next }));
+    setRoundErrors((prev) => {
+      const n = { ...prev };
+      delete n[roundNum];
+      return n;
+    });
+
+    if (sRed == null || sBlue == null || sRed < 1 || sRed > 10 || sBlue < 1 || sBlue > 10) return;
+
+    setSavingRound(roundNum);
+    try {
+      await saveRound(scoreCard.id, { round_number: roundNum, ...next }, token);
+      setJustSavedRound(roundNum);
+      if (timersRef.current[roundNum]) clearTimeout(timersRef.current[roundNum]);
+      timersRef.current[roundNum] = setTimeout(() => {
+        setJustSavedRound((prev) => (prev === roundNum ? null : prev));
+      }, 2000);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al guardar';
+      setRoundErrors((prev) => ({ ...prev, [roundNum]: msg }));
     } finally {
       setSavingRound((prev) => (prev === roundNum ? null : prev));
     }
@@ -542,10 +585,6 @@ const ScoreFight = () => {
         replace: true,
       });
     } catch (err) {
-      if (err.response?.status === 409) {
-        setExpired(true);
-        return;
-      }
       setError(err.response?.data?.message || 'Error al enviar la tarjeta');
     } finally {
       setFinalizing(false);
@@ -558,30 +597,6 @@ const ScoreFight = () => {
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
           <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (expired) {
-    return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg p-10 sm:p-14 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-2 m-0">Período de puntuación vencido</h2>
-          <p className="text-slate-500 dark:text-[#94A3B8] mb-6 m-0 max-w-md mx-auto">
-            La fecha programada para esta pelea ya pasó y no se recibió tu tarjeta a tiempo.
-          </p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]"
-          >
-            Volver al Dashboard
-          </button>
         </div>
       </div>
     );
@@ -672,6 +687,20 @@ const ScoreFight = () => {
           </div>
         )}
 
+        {earlyEnded && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out]">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
+                Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+              </p>
+              <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
+                Tarjeta puntuada sobre los {totalRounds} rounds efectivamente disputados.
+              </p>
+            </div>
+          </div>
+        )}
+
         <SuccessHero submittedAt={formatDateTime(scoreCard.submitted_at)} />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
@@ -724,6 +753,20 @@ const ScoreFight = () => {
 
         <DraftHeader fight={fight} allComplete={allComplete} />
 
+        {earlyEnded && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out]">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
+                La pelea finalizó por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+              </p>
+              <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
+                Solo se puntúan los rounds efectivamente disputados (hasta el round {totalRounds}). Los rounds posteriores están bloqueados.
+              </p>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 animate-[fadeIn_0.3s_ease-out]">
             <p className="text-red-700 dark:text-red-300 text-sm m-0">{error}</p>
@@ -759,7 +802,6 @@ const ScoreFight = () => {
                   const saving = savingRound === rn;
                   const saved = justSavedRound === rn;
                   const err = roundErrors[rn];
-                  const hasReferee = data.referee_score != null && data.referee_score !== '';
 
                   return (
                     <div
@@ -791,7 +833,7 @@ const ScoreFight = () => {
                         </div>
                       </div>
 
-                      <div className="p-4 sm:p-5 grid grid-cols-2 xl:grid-cols-[1fr_1fr_150px_1.4fr] gap-4">
+                      <div className="p-4 sm:p-5 grid grid-cols-2 xl:grid-cols-[1fr_1fr_1.6fr] gap-4">
                         <div>
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Rojo</span>
@@ -808,6 +850,22 @@ const ScoreFight = () => {
                             placeholder="10"
                             className={inputRedBase}
                           />
+                          <div className="mt-2.5 block">
+                            <span id={`ded-red-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+                            <DeductionSelect
+                              value={data.deduction_red ?? 0}
+                              onChange={(v) => handleDeductionChange(rn, 'deduction_red', v)}
+                              disabled={isFinalized}
+                              labelId={`ded-red-label-${rn}`}
+                              listboxLabel={`Descuento (puntos) del boxeador rojo (${fight.boxer_red})`}
+                            />
+                          </div>
+                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_red > 0 ? 'text-red-700 dark:text-red-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
+                            Final: {computeFinal(data.score_red, data.deduction_red) ?? '\u2014'}
+                            {data.deduction_red > 0 && (
+                              <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
+                            )}
+                          </p>
                         </div>
                         <div>
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
@@ -825,23 +883,22 @@ const ScoreFight = () => {
                             placeholder="10"
                             className={inputBlueBase}
                           />
-                        </div>
-                        <div className="col-span-2 xl:col-span-1">
-                          <label className="block mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wide">Árbitro</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={data.referee_score ?? ''}
-                            onChange={(e) => updateRound(rn, 'referee_score', e.target.value === '' ? null : Number(e.target.value))}
-                            onBlur={() => handleBlur(rn)}
-                            disabled={isFinalized}
-                            placeholder={'\u2014'}
-                            className={`${refereeInputBase} ${hasReferee ? 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/40' : ''}`}
-                          />
-                          {!hasReferee && (
-                            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 text-center m-0">Sin observación</p>
-                          )}
+                          <div className="mt-2.5 block">
+                            <span id={`ded-blue-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+                            <DeductionSelect
+                              value={data.deduction_blue ?? 0}
+                              onChange={(v) => handleDeductionChange(rn, 'deduction_blue', v)}
+                              disabled={isFinalized}
+                              labelId={`ded-blue-label-${rn}`}
+                              listboxLabel={`Descuento (puntos) del boxeador azul (${fight.boxer_blue})`}
+                            />
+                          </div>
+                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_blue > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
+                            Final: {computeFinal(data.score_blue, data.deduction_blue) ?? '\u2014'}
+                            {data.deduction_blue > 0 && (
+                              <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
+                            )}
+                          </p>
                         </div>
                         <div className="col-span-2 xl:col-span-1">
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
@@ -850,8 +907,8 @@ const ScoreFight = () => {
                           </label>
                           <input
                             type="text"
-                            value={data.referee_notes || ''}
-                            onChange={(e) => updateRound(rn, 'referee_notes', e.target.value)}
+                            value={data.notes || ''}
+                            onChange={(e) => updateRound(rn, 'notes', e.target.value)}
                             onBlur={() => handleBlur(rn)}
                             disabled={isFinalized}
                             placeholder="Agregar observaciones del round..."

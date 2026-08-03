@@ -19,14 +19,18 @@ Fight.getAll = async () => {
       f.status::text,
       f.min_judges_required,
       f.total_rounds,
+      f.result_type::text AS result_type,
+      f.result_winner,
+      f.result_round,
+      f.result_time,
+      f.result_registered_at,
       f.created_at,
-      COALESCE(ja_stats.confirmed_count, 0)::INTEGER AS confirmed_judges
+      COALESCE(ja_stats.assigned_count, 0)::INTEGER AS confirmed_judges
     FROM fights f
     LEFT JOIN referees r ON r.id = f.referee_id
     LEFT JOIN (
-      SELECT fight_id, COUNT(*) AS confirmed_count
+      SELECT fight_id, COUNT(*) AS assigned_count
       FROM judge_assignments
-      WHERE status = 'confirmed'
       GROUP BY fight_id
     ) ja_stats ON ja_stats.fight_id = f.id
     WHERE f.status != 'archived'
@@ -50,6 +54,7 @@ Fight.getById = async (id) => {
       f.broadcaster,
       f.notes,
       f.status::text,
+      f.created_by,
       f.referee_id,
       CONCAT_WS(' ', r.first_name, r.last_name) AS referee_name,
       CASE WHEN r.id IS NULL THEN NULL ELSE json_build_object(
@@ -61,6 +66,11 @@ Fight.getById = async (id) => {
         'active', r.active
       ) END AS referee,
       f.min_judges_required,
+      f.result_type::text AS result_type,
+      f.result_winner,
+      f.result_round,
+      f.result_time,
+      f.result_registered_at,
       f.created_at
     FROM fights f
     LEFT JOIN referees r ON r.id = f.referee_id
@@ -117,9 +127,7 @@ Fight.getAssignedJudges = async (fightId) => {
       u.name,
       u.email,
       u.level::text AS level,
-      ja.assignment_type::text,
-      ja.status::text,
-      ja.rejection_reason
+      ja.assignment_type::text
     FROM judge_assignments ja
     JOIN users u ON u.id = ja.judge_id
     WHERE ja.fight_id = $1
@@ -163,16 +171,61 @@ Fight.complete = async (id) => {
   return rows[0] || null;
 };
 
+Fight.activate = async (id) => {
+  const { rows } = await pool.query(`
+    UPDATE fights
+    SET status = 'active'
+    WHERE id = $1 AND status = 'pending'
+    RETURNING id, status::text
+  `, [id]);
+  return rows[0] || null;
+};
+
+Fight.registerResult = async (id, data) => {
+  const { rows } = await pool.query(`
+    UPDATE fights
+    SET
+      result_type = $2::fight_result_type,
+      result_winner = $3,
+      result_round = $4,
+      result_time = $5,
+      result_registered_by = $6,
+      result_registered_at = NOW(),
+      status = CASE
+        WHEN $2::fight_result_type IN ('ko', 'tko', 'rtd', 'dq', 'nc') THEN 'completed'
+        ELSE status
+      END
+    WHERE id = $1
+    RETURNING
+      id,
+      status::text,
+      result_type::text,
+      result_winner,
+      result_round,
+      result_time,
+      result_registered_by,
+      result_registered_at
+  `, [
+    id,
+    data.result_type,
+    data.result_winner || null,
+    data.result_round || null,
+    data.result_time || null,
+    data.result_registered_by,
+  ]);
+  return rows[0] || null;
+};
+
 Fight.getRoundDetail = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
       rs.score_card_id,
       sc.judge_id,
       rs.round_number,
-      rs.score_red AS judge_score_red,
-      rs.score_blue AS judge_score_blue,
-      ors.score_red AS official_score_red,
-      ors.score_blue AS official_score_blue
+      rs.final_score_red AS judge_score_red,
+      rs.final_score_blue AS judge_score_blue,
+      ors.final_score_red AS official_score_red,
+      ors.final_score_blue AS official_score_blue
     FROM round_scores rs
     JOIN score_cards sc ON sc.id = rs.score_card_id
     JOIN official_cards oc ON oc.fight_id = sc.fight_id

@@ -72,13 +72,6 @@ Notification.deleteById = async (id, userId) => {
   return rows[0] || null;
 };
 
-Notification.getAdminAndSupervisorIds = async () => {
-  const { rows } = await pool.query(
-    "SELECT id FROM users WHERE role IN ('admin', 'supervisor') AND is_active = TRUE"
-  );
-  return rows.map((r) => r.id);
-};
-
 Notification.getAdminIds = async () => {
   const { rows } = await pool.query(
     "SELECT id FROM users WHERE role = 'admin' AND is_active = TRUE"

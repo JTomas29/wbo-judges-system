@@ -32,6 +32,16 @@ export const completeFight = (id, token) =>
     headers: { Authorization: `Bearer ${token}` },
   });
 
+export const activateFight = (id, token) =>
+  axios.post(`${API_URL}/fights/${id}/activate`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const registerResult = (id, data, token) =>
+  axios.post(`${API_URL}/fights/${id}/result`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 export const analyzeFight = (id, token) =>
   axios.post(`${API_URL}/fights/${id}/analyze`, null, {
     headers: { Authorization: `Bearer ${token}` },

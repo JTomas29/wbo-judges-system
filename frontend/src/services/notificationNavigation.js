@@ -8,14 +8,6 @@ const TITLE_ROUTE_MAP = [
     route: (_title, _refType, refId) => `/fights/${refId}`,
   },
   {
-    match: (title) => title === 'Juez confirmó participación',
-    route: (_title, _refType, refId) => `/fights/${refId}`,
-  },
-  {
-    match: (title) => title === 'Designación rechazada',
-    route: (_title, _refType, refId) => `/fights/${refId}`,
-  },
-  {
     match: (title) => title === 'Pelea lista para comenzar',
     route: (_title, _refType, refId) => `/fights/${refId}`,
   },

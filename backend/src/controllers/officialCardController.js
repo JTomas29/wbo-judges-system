@@ -1,6 +1,15 @@
 const OfficialCard = require('../models/OfficialCard');
 const Fight = require('../models/Fight');
 
+const EARLY_RESULT_TYPES = ['ko', 'tko', 'rtd', 'dq', 'nc'];
+
+const getRequiredRounds = (fight) => {
+  if (EARLY_RESULT_TYPES.includes(fight.result_type) && fight.result_round) {
+    return Number(fight.result_round);
+  }
+  return Number(fight.total_rounds);
+};
+
 exports.get = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -43,7 +52,7 @@ exports.create = async (req, res, next) => {
       return res.status(400).json({ message: 'Debe proporcionar un array de rounds.' });
     }
 
-    const totalRounds = Number(fight.total_rounds);
+    const totalRounds = getRequiredRounds(fight);
     if (rounds.length !== totalRounds) {
       return res.status(400).json({ message: `Debe proporcionar exactamente ${totalRounds} rounds.` });
     }
@@ -67,6 +76,24 @@ exports.create = async (req, res, next) => {
       if (sBlue < 1 || sBlue > 10 || !Number.isInteger(sBlue)) {
         return res.status(400).json({ message: `score_blue del round ${r.round_number} debe ser un entero entre 1 y 10.` });
       }
+
+      const dRed = r.deduction_red === undefined || r.deduction_red === null || r.deduction_red === '' ? 0 : Number(r.deduction_red);
+      const dBlue = r.deduction_blue === undefined || r.deduction_blue === null || r.deduction_blue === '' ? 0 : Number(r.deduction_blue);
+      if (!Number.isInteger(dRed) || dRed < 0 || dRed > 2) {
+        return res.status(400).json({ message: `deduction_red del round ${r.round_number} debe ser 0, 1 o 2.` });
+      }
+      if (!Number.isInteger(dBlue) || dBlue < 0 || dBlue > 2) {
+        return res.status(400).json({ message: `deduction_blue del round ${r.round_number} debe ser 0, 1 o 2.` });
+      }
+      if (sRed - dRed < 1) {
+        return res.status(400).json({ message: `El descuento rojo del round ${r.round_number} no puede dejar el puntaje por debajo de 1.` });
+      }
+      if (sBlue - dBlue < 1) {
+        return res.status(400).json({ message: `El descuento azul del round ${r.round_number} no puede dejar el puntaje por debajo de 1.` });
+      }
+
+      r.deduction_red = dRed;
+      r.deduction_blue = dBlue;
     }
 
     const card = await OfficialCard.create(fightId, rounds, req.user.id);

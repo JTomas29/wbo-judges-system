@@ -38,12 +38,6 @@ export const getFightAssignments = (fightId, token) =>
     headers: { Authorization: `Bearer ${token}` },
   });
 
-// Respuesta del juez (confirmar/rechazar)
-export const respondAssignment = (fightId, body, token) =>
-  axios.patch(`${API_URL}/fights/${fightId}/assignments/respond`, body, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
 // Mis asignaciones (juez)
 export const getMyAssignments = (token) =>
   axios.get(`${API_URL}/me/assignments`, {

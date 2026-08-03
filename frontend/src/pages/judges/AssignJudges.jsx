@@ -1,61 +1,12 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFightById } from '../../services/fightService';
+import { getFightById, activateFight } from '../../services/fightService';
 import { getJudges, getFightAssignments, createAssignment, deleteAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import BackButton from '../../components/common/BackButton';
 
 const MIN_JUDGES = 3;
 const MAX_JUDGES = 10;
-
-const statusBadge = (status) => {
-  const configs = {
-    pending: {
-      classes: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40',
-      icon: (
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-      ),
-      label: 'Pendiente',
-    },
-    confirmed: {
-      classes: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800/40',
-      icon: (
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-      label: 'Confirmado',
-    },
-    rejected: {
-      classes: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/40',
-      icon: (
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      ),
-      label: 'Rechazado',
-    },
-  };
-  const config = configs[status];
-  if (!config) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-[#1E293B]">
-        {status || '—'}
-      </span>
-    );
-  }
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${config.classes}`}>
-      {config.icon}
-      {config.label}
-    </span>
-  );
-};
 
 const levelBadge = (level) => {
   const configs = {
@@ -115,61 +66,10 @@ const formatDateTime = (d) => {
   return new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-const RejectionModal = ({ assignment, onClose }) => {
-  if (!assignment) return null;
-  return (
-    <BaseModal isOpen={true} onClose={onClose} zIndex="z-[100]">
-      <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
-              <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h3 className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">Motivo del rechazo</h3>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1E293B] transition-all duration-200">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div className="px-6 py-5 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-[#111827] shadow-sm">
-              {assignment.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] m-0">{assignment.name}</p>
-              <p className="text-xs text-slate-400 dark:text-[#94A3B8] m-0">{formatDateTime(assignment.responded_at)}</p>
-            </div>
-          </div>
-          <div className="bg-slate-50 dark:bg-[#0B1120] rounded-xl p-4 ring-1 ring-slate-100 dark:ring-[#1E293B]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 m-0">Motivo</p>
-            {assignment.rejection_reason ? (
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line m-0">{assignment.rejection_reason}</p>
-            ) : (
-              <p className="text-sm text-slate-400 dark:text-slate-500 italic m-0">El juez no indicó un motivo para el rechazo.</p>
-            )}
-          </div>
-        </div>
-        <div className="px-6 py-3 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0B1120] flex justify-end">
-          <button onClick={onClose}
-            className="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#1E293B] hover:text-slate-800 dark:hover:text-[#F8FAFC] transition-all duration-200">
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </BaseModal>
-  );
-};
-
 const AssignJudges = () => {
   const { fightId } = useParams();
   const navigate = useNavigate();
   const { token, user } = useAuth();
-  const { theme } = useTheme();
   const canManage = user?.role === 'admin' || user?.role === 'supervisor';
 
   const [fight, setFight] = useState(null);
@@ -181,7 +81,7 @@ const AssignJudges = () => {
   const [selectedJudge, setSelectedJudge] = useState('');
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState(null);
-  const [rejectionModal, setRejectionModal] = useState(null);
+  const [activating, setActivating] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!token) return;
@@ -234,6 +134,20 @@ const AssignJudges = () => {
     }
   };
 
+  const handleActivate = async () => {
+    if (assignments.length < MIN_JUDGES) return;
+    setError(null);
+    setActivating(true);
+    try {
+      await activateFight(fightId, token);
+      navigate(`/fights/${fightId}`);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al activar la pelea');
+    } finally {
+      setActivating(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
       <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-8 flex flex-col items-center gap-3 border border-slate-200 dark:border-[#1E293B]">
@@ -283,14 +197,9 @@ const AssignJudges = () => {
     </div>
   );
 
-  const confirmedCount = assignments.filter((a) => a.status === 'confirmed').length;
   const totalAssigned = assignments.length;
-  const progressPct = totalAssigned > 0 ? Math.min((confirmedCount / totalAssigned) * 100, 100) : 0;
-  const progressColor = confirmedCount >= totalAssigned && totalAssigned > 0
-    ? 'bg-emerald-500'
-    : progressPct >= 50
-      ? 'bg-amber-500'
-      : 'bg-red-500';
+  const progressPct = totalAssigned > 0 ? Math.min((totalAssigned / MAX_JUDGES) * 100, 100) : 0;
+  const progressColor = totalAssigned >= MIN_JUDGES ? 'bg-emerald-500' : totalAssigned > 0 ? 'bg-amber-500' : 'bg-red-500';
   const atMax = totalAssigned >= MAX_JUDGES;
 
   return (
@@ -307,21 +216,21 @@ const AssignJudges = () => {
         </div>
       </div>
 
-      {/* ── Confirmation Indicator ── */}
+      {/* ── Designación / Activación ── */}
       {canManage && (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 transition-all duration-250 hover:shadow-md">
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
                 <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wide">Jueces Confirmados</span>
+              <span className="text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wide">Jueces Designados</span>
             </div>
             <span className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">
-              {confirmedCount}
-              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500"> / {assignments.length}</span>
+              {totalAssigned}
+              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500"> / {MAX_JUDGES}</span>
             </span>
           </div>
           <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-700/50 overflow-hidden">
@@ -333,22 +242,32 @@ const AssignJudges = () => {
           <div className="flex items-center justify-between mt-2.5">
             <div className="flex items-center gap-1.5">
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                assignments.length >= MAX_JUDGES
+                atMax
                   ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400'
                   : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
               }`}>
-                {assignments.length} / {MAX_JUDGES} asignados
+                {totalAssigned} / {MAX_JUDGES} asignados
               </span>
               <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                 Mínimo requerido: {MIN_JUDGES}
               </span>
             </div>
-            {assignments.length < MIN_JUDGES && (
-              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 m-0">
-                Debés asignar al menos {MIN_JUDGES} jueces para continuar.
-              </p>
-            )}
+            <button
+              disabled={totalAssigned < MIN_JUDGES || activating}
+              onClick={handleActivate}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              {activating ? 'Finalizando...' : 'Finalizar designación'}
+            </button>
           </div>
+          {totalAssigned < MIN_JUDGES && (
+            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-2.5 m-0">
+              Debés asignar al menos {MIN_JUDGES} jueces para activar la pelea.
+            </p>
+          )}
         </div>
       )}
 
@@ -506,7 +425,6 @@ const AssignJudges = () => {
                   <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Tipo</th>
                   <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Estado</th>
                   <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Asignado</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Respuesta</th>
                   {canManage && <th className="text-right py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Acción</th>}
                 </tr>
               </thead>
@@ -525,24 +443,18 @@ const AssignJudges = () => {
                     <td className="py-3.5 px-5 hidden lg:table-cell">{levelBadge(a.level)}</td>
                     <td className="py-3.5 px-5 text-slate-600 dark:text-slate-400 text-xs hidden lg:table-cell">{assignmentTypeLabel(a.assignment_type)}</td>
                     <td className="py-3.5 px-5">
-                      <div className="flex items-center gap-2">
-                        {statusBadge(a.status)}
-                        {a.status === 'rejected' && (
-                          <button
-                            onClick={() => setRejectionModal(a)}
-                            className="text-[11px] font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded-lg transition-all duration-200 whitespace-nowrap"
-                          >
-                            Ver motivo
-                          </button>
-                        )}
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Designado
+                      </span>
                     </td>
                     <td className="py-3.5 px-5 text-slate-400 dark:text-slate-500 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.assigned_at)}</td>
-                    <td className="py-3.5 px-5 text-slate-400 dark:text-slate-500 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.responded_at)}</td>
                     {canManage && (
                       <td className="py-3.5 px-5 text-right">
-                        <button disabled={a.status !== 'pending'}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-400 dark:hover:border-red-600 hover:text-red-700 dark:hover:text-red-300 transition-all duration-250 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:border-red-300 dark:disabled:hover:border-red-700/50"
+                        <button
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-400 dark:hover:border-red-600 hover:text-red-700 dark:hover:text-red-300 transition-all duration-250"
                           onClick={() => handleRemove(a.judge_id)}>
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -562,8 +474,6 @@ const AssignJudges = () => {
       <div>
         <BackButton fallbackRoute="/dashboard" />
       </div>
-
-      <RejectionModal assignment={rejectionModal} onClose={() => setRejectionModal(null)} />
     </div>
   );
 };

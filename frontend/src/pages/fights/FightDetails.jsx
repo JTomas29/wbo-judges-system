@@ -1,12 +1,13 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFightById, deleteFight, analyzeFight } from '../../services/fightService';
-import { respondAssignment } from '../../services/judgeService';
+import { getFightById, deleteFight, analyzeFight, activateFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
 import ActionPanel, { ActionButton } from '../../components/detail/ActionPanel';
 import RefereeEvaluationSection from '../../components/detail/RefereeEvaluation';
+import ResultRegistration from '../../components/detail/ResultRegistration';
+import { RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
 import { DeleteModal } from '../../components/common/modals';
 import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
@@ -50,11 +51,6 @@ const levelBadge = (level) => {
 };
 
 const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Evaluador de Árbitro' : 'Evaluador';
-
-const statusBadge = (status) => {
-  const m = { confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300', rejected: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' };
-  return m[status] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400';
-};
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 
@@ -153,17 +149,10 @@ const JudgeRow = ({ judge }) => (
     <td className="py-3.5 px-5">{levelBadge(judge.level)}</td>
     <td className="py-3.5 px-5 text-sm text-slate-600 dark:text-[#94A3B8]">{assignmentLabel(judge.assignment_type)}</td>
     <td className="py-3.5 px-5">
-      <div className="flex flex-col gap-1.5">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize ${statusBadge(judge.status)}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${judge.status === 'confirmed' ? 'bg-emerald-500' : judge.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
-          {judge.status === 'confirmed' ? 'Confirmado' : judge.status === 'pending' ? 'Pendiente' : 'Rechazado'}
-        </span>
-        {judge.status === 'rejected' && judge.rejection_reason && (
-          <span className="text-[11px] text-red-600 dark:text-red-400 leading-tight max-w-[180px] truncate" title={judge.rejection_reason}>
-            {judge.rejection_reason}
-          </span>
-        )}
-      </div>
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        Designado
+      </span>
     </td>
   </tr>
 );
@@ -181,10 +170,8 @@ const FightDetails = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
-  const [responding, setResponding] = useState(false);
-  const [rejecting, setRejecting] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [respondError, setRespondError] = useState(null);
+  const [activating, setActivating] = useState(false);
+  const [activateError, setActivateError] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -222,61 +209,20 @@ const FightDetails = () => {
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
   const myAssignment = fight?.assigned_judges?.find(j => j.id === user?.id);
-  const isExpired = user?.role === 'judge' &&
-    myAssignment?.status === 'confirmed' &&
-    fight?.scheduled_date && new Date(fight.scheduled_date) < new Date() &&
-    (fight?.status === 'pending' || fight?.status === 'active');
-  const canScore = user?.role === 'judge' && myAssignment?.status === 'confirmed' && fight?.status === 'active' && !isExpired;
+  const canScore = user?.role === 'judge' && myAssignment && fight?.status === 'active';
 
-  const handleConfirm = async () => {
-    setResponding(true);
-    setRespondError(null);
+  const handleActivateFight = async () => {
+    if ((fight?.assigned_judges?.length || 0) < (fight?.min_judges_required || 3)) return;
+    setActivateError(null);
+    setActivating(true);
     try {
-      await respondAssignment(id, { response: 'confirmed' }, token);
-      setFight(prev => ({
-        ...prev,
-        assigned_judges: prev.assigned_judges.map(j =>
-          j.id === user.id ? { ...j, status: 'confirmed' } : j
-        ),
-      }));
+      await activateFight(id, token);
+      const res = await getFightById(id, token);
+      setFight(res.data);
     } catch (err) {
-      setRespondError(err.response?.data?.message || 'Error al confirmar la designación');
+      setActivateError(err.response?.data?.message || 'Error al activar la pelea');
     } finally {
-      setResponding(false);
-    }
-  };
-
-  const handleShowReject = () => {
-    setRejecting(true);
-    setRejectReason('');
-    setRespondError(null);
-  };
-
-  const handleCancelReject = () => {
-    setRejecting(false);
-    setRejectReason('');
-  };
-
-  const handleConfirmReject = async () => {
-    if (!rejectReason.trim()) {
-      setRespondError('Debe indicar el motivo del rechazo');
-      return;
-    }
-    setResponding(true);
-    setRespondError(null);
-    try {
-      await respondAssignment(id, { response: 'rejected', reason: rejectReason.trim() }, token);
-      setFight(prev => ({
-        ...prev,
-        assigned_judges: prev.assigned_judges.map(j =>
-          j.id === user.id ? { ...j, status: 'rejected', rejection_reason: rejectReason.trim() } : j
-        ),
-      }));
-      setRejecting(false);
-    } catch (err) {
-      setRespondError(err.response?.data?.message || 'Error al rechazar la designación');
-    } finally {
-      setResponding(false);
+      setActivating(false);
     }
   };
 
@@ -291,6 +237,10 @@ const FightDetails = () => {
       setDeleteError(err.response?.data?.message || 'Error al archivar la pelea');
       setDeleting(false);
     }
+  };
+
+  const handleResultChange = (updatedFight) => {
+    setFight((prev) => ({ ...prev, ...updatedFight }));
   };
 
   return (
@@ -334,92 +284,28 @@ const FightDetails = () => {
               🏆 {fight.title}
             </span>
           )}
+          {fight.result_type && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-red-700 text-white shadow-sm">
+              {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type}
+              {isEarlyResult(fight) && ` · R${fight.result_round} · ${fight.result_time || '--:--'}`}
+              {fight.result_winner && ` · ${fight.result_winner}`}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* ── Judge Confirmation ── */}
-      {user?.role === 'judge' && myAssignment?.status === 'pending' && (
-        <div className="bg-gradient-to-br from-amber-50 to-amber-50/40 dark:from-amber-900/10 dark:to-amber-900/5 rounded-2xl border border-amber-200 dark:border-amber-800/30 border-t-[3px] border-t-amber-500 shadow-sm p-6 transition-all duration-200 hover:shadow-md">
-          <div className="flex items-center gap-3 mb-4">
+      {/* ── Judge designation (no confirmation) ── */}
+      {user?.role === 'judge' && myAssignment && fight?.status === 'pending' && (
+        <div className="bg-gradient-to-br from-amber-50 to-amber-50/40 dark:from-amber-900/10 dark:to-amber-900/5 rounded-2xl border border-amber-200 dark:border-amber-800/30 border-t-[3px] border-t-amber-500 shadow-sm p-5">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
               <svg className="w-5 h-5 text-amber-700 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Designación pendiente</p>
-              <p className="text-xs text-amber-600 dark:text-amber-400 m-0 mt-0.5">Has sido designado para esta pelea. Confirmá o rechazá tu participación.</p>
-            </div>
-          </div>
-          {rejecting ? (
-            <div>
-              <label className="block text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2">Motivo del rechazo *</label>
-              <textarea
-                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none mb-3 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
-                rows={3}
-                placeholder="Explique por qué no puede aceptar la designación..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <button
-                  disabled={responding}
-                  className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-all disabled:opacity-40 shadow-sm"
-                  onClick={handleConfirmReject}
-                >
-                  {responding ? 'Enviando...' : 'Enviar rechazo'}
-                </button>
-                <button
-                  disabled={responding}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-[#1E293B] transition-all"
-                  onClick={handleCancelReject}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-3">
-              <button
-                disabled={responding}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm hover:shadow-md disabled:opacity-40"
-                onClick={handleConfirm}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {responding ? 'Respondiendo...' : 'Confirmar'}
-              </button>
-              <button
-                disabled={responding}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800/40 hover:text-red-600 dark:hover:text-red-400 transition-all disabled:opacity-40"
-                onClick={handleShowReject}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                Rechazar
-              </button>
-            </div>
-          )}
-          {respondError && (
-            <div className="mt-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl px-4 py-2.5">
-              <p className="text-xs font-semibold text-red-700 dark:text-red-300 m-0">{respondError}</p>
-            </div>
-          )}
-        </div>
-      )}
-      {user?.role === 'judge' && myAssignment?.status === 'confirmed' && (
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-50/40 dark:from-emerald-900/5 dark:to-emerald-900/5 rounded-2xl border border-emerald-200 dark:border-emerald-800/20 border-t-[3px] border-t-emerald-500 shadow-sm p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
-              <svg className="w-5 h-5 text-emerald-700 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 m-0">Designación confirmada</p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 m-0 mt-0.5">Ya confirmaste tu participación en esta pelea.</p>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Designado</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 m-0 mt-0.5">Fuiste designado para esta pelea. Esperá a que se active para puntuar.</p>
             </div>
           </div>
         </div>
@@ -431,7 +317,7 @@ const FightDetails = () => {
         <SummaryCard icon={CalendarIcon} label="Fecha" value={formatDate(fight.scheduled_date)} accent="violet" />
         <SummaryCard icon={BoltIcon} label="Rounds" value={`${fight.total_rounds} rounds`} accent="amber" />
         <SummaryCard icon={UserGroupIcon} label="Jueces" value={`${fight.assigned_judges?.length || 0} asignados`} accent="emerald" />
-        <SummaryCard icon={CheckBadgeIcon} label="Confirmados" value={`${fight.assigned_judges?.filter(j => j.status === 'confirmed').length || 0}/${fight.assigned_judges?.length || 0}`} accent="blue" />
+        <SummaryCard icon={CheckBadgeIcon} label="Mínimo" value={`${fight.min_judges_required || 3} jueces`} accent="blue" />
       </div>
 
       {/* ── Referee card ── */}
@@ -509,6 +395,9 @@ const FightDetails = () => {
 
       {/* ── Referee Evaluation ── */}
       <RefereeEvaluationSection fight={fight} />
+
+      {/* ── Official Result (solo supervisor) ── */}
+      <ResultRegistration fight={fight} onResultChange={handleResultChange} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <FighterCard name={fight.boxer_red} corner="red" color="bg-gradient-to-br from-red-700 to-red-900" />
@@ -591,13 +480,6 @@ const FightDetails = () => {
         )}
       </SimpleTabs>
 
-      {isExpired && (
-        <DetailSection icon={StarIcon} title="Tu tarjeta de puntuación" description="Puntuación">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 sm:p-5 text-center">
-            <p className="text-sm font-semibold text-red-700 dark:text-red-300 m-0">La fecha programada para esta pelea ya pasó y no se recibió tu tarjeta a tiempo.</p>
-          </div>
-        </DetailSection>
-      )}
       {canScore && (
         <DetailSection icon={StarIcon} title="Tu tarjeta de puntuación" description="Puntuación">
           <ActionButton
@@ -626,6 +508,13 @@ const FightDetails = () => {
               disabled={fight.status !== 'pending'}
             >
               Asignar Jueces
+            </ActionButton>
+            <ActionButton
+              variant="danger"
+              onClick={handleActivateFight}
+              disabled={fight.status !== 'pending' || (fight.assigned_judges?.length || 0) < (fight.min_judges_required || 3) || activating}
+            >
+              {activating ? 'Finalizando...' : 'Finalizar designación'}
             </ActionButton>
             <ActionButton
               variant="secondary"
@@ -676,6 +565,11 @@ const FightDetails = () => {
           {analyzeError && (
             <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 dark:bg-red-900/30 dark:border-red-800/50">
               <p className="text-sm font-medium text-red-700 dark:text-red-300 m-0">{analyzeError}</p>
+            </div>
+          )}
+          {activateError && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 dark:bg-red-900/30 dark:border-red-800/50">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300 m-0">{activateError}</p>
             </div>
           )}
         </DetailSection>

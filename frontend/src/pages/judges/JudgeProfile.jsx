@@ -103,23 +103,20 @@ const DonutChart = ({ value, size = 120 }) => {
 };
 
 const getFightState = (a) => {
-  if (a.assignment_status === 'pending') return 'pending';
-  if (a.assignment_status === 'confirmed') {
-    if (a.fight_status === 'pending') return 'confirmed';
-    if (a.fight_status === 'active') return 'active';
-    if (a.fight_status === 'completed') return 'completed';
-    if (a.fight_status === 'analyzed') return 'analyzed';
+  if (a.fight_status === 'active') {
+    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
   }
-  return 'rejected';
+  if (a.fight_status === 'completed') return 'completed';
+  if (a.fight_status === 'analyzed') return 'analyzed';
+  return 'pending';
 };
 
 const STATE_META = {
-  pending:    { label: 'Pendiente',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
-  confirmed:  { label: 'Confirmada',  color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 dark:border dark:border-blue-800/50' },
+  pending:    { label: 'Designado',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
   active:     { label: 'Activa',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 dark:border dark:border-green-800/50' },
+  finalized:  { label: 'Enviada',     color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 dark:border dark:border-blue-800/50' },
   completed:  { label: 'Finalizada',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 dark:border dark:border-slate-600/50' },
   analyzed:   { label: 'Analizada',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 dark:border dark:border-red-800/50' },
-  rejected:   { label: 'Rechazada',   color: 'text-red-600 dark:text-red-400',     bg: 'bg-red-100 dark:bg-red-900/30 dark:border dark:border-red-800/50' },
 };
 
 const JudgeProfile = () => {
@@ -206,12 +203,11 @@ const JudgeProfile = () => {
   }
 
   const totalAssigned = assignments.length;
-  const pendingConfirm = assignments.filter((a) => a.assignment_status === 'pending').length;
-  const confirmedCount = assignments.filter((a) => a.assignment_status === 'confirmed').length;
-  const analyzedCount = assignments.filter((a) => a.assignment_status === 'confirmed' && a.fight_status === 'analyzed').length;
+  const pendingConfirm = assignments.filter((a) => a.fight_status === 'pending').length;
   const activeScoring = assignments.filter(
-    (a) => a.assignment_status === 'confirmed' && a.fight_status === 'active' && a.scorecard_status !== 'finalized'
+    (a) => a.fight_status === 'active' && a.scorecard_status !== 'finalized'
   ).length;
+  const analyzedCount = assignments.filter((a) => a.fight_status === 'analyzed').length;
 
   const precision = stats?.avg_match_pct || 0;
   const totalFights = stats?.total_fights || 0;
@@ -307,7 +303,7 @@ const JudgeProfile = () => {
       {totalAssigned > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard accent="fights" label="Pendientes" value={pendingConfirm} />
-          <StatCard accent="rounds" label="Confirmadas" value={confirmedCount} />
+          <StatCard accent="rounds" label="Designadas" value={totalAssigned} />
           <StatCard accent="precision" label="Activas" value={activeScoring} />
           <StatCard accent="level" label="Analizadas" value={analyzedCount} />
         </div>
@@ -429,20 +425,40 @@ const JudgeProfile = () => {
             {assignments.map((a) => {
               const state = getFightState(a);
               const meta = STATE_META[state];
+              const goTo = () => {
+                if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
+                else if (state === 'analyzed') navigate(`/analysis/${a.fight_id}`);
+                else navigate(`/fights/${a.fight_id}`);
+              };
               return (
-                <div key={a.fight_id} className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 dark:bg-[#0B1120] dark:border-[#1E293B] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div key={a.fight_id} onClick={goTo}
+                  className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer dark:bg-[#0B1120] dark:border-[#1E293B] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-red-200 dark:hover:border-red-800/40">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-slate-800 truncate dark:text-[#F8FAFC] m-0">{a.event_name}</p>
                     <p className="text-xs text-slate-500 mt-0.5 truncate dark:text-[#94A3B8] m-0">
                       {a.boxer_red} vs {a.boxer_blue} · {FORMAT_DATE(a.scheduled_date)}
                     </p>
                   </div>
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${meta.bg} ${meta.color}`}>
-                    {meta.label}
-                  </span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${meta.bg} ${meta.color}`}>
+                      {meta.label}
+                    </span>
+                    <svg className="w-4 h-4 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               );
             })}
+            {isOwnProfile && assignments.length > 0 && (
+              <button onClick={() => navigate('/judges/assignments')}
+                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
+                Ver todas las designaciones
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
       </DetailSection>

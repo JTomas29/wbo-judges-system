@@ -88,7 +88,6 @@ exports.remove = async (req, res, next) => {
 
     const assignment = await JudgeAssignment.findOne(fightNum, judgeNum);
     if (!assignment) return res.status(404).json({ message: 'Asignación no encontrada' });
-    if (assignment.status !== 'pending') return res.status(400).json({ message: 'Solo se pueden eliminar asignaciones en estado pending' });
     if (fight.status === 'active') return res.status(400).json({ message: 'No se puede eliminar asignaciones de una pelea activa' });
 
     await JudgeAssignment.delete(fightNum, judgeNum);
@@ -97,70 +96,6 @@ exports.remove = async (req, res, next) => {
     await Fight.updateMinJudgesRequired(fightNum, totalAfterRemove);
 
     res.status(204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.respond = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const fightId = parseInt(id, 10);
-    if (!Number.isInteger(fightId) || fightId < 1) return res.status(400).json({ message: 'ID de pelea inválido' });
-    const { response, reason } = req.body;
-    const judgeId = req.user.id;
-
-    if (!response || !['confirmed', 'rejected'].includes(response)) {
-      return res.status(400).json({ message: 'response debe ser confirmed o rejected' });
-    }
-
-    if (response === 'rejected' && (!reason || !reason.trim())) {
-      return res.status(400).json({ message: 'Debe indicar el motivo del rechazo' });
-    }
-
-    const fight = await Fight.getById(fightId);
-    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
-    if (fight.status !== 'pending') return res.status(400).json({ message: 'La pelea ya no está en estado pending' });
-
-    const assignment = await JudgeAssignment.findOne(fightId, judgeId);
-    if (!assignment) return res.status(404).json({ message: 'No tienes una asignación para esta pelea' });
-    if (assignment.status !== 'pending') {
-      return res.status(409).json({ message: `La asignación ya fue respondida como ${assignment.status}` });
-    }
-
-    const updated = await JudgeAssignment.respond(fightId, judgeId, response, reason);
-    const updatedFight = await Fight.getById(fightId);
-
-    const allAssignments = await JudgeAssignment.getByFight(fightId);
-    const confirmedCount = allAssignments.filter(a => a.status === 'confirmed').length;
-
-    const judge = await User.findById(judgeId);
-    const adminSupervisorIds = await Notification.getAdminAndSupervisorIds();
-
-    if (response === 'confirmed') {
-      await Notification.createForUsers(adminSupervisorIds, {
-        type: 'status_change',
-        title: 'Juez confirmó participación',
-        message: `${judge.name} confirmó su participación en la pelea "${fight.boxer_red} vs ${fight.boxer_blue}"`,
-        referenceType: 'fight',
-        referenceId: fightId,
-      });
-    } else {
-      await Notification.createForUsers(adminSupervisorIds, {
-        type: 'status_change',
-        title: 'Designación rechazada',
-        message: `${judge.name} rechazó la designación para la pelea "${fight.boxer_red} vs ${fight.boxer_blue}"`,
-        referenceType: 'fight',
-        referenceId: fightId,
-      });
-    }
-
-    res.json({
-      assignment: updated,
-      fight_status: updatedFight.status,
-      confirmed_count: confirmedCount,
-      required_count: 1,
-    });
   } catch (err) {
     next(err);
   }

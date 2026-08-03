@@ -16,3 +16,8 @@ export const updateRefereeEvaluation = (id, data, token) =>
   axios.put(`${API_URL}/referee-evaluations/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+export const deleteRefereeEvaluation = (id, token) =>
+  axios.delete(`${API_URL}/referee-evaluations/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });

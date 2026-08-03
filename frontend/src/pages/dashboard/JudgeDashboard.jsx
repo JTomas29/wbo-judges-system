@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { getMyAssignments, respondAssignment } from '../../services/judgeService';
+import { getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
 
 const Card = ({ children, className = '' }) => (
@@ -32,26 +31,21 @@ const TODAY_STR = () =>
   new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 const getFightState = (a) => {
-  if (a.assignment_status === 'pending') return 'pending';
-  if (a.assignment_status === 'confirmed') {
-    if (a.fight_status === 'pending') return 'confirmed';
-    if (a.fight_status === 'active') return 'active';
-    if (a.fight_status === 'completed') return 'completed';
-    if (a.fight_status === 'analyzed') return 'analyzed';
+  if (a.fight_status === 'active') {
+    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
   }
-  return 'rejected';
+  if (a.fight_status === 'completed') return 'completed';
+  if (a.fight_status === 'analyzed') return 'analyzed';
+  return 'pending';
 };
 
 const STATE_META = {
-  pending:    { label: 'Pendiente',   color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
-  confirmed:  { label: 'Confirmada',  color: 'text-blue-700 dark:text-blue-300',     bg: 'bg-blue-100 dark:bg-blue-900/30',     dot: 'bg-blue-500',  bar: 'bg-blue-500',  step: 1 },
-  active:     { label: 'Activa',      color: 'text-green-700 dark:text-green-300',   bg: 'bg-green-100 dark:bg-green-900/30',   dot: 'bg-green-500', bar: 'bg-green-500', step: 2 },
-  completed:  { label: 'Finalizada',  color: 'text-slate-700 dark:text-slate-300',   bg: 'bg-slate-100 dark:bg-slate-700/50',   dot: 'bg-slate-400', bar: 'bg-slate-400', step: 3 },
-  analyzed:   { label: 'Analizada',   color: 'text-red-700 dark:text-red-300',       bg: 'bg-red-100 dark:bg-red-900/30',       dot: 'bg-red-500',   bar: 'bg-red-500',   step: 4 },
-  rejected:   { label: 'Rechazada',   color: 'text-red-600 dark:text-red-400',       bg: 'bg-red-100 dark:bg-red-900/30',       dot: 'bg-red-500',   bar: 'bg-red-500',   step: -1 },
+  pending:    { label: 'Designado',  color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
+  active:     { label: 'Activa',     color: 'text-green-700 dark:text-green-300',   bg: 'bg-green-100 dark:bg-green-900/30',   dot: 'bg-green-500', bar: 'bg-green-500', step: 1 },
+  finalized:  { label: 'Enviada',    color: 'text-blue-700 dark:text-blue-300',     bg: 'bg-blue-100 dark:bg-blue-900/30',     dot: 'bg-blue-500',  bar: 'bg-blue-500',  step: 2 },
+  completed:  { label: 'Finalizada', color: 'text-slate-700 dark:text-slate-300',   bg: 'bg-slate-100 dark:bg-slate-700/50',   dot: 'bg-slate-400', bar: 'bg-slate-400', step: 3 },
+  analyzed:   { label: 'Analizada',  color: 'text-red-700 dark:text-red-300',       bg: 'bg-red-100 dark:bg-red-900/30',       dot: 'bg-red-500',   bar: 'bg-red-500',   step: 4 },
 };
-
-const STATE_STEPS = ['pending', 'confirmed', 'active', 'completed', 'analyzed'];
 
 const TimelineItem = ({ icon, label, date, done }) => (
   <div className="flex gap-3">
@@ -85,13 +79,11 @@ const StatBlock = ({ label, value, icon }) => (
 const JudgeDashboard = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
-  const { theme } = useTheme();
 
   const [assignments, setAssignments] = useState([]);
   const [loadingAsign, setLoadingAsign] = useState(true);
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
-  const [responding, setResponding] = useState(null);
   const [error, setError] = useState(null);
 
   const loadData = useCallback(async () => {
@@ -117,20 +109,6 @@ const JudgeDashboard = () => {
     if (token && user) loadData();
   }, [token, user, loadData]);
 
-  const handleConfirm = async (fightId) => {
-    setResponding(fightId);
-    try {
-      await respondAssignment(fightId, { response: 'confirmed' }, token);
-      setAssignments((prev) =>
-        prev.map((a) => (a.fight_id === fightId ? { ...a, assignment_status: 'confirmed' } : a))
-      );
-    } catch (err) {
-      setError(err.response?.data?.message || 'Error al confirmar');
-    } finally {
-      setResponding(null);
-    }
-  };
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -147,13 +125,12 @@ const JudgeDashboard = () => {
   }
 
   const totalAssigned = assignments.length;
-  const pendingConfirm = assignments.filter((a) => a.assignment_status === 'pending').length;
-  const confirmedCount = assignments.filter((a) => a.assignment_status === 'confirmed').length;
-  const rejectedCount = assignments.filter((a) => a.assignment_status === 'rejected').length;
+  const pendingConfirm = assignments.filter((a) => a.fight_status === 'pending').length;
+  const finalizedCount = assignments.filter((a) => a.fight_status === 'active' && a.scorecard_status === 'finalized').length;
   const activeScoring = assignments.filter(
-    (a) => a.assignment_status === 'confirmed' && a.fight_status === 'active' && a.scorecard_status !== 'finalized'
+    (a) => a.fight_status === 'active' && a.scorecard_status !== 'finalized'
   ).length;
-  const analyzedCount = assignments.filter((a) => a.assignment_status === 'confirmed' && a.fight_status === 'analyzed').length;
+  const analyzedCount = assignments.filter((a) => a.fight_status === 'analyzed').length;
 
   const precision = stats?.avg_match_pct || 0;
   const totalFights = stats?.total_fights || 0;
@@ -199,10 +176,10 @@ const JudgeDashboard = () => {
                 <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-3 capitalize">{TODAY_STR()}</p>
                 <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
                   Bienvenido de vuelta, {user?.name?.split(' ')[0] || 'Juez'}.{' '}
-                  {pendingConfirm > 0
-                    ? `Tenés ${pendingConfirm} designación${pendingConfirm > 1 ? 'es' : ''} pendiente${pendingConfirm > 1 ? 'es' : ''} por confirmar.`
-                    : activeScoring > 0
-                      ? `Tenés ${activeScoring} pelea${activeScoring > 1 ? 's' : ''} activa${activeScoring > 1 ? 's' : ''} para puntuar.`
+                  {activeScoring > 0
+                    ? `Tenés ${activeScoring} pelea${activeScoring > 1 ? 's' : ''} activa${activeScoring > 1 ? 's' : ''} para puntuar.`
+                    : pendingConfirm > 0
+                      ? `Tenés ${pendingConfirm} designación${pendingConfirm > 1 ? 'es' : ''} en espera de que se active la pelea.`
                       : 'No hay novedades pendientes.'}
                 </p>
               </div>
@@ -284,7 +261,7 @@ const JudgeDashboard = () => {
                 {assignments.length} pelea{assignments.length !== 1 ? 's' : ''} asignada{assignments.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <button onClick={() => navigate('/judges/confirmation')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
+            <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
               Ver todas
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -297,8 +274,8 @@ const JudgeDashboard = () => {
             <div className="flex gap-3 mb-7 overflow-x-auto pb-1">
               {[
                 { label: 'Pendientes', value: pendingConfirm, color: 'bg-amber-500', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
-                { label: 'Confirmadas', value: confirmedCount, color: 'bg-emerald-500', icon: 'M5 13l4 4L19 7' },
-                { label: 'Rechazadas', value: rejectedCount, color: 'bg-red-500', icon: 'M6 18L18 6M6 6l12 12' },
+                { label: 'Enviadas', value: finalizedCount, color: 'bg-emerald-500', icon: 'M5 13l4 4L19 7' },
+                { label: 'Analizadas', value: analyzedCount, color: 'bg-red-500', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
               ].map((c) => (
                 <div key={c.label} className="flex items-center gap-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm px-4 py-3 min-w-[140px]">
                   <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
@@ -341,17 +318,11 @@ const JudgeDashboard = () => {
 
                 const borderAccent = {
                   pending: 'border-l-amber-500',
-                  confirmed: 'border-l-emerald-500',
                   active: 'border-l-blue-500',
+                  finalized: 'border-l-emerald-500',
                   completed: 'border-l-slate-400 dark:border-l-slate-500',
                   analyzed: 'border-l-violet-500',
-                  rejected: 'border-l-red-500',
                 }[state] || 'border-l-slate-300 dark:border-l-slate-600';
-
-                const isExpired = a.assignment_status === 'confirmed' &&
-                  a.scorecard_status !== 'finalized' &&
-                  new Date(a.scheduled_date) < new Date() &&
-                  (a.fight_status === 'pending' || a.fight_status === 'active');
 
                 return (
                   <div key={a.fight_id} className={`group bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-l-[5px] ${borderAccent} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-red-300 dark:hover:border-[#334155]`}>
@@ -372,18 +343,16 @@ const JudgeDashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          {isExpired ? (
-                            <Badge className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-full">
-                              Puntuación vencida
-                            </Badge>
-                          ) : (
-                            <Badge className={`${meta.bg} ${meta.color} rounded-full`}>
-                              {meta.label}
-                            </Badge>
-                          )}
-                          {!isExpired && (
+                          <Badge className={`${meta.bg} ${meta.color} rounded-full`}>
+                            {meta.label}
+                          </Badge>
+                          {state !== 'completed' && (
                             <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0"
-                              onClick={() => navigate(`/scoring/${a.fight_id}`)}>
+                              onClick={() => {
+                                if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
+                                else if (state === 'analyzed') navigate(`/analysis/${a.fight_id}`);
+                                else navigate(`/fights/${a.fight_id}`);
+                              }}>
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                               </svg>
@@ -439,22 +408,21 @@ const JudgeDashboard = () => {
                     {/* Action */}
                     <div className="px-5 pb-5 pt-1">
                       {state === 'pending' && (
-                        <button disabled={responding === a.fight_id}
-                          className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
-                          onClick={() => handleConfirm(a.fight_id)}>
-                          {responding === a.fight_id ? 'Confirmando...' : 'Confirmar participación'}
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-xl">Designado · Esperando que se active la pelea</div>
+                          <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
+                            onClick={() => navigate(`/fights/${a.fight_id}`)}>
+                            Ver pelea
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
                       )}
-                      {isExpired && (
-                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl">Puntuación vencida · La fecha de esta pelea ya expiró</div>
-                      )}
-                      {!isExpired && state === 'confirmed' && (
-                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-xl">{progressText} · Esperando inicio</div>
-                      )}
-                      {!isExpired && state === 'active' && a.scorecard_status === 'finalized' && (
+                      {state === 'finalized' && (
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Tarjeta enviada</div>
                       )}
-                      {!isExpired && state === 'active' && a.scorecard_status !== 'finalized' && (
+                      {state === 'active' && a.scorecard_status !== 'finalized' && (
                         <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
                           Puntuar pelea
@@ -469,9 +437,6 @@ const JudgeDashboard = () => {
                           Ver análisis
                         </button>
                       )}
-                      {state === 'rejected' && (
-                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-semibold rounded-xl">Rechazada</div>
-                      )}
                     </div>
                   </div>
                 );
@@ -485,7 +450,7 @@ const JudgeDashboard = () => {
           {assignments.length > 0 || stats?.total_fights > 0 ? (
             <div>
               {pendingConfirm === 0 && totalAssigned > 0 && (
-                <TimelineItem icon="M5 13l4 4L19 7" label="Confirmaste participación" date={FORMAT_DATE(new Date())} done />
+                <TimelineItem icon="M5 13l4 4L19 7" label="Designación recibida" date={null} done />
               )}
               <TimelineItem icon="M5 13l4 4L19 7" label="Tarjeta enviada" date={null} done={analyzedCount > 0} />
               <TimelineItem icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" label="Pelea analizada" date={null} done={analyzedCount > 0} />
@@ -509,7 +474,7 @@ const JudgeDashboard = () => {
       <Card className="p-6 sm:p-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Mis Designaciones', path: '/judges/confirmation', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
+            { label: 'Mis Designaciones', path: '/judges/assignments', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
             { label: 'Mis Estadísticas', path: '/analysis/statistics', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
             { label: 'Mi Perfil', path: `/profile/${user.id}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
           ].map((btn) => (

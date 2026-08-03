@@ -3,6 +3,11 @@ const User = require('../models/User');
 const Referee = require('../models/Referee');
 const ScoreCard = require('../models/ScoreCard');
 const OfficialCard = require('../models/OfficialCard');
+const JudgeAssignment = require('../models/JudgeAssignment');
+const Notification = require('../models/Notification');
+
+const RESULT_TYPES = ['decision', 'ko', 'tko', 'rtd', 'dq', 'nc'];
+const EARLY_RESULT_TYPES = ['ko', 'tko', 'rtd', 'dq', 'nc'];
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -193,6 +198,50 @@ exports.update = async (req, res, next) => {
   }
 };
 
+exports.activate = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+    if (fight.status !== 'pending') {
+      return res.status(400).json({ message: 'Solo se puede activar una pelea en estado pending' });
+    }
+
+    const assignedCount = await JudgeAssignment.getCount(id);
+    if (assignedCount < 3) {
+      return res.status(400).json({ message: 'Se necesitan al menos 3 jueces designados para activar la pelea' });
+    }
+
+    const updated = await Fight.activate(id);
+    if (!updated) {
+      return res.status(409).json({ message: 'No se pudo activar la pelea' });
+    }
+
+    const assignments = await JudgeAssignment.getByFight(id);
+    await Promise.all(
+      assignments.map((a) =>
+        Notification.create({
+          userId: a.judge_id,
+          type: 'status_change',
+          title: 'Pelea lista para comenzar',
+          message: `La pelea "${fight.event_name}" está activa. Ya podés cargar tu tarjeta de puntuación.`,
+          referenceType: 'fight',
+          referenceId: Number(id),
+        })
+      )
+    );
+
+    res.json({
+      message: 'Pelea activada correctamente.',
+      fight: { ...updated, assigned_judges: assignments },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.complete = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -213,6 +262,82 @@ exports.complete = async (req, res, next) => {
     const updated = await Fight.complete(Number(id));
 
     res.json({ message: 'Pelea finalizada correctamente.', fight: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.registerResult = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'supervisor') {
+      return res.status(403).json({ message: 'Solo el Supervisor puede registrar el resultado oficial de la pelea.' });
+    }
+
+    const { id } = req.params;
+    const errMsg = validateFightId(id);
+    if (errMsg) return res.status(400).json({ message: errMsg });
+
+    const { result_type, winner, round, time } = req.body;
+    const type = String(result_type || '').trim().toLowerCase();
+    if (!RESULT_TYPES.includes(type)) {
+      return res.status(400).json({ message: `result_type debe ser uno de: ${RESULT_TYPES.join(', ')}` });
+    }
+
+    const fight = await Fight.getById(id);
+    if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
+
+    if (fight.status === 'archived' || fight.status === 'cancelled') {
+      return res.status(400).json({ message: 'No se puede registrar el resultado de una pelea archivada o cancelada.' });
+    }
+    if (fight.result_type) {
+      return res.status(409).json({ message: 'Esta pelea ya tiene un resultado oficial registrado.' });
+    }
+
+    let resultWinner = null;
+    if (type === 'nc') {
+      if (winner && String(winner).trim()) {
+        return res.status(400).json({ message: 'Una pelea sin decisión (NC) no tiene ganador.' });
+      }
+    } else {
+      const name = String(winner || '').trim();
+      if (!name) {
+        return res.status(400).json({ message: 'Debe indicar el ganador de la pelea.' });
+      }
+      const red = fight.boxer_red.trim().toLowerCase();
+      const blue = fight.boxer_blue.trim().toLowerCase();
+      if (name.toLowerCase() !== red && name.toLowerCase() !== blue) {
+        return res.status(400).json({ message: 'El ganador debe ser uno de los boxeadores de la pelea.' });
+      }
+      resultWinner = name;
+    }
+
+    let resultRound = null;
+    let resultTime = null;
+    if (EARLY_RESULT_TYPES.includes(type)) {
+      resultRound = Number(round);
+      if (!Number.isInteger(resultRound) || resultRound < 1 || resultRound > Number(fight.total_rounds)) {
+        return res.status(400).json({ message: `round debe ser un entero entre 1 y ${fight.total_rounds}.` });
+      }
+      resultTime = String(time || '').trim();
+      if (!/^[0-9]{1,2}:[0-5][0-9]$/.test(resultTime)) {
+        return res.status(400).json({ message: 'time debe tener formato m:ss (ej: 2:35).' });
+      }
+    }
+
+    const updated = await Fight.registerResult(id, {
+      result_type: type,
+      result_winner: resultWinner,
+      result_round: resultRound,
+      result_time: resultTime,
+      result_registered_by: req.user.id,
+    });
+
+    res.json({
+      message: type === 'decision'
+        ? 'Resultado oficial por decisión registrado correctamente.'
+        : `Pelea finalizada por ${type.toUpperCase()} en el round ${resultRound}.`,
+      fight: updated,
+    });
   } catch (err) {
     next(err);
   }
@@ -242,9 +367,9 @@ exports.getAnalysis = async (req, res, next) => {
 
     const officialRounds = (officialCard?.rounds || []).map((r) => ({
       round_number: r.round_number,
-      score_red: r.score_red,
-      score_blue: r.score_blue,
-      winner: computeWinner(r.score_red, r.score_blue),
+      score_red: r.final_score_red,
+      score_blue: r.final_score_blue,
+      winner: computeWinner(r.final_score_red, r.final_score_blue),
     }));
 
     const judges = analysisResults.map((ar) => {

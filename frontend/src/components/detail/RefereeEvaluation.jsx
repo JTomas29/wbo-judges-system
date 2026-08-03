@@ -1,8 +1,90 @@
-import { useState, useEffect } from 'react';
-import { getRefereeEvaluation, createRefereeEvaluation, updateRefereeEvaluation } from '../../services/refereeEvaluationService';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getRefereeEvaluation, createRefereeEvaluation, updateRefereeEvaluation, deleteRefereeEvaluation } from '../../services/refereeEvaluationService';
 import { useAuth } from '../../context/AuthContext';
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+// Sistema de estrellas para la calificación del árbitro.
+// Cada estrella equivale a 2 puntos internos: score = estrellas × 2
+const STAR_LABELS = {
+  0: 'Seleccione una calificación',
+  1: 'Muy mala',
+  2: 'Mala',
+  3: 'Regular',
+  4: 'Buena',
+  5: 'Excelente',
+};
+
+const starLabel = (n) => STAR_LABELS[n] || STAR_LABELS[0];
+
+// Convierte un score guardado (2, 4, 6, 8, 10) al número de estrellas (1-5)
+const scoreToStars = (score) => {
+  const n = parseInt(score, 10);
+  if (!Number.isInteger(n) || n < 1) return 0;
+  return Math.min(5, Math.max(1, Math.round(n / 2)));
+};
+
+const StarIcon = ({ filled }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="1.5"
+    aria-hidden="true"
+    className={`w-8 h-8 sm:w-10 sm:h-10 transition-all duration-150 ${filled ? 'text-amber-400 drop-shadow-sm' : 'text-slate-300 dark:text-slate-600'}`}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+  </svg>
+);
+
+const StarRating = ({ value = 0, onChange, disabled = false, name }) => {
+  const [hover, setHover] = useState(0);
+  const [focusStar, setFocusStar] = useState(0);
+  const starRefs = useRef({});
+  const effective = hover || value;
+
+  const move = (next) => {
+    const clamped = Math.min(5, Math.max(1, next));
+    setFocusStar(clamped);
+    setHover(clamped);
+    const el = starRefs.current[clamped];
+    if (el) el.focus();
+  };
+
+  const handleKeyDown = (e, star) => {
+    if (disabled) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); move(star + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); move(star - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); move(1); }
+    else if (e.key === 'End') { e.preventDefault(); move(5); }
+  };
+
+  return (
+    <div role="radiogroup" aria-label={name || 'Calificación'}>
+      <div className="inline-flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            ref={(el) => { starRefs.current[n] = el; }}
+            type="button"
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} ${n === 1 ? 'estrella' : 'estrellas'}: ${STAR_LABELS[n]}`}
+            tabIndex={focusStar === n || (focusStar === 0 && n === 1) ? 0 : -1}
+            disabled={disabled}
+            onClick={() => { setFocusStar(n); setHover(0); if (onChange) onChange(n); }}
+            onFocus={() => setFocusStar(n)}
+            onMouseEnter={() => { if (!disabled) setHover(n); }}
+            onKeyDown={(e) => handleKeyDown(e, n)}
+            className={`p-1 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-amber-400/60 ${disabled ? 'cursor-default opacity-70' : 'cursor-pointer hover:scale-105'}`}
+          >
+            <StarIcon filled={n <= effective} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   const { token, user } = useAuth();
@@ -11,43 +93,38 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   // Form state
-  const [formScore, setFormScore] = useState('');
+  const [formStars, setFormStars] = useState(0);
   const [formDeduction, setFormDeduction] = useState(0);
   const [formComments, setFormComments] = useState('');
 
   const isSupervisor = user?.role === 'supervisor';
   const isAdmin = user?.role === 'admin';
   const isJudge = user?.role === 'judge';
-  const canEdit = isSupervisor && fight?.status === 'analyzed';
-  const canView = (isSupervisor || isAdmin) && fight?.status === 'analyzed';
+  // Único usuario autorizado: el SUPERVISOR de la pelea (quien la creó)
+  const isFightSupervisor = isSupervisor && Number(fight?.created_by) === Number(user?.id);
+  // La evaluación está disponible una vez finalizada la pelea (completed o analyzed)
+  const isFightFinalized = fight?.status === 'completed' || fight?.status === 'analyzed';
+  const canEdit = isFightSupervisor && isFightFinalized;
+  const canView = isFightSupervisor && isFightFinalized;
 
-  // Juez no puede ver esta sección
-  if (isJudge) return null;
-
-  useEffect(() => {
-    if (!canView || !fight?.id) {
-      setLoading(false);
-      return;
-    }
-    loadEvaluation();
-  }, [fight?.id, token]);
-
-  const loadEvaluation = async () => {
+  const loadEvaluation = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await getRefereeEvaluation(fight.id, token);
       setEvaluation(res.data);
-      setFormScore(res.data.score);
+      setFormStars(scoreToStars(res.data.score));
       setFormDeduction(res.data.point_deduction);
       setFormComments(res.data.comments || '');
     } catch (err) {
       if (err.response?.status === 404) {
         setEvaluation(null);
-        setFormScore('');
+        setFormStars(0);
         setFormDeduction(0);
         setFormComments('');
       } else {
@@ -56,16 +133,31 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fight?.id, token]);
+
+  useEffect(() => {
+    if (!canView || !fight?.id) {
+      setLoading(false);
+      return;
+    }
+    loadEvaluation();
+  }, [canView, fight?.id, token, loadEvaluation]);
+
+  // Juez no puede ver esta sección
+  if (isJudge) return null;
+
+  // Solo el supervisor de la pelea puede ver/editar la evaluación del árbitro
+  if (isAdmin) return null;
+  if (isSupervisor && !isFightSupervisor) return null;
 
   const handleSave = async () => {
     setSaveError(null);
 
-    const scoreNum = parseInt(formScore, 10);
-    if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
-      setSaveError('La calificación debe ser un número entre 0 y 100');
+    if (!formStars || formStars < 1 || formStars > 5) {
+      setSaveError('Debe seleccionar entre 1 y 5 estrellas');
       return;
     }
+    const scoreNum = formStars * 2;
 
     const deductionNum = parseInt(formDeduction, 10);
     if (isNaN(deductionNum) || deductionNum < 0 || deductionNum > 5) {
@@ -110,7 +202,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
 
   const handleEdit = () => {
     if (evaluation) {
-      setFormScore(evaluation.score);
+      setFormStars(scoreToStars(evaluation.score));
       setFormDeduction(evaluation.point_deduction);
       setFormComments(evaluation.comments || '');
     }
@@ -119,11 +211,11 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
 
   const handleCancel = () => {
     if (evaluation) {
-      setFormScore(evaluation.score);
+      setFormStars(scoreToStars(evaluation.score));
       setFormDeduction(evaluation.point_deduction);
       setFormComments(evaluation.comments || '');
     } else {
-      setFormScore('');
+      setFormStars(0);
       setFormDeduction(0);
       setFormComments('');
     }
@@ -131,9 +223,51 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     setSaveError(null);
   };
 
-  const finalScore = Math.max(0, (parseInt(formScore, 10) || 0) - (parseInt(formDeduction, 10) || 0));
+  const handleDelete = async () => {
+    if (!evaluation?.id) return;
+    if (!window.confirm('¿Está seguro de que desea eliminar la evaluación del árbitro? Esta acción no se puede deshacer.')) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteRefereeEvaluation(evaluation.id, token);
+      setEvaluation(null);
+      setFormStars(0);
+      setFormDeduction(0);
+      setFormComments('');
+      setEditing(false);
+      if (onEvaluationChange) onEvaluationChange(null);
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Error al eliminar la evaluación');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const finalScore = Math.max(0, (formStars || 0) * 2 - (parseInt(formDeduction, 10) || 0));
 
   if (!canView) return null;
+
+  // No se puede evaluar un árbitro si la pelea no tiene uno asignado
+  if (!fight?.referee?.id) {
+    return (
+      <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-500 shadow-sm p-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-wbo-50 dark:bg-wbo-900/20 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Evaluación del Árbitro</h3>
+            <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">
+              Esta pelea no tiene un árbitro asignado, por lo que no se puede registrar una evaluación.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -181,17 +315,35 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
             </div>
           </div>
           {canEdit && (
-            <button
-              onClick={handleEdit}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-wbo-600 text-white rounded-xl text-xs font-semibold hover:bg-wbo-700 transition-all shadow-sm"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
-              Editar
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                disabled={deleting}
+                onClick={handleDelete}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all shadow-sm disabled:opacity-40"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+                {deleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-wbo-600 text-white rounded-xl text-xs font-semibold hover:bg-wbo-700 transition-all shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+                Editar
+              </button>
+            </div>
           )}
         </div>
+
+        {deleteError && (
+          <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl px-4 py-2.5">
+            <p className="text-xs font-semibold text-red-700 dark:text-red-300 m-0">{deleteError}</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
@@ -202,7 +354,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Calificación</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{evaluation.score}/100</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{evaluation.score}/10</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
@@ -257,24 +409,21 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {/* Calificación */}
-          <div>
+          <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Calificación <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={formScore}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
-                  setFormScore(val);
-                }
-              }}
-              placeholder="0 - 100"
-              className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-wbo-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
-            />
+            <div className="flex justify-center sm:justify-start">
+              <StarRating value={formStars} onChange={setFormStars} name="Calificación del árbitro" />
+            </div>
+            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 mt-2">
+              <span className={`text-sm font-bold ${formStars ? 'text-slate-800 dark:text-[#F8FAFC]' : 'text-slate-400 dark:text-slate-500'}`}>
+                {starLabel(formStars)}
+              </span>
+              <span className="inline-flex items-center text-xs font-bold text-wbo-700 dark:text-wbo-400 bg-wbo-50 dark:bg-wbo-900/20 border border-wbo-100 dark:border-wbo-800/30 rounded-lg px-2.5 py-1 tabular-nums">
+                Puntaje: {formStars ? formStars * 2 : '—'}/10
+              </span>
+            </div>
           </div>
 
           {/* Descuento */}
@@ -381,24 +530,21 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {/* Calificación */}
-          <div>
+          <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Calificación <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={formScore}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
-                  setFormScore(val);
-                }
-              }}
-              placeholder="0 - 100"
-              className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-wbo-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
-            />
+            <div className="flex justify-center sm:justify-start">
+              <StarRating value={formStars} onChange={setFormStars} name="Calificación del árbitro" />
+            </div>
+            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 mt-2">
+              <span className={`text-sm font-bold ${formStars ? 'text-slate-800 dark:text-[#F8FAFC]' : 'text-slate-400 dark:text-slate-500'}`}>
+                {starLabel(formStars)}
+              </span>
+              <span className="inline-flex items-center text-xs font-bold text-wbo-700 dark:text-wbo-400 bg-wbo-50 dark:bg-wbo-900/20 border border-wbo-100 dark:border-wbo-800/30 rounded-lg px-2.5 py-1 tabular-nums">
+                Puntaje: {formStars ? formStars * 2 : '—'}/10
+              </span>
+            </div>
           </div>
 
           {/* Descuento */}

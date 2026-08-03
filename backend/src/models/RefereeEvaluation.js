@@ -69,4 +69,13 @@ RefereeEvaluation.getById = async (id) => {
   return rows[0] || null;
 };
 
+RefereeEvaluation.deleteById = async (id) => {
+  const { rows } = await pool.query(`
+    DELETE FROM referee_evaluations
+    WHERE id = $1
+    RETURNING id
+  `, [id]);
+  return rows[0] || null;
+};
+
 module.exports = RefereeEvaluation;

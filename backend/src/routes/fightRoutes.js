@@ -1,6 +1,6 @@
 ﻿const { Router } = require('express');
-const { getAll, getById, create, update, archive, complete, analyze, getAnalysis, getHistory } = require('../controllers/fightController');
-const { assign, remove: removeAssignment, list, respond } = require('../controllers/assignmentController');
+const { getAll, getById, create, update, archive, complete, activate, analyze, getAnalysis, getHistory, registerResult } = require('../controllers/fightController');
+const { assign, remove: removeAssignment, list } = require('../controllers/assignmentController');
 const { createOrGetScorecard, getMyScorecard, getAllScorecards } = require('../controllers/scoringController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
@@ -26,6 +26,12 @@ router.get('/:id/scorecards', roleMiddleware('admin', 'supervisor'), getAllScore
 // Finalizar pelea (admin, supervisor)
 router.post('/:id/complete', roleMiddleware('admin', 'supervisor'), complete);
 
+// Activar pelea manualmente (admin, supervisor)
+router.post('/:id/activate', roleMiddleware('admin', 'supervisor'), activate);
+
+// Registrar resultado oficial — SOLO supervisor (KO, TKO, RTD, DQ, NC o Decisión)
+router.post('/:id/result', roleMiddleware('supervisor'), registerResult);
+
 // Ejecutar análisis (admin, supervisor)
 router.post('/:id/analyze', roleMiddleware('admin', 'supervisor'), analyze);
 
@@ -36,8 +42,5 @@ router.get('/:id/analysis', getAnalysis);
 router.post('/:id/assignments', roleMiddleware('admin', 'supervisor'), assign);
 router.delete('/:id/assignments/:judgeId', roleMiddleware('admin', 'supervisor'), removeAssignment);
 router.get('/:id/assignments', list);
-
-// Respuesta del juez (confirmar/rechazar)
-router.patch('/:id/assignments/respond', respond);
 
 module.exports = router;

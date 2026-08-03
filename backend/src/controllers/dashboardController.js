@@ -29,7 +29,6 @@ const getDashboard = async (req, res, next) => {
       LEFT JOIN (
         SELECT fight_id, COUNT(*) AS confirmed_count
         FROM judge_assignments
-        WHERE status = 'confirmed'
         GROUP BY fight_id
       ) ja ON ja.fight_id = f.id
       WHERE f.status != 'archived'

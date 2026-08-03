@@ -40,7 +40,9 @@ ScoreCard.findByFightAndJudge = async (fightId, judgeId) => {
 
 ScoreCard.getRoundScores = async (scoreCardId) => {
   const { rows } = await pool.query(`
-    SELECT id, score_card_id, round_number, score_red, score_blue, referee_score, referee_notes
+    SELECT
+      id, score_card_id, round_number, score_red, score_blue,
+      deduction_red, deduction_blue, final_score_red, final_score_blue, notes
     FROM round_scores
     WHERE score_card_id = $1
     ORDER BY round_number ASC
@@ -77,7 +79,7 @@ ScoreCard.getAllByFight = async (fightId) => {
     JOIN fights f ON f.id = ja.fight_id
     LEFT JOIN score_cards sc ON sc.fight_id = ja.fight_id AND sc.judge_id = ja.judge_id
     LEFT JOIN round_scores rs ON rs.score_card_id = sc.id
-    WHERE ja.fight_id = $1 AND ja.status = 'confirmed'
+    WHERE ja.fight_id = $1
     GROUP BY u.id, u.name, u.level, ja.assignment_type, sc.status,
              sc.total_score_red, sc.total_score_blue, sc.winner, sc.submitted_at,
              f.total_rounds

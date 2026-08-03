@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getScorecards, completeFight } from '../../services/fightService';
+import { getEffectiveTotalRounds } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import {
   CalendarIcon,
@@ -61,7 +62,6 @@ const fightStatusBadge = (status) => {
   if (!status) return null;
   const map = {
     pending: { label: 'Pendiente', cls: 'bg-amber-500/15 text-amber-200 ring-amber-400/30', dot: 'bg-amber-300' },
-    confirmed: { label: 'Confirmada', cls: 'bg-blue-500/15 text-blue-200 ring-blue-400/30', dot: 'bg-blue-300' },
     active: { label: 'En vivo', cls: 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30', dot: 'bg-emerald-300' },
     completed: { label: 'Completada', cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' },
     analyzed: { label: 'Analizada', cls: 'bg-gold/15 text-gold-light ring-gold/30', dot: 'bg-gold-light' },
@@ -105,7 +105,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
     { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
     { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
-    { icon: HashtagIcon, label: 'Rounds', value: `${maxCompleted} / ${fight?.total_rounds ?? 0}` },
+    { icon: HashtagIcon, label: 'Rounds', value: `${maxCompleted} / ${getEffectiveTotalRounds(fight)}` },
   ];
 
   return (
@@ -162,7 +162,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
         <div className="w-full h-2.5 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-wbo-600 to-wbo-700 rounded-full transition-all duration-700 ease-out" style={{ width: `${roundsPct}%` }} />
         </div>
-        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-2 m-0">{maxCompleted} de {fight?.total_rounds ?? 0} rounds completados</p>
+        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-2 m-0">{maxCompleted} de {getEffectiveTotalRounds(fight)} rounds completados</p>
       </div>
     </div>
   );
@@ -234,7 +234,7 @@ const ScorecardsTable = ({ entries }) => (
               <td colSpan="6" className="px-4 py-10 text-center text-slate-400 dark:text-[#94A3B8]">
                 <div className="flex flex-col items-center gap-2">
                   <UserGroupIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-                  <span>No hay jueces confirmados para esta pelea.</span>
+                  <span>No hay jueces designados para esta pelea.</span>
                 </div>
               </td>
             </tr>
@@ -409,7 +409,7 @@ const LiveScore = () => {
   const allFinalized = entries.length > 0 && entries.every((e) => e.scorecard_status === 'finalized');
 
   const maxCompleted = entries.length ? Math.max(...entries.map((e) => e.completed_rounds || 0)) : 0;
-  const totalRounds = fight?.total_rounds || 0;
+  const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
   const currentRound = Math.min(maxCompleted + 1, Math.max(totalRounds, 1));
   const totalJudges = entries.length;
   const received = entries.filter((e) => e.scorecard_status === 'finalized').length;
@@ -441,7 +441,7 @@ const LiveScore = () => {
           <StatCard icon={DocumentCheckIcon} label="Tarjetas recibidas" value={received} accent="emerald" delay={120} />
           <StatCard icon={InboxIcon} label="Tarjetas pendientes" value={pendingCards} accent="amber" delay={180} />
           <StatCard icon={BoltIcon} label="Jueces en carga" value={inProgress} accent="blue" delay={240} />
-          <StatCard icon={UserGroupIcon} label="Jueces confirmados" value={totalJudges} accent="red" delay={300} />
+          <StatCard icon={UserGroupIcon} label="Jueces designados" value={totalJudges} accent="red" delay={300} />
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">

@@ -6,14 +6,14 @@ JudgeAssignment.create = async (fightId, judgeId, assignmentType) => {
   const { rows } = await pool.query(`
     INSERT INTO judge_assignments (fight_id, judge_id, assignment_type)
     VALUES ($1, $2, $3)
-    RETURNING id, fight_id, judge_id, assignment_type::text, status::text, assigned_at
+    RETURNING id, fight_id, judge_id, assignment_type::text, assigned_at
   `, [fightId, judgeId, assignmentType]);
   return rows[0];
 };
 
 JudgeAssignment.findOne = async (fightId, judgeId) => {
   const { rows } = await pool.query(`
-    SELECT id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at, rejection_reason
+    SELECT id, fight_id, judge_id, assignment_type::text, assigned_at
     FROM judge_assignments
     WHERE fight_id = $1 AND judge_id = $2
   `, [fightId, judgeId]);
@@ -28,14 +28,11 @@ JudgeAssignment.getByFight = async (fightId) => {
       u.email,
       u.level::text AS level,
       ja.assignment_type::text,
-      ja.status::text,
-      ja.assigned_at,
-      ja.responded_at,
-      ja.rejection_reason
+      ja.assigned_at
     FROM judge_assignments ja
     JOIN users u ON u.id = ja.judge_id
     WHERE ja.fight_id = $1
-    ORDER BY ja.status, u.name
+    ORDER BY u.name
   `, [fightId]);
   return rows;
 };
@@ -52,20 +49,9 @@ JudgeAssignment.getCount = async (fightId) => {
 JudgeAssignment.delete = async (fightId, judgeId) => {
   const { rowCount } = await pool.query(`
     DELETE FROM judge_assignments
-    WHERE fight_id = $1 AND judge_id = $2 AND status = 'pending'
+    WHERE fight_id = $1 AND judge_id = $2
   `, [fightId, judgeId]);
   return rowCount;
-};
-
-JudgeAssignment.respond = async (fightId, judgeId, response, reason) => {
-  const hasReason = reason && response === 'rejected';
-  const { rows } = await pool.query(`
-    UPDATE judge_assignments
-    SET status = $3, responded_at = NOW(), rejection_reason = $4
-    WHERE fight_id = $1 AND judge_id = $2
-    RETURNING id, fight_id, judge_id, assignment_type::text, status::text, assigned_at, responded_at, rejection_reason
-  `, [fightId, judgeId, response, hasReason ? reason : null]);
-  return rows[0] || null;
 };
 
 JudgeAssignment.getByJudgeId = async (judgeId) => {
@@ -78,10 +64,7 @@ JudgeAssignment.getByJudgeId = async (judgeId) => {
       f.boxer_red,
       f.boxer_blue,
       ja.assignment_type::text,
-      ja.status::text AS assignment_status,
       f.status::text AS fight_status,
-      ja.responded_at,
-      ja.rejection_reason,
       sc.status::text AS scorecard_status
     FROM judge_assignments ja
     JOIN fights f ON f.id = ja.fight_id
