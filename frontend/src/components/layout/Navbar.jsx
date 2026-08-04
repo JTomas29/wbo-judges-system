@@ -7,9 +7,9 @@ import logoSrcDark from '../../assets/logoWboModoOscuro.png';
 import NotificationCenter from '../common/NotificationCenter';
 
 const roleLabels = {
-  admin: 'Administrador',
+  admin: 'Administrator',
   supervisor: 'Supervisor',
-  judge: 'Juez',
+  judge: 'Judge',
 };
 
 const getInitials = (name) => {
@@ -52,7 +52,7 @@ const Navbar = () => {
     { label: 'Dashboard', path: '/dashboard', icon: null },
     ...(user?.role === 'judge'
       ? [{
-          label: 'Mis Designaciones',
+          label: 'My Assignments',
           path: '/judges/assignments',
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -63,7 +63,7 @@ const Navbar = () => {
       : []),
     ...(user?.role !== 'judge'
       ? [{
-          label: 'Peleas',
+          label: 'Fights',
           path: '/fights',
           icon: (
             <svg viewBox="0 0 64 64" fill="none" className="w-4 h-4">
@@ -88,7 +88,7 @@ const Navbar = () => {
       : []),
     ...(user?.role === 'admin'
       ? [{
-          label: 'Usuarios',
+          label: 'Users',
           path: '/admin/users',
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@ const Navbar = () => {
       : []),
     ...(user?.role === 'admin'
       ? [{
-          label: 'Árbitros',
+          label: 'Referees',
           path: '/admin/referees',
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ const Navbar = () => {
       : []),
     ...(user?.role === 'admin'
       ? [{
-          label: 'Historial',
+          label: 'History',
           path: '/history',
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,7 +174,7 @@ const Navbar = () => {
                 <button
                   onClick={toggleTheme}
                   className="relative p-2 rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200 active:scale-90"
-                  title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+                  title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
                 >
                   <span className={`block transition-transform duration-300 ease-out ${theme === 'light' ? 'rotate-0' : 'rotate-360'}`} style={{ transform: `rotate(${theme === 'light' ? '0deg' : '360deg'})` }}>
                     {theme === 'light' ? <MoonIcon /> : <SunIcon />}
@@ -210,7 +210,7 @@ const Navbar = () => {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                   </svg>
-                  Salir
+                  Logout
                 </button>
               </>
             )}
@@ -270,7 +270,7 @@ const Navbar = () => {
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 dark:text-[#CBD5E1] hover:text-slate-800 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.04] border-l-[3px] border-transparent transition-all duration-200"
             >
               {theme === 'light' ? <MoonIconSm /> : <SunIconSm />}
-              {theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+              {theme === 'light' ? 'Dark mode' : 'Light mode'}
             </button>
           </div>
           {user && (
@@ -289,7 +289,7 @@ const Navbar = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Mi Perfil
+                My Profile
               </NavLink>
               <div className="flex items-center gap-3 px-3 py-2">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm ring-2 ring-white dark:ring-[#0F172A]">
@@ -301,12 +301,12 @@ const Navbar = () => {
                     {roleLabels[user.role] || user.role}
                   </p>
                 </div>
-                <button
-                  onClick={logout}
-                  className="text-sm font-medium text-slate-400 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl px-3 py-1.5 hover:border-slate-300 dark:hover:border-[#334155] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-all shrink-0"
-                >
-                  Salir
-                </button>
+                  <button
+                    onClick={logout}
+                    className="text-sm font-medium text-slate-400 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl px-3 py-1.5 hover:border-slate-300 dark:hover:border-[#334155] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-all shrink-0"
+                  >
+                    Logout
+                  </button>
               </div>
             </div>
           )}

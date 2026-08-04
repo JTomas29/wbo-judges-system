@@ -26,17 +26,17 @@ const Badge = ({ children, className = '' }) => (
 );
 
 const getResultMeta = (pct) => {
-  if (pct >= 80) return { label: 'Excelente', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800/50', bar: 'bg-gradient-to-r from-green-500 to-emerald-400' };
-  if (pct >= 60) return { label: 'Bueno', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', bar: 'bg-gradient-to-r from-amber-500 to-yellow-400' };
-  if (pct >= 40) return { label: 'Regular', color: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', bar: 'bg-gradient-to-r from-orange-500 to-amber-400' };
-  return { label: 'Necesita mejorar', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', bar: 'bg-gradient-to-r from-red-500 to-rose-400' };
+  if (pct >= 80) return { label: 'Excellent', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800/50', bar: 'bg-gradient-to-r from-green-500 to-emerald-400' };
+  if (pct >= 60) return { label: 'Good', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', bar: 'bg-gradient-to-r from-amber-500 to-yellow-400' };
+  if (pct >= 40) return { label: 'Fair', color: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', bar: 'bg-gradient-to-r from-orange-500 to-amber-400' };
+  return { label: 'Needs improvement', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', bar: 'bg-gradient-to-r from-red-500 to-rose-400' };
 };
 
 const performanceBadge = (pct) => {
-  if (pct >= 80) return { emoji: '🥇', label: 'Excelente' };
-  if (pct >= 60) return { emoji: '🥈', label: 'Muy bueno' };
-  if (pct >= 40) return { emoji: '🥉', label: 'Bueno' };
-  return { emoji: '📈', label: 'En progreso' };
+  if (pct >= 80) return { emoji: '🥇', label: 'Excellent' };
+  if (pct >= 60) return { emoji: '🥈', label: 'Very good' };
+  if (pct >= 40) return { emoji: '🥉', label: 'Good' };
+  return { emoji: '📈', label: 'In progress' };
 };
 
 const statAccents = {
@@ -104,11 +104,11 @@ const DonutChart = ({ value, size = 120 }) => {
 };
 
 const STATE_META = {
-  pending:    { label: 'Designado',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
-  active:     { label: 'Activa',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 dark:border dark:border-green-800/50' },
-  finalized:  { label: 'Enviada',     color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 dark:border dark:border-blue-800/50' },
-  completed:  { label: 'Finalizada',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 dark:border dark:border-slate-600/50' },
-  analyzed:   { label: 'Analizada',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 dark:border dark:border-red-800/50' },
+  pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
+  active:     { label: 'Active',     color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 dark:border dark:border-green-800/50' },
+  finalized:  { label: 'Submitted',  color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 dark:border dark:border-blue-800/50' },
+  completed:  { label: 'Completed',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 dark:border dark:border-slate-600/50' },
+  analyzed:   { label: 'Analyzed',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 dark:border dark:border-red-800/50' },
 };
 
 const JudgeProfile = () => {
@@ -155,9 +155,9 @@ const JudgeProfile = () => {
 
         if (judgeRes.status === 'rejected') {
           const status = judgeRes.reason?.response?.status;
-          if (status === 404) { setError('Juez no encontrado'); return; }
-          if (status === 403) { setError('No tenés permiso para ver este perfil'); return; }
-          setError(judgeRes.reason?.response?.data?.message || 'Error al cargar perfil');
+          if (status === 404) { setError('Judge not found'); return; }
+          if (status === 403) { setError('You do not have permission to view this profile'); return; }
+          setError(judgeRes.reason?.response?.data?.message || 'Error loading profile');
           return;
         }
         setJudge(judgeRes.value.data);
@@ -165,7 +165,7 @@ const JudgeProfile = () => {
         setStats(statsRes.status === 'fulfilled' ? statsRes.value.data : null);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cargar perfil');
+      setError(err.response?.data?.message || 'Error loading profile');
     } finally {
       setLoading(false);
     }
@@ -178,7 +178,7 @@ const JudgeProfile = () => {
       <div className="flex flex-col items-center justify-center py-20 animate-[fadeIn_0.3s_ease-out]">
         <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-sm p-8 flex flex-col items-center gap-3 border border-slate-200 dark:border-[#1E293B]">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-[#374151] border-t-wbo-700" />
-          <span className="text-slate-500 text-sm dark:text-[#94A3B8]">Cargando perfil...</span>
+          <span className="text-slate-500 text-sm dark:text-[#94A3B8]">Loading profile...</span>
         </div>
       </div>
     );
@@ -238,14 +238,14 @@ const JudgeProfile = () => {
               <p className="text-sm text-slate-500 mt-1 dark:text-[#94A3B8] m-0">{judge?.email}</p>
               <div className="flex items-center gap-2 mt-3">
                 <Badge className="bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50">
-                  Juez
+                  Judge
                 </Badge>
                 <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
                   {judge?.level || '—'}
                 </Badge>
                 <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                  {judge?.is_active ? 'Activo' : 'Inactivo'}
+                  {judge?.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
             </div>
@@ -257,7 +257,7 @@ const JudgeProfile = () => {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
                     <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalFights}</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Peleas</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Fights</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalRounds}</p>
@@ -265,7 +265,7 @@ const JudgeProfile = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{precision}%</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Precisión</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Precision</p>
                   </div>
                 </div>
                 <div className="mt-3">
@@ -278,14 +278,14 @@ const JudgeProfile = () => {
           {loading && (
             <div className="shrink-0 flex items-center gap-3 py-4 px-6">
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-red-800" />
-              <span className="text-sm text-slate-500">Cargando estadísticas...</span>
+              <span className="text-sm text-slate-500">Loading statistics...</span>
             </div>
           )}
 
           {!loading && stats && totalFights === 0 && (
             <div className="shrink-0 py-4 px-6 text-center">
-              <p className="text-sm text-slate-400 dark:text-[#64748B] m-0">Aún no hay datos de rendimiento.</p>
-              <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5 m-0">Complete su primera pelea para ver estadísticas.</p>
+              <p className="text-sm text-slate-400 dark:text-[#64748B] m-0">No performance data yet.</p>
+              <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5 m-0">Complete their first fight to see statistics.</p>
             </div>
           )}
         </div>
@@ -294,14 +294,14 @@ const JudgeProfile = () => {
       {/* ── Stat cards ── */}
       {totalAssigned > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard accent="fights" label="Pendientes" value={pendingConfirm} />
-          <StatCard accent="rounds" label="Designadas" value={totalAssigned} />
-          <StatCard accent="precision" label="Activas" value={activeScoring} />
-          <StatCard accent="level" label="Analizadas" value={analyzedCount} />
+          <StatCard accent="fights" label="Pending" value={pendingConfirm} />
+          <StatCard accent="rounds" label="Assigned" value={totalAssigned} />
+          <StatCard accent="precision" label="Active" value={activeScoring} />
+          <StatCard accent="level" label="Analyzed" value={analyzedCount} />
         </div>
       )}
 
-      {/* ── Rendimiento General ── */}
+      {/* ── Overall Performance ── */}
       {stats && totalFights > 0 && (
         <div className="bg-gradient-to-br from-white to-wbo-50/20 dark:from-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-violet-500 shadow-md p-6 md:p-8">
           <div className="flex items-center gap-3 mb-1">
@@ -309,8 +309,8 @@ const JudgeProfile = () => {
               <TrophyIcon className="w-5 h-5 text-violet-700 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Rendimiento General</h3>
-              <p className="text-[12px] text-slate-400 dark:text-[#64748B] m-0 mt-0.5">Estadísticas globales del juez</p>
+              <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Overall Performance</h3>
+              <p className="text-[12px] text-slate-400 dark:text-[#64748B] m-0 mt-0.5">Global statistics for the judge</p>
             </div>
           </div>
 
@@ -320,7 +320,7 @@ const JudgeProfile = () => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{precision}%</p>
-                  <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider m-0">Precisión</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider m-0">Precision</p>
                 </div>
               </div>
             </div>
@@ -331,7 +331,7 @@ const JudgeProfile = () => {
                   <UserGroupIcon className="w-4 h-4 text-blue-700 dark:text-blue-400" />
                 </div>
                 <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalFights}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Peleas</p>
+                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Fights</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mx-auto mb-2">
@@ -345,28 +345,28 @@ const JudgeProfile = () => {
                   <ShieldCheckIcon className="w-4 h-4 text-violet-700 dark:text-violet-400" />
                 </div>
                 <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 capitalize">{judge?.level || '—'}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Nivel</p>
+                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Level</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mx-auto mb-2">
                   <CheckBadgeIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 </div>
                 <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{analyzedCount}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Analizadas</p>
+                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Analyzed</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center mx-auto mb-2">
                   <ScaleIcon className="w-4 h-4 text-sky-700 dark:text-sky-400" />
                 </div>
                 <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{stats?.history?.length || 0}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Historial</p>
+                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">History</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mx-auto mb-2">
                   <ArrowTrendingUpIcon className="w-4 h-4 text-rose-700 dark:text-rose-400" />
                 </div>
                 <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{pBadge.label}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Consistencia</p>
+                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Consistency</p>
               </div>
             </div>
           </div>
@@ -378,21 +378,21 @@ const JudgeProfile = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Precisión General</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Overall Precision</span>
               <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(precision).color}`}>{precision}%</span>
             </div>
             <ProgressBar value={precision} size="md" />
           </div>
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Peleas Completadas</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Completed Fights</span>
               <span className="text-xs font-extrabold text-slate-800 dark:text-[#F8FAFC] tabular-nums">{totalFights}</span>
             </div>
             <ProgressBar value={Math.min(totalFights * 10, 100)} size="md" />
           </div>
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Rounds Evaluados</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Rounds Scored</span>
               <span className="text-xs font-extrabold text-slate-800 dark:text-[#F8FAFC] tabular-nums">{totalRounds}</span>
             </div>
             <ProgressBar value={Math.min(totalRounds * 5, 100)} size="md" />
@@ -400,8 +400,8 @@ const JudgeProfile = () => {
         </div>
       )}
 
-      {/* ── Designaciones ── */}
-      <DetailSection icon={UserGroupIcon} title="Designaciones" description="Historial de peleas asignadas">
+      {/* ── Assignments ── */}
+      <DetailSection icon={UserGroupIcon} title="Assignments" description="History of assigned fights">
         {assignments.length === 0 ? (
           <div className="py-10 text-center">
             <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3 dark:bg-[#1F2937]">
@@ -409,8 +409,8 @@ const JudgeProfile = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-slate-600 dark:text-[#94A3B8] m-0">Sin designaciones</p>
-            <p className="text-xs text-slate-400 mt-1 dark:text-slate-500 m-0">Este juez aún no tiene peleas asignadas.</p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-[#94A3B8] m-0">No assignments</p>
+            <p className="text-xs text-slate-400 mt-1 dark:text-slate-500 m-0">This judge has no assigned fights yet.</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -445,7 +445,7 @@ const JudgeProfile = () => {
             {isOwnProfile && assignments.length > 0 && (
               <button onClick={() => navigate('/judges/assignments')}
                 className="mt-4 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
-                Ver todas las designaciones
+                View all assignments
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
@@ -455,19 +455,19 @@ const JudgeProfile = () => {
         )}
       </DetailSection>
 
-      {/* ── Historial de Rendimiento ── */}
+      {/* ── Performance History ── */}
       {stats?.history && stats.history.length > 0 && (
-        <DetailSection icon={ChartBarIcon} title="Historial de Rendimiento" description="Precisión y resultados por pelea">
+        <DetailSection icon={ChartBarIcon} title="Performance History" description="Precision and results per fight">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-[#1E293B]">
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Pelea</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden sm:table-cell">Fecha</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Resultado</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Barra</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Acertados</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Errores</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Fight</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden sm:table-cell">Date</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Result</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Bar</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Correct</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Errors</th>
                 </tr>
               </thead>
               <tbody>

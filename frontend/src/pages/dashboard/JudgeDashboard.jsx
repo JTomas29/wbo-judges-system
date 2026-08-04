@@ -32,11 +32,11 @@ const TODAY_STR = () =>
   new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 const STATE_META = {
-  pending:    { label: 'Designado',  color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
-  active:     { label: 'Activa',     color: 'text-green-700 dark:text-green-300',   bg: 'bg-green-100 dark:bg-green-900/30',   dot: 'bg-green-500', bar: 'bg-green-500', step: 1 },
-  finalized:  { label: 'Enviada',    color: 'text-blue-700 dark:text-blue-300',     bg: 'bg-blue-100 dark:bg-blue-900/30',     dot: 'bg-blue-500',  bar: 'bg-blue-500',  step: 2 },
-  completed:  { label: 'Finalizada', color: 'text-slate-700 dark:text-slate-300',   bg: 'bg-slate-100 dark:bg-slate-700/50',   dot: 'bg-slate-400', bar: 'bg-slate-400', step: 3 },
-  analyzed:   { label: 'Analizada',  color: 'text-red-700 dark:text-red-300',       bg: 'bg-red-100 dark:bg-red-900/30',       dot: 'bg-red-500',   bar: 'bg-red-500',   step: 4 },
+  pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
+  active:     { label: 'Active',     color: 'text-green-700 dark:text-green-300',   bg: 'bg-green-100 dark:bg-green-900/30',   dot: 'bg-green-500', bar: 'bg-green-500', step: 1 },
+  finalized:  { label: 'Submitted',  color: 'text-blue-700 dark:text-blue-300',     bg: 'bg-blue-100 dark:bg-blue-900/30',     dot: 'bg-blue-500',  bar: 'bg-blue-500',  step: 2 },
+  completed:  { label: 'Completed',  color: 'text-slate-700 dark:text-slate-300',   bg: 'bg-slate-100 dark:bg-slate-700/50',   dot: 'bg-slate-400', bar: 'bg-slate-400', step: 3 },
+  analyzed:   { label: 'Analyzed',   color: 'text-red-700 dark:text-red-300',       bg: 'bg-red-100 dark:bg-red-900/30',       dot: 'bg-red-500',   bar: 'bg-red-500',   step: 4 },
 };
 
 const TimelineItem = ({ icon, label, date, done }) => (
@@ -90,7 +90,7 @@ const JudgeDashboard = () => {
       setAssignments(asignRes.data || []);
       setStats(statsRes.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cargar datos del dashboard');
+      setError(err.response?.data?.message || 'Error loading dashboard data');
     } finally {
       setLoadingAsign(false);
       setLoadingStats(false);
@@ -109,9 +109,9 @@ const JudgeDashboard = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">Error al cargar</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">Error loading</h3>
         <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">{error}</p>
-        <button onClick={loadData} className="px-6 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Reintentar</button>
+        <button onClick={loadData} className="px-6 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Retry</button>
       </div>
     );
   }
@@ -155,24 +155,24 @@ const JudgeDashboard = () => {
                 <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">{user?.email}</p>
                 <div className="flex flex-wrap items-center gap-2 mt-2.5">
                   <Badge className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/40">
-                    Juez
+                    Judge
                   </Badge>
                   <Badge className={LEVEL_BADGE[user?.level] || 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}>
                     {user?.level || '\u2014'}
                   </Badge>
                   <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${user?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                    {user?.is_active ? 'Activo' : 'Inactivo'}
+                    {user?.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-3 capitalize">{TODAY_STR()}</p>
                 <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-                  Bienvenido de vuelta, {user?.name?.split(' ')[0] || 'Juez'}.{' '}
+                  Welcome back, {user?.name?.split(' ')[0] || 'Judge'}.{' '}
                   {activeScoring > 0
-                    ? `Tenés ${activeScoring} pelea${activeScoring > 1 ? 's' : ''} activa${activeScoring > 1 ? 's' : ''} para puntuar.`
+                    ? `You have ${activeScoring} active fight${activeScoring > 1 ? 's' : ''} to score.`
                     : pendingConfirm > 0
-                      ? `Tenés ${pendingConfirm} designación${pendingConfirm > 1 ? 'es' : ''} en espera de que se active la pelea.`
-                      : 'No hay novedades pendientes.'}
+                      ? `You have ${pendingConfirm} assignment${pendingConfirm > 1 ? 's' : ''} waiting for the fight to be activated.`
+                      : 'There is nothing pending.'}
                 </p>
               </div>
             </div>
@@ -181,22 +181,22 @@ const JudgeDashboard = () => {
             {stats && totalFights > 0 && (
               <div className="shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto lg:min-w-[420px]">
                 <StatBlock
-                  label="Precisión"
+                  label="Precision"
                   value={`${precision}%`}
                   icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
                 <StatBlock
-                  label="Peleas evaluadas"
+                  label="Fights scored"
                   value={totalFights}
                   icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 />
                 <StatBlock
-                  label="Rounds evaluados"
+                  label="Rounds scored"
                   value={totalRounds}
                   icon="M13 10V3L4 14h7v7l9-11h-7z"
                 />
                 <StatBlock
-                  label="Peleas analizadas"
+                  label="Fights analyzed"
                   value={analyzedCount}
                   icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                 />
@@ -207,15 +207,15 @@ const JudgeDashboard = () => {
             {loadingStats && (
               <div className="shrink-0 flex items-center gap-3 py-4 px-6">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-                <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Cargando estadísticas...</span>
+                <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Loading statistics...</span>
               </div>
             )}
 
             {/* Stats empty state */}
             {!loadingStats && stats && totalFights === 0 && (
               <div className="shrink-0 py-4 px-6 text-center">
-                <p className="text-sm text-slate-400 dark:text-[#94A3B8]">Aún no hay datos de rendimiento.</p>
-                <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5">Completá tu primera pelea para ver tus estadísticas.</p>
+                <p className="text-sm text-slate-400 dark:text-[#94A3B8]">No performance data yet.</p>
+                <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5">Complete your first fight to see your statistics.</p>
               </div>
             )}
           </div>
@@ -224,20 +224,20 @@ const JudgeDashboard = () => {
         {/* Bottom bar: Meta info + actions */}
         <div className="px-6 sm:px-8 py-3 bg-slate-50 dark:bg-[#0B1120] border-t border-slate-200 dark:border-[#1E293B] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-[#94A3B8]">
-            <span>Ingreso: {FORMAT_DATE(user?.created_at)}</span>
+            <span>Member since: {FORMAT_DATE(user?.created_at)}</span>
           </div>
           <div className="flex gap-2">
             <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              Editar perfil
+              Edit profile
             </button>
             <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              Cambiar contraseña
+              Change password
             </button>
           </div>
         </div>
@@ -248,13 +248,13 @@ const JudgeDashboard = () => {
         <Card className="lg:col-span-2 p-6 sm:p-8">
           <div className="flex items-center justify-between mb-7">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">Mis Designaciones</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">My Assignments</h2>
               <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-                {assignments.length} pelea{assignments.length !== 1 ? 's' : ''} asignada{assignments.length !== 1 ? 's' : ''}
+                {assignments.length} assigned fight{assignments.length !== 1 ? 's' : ''}
               </p>
             </div>
             <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
-              Ver todas
+              View all
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -265,9 +265,9 @@ const JudgeDashboard = () => {
           {assignments.length > 0 && (
             <div className="flex gap-3 mb-7 overflow-x-auto pb-1">
               {[
-                { label: 'Pendientes', value: pendingConfirm, color: 'bg-amber-500', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
-                { label: 'Enviadas', value: finalizedCount, color: 'bg-emerald-500', icon: 'M5 13l4 4L19 7' },
-                { label: 'Analizadas', value: analyzedCount, color: 'bg-red-500', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+                { label: 'Pending', value: pendingConfirm, color: 'bg-amber-500', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
+                { label: 'Submitted', value: finalizedCount, color: 'bg-emerald-500', icon: 'M5 13l4 4L19 7' },
+                { label: 'Analyzed', value: analyzedCount, color: 'bg-red-500', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
               ].map((c) => (
                 <div key={c.label} className="flex items-center gap-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm px-4 py-3 min-w-[140px]">
                   <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
@@ -288,7 +288,7 @@ const JudgeDashboard = () => {
           {loadingAsign ? (
             <div className="flex items-center gap-3 py-10 justify-center">
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-              <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Cargando designaciones...</span>
+              <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Loading assignments...</span>
             </div>
           ) : assignments.length === 0 ? (
             <div className="py-10 text-center">
@@ -297,8 +297,8 @@ const JudgeDashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No tenés designaciones aún</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Cuando un administrador te asigne una pelea aparecerá aquí.</p>
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">You have no assignments yet</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">When an administrator assigns you a fight it will appear here.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -330,7 +330,7 @@ const JudgeDashboard = () => {
                           <div className="min-w-0">
                             <p className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] truncate leading-tight">{a.event_name}</p>
                             <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5 truncate">
-                              {[a.weight_class, a.venue].filter(Boolean).join(' · ') || 'Sin detalles'}
+                              {[a.weight_class, a.venue].filter(Boolean).join(' · ') || 'No details'}
                             </p>
                           </div>
                         </div>
@@ -358,7 +358,7 @@ const JudgeDashboard = () => {
                     <div className="px-5 pb-3">
                       <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Fecha</p>
+                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Date</p>
                           <div className="flex items-center gap-1.5">
                             <svg className="w-3.5 h-3.5 text-red-700 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -367,7 +367,7 @@ const JudgeDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Boxeador rojo</p>
+                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Red boxer</p>
                           <div className="flex items-center gap-1.5">
                             <svg className="w-3.5 h-3.5 text-red-700 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -376,7 +376,7 @@ const JudgeDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Boxeador azul</p>
+                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Blue boxer</p>
                           <div className="flex items-center gap-1.5">
                             <svg className="w-3.5 h-3.5 text-red-700 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -385,7 +385,7 @@ const JudgeDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Lugar</p>
+                          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Venue</p>
                           <div className="flex items-center gap-1.5">
                             <svg className="w-3.5 h-3.5 text-red-700 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -401,10 +401,10 @@ const JudgeDashboard = () => {
                     <div className="px-5 pb-5 pt-1">
                       {state === 'pending' && (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-xl">Designado · Esperando que se active la pelea</div>
+                          <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-xl">Assigned · Waiting for the fight to be activated</div>
                           <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
                             onClick={() => navigate(`/fights/${a.fight_id}`)}>
-                            Ver pelea
+                            View fight
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
@@ -412,21 +412,21 @@ const JudgeDashboard = () => {
                         </div>
                       )}
                       {state === 'finalized' && (
-                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Tarjeta enviada</div>
+                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Scorecard submitted</div>
                       )}
                       {state === 'active' && a.scorecard_status !== 'finalized' && (
                         <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
-                          Puntuar pelea
+                          Score fight
                         </button>
                       )}
                       {state === 'completed' && (
-                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl">{progressText} · Esperando análisis</div>
+                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl">{progressText} · Waiting for analysis</div>
                       )}
                       {state === 'analyzed' && (
                         <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-600 transition-all duration-250 active:scale-[0.97]"
                           onClick={() => navigate(`/analysis/${a.fight_id}`)}>
-                          Ver análisis
+                          View analysis
                         </button>
                       )}
                     </div>
@@ -438,15 +438,15 @@ const JudgeDashboard = () => {
         </Card>
 
         <Card className="p-6 sm:p-8">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-5">Actividad Reciente</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-5">Recent Activity</h2>
           {assignments.length > 0 || stats?.total_fights > 0 ? (
             <div>
               {pendingConfirm === 0 && totalAssigned > 0 && (
-                <TimelineItem icon="M5 13l4 4L19 7" label="Designación recibida" date={null} done />
+                <TimelineItem icon="M5 13l4 4L19 7" label="Assignment received" date={null} done />
               )}
-              <TimelineItem icon="M5 13l4 4L19 7" label="Tarjeta enviada" date={null} done={analyzedCount > 0} />
-              <TimelineItem icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" label="Pelea analizada" date={null} done={analyzedCount > 0} />
-              <TimelineItem icon="M13 10V3L4 14h7v7l9-11h-7z" label={`Nivel ${stats?.level || '\u2014'}`} date={null} done={!!stats?.level} />
+              <TimelineItem icon="M5 13l4 4L19 7" label="Scorecard submitted" date={null} done={analyzedCount > 0} />
+              <TimelineItem icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" label="Fight analyzed" date={null} done={analyzedCount > 0} />
+              <TimelineItem icon="M13 10V3L4 14h7v7l9-11h-7z" label={`Level ${stats?.level || '\u2014'}`} date={null} done={!!stats?.level} />
             </div>
           ) : (
             <div className="py-10 text-center">
@@ -455,8 +455,8 @@ const JudgeDashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Sin actividad reciente</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Tus acciones aparecerán aquí.</p>
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No recent activity</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Your actions will appear here.</p>
             </div>
           )}
         </Card>
@@ -466,9 +466,9 @@ const JudgeDashboard = () => {
       <Card className="p-6 sm:p-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Mis Designaciones', path: '/judges/assignments', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
-            { label: 'Mis Estadísticas', path: '/analysis/statistics', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-            { label: 'Mi Perfil', path: `/profile/${user.id}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+            { label: 'My Assignments', path: '/judges/assignments', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', primary: true },
+            { label: 'My Statistics', path: '/analysis/statistics', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+            { label: 'My Profile', path: `/profile/${user.id}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
           ].map((btn) => (
             <button key={btn.label} onClick={() => navigate(btn.path)}
               className={`group relative overflow-hidden rounded-xl p-4 sm:p-5 text-left transition-all duration-300 active:scale-[0.98] ${

@@ -3,9 +3,9 @@ import { useAuth } from '../../context/AuthContext';
 import logoSrc from '../../assets/logoWbo.png';
 
 const roleLabels = {
-  admin: 'Administrador',
+  admin: 'Administrator',
   supervisor: 'Supervisor',
-  judge: 'Juez',
+  judge: 'Judge',
 };
 
 const Sidebar = () => {
@@ -15,16 +15,16 @@ const Sidebar = () => {
     { label: 'Dashboard', path: '/dashboard', icon: '▦' },
     ...(user?.role !== 'judge'
       ? [
-          { label: 'Peleas', path: '/fights', icon: '▣' },
-          { label: 'Jueces', path: '/judges', icon: '⚖' },
+          { label: 'Fights', path: '/fights', icon: '▣' },
+          { label: 'Judges', path: '/judges', icon: '⚖' },
           { label: 'Ranking', path: '/ranking', icon: '▤' },
         ]
       : []),
     ...(user?.role === 'admin'
-      ? [{ label: 'Usuarios', path: '/admin/users', icon: '👤' }]
+      ? [{ label: 'Users', path: '/admin/users', icon: '👤' }]
       : []),
     ...(user?.role === 'admin'
-      ? [{ label: 'Árbitros', path: '/admin/referees', icon: '⚑' }]
+      ? [{ label: 'Referees', path: '/admin/referees', icon: '⚑' }]
       : []),
   ];
 
