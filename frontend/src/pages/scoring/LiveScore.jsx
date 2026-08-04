@@ -205,7 +205,7 @@ const ResultCell = ({ entry }) => {
   );
 };
 
-const ScorecardsTable = ({ entries }) => (
+const ScorecardsTable = ({ entries, totalRounds }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]">
     <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
       <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
@@ -253,7 +253,7 @@ const ScorecardsTable = ({ entries }) => (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold capitalize">{e.level}</span>
               </td>
               <td className="px-5 py-4 text-slate-500 dark:text-[#94A3B8] capitalize">{e.assignment_type}</td>
-              <td className="px-5 py-4"><RoundBadges completed={e.completed_rounds || 0} total={e.total_rounds || 0} /></td>
+              <td className="px-5 py-4"><RoundBadges completed={e.completed_rounds || 0} total={totalRounds || 0} /></td>
               <td className="px-5 py-4 text-center">{statusBadge(e.scorecard_status)}</td>
               <td className="px-5 py-4 text-right"><ResultCell entry={e} /></td>
             </tr>
@@ -406,6 +406,43 @@ const LiveScore = () => {
     );
   }
 
+  if (fight?.official_card) {
+    return (
+      <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16">
+        <div className="max-w-xl mx-auto space-y-5">
+          <BackButton />
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl p-6 shadow-md animate-[fadeIn_0.3s_ease-out]">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                <DocumentCheckIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-emerald-700 dark:text-emerald-300 font-semibold m-0">El seguimiento en vivo ya no está disponible.</p>
+                <p className="text-sm text-emerald-600/80 dark:text-emerald-400/80 mt-1 m-0">
+                  Esta pelea ya cuenta con su tarjeta oficial cargada.
+                </p>
+                <div className="flex flex-wrap gap-3 mt-4">
+                  <button
+                    className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 hover:shadow-md transition-all duration-200"
+                    onClick={() => navigate(`/official-cards/${fightId}`)}
+                  >
+                    Ver tarjeta oficial
+                  </button>
+                  <button
+                    className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200"
+                    onClick={() => navigate(-1)}
+                  >
+                    Volver
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const allFinalized = entries.length > 0 && entries.every((e) => e.scorecard_status === 'finalized');
 
   const maxCompleted = entries.length ? Math.max(...entries.map((e) => e.completed_rounds || 0)) : 0;
@@ -446,7 +483,7 @@ const LiveScore = () => {
 
         <div className="flex flex-col xl:flex-row gap-6">
           <div className="flex-1 min-w-0">
-            <ScorecardsTable entries={entries} />
+            <ScorecardsTable entries={entries} totalRounds={totalRounds} />
           </div>
           <aside className="hidden xl:block w-72 shrink-0">
             <SummaryCard

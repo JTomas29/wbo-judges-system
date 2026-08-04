@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
+import { getEffectiveTotalRounds, isEarlyResult } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import {
   CalendarIcon,
@@ -140,11 +141,17 @@ const StatCard = ({ icon: Icon, label, value, accent = 'slate', delay = 0 }) => 
 };
 
 const AnalysisHeader = ({ fight }) => {
+  const effectiveRounds = fight ? getEffectiveTotalRounds(fight) : 0;
+  const early = fight ? isEarlyResult(fight) : false;
   const infoItems = [
     { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
     { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
-    { icon: HashtagIcon, label: 'Rounds', value: `${fight?.total_rounds ?? 0} rounds` },
+    {
+      icon: HashtagIcon,
+      label: 'Rounds',
+      value: `${effectiveRounds} de ${fight?.total_rounds ?? 0} rounds${early && fight?.result_round ? ` (fin R${fight.result_round})` : ''}`,
+    },
   ];
 
   return (
@@ -442,12 +449,14 @@ const FightAnalysis = () => {
   if (error) return <ErrorState message={error} onBack={() => navigate(-1)} />;
   if (!data?.fight) return <EmptyState onBack={() => navigate(-1)} />;
 
-  const { fight, summary, official_card, judges, per_round_summary } = data;
+  const { fight, summary, official_card, judges, per_round_summary, ignored_rounds } = data;
 
   const visibleJudges =
     user?.role === 'judge'
       ? judges.filter((j) => j.id === user.judge_id)
       : judges;
+
+  const early = isEarlyResult(fight);
 
   return (
     <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
@@ -457,6 +466,16 @@ const FightAnalysis = () => {
         </div>
 
         <AnalysisHeader fight={fight} />
+
+        {early && fight?.result_round && (
+          <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-4 py-3 animate-[fadeIn_0.3s_ease-out]">
+            <BoltIcon className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800 dark:text-amber-200 m-0 leading-relaxed">
+              La pelea finalizó oficialmente en el round {fight.result_round}. El análisis considera únicamente los rounds 1 a {fight.result_round}
+              {ignored_rounds > 0 ? ` y existen ${ignored_rounds} ${ignored_rounds === 1 ? 'puntuación posterior que será ignorada' : 'puntuaciones posteriores que serán ignoradas'}.` : '.'}
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {statItems.map((s, i) => (

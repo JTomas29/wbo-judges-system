@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMyAssignments } from '../../services/judgeService';
+import { getFightState } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
@@ -11,15 +12,6 @@ const STATE_META = {
   finalized:  { label: 'Enviada',     color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/50' },
   completed:  { label: 'Finalizada',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600/50' },
   analyzed:   { label: 'Analizada',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800/50' },
-};
-
-const getFightState = (a) => {
-  if (a.fight_status === 'active') {
-    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
-  }
-  if (a.fight_status === 'completed') return 'completed';
-  if (a.fight_status === 'analyzed') return 'analyzed';
-  return 'pending';
 };
 
 const getLeftBorder = (state) => {

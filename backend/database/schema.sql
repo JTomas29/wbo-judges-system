@@ -82,9 +82,9 @@ CREATE TABLE fights (
     CONSTRAINT chk_fights_rounds CHECK (
         total_rounds IN (4, 6, 8, 10, 12)
     ),
-    CONSTRAINT chk_fights_dates CHECK (
-        scheduled_date >= CURRENT_DATE
-    ),
+    -- Nota: la fecha hoy/posterior se valida en la API (create/update).
+    -- No se usa constraint de tabla porque bloquearía el registro de
+    -- resultados y la finalización de peleas con fecha ya pasada.
     CONSTRAINT chk_fights_boxers CHECK (
         boxer_red <> boxer_blue
     )

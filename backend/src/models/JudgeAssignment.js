@@ -63,6 +63,9 @@ JudgeAssignment.getByJudgeId = async (judgeId) => {
       f.venue,
       f.boxer_red,
       f.boxer_blue,
+      f.total_rounds,
+      f.result_type::text AS result_type,
+      f.result_round,
       ja.assignment_type::text,
       f.status::text AS fight_status,
       sc.status::text AS scorecard_status

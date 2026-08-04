@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
+import { getFightState } from '../../utils/fightResult';
 
 const Card = ({ children, className = '' }) => (
   <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-red-100 dark:border-[#1E293B] shadow-sm hover:border-red-300 dark:hover:border-[#334155] hover:shadow-md transition-all duration-300 ${className}`}>
@@ -29,15 +30,6 @@ const FORMAT_DATE = (d) => {
 
 const TODAY_STR = () =>
   new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-const getFightState = (a) => {
-  if (a.fight_status === 'active') {
-    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
-  }
-  if (a.fight_status === 'completed') return 'completed';
-  if (a.fight_status === 'analyzed') return 'analyzed';
-  return 'pending';
-};
 
 const STATE_META = {
   pending:    { label: 'Designado',  color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },

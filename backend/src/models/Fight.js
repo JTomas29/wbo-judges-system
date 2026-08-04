@@ -230,7 +230,9 @@ Fight.getRoundDetail = async (fightId) => {
     JOIN score_cards sc ON sc.id = rs.score_card_id
     JOIN official_cards oc ON oc.fight_id = sc.fight_id
     JOIN official_round_scores ors ON ors.official_card_id = oc.id AND ors.round_number = rs.round_number
+    JOIN fights f ON f.id = sc.fight_id
     WHERE sc.fight_id = $1 AND sc.status = 'finalized'
+      AND rs.round_number <= COALESCE(NULLIF(f.result_round, 0), f.total_rounds)
     ORDER BY sc.judge_id, rs.round_number
   `, [fightId]);
   return rows;
@@ -251,6 +253,19 @@ Fight.getJudgeConsistency = async (fightId) => {
     ORDER BY ua.name, ub.name
   `, [fightId]);
   return rows;
+};
+
+Fight.countRoundsBeyondFinish = async (fightId) => {
+  const { rows } = await pool.query(`
+    SELECT COUNT(*)::INTEGER AS count
+    FROM round_scores rs
+    JOIN score_cards sc ON sc.id = rs.score_card_id
+    JOIN fights f ON f.id = sc.fight_id
+    WHERE sc.fight_id = $1
+      AND sc.status = 'finalized'
+      AND rs.round_number > COALESCE(NULLIF(f.result_round, 0), f.total_rounds)
+  `, [fightId]);
+  return rows[0]?.count || 0;
 };
 
 Fight.analyze = async (id) => {

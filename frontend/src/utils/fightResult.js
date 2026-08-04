@@ -21,6 +21,22 @@ export const EARLY_RESULT_TYPES = ['ko', 'tko', 'rtd', 'dq', 'nc'];
 export const isEarlyResult = (fight) =>
   !!fight?.result_type && EARLY_RESULT_TYPES.includes(fight.result_type);
 
+// Estado de una asignación para el juez. Si la pelea terminó anticipadamente
+// (KO/TKO/RTD/DQ/NC) sigue siendo puntuable hasta el round de finalización.
+export const getFightState = (a) => {
+  if (a.fight_status === 'active') {
+    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
+  }
+  if (a.fight_status === 'completed') {
+    if (isEarlyResult(a)) {
+      return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
+    }
+    return 'completed';
+  }
+  if (a.fight_status === 'analyzed') return 'analyzed';
+  return 'pending';
+};
+
 export const getEffectiveTotalRounds = (fight) => {
   if (isEarlyResult(fight) && fight.result_round) return Number(fight.result_round);
   return Number(fight?.total_rounds) || 0;

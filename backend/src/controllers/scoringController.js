@@ -117,7 +117,7 @@ exports.saveRound = async (req, res, next) => {
     if (Number(round_number) > effectiveRounds) {
       return res.status(400).json({
         message: hasEarlyResult(fightForRound)
-          ? `La pelea finalizó en el round ${effectiveRounds}. No se pueden cargar rounds posteriores.`
+          ? `La pelea finalizó oficialmente en el round ${effectiveRounds}. No es posible cargar puntuaciones posteriores.`
           : `round_number no puede superar los ${effectiveRounds} rounds de la pelea.`,
       });
     }

@@ -516,13 +516,15 @@ const FightDetails = () => {
             >
               {activating ? 'Finalizando...' : 'Finalizar designación'}
             </ActionButton>
-            <ActionButton
-              variant="secondary"
-              onClick={() => navigate(`/scoring/live/${fight.id}`)}
-              disabled={fight.status !== 'active'}
-            >
-              Seguimiento en vivo
-            </ActionButton>
+            {!fight.official_card && (
+              <ActionButton
+                variant="secondary"
+                onClick={() => navigate(`/scoring/live/${fight.id}`)}
+                disabled={fight.status !== 'active'}
+              >
+                Seguimiento en vivo
+              </ActionButton>
+            )}
             {isStaff && (
               <ActionButton
                 variant="secondary"

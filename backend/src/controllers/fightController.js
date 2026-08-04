@@ -364,13 +364,18 @@ exports.getAnalysis = async (req, res, next) => {
     const officialCard = await OfficialCard.findByFight(Number(id));
     const analysisResults = await Fight.getAnalysisSummary(Number(id));
     const roundDetail = await Fight.getRoundDetail(Number(id));
+    const ignoredRounds = await Fight.countRoundsBeyondFinish(Number(id));
 
-    const officialRounds = (officialCard?.rounds || []).map((r) => ({
-      round_number: r.round_number,
-      score_red: r.final_score_red,
-      score_blue: r.final_score_blue,
-      winner: computeWinner(r.final_score_red, r.final_score_blue),
-    }));
+    const effectiveRounds = fight.result_round ? fight.result_round : fight.total_rounds;
+
+    const officialRounds = (officialCard?.rounds || [])
+      .filter((r) => r.round_number <= effectiveRounds)
+      .map((r) => ({
+        round_number: r.round_number,
+        score_red: r.final_score_red,
+        score_blue: r.final_score_blue,
+        winner: computeWinner(r.final_score_red, r.final_score_blue),
+      }));
 
     const judges = analysisResults.map((ar) => {
       const judgeRounds = roundDetail
@@ -441,6 +446,8 @@ exports.getAnalysis = async (req, res, next) => {
         boxer_blue: fight.boxer_blue,
         scheduled_date: fight.scheduled_date,
         total_rounds: fight.total_rounds,
+        result_type: fight.result_type,
+        result_round: fight.result_round,
         status: fight.status,
         venue: fight.venue,
         weight_class: fight.weight_class,
@@ -460,6 +467,7 @@ exports.getAnalysis = async (req, res, next) => {
       },
       judges,
       per_round_summary: perRoundSummary,
+      ignored_rounds: ignoredRounds,
     };
 
     if (req.user.role === 'judge') {
@@ -519,9 +527,9 @@ exports.analyze = async (req, res, next) => {
     }
 
     const scorecards = await ScoreCard.getAllByFight(Number(id));
-    const hasFinalized = scorecards.some((sc) => sc.scorecard_status === 'finalized');
-    if (!hasFinalized) {
-      return res.status(400).json({ message: 'Debe existir al menos una tarjeta de juez finalizada para ejecutar el análisis.' });
+    const allFinalized = scorecards.length > 0 && scorecards.every((sc) => sc.scorecard_status === 'finalized');
+    if (!allFinalized) {
+      return res.status(400).json({ message: 'Todos los jueces deben haber enviado su tarjeta para ejecutar el análisis.' });
     }
 
     const results = await Fight.analyze(Number(id));

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getJudgeById, getJudgeAssignments, getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
+import { getFightState } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
 import { BoltIcon, UserGroupIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
@@ -100,15 +101,6 @@ const DonutChart = ({ value, size = 120 }) => {
       />
     </svg>
   );
-};
-
-const getFightState = (a) => {
-  if (a.fight_status === 'active') {
-    return a.scorecard_status === 'finalized' ? 'finalized' : 'active';
-  }
-  if (a.fight_status === 'completed') return 'completed';
-  if (a.fight_status === 'analyzed') return 'analyzed';
-  return 'pending';
 };
 
 const STATE_META = {
