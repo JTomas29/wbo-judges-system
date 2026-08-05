@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
 import { getFightState } from '../../utils/fightResult';
+import { Skeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
 const Card = ({ children, className = '' }) => (
   <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-red-100 dark:border-[#1E293B] shadow-sm hover:border-red-300 dark:hover:border-[#334155] hover:shadow-md transition-all duration-300 ${className}`}>
@@ -206,8 +207,9 @@ const JudgeDashboard = () => {
             {/* Stats loading state */}
             {loadingStats && (
               <div className="shrink-0 flex items-center gap-3 py-4 px-6">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-                <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Loading statistics...</span>
+                {[0, 1, 2].map((i) => (
+                  <Skeleton key={i} className="h-20 w-32 rounded-xl shrink-0" />
+                ))}
               </div>
             )}
 
@@ -286,10 +288,7 @@ const JudgeDashboard = () => {
           )}
 
           {loadingAsign ? (
-            <div className="flex items-center gap-3 py-10 justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-              <span className="text-sm text-slate-500 dark:text-[#94A3B8]">Loading assignments...</span>
-            </div>
+            <CardsGridSkeleton count={2} />
           ) : assignments.length === 0 ? (
             <div className="py-10 text-center">
               <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-3">

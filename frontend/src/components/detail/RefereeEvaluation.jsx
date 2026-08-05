@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getRefereeEvaluation, createRefereeEvaluation, updateRefereeEvaluation, deleteRefereeEvaluation } from '../../services/refereeEvaluationService';
 import { useAuth } from '../../context/AuthContext';
+import { Skeleton } from '../common/Skeletons';
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
@@ -272,9 +273,15 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   if (loading) {
     return (
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-500 shadow-sm p-5">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 dark:border-slate-700 border-t-wbo-500" />
-          <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading evaluation...</span>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-2/3" />
+          <div className="flex gap-2 pt-2">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+          </div>
         </div>
       </div>
     );

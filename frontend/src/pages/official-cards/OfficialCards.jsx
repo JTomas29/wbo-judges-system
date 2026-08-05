@@ -5,6 +5,7 @@ import { getFightById, getOfficialCard, createOfficialCard } from '../../service
 import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import { ConfirmModal } from '../../components/common/modals';
+import { Skeleton } from '../../components/common/Skeletons';
 import {
   ClipboardDocumentCheckIcon,
   CalendarIcon,
@@ -570,10 +571,13 @@ const OfficialCards = () => {
 
   if (loading) {
     return (
-      <div className={`${pageWrapper} flex items-center justify-center`}>
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
-          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Loading official scorecard...</span>
+      <div className={`${pageWrapper} py-6`}>
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-64" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Skeleton className="h-48 rounded-2xl" />
+            <Skeleton className="h-48 rounded-2xl" />
+          </div>
         </div>
       </div>
     );

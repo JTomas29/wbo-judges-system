@@ -4,6 +4,7 @@ import { getFightHistory } from '../../services/historyService';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterDate, FilterSelect } from '../../components/common/FilterBar';
+import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
 const statusConfig = {
   archived: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-300', icon: 'archive', label: 'Archived' },
@@ -74,11 +75,10 @@ const History = () => {
   const hasActiveFilters = searchEvent || dateFrom || dateTo || filterCategory;
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading fight history...</span>
-      </div>
+    <div className="space-y-6">
+      <PageHeaderSkeleton />
+      <FilterBarSkeleton />
+      <TableSkeleton rows={7} cols={6} />
     </div>
   );
 

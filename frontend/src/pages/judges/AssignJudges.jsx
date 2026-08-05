@@ -4,6 +4,7 @@ import { getFightById, activateFight } from '../../services/fightService';
 import { getJudges, getFightAssignments, createAssignment, deleteAssignment } from '../../services/judgeService';
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
+import { Skeleton } from '../../components/common/Skeletons';
 
 const MIN_JUDGES = 3;
 const MAX_JUDGES = 10;
@@ -149,11 +150,17 @@ const AssignJudges = () => {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
-      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-8 flex flex-col items-center gap-3 border border-slate-200 dark:border-[#1E293B]">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-600 border-t-wbo-700" />
-        <span className="text-slate-500 dark:text-[#94A3B8] text-sm">Loading...</span>
+    <div className="space-y-5 animate-fadeIn">
+      <Skeleton className="h-8 w-56" />
+      <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 sm:p-6">
+        <Skeleton className="h-5 w-48 mb-4" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
       </div>
+      <Skeleton className="h-40 rounded-2xl" />
     </div>
   );
 

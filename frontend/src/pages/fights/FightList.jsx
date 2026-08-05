@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
 import { BaseModal, ModalHeader, ModalFooter, ModalButton } from '../../components/common/modals';
+import { Skeleton, FilterBarSkeleton, StatCardsSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
 const canEdit = (status) => status === 'pending' || status === 'active';
 
@@ -252,11 +253,17 @@ const FightList = () => {
   ];
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading fights...</span>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Skeleton className="h-10 w-36" />
       </div>
+      <FilterBarSkeleton />
+      <StatCardsSkeleton count={4} />
+      <TableSkeleton rows={6} cols={6} />
     </div>
   );
 

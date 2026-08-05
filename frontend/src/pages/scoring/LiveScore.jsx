@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getFightById, getScorecards, completeFight } from '../../services/fightService';
 import { getEffectiveTotalRounds } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
+import { Skeleton } from '../../components/common/Skeletons';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -374,10 +375,14 @@ const LiveScore = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-400 dark:text-[#94A3B8] py-16">
-          <span className="animate-spin h-8 w-8 border-[3px] border-wbo-700 border-t-transparent rounded-full" />
-          <p className="text-sm font-medium m-0">Loading live tracking...</p>
+      <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16">
+        <div className="max-w-3xl mx-auto space-y-5">
+          <Skeleton className="h-9 w-72" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+          </div>
+          <Skeleton className="h-72 rounded-2xl" />
         </div>
       </div>
     );

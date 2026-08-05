@@ -4,6 +4,7 @@ import FilterBar, { FilterInput, FilterSelect } from '../../components/common/Fi
 import { ConfirmModal } from '../../components/common/modals';
 import { createReferee, deactivateReferee, getReferees, updateReferee } from '../../services/refereeService';
 import RefereeModal from './RefereeModal';
+import { TableSkeleton } from '../../components/common/Skeletons';
 
 const statusClass = (active) => active
   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
@@ -135,7 +136,7 @@ const RefereeList = () => {
 
       {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
 
-      {loading ? <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-sm p-16 flex items-center justify-center gap-3 text-slate-500"><span className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-wbo-700 animate-spin" />Loading referees...</div>
+      {loading ? <TableSkeleton rows={6} cols={7} />
         : visibleReferees.length === 0 ? <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-slate-100 dark:border-[#1E293B] p-12 text-center text-slate-500">No referees found with the applied filters.</div>
         : <>
           <div className="hidden md:block bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-sm overflow-hidden">

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
 import { getEffectiveTotalRounds, isEarlyResult } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
+import { Skeleton } from '../../components/common/Skeletons';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -64,10 +65,14 @@ const WinnerBadge = ({ winner }) => {
 };
 
 const LoadingState = () => (
-  <div className={`${pageWrapper} flex items-center justify-center`}>
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
-      <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
-      <span className="block mt-4 text-slate-500 dark:text-[#94A3B8] text-sm">Loading fight analysis...</span>
+  <div className={`${pageWrapper} py-6`}>
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <Skeleton className="h-64 rounded-2xl xl:col-span-2" />
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+      <Skeleton className="h-36 rounded-2xl" />
     </div>
   </div>
 );

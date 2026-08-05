@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { ConfirmModal } from '../../components/common/modals';
+import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
 const levelBadge = (level) => {
   const map = {
@@ -150,9 +151,10 @@ const JudgeList = () => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-[#374151] border-t-wbo-700" />
-        <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Loading judges...</span>
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <FilterBarSkeleton />
+        <TableSkeleton rows={6} cols={6} />
       </div>
     );
   }

@@ -22,15 +22,27 @@ const FilterBar = ({ children, onClear }) => (
 const baseInput = "w-full px-3.5 py-2.5 border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-wbo-700/15 hover:border-slate-300 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:focus:ring-wbo-700/20 dark:hover:border-[#334155] dark:bg-[#0B1120]";
 
 export const FilterInput = ({ value, onChange, placeholder, className = '' }) => (
-  <div className={`min-w-[180px] flex-1 ${className}`}>
+  <div className={`min-w-[180px] flex-1 relative ${className}`}>
     <input
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       aria-label={placeholder}
-      className={`${baseInput} border-slate-200 text-slate-900 placeholder-slate-400 focus:border-wbo-600 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:bg-[#0B1120]`}
+      className={`${baseInput} pr-9 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-wbo-600 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:bg-[#0B1120]`}
     />
+    {value && (
+      <button
+        type="button"
+        onClick={() => onChange('')}
+        aria-label={`Clear ${placeholder || 'search'}`}
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    )}
   </div>
 );
 

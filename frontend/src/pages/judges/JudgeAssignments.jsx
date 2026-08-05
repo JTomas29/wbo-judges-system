@@ -5,6 +5,7 @@ import { getMyAssignments } from '../../services/judgeService';
 import { getFightState } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
+import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
 const STATE_META = {
   pending:    { label: 'Pending',    color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
@@ -151,11 +152,9 @@ const JudgeAssignments = () => {
 
   if (loading) {
     return (
-      <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-          <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading assignments...</span>
-        </div>
+      <div className="space-y-6">
+        <FilterBarSkeleton />
+        <CardsGridSkeleton count={3} />
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getRefereeProfile } from '../../services/refereeRankingService';
 import BackButton from '../../components/common/BackButton';
+import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
 
 const formatDate = (d) => {
   if (!d) return '—';
@@ -205,10 +206,14 @@ const RefereeProfile = () => {
 
   if (loading) {
     return (
-      <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800 dark:border-[#374151]" />
-          <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Loading profile...</span>
+      <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
+        <ProfileHeaderSkeleton />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <Skeleton className="h-56 rounded-2xl lg:col-span-1" />
+          <div className="lg:col-span-2 space-y-5">
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-40 rounded-2xl" />
+          </div>
         </div>
       </div>
     );

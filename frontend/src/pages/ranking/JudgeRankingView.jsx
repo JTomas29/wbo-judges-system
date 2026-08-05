@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAllStatistics } from '../../services/statisticsService';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { RankingSummaryCard } from '../../components/ranking/RankingBadges';
+import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
 const levelBadge = (level) => {
   if (!level) return null;
@@ -90,11 +91,9 @@ const JudgeRankingView = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800 dark:border-[#374151]" />
-          <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Loading judges ranking...</span>
-        </div>
+      <div className="space-y-6">
+        <FilterBarSkeleton />
+        <CardsGridSkeleton count={3} />
       </div>
     );
   }

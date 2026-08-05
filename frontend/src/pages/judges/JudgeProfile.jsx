@@ -7,6 +7,7 @@ import { getFightState } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
 import { BoltIcon, UserGroupIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
+import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
 
 const LEVEL_BADGE = {
   elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
@@ -175,10 +176,14 @@ const JudgeProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 animate-[fadeIn_0.3s_ease-out]">
-        <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-sm p-8 flex flex-col items-center gap-3 border border-slate-200 dark:border-[#1E293B]">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-[#374151] border-t-wbo-700" />
-          <span className="text-slate-500 text-sm dark:text-[#94A3B8]">Loading profile...</span>
+      <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
+        <ProfileHeaderSkeleton />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <Skeleton className="h-56 rounded-2xl lg:col-span-1" />
+          <div className="lg:col-span-2 space-y-5">
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-40 rounded-2xl" />
+          </div>
         </div>
       </div>
     );
@@ -277,8 +282,9 @@ const JudgeProfile = () => {
 
           {loading && (
             <div className="shrink-0 flex items-center gap-3 py-4 px-6">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-red-800" />
-              <span className="text-sm text-slate-500">Loading statistics...</span>
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="h-20 w-28 rounded-xl shrink-0" />
+              ))}
             </div>
           )}
 

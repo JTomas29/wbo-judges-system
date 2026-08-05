@@ -8,6 +8,7 @@ import FormSection from '../../components/common/FormSection';
 import InputField from '../../components/common/InputField';
 import SelectField from '../../components/common/SelectField';
 import TextareaField from '../../components/common/TextareaField';
+import { Skeleton } from '../../components/common/Skeletons';
 
 const ROUNDS = [4, 6, 8, 10, 12];
 
@@ -101,11 +102,10 @@ const EditFight = () => {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading fight...</span>
-      </div>
+    <div className="space-y-5">
+      <Skeleton className="h-8 w-56" />
+      <Skeleton className="h-40 rounded-2xl" />
+      <Skeleton className="h-40 rounded-2xl" />
     </div>
   );
 

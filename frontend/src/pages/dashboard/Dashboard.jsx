@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
 import JudgeDashboard from './JudgeDashboard';
+import { Skeleton } from '../../components/common/Skeletons';
 
 const statusColors = {
   scheduled: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', label: 'Scheduled', icon: 'clock', border: 'border-amber-200 dark:border-amber-800/50' },
@@ -395,9 +396,10 @@ const Dashboard = () => {
                 </div>
               </div>
               {activeFightsLoading ? (
-                <div className="flex items-center gap-2 py-6">
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-red-800" />
-                  <span className="text-sm text-slate-400">Loading...</span>
+                <div className="space-y-3 py-4">
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton key={i} className="h-16 rounded-xl" />
+                  ))}
                 </div>
               ) : activeFights.length === 0 ? (
                 <div className="py-8 text-center">
