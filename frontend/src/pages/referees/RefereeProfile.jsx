@@ -285,19 +285,19 @@ const RefereeProfile = () => {
           <StatCard
             icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             value={stats.averageFinalScore.toFixed(1)}
-            label="Final Average"
+            label="Average Final Score"
             color="bg-green-50 dark:bg-green-900/20"
           />
           <StatCard
             icon="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
             value={stats.bestScore.toFixed(1)}
-            label="Best Eval."
+            label="Best Evaluation"
             color="bg-yellow-50 dark:bg-yellow-900/20"
           />
           <StatCard
             icon="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
             value={stats.worstScore.toFixed(1)}
-            label="Worst Eval."
+            label="Worst Evaluation"
             color="bg-red-50 dark:bg-red-900/20"
           />
           <StatCard

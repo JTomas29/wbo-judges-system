@@ -198,7 +198,7 @@ const JudgeCard = ({ judge, index }) => {
       </div>
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs font-bold text-slate-800 dark:text-[#94A3B8]">{pct.toFixed(0)}%</span>
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-slate-500">Precision</span>
+        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-slate-500">Accuracy</span>
       </div>
       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
         <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />

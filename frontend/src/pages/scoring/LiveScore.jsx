@@ -104,7 +104,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Category', value: fight?.weight_class || '\u2014' },
+    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
     { icon: HashtagIcon, label: 'Rounds', value: `${maxCompleted} / ${getEffectiveTotalRounds(fight)}` },
   ];
 

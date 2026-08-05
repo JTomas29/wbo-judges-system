@@ -62,7 +62,7 @@ const History = () => {
     setError(null);
     getFightHistory(token, { searchEvent, dateFrom, dateTo, weightClass: filterCategory })
       .then((data) => { setFights(data); setLoading(false); })
-      .catch((err) => { setError(err.response?.data?.message || 'Failed to load history'); setLoading(false); });
+      .catch((err) => { setError(err.response?.data?.message || 'Failed to load fight history'); setLoading(false); });
   }, [token, searchEvent, dateFrom, dateTo, filterCategory]);
 
   const categories = useMemo(() => {
@@ -77,7 +77,7 @@ const History = () => {
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading history...</span>
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading fight history...</span>
       </div>
     </div>
   );
@@ -124,7 +124,7 @@ const History = () => {
       {/* ═══ FILTERS ═══ */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
         <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Search by event..." />
-        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Category" />
+        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Weight Class" />
         <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Date from" />
         <FilterDate value={dateTo} onChange={setDateTo} placeholder="Date to" />
       </FilterBar>
@@ -152,7 +152,7 @@ const History = () => {
                     <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Red</th>
                     <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Blue</th>
                     <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Date</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Category</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Weight Class</th>
                     <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Status</th>
                     <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Archived</th>
                     <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Actions</th>
@@ -315,7 +315,7 @@ const History = () => {
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{formatDate(selectedFight.scheduled_date)}</p>
               </div>
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Category</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Weight Class</p>
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.weight_class || '\u2014'}</p>
               </div>
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
@@ -334,7 +334,7 @@ const History = () => {
               )}
               {selectedFight.broadcaster && (
                 <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Broadcast</p>
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Broadcaster</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.broadcaster}</p>
                 </div>
               )}
@@ -350,7 +350,7 @@ const History = () => {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{selectedFight.total_matches}</p>
-                    <p className="text-[10px] text-emerald-500 dark:text-emerald-400">Matches</p>
+                    <p className="text-[10px] text-emerald-500 dark:text-emerald-400">Exact Matches</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-red-600 dark:text-red-400">{selectedFight.total_errors}</p>

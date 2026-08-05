@@ -158,7 +158,7 @@ const RefereeRankingView = () => {
         <RankingSummaryCard
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={summaryStats.overallAvg.toFixed(1)}
-          label="Overall Average"
+          label="Average Final Score"
           color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
@@ -209,7 +209,7 @@ const RefereeRankingView = () => {
             { value: 'ranking', label: 'Ranking' },
             { value: 'name', label: 'Name' },
             { value: 'fights', label: 'Number of fights' },
-            { value: 'average', label: 'Average' },
+            { value: 'average', label: 'Average Final Score' },
           ]}
           placeholder="Sort by"
         />
@@ -235,10 +235,10 @@ const RefereeRankingView = () => {
                   <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Referee</th>
                   <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden md:table-cell">Federation</th>
                   <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Fights</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Average</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Average Score</th>
                   <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Deduction</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Final Score</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Last Eval.</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Average Final Score</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Last Evaluation</th>
                   <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Status</th>
                   <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Actions</th>
                 </tr>

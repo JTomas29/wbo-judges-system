@@ -103,7 +103,7 @@ const FightHeaderCard = ({ fight }) => (
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
           </svg>
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-slate-600 dark:text-slate-300">Category:</span> {fight.weight_class}
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Weight Class:</span> {fight.weight_class}
           </span>
         </div>
       )}
@@ -183,7 +183,7 @@ const OfficialHeaderCard = ({ fight }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Category', value: fight?.weight_class || '\u2014' },
+    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
     { icon: ChartBarIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
   ];
 

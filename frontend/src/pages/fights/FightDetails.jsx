@@ -304,7 +304,7 @@ const FightDetails = () => {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Assigned</p>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Pending</p>
               <p className="text-xs text-amber-600 dark:text-amber-400 m-0 mt-0.5">You have been assigned to this fight. Wait for it to be activated to score.</p>
             </div>
           </div>

@@ -104,7 +104,7 @@ const DonutChart = ({ value, size = 120 }) => {
 };
 
 const STATE_META = {
-  pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
+  pending:    { label: 'Pending',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
   active:     { label: 'Active',     color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 dark:border dark:border-green-800/50' },
   finalized:  { label: 'Submitted',  color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 dark:border dark:border-blue-800/50' },
   completed:  { label: 'Completed',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 dark:border dark:border-slate-600/50' },
@@ -265,7 +265,7 @@ const JudgeProfile = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{precision}%</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Precision</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Accuracy</p>
                   </div>
                 </div>
                 <div className="mt-3">
@@ -295,7 +295,7 @@ const JudgeProfile = () => {
       {totalAssigned > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard accent="fights" label="Pending" value={pendingConfirm} />
-          <StatCard accent="rounds" label="Assigned" value={totalAssigned} />
+          <StatCard accent="rounds" label="Total" value={totalAssigned} />
           <StatCard accent="precision" label="Active" value={activeScoring} />
           <StatCard accent="level" label="Analyzed" value={analyzedCount} />
         </div>
@@ -320,7 +320,7 @@ const JudgeProfile = () => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{precision}%</p>
-                  <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider m-0">Precision</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider m-0">Accuracy</p>
                 </div>
               </div>
             </div>
@@ -378,7 +378,7 @@ const JudgeProfile = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Overall Precision</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Overall Accuracy</span>
               <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(precision).color}`}>{precision}%</span>
             </div>
             <ProgressBar value={precision} size="md" />
@@ -457,7 +457,7 @@ const JudgeProfile = () => {
 
       {/* ── Performance History ── */}
       {stats?.history && stats.history.length > 0 && (
-        <DetailSection icon={ChartBarIcon} title="Performance History" description="Precision and results per fight">
+        <DetailSection icon={ChartBarIcon} title="Performance History" description="Accuracy and results per fight">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -465,8 +465,8 @@ const JudgeProfile = () => {
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Fight</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden sm:table-cell">Date</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Result</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Bar</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Correct</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Accuracy</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Exact Matches</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Errors</th>
                 </tr>
               </thead>

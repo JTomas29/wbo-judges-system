@@ -124,13 +124,13 @@ const JudgeRankingView = () => {
           icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
           value={summaryStats.bestJudge ? summaryStats.bestJudge.name : '—'}
           label="Top Judge"
-          sublabel={summaryStats.bestJudge ? `Precision: ${(Number(summaryStats.bestJudge.avg_match_pct) || 0).toFixed(1)}%` : ''}
+          sublabel={summaryStats.bestJudge ? `Accuracy: ${(Number(summaryStats.bestJudge.avg_match_pct) || 0).toFixed(1)}%` : ''}
           color="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <RankingSummaryCard
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={`${summaryStats.overallAvg.toFixed(1)}%`}
-          label="Overall Precision"
+          label="Overall Accuracy"
           color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
@@ -159,8 +159,8 @@ const JudgeRankingView = () => {
           value={sortOrder}
           onChange={setSortOrder}
           options={[
-            { value: 'precision_high', label: 'Highest precision' },
-            { value: 'precision_low', label: 'Lowest precision' },
+            { value: 'precision_high', label: 'Highest accuracy' },
+            { value: 'precision_low', label: 'Lowest accuracy' },
             { value: 'fights_most', label: 'Most fights' },
             { value: 'fights_least', label: 'Least fights' },
           ]}
@@ -206,7 +206,7 @@ const JudgeRankingView = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-6 sm:min-w-[400px]">
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Historical precision</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Historical accuracy</span>
                         <span className="text-xs font-bold text-slate-700 dark:text-[#94A3B8]">{avgPct.toFixed(1)}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">

@@ -7,7 +7,7 @@ import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const STATE_META = {
-  pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
+  pending:    { label: 'Pending',    color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
   active:     { label: 'Active',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/50' },
   finalized:  { label: 'Submitted',   color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/50' },
   completed:  { label: 'Completed',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600/50' },
@@ -200,7 +200,7 @@ const JudgeAssignments = () => {
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             <StatCard label="Total" count={counts.total} dotColor="bg-slate-400" />
-            <StatCard label="Assigned" count={counts.pending} dotColor="bg-amber-500" />
+            <StatCard label="Pending" count={counts.pending} dotColor="bg-amber-500" />
             <StatCard label="Active" count={counts.active} dotColor="bg-emerald-500" />
             <StatCard label="Analyzed" count={counts.analyzed} dotColor="bg-red-500" />
           </div>
@@ -215,9 +215,9 @@ const JudgeAssignments = () => {
             value={filterState}
             onChange={setFilterState}
             options={[
-              { value: 'pending', label: 'Assigned' },
+              { value: 'pending', label: 'Pending' },
               { value: 'active', label: 'Active' },
-              { value: 'finalized', label: 'Scorecard submitted' },
+              { value: 'finalized', label: 'Submitted' },
               { value: 'completed', label: 'Completed' },
               { value: 'analyzed', label: 'Analyzed' },
             ]}
@@ -286,7 +286,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      Red boxer
+                      Red Corner
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_red}</p>
                   </div>
@@ -295,7 +295,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      Blue boxer
+                      Blue Corner
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_blue}</p>
                   </div>
@@ -319,7 +319,7 @@ const JudgeAssignments = () => {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Assigned · Waiting for the fight to be activated
+                      Pending · Waiting for the fight to be activated
                     </div>
                     <button
                       className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.98]"
