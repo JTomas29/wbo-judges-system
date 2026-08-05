@@ -163,7 +163,7 @@ const AssignJudges = () => {
         <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-6 text-center border border-slate-200 dark:border-[#1E293B]">
           <p className="text-slate-700 dark:text-slate-300 font-medium">Only administrators can assign judges.</p>
           <button
-            className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-[#4a0f14] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
+            className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
             onClick={() => navigate('/dashboard')}
           >
             Back to Dashboard
@@ -179,7 +179,7 @@ const AssignJudges = () => {
         <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-6 text-center border border-slate-200 dark:border-[#1E293B]">
           <p className="text-slate-700 dark:text-slate-300 font-medium">It is not possible to modify the assignments of this fight.</p>
           <button
-            className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-[#4a0f14] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
+            className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250"
             onClick={() => navigate(`/fights/${fightId}`)}
           >
             Back to fight
@@ -255,7 +255,7 @@ const AssignJudges = () => {
             <button
               disabled={totalAssigned < MIN_JUDGES || activating}
               onClick={handleActivate}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -377,7 +377,7 @@ const AssignJudges = () => {
                 </select>
               </div>
               <button disabled={!selectedJudge || assigning}
-                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-red-800 text-white rounded-xl text-sm font-bold hover:bg-red-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
                 onClick={handleAssign}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

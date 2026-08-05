@@ -1,5 +1,3 @@
-import { useTheme } from '../../context/ThemeContext'
-
 const STATUS_CONFIG = {
   pending: {
     light: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -73,8 +71,6 @@ const DOT_COLORS = {
 }
 
 export default function StatusBadge({ status, type = 'fight', customLabel, customClasses }) {
-  const { theme } = useTheme()
-
   if (customClasses) {
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border border-transparent ${customClasses}`}>

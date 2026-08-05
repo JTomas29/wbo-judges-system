@@ -277,7 +277,7 @@ const FightList = () => {
         </div>
         <button
           onClick={() => navigate('/fights/create')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -317,7 +317,7 @@ const FightList = () => {
           <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">Try adjusting the filters or create a new fight.</p>
           <button
             onClick={() => navigate('/fights/create')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

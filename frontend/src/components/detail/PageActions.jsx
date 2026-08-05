@@ -7,7 +7,7 @@ export default function PageActions({ children, className = '' }) {
 }
 
 export function PageActionButton({ children, onClick, variant = 'primary', disabled = false, loading = false, icon: Icon, className = '' }) {
-  const base = 'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed'
+  const base = 'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#111827]'
 
   const variants = {
     primary: 'bg-wbo-700 text-white hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]',

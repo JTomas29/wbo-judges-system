@@ -111,7 +111,7 @@ const JudgeDashboard = () => {
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">Error loading</h3>
         <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">{error}</p>
-        <button onClick={loadData} className="px-6 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Retry</button>
+        <button onClick={loadData} className="px-6 py-2.5 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Retry</button>
       </div>
     );
   }
@@ -253,7 +253,7 @@ const JudgeDashboard = () => {
                 {assignments.length} assigned fight{assignments.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
+            <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
               View all
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -339,7 +339,8 @@ const JudgeDashboard = () => {
                             {meta.label}
                           </Badge>
                           {state !== 'completed' && (
-                            <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0"
+                            <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
+                              aria-label="View fight"
                               onClick={() => {
                                 if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
                                 else if (state === 'analyzed') navigate(`/analysis/${a.fight_id}`);
@@ -415,7 +416,7 @@ const JudgeDashboard = () => {
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Submitted</div>
                       )}
                       {state === 'active' && a.scorecard_status !== 'finalized' && (
-                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
+                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-wbo-700 hover:bg-wbo-800 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
                           Score fight
                         </button>
@@ -473,7 +474,7 @@ const JudgeDashboard = () => {
             <button key={btn.label} onClick={() => navigate(btn.path)}
               className={`group relative overflow-hidden rounded-xl p-4 sm:p-5 text-left transition-all duration-300 active:scale-[0.98] ${
                 btn.primary
-                  ? 'bg-red-800 hover:bg-red-900 shadow-sm hover:shadow-md'
+                  ? 'bg-wbo-700 hover:bg-wbo-800 shadow-sm hover:shadow-md'
                   : 'bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] hover:border-red-300 dark:hover:border-red-800/40 hover:shadow-md'
               }`}
             >

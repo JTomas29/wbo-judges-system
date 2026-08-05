@@ -63,7 +63,8 @@ const Toast = () => {
         <span className="text-sm font-medium">{toast.message}</span>
         <button
           onClick={() => setToast(null)}
-          className="ml-2 p-0.5 rounded-md hover:bg-white/50 transition-colors"
+          aria-label="Close notification"
+          className="ml-2 p-0.5 rounded-md hover:bg-white/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

@@ -15,7 +15,7 @@ export default function EmptyState({ icon: Icon, title, description, action, onA
       {action && onAction && (
         <button
           onClick={onAction}
-          className="px-6 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]"
+          className="px-6 py-2.5 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
         >
           {action}
         </button>
@@ -24,11 +24,11 @@ export default function EmptyState({ icon: Icon, title, description, action, onA
   )
 }
 
-export function TableFooter({ count, total, label = 'elementos' }) {
+export function TableFooter({ count, total, label = 'items' }) {
   return (
     <div className="px-5 py-3 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0B1120]/50">
       <p className="text-xs text-slate-400 dark:text-[#94A3B8]">
-        Mostrando {count} de {total} {label}
+        Showing {count} of {total} {label}
       </p>
     </div>
   )

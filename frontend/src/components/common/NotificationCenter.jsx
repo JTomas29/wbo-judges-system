@@ -161,7 +161,9 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
   return (
     <div
       onClick={handleClick}
-      className={`group relative px-4 py-3 border-b border-slate-100/60 dark:border-[#1E293B]/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-[#1E293B]/40 hover:pl-5 ${
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      className={`group relative px-4 py-3 border-b border-slate-100/60 dark:border-[#1E293B]/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-[#1E293B]/40 hover:pl-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-inset ${
         isUnread
           ? 'bg-gradient-to-r from-red-50/40 via-white to-white dark:from-red-900/10 dark:via-[#0F172A] dark:to-[#0F172A] hover:from-red-50/60 dark:hover:from-red-900/15'
           : ''
@@ -181,6 +183,7 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
             </p>
             <button
               onClick={handleDelete}
+              aria-label="Delete notification"
               className="sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 shrink-0 mt-[-1px]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -374,6 +377,8 @@ const NotificationCenter = () => {
       {/* Bell button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Notifications"
+        aria-expanded={isOpen}
         className={`relative p-2 rounded-xl transition-all duration-200 ${
           isOpen
             ? 'text-wbo-700 bg-wbo-50 dark:text-wbo-400 dark:bg-wbo-500/10'

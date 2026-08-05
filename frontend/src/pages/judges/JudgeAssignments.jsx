@@ -334,7 +334,7 @@ const JudgeAssignments = () => {
                 )}
                 {a._state !== 'pending' && (
                   <button
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-sm font-semibold transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-sm font-semibold transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]"
                     onClick={() => goTo(a)}
                   >
                     {actionLabel(a)}

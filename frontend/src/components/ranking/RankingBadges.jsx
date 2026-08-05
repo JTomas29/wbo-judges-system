@@ -49,7 +49,7 @@ const StatusBadge = ({ active }) => (
       : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
   }`}>
     <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-green-500' : 'bg-slate-400'}`} />
-    {active ? 'Activo' : 'Inactivo'}
+    {active ? 'Active' : 'Inactive'}
   </span>
 );
 

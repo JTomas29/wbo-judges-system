@@ -120,7 +120,7 @@ const QuickActionCard = ({ icon, title, desc, onClick, primary }) => (
     onClick={onClick}
     className={`group relative flex items-start gap-4 p-4 rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] text-left w-full ${
       primary
-        ? 'bg-red-800 border-red-800 hover:bg-red-900 hover:shadow-md text-white dark:bg-red-800 dark:border-red-800 dark:hover:bg-red-900'
+        ? 'bg-wbo-700 border-wbo-700 hover:bg-wbo-800 hover:shadow-md text-white dark:bg-wbo-700 dark:border-wbo-700 dark:hover:bg-wbo-800'
         : 'bg-white border-slate-200 hover:shadow-md hover:border-red-200 text-slate-900 dark:bg-[#111827] dark:border-[#1E293B] dark:hover:border-red-800/50 dark:text-[#F8FAFC]'
     }`}
   >
@@ -275,7 +275,7 @@ const Dashboard = () => {
         <p className="text-sm text-slate-500 mb-6 dark:text-[#94A3B8]">{error}</p>
         <button
           onClick={fetchData}
-          className="px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+          className="px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
         >
           Retry
         </button>
@@ -376,7 +376,7 @@ const Dashboard = () => {
           {user?.role !== 'judge' && (
             <button
               onClick={() => navigate('/fights/create')}
-              className="px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+              className="px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
             >
               Create first fight
             </button>
@@ -433,7 +433,7 @@ const Dashboard = () => {
                           </div>
                         ) : (
                           <button
-                            className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-red-800 text-white rounded-lg text-xs font-semibold hover:bg-red-900 transition-all active:scale-[0.97] shadow-sm"
+                            className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-xl text-xs font-semibold hover:bg-wbo-800 transition-all active:scale-[0.97] shadow-sm"
                             onClick={() => navigate(`/scoring/${a.fight_id}`)}
                           >
                             Score

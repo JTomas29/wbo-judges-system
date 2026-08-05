@@ -41,7 +41,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#2d080a] via-[#6b1421] to-[#2d080a] p-5">
-      <div className="bg-white rounded-xl shadow-2xl border-t-4 border-gold w-[420px] max-w-full pt-12 px-10 pb-10 relative">
+      <div className="bg-white rounded-xl shadow-2xl border-t-4 border-gold w-[420px] max-w-full pt-10 px-6 pb-8 sm:px-10 sm:pt-12 sm:pb-10 relative">
         <div className="text-center mb-2">
           <img src={logoSrc} alt="WBO Logo" className="max-h-[120px] w-auto object-contain inline-block" />
         </div>
@@ -81,7 +81,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full inline-flex items-center justify-center px-5 py-3 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center px-5 py-3 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Logging in...' : 'Log In'}
           </button>
@@ -99,7 +99,7 @@ const Login = () => {
       </div>
 
       {import.meta.env.DEV && (
-        <div className="w-[420px] max-w-full mt-6">
+        <div className="w-[420px] max-w-full mt-6 px-2">
           <div className="text-center text-xs font-semibold text-white/60 uppercase tracking-wider mb-2.5">
             Test credentials
           </div>

@@ -423,8 +423,9 @@ const JudgeProfile = () => {
                 else navigate(`/fights/${a.fight_id}`);
               };
               return (
-                <div key={a.fight_id} onClick={goTo}
-                  className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer dark:bg-[#0B1120] dark:border-[#1E293B] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-red-200 dark:hover:border-red-800/40">
+                <div key={a.fight_id} onClick={goTo} tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTo(); } }}
+                  className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer dark:bg-[#0B1120] dark:border-[#1E293B] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-red-200 dark:hover:border-red-800/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-slate-800 truncate dark:text-[#F8FAFC] m-0">{a.event_name}</p>
                     <p className="text-xs text-slate-500 mt-0.5 truncate dark:text-[#94A3B8] m-0">
@@ -444,7 +445,7 @@ const JudgeProfile = () => {
             })}
             {isOwnProfile && assignments.length > 0 && (
               <button onClick={() => navigate('/judges/assignments')}
-                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-red-800 hover:bg-red-900 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
+                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
                 View all assignments
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
