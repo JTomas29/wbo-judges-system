@@ -54,14 +54,14 @@ const CreateFight = () => {
 
   const validate = () => {
     const errs = {};
-    if (!form.event_name.trim()) errs.event_name = 'El nombre del evento es obligatorio';
-    if (!form.boxer_red.trim()) errs.boxer_red = 'Obligatorio';
-    if (!form.boxer_blue.trim()) errs.boxer_blue = 'Obligatorio';
+    if (!form.event_name.trim()) errs.event_name = 'Event name is required';
+    if (!form.boxer_red.trim()) errs.boxer_red = 'Required';
+    if (!form.boxer_blue.trim()) errs.boxer_blue = 'Required';
     if (form.boxer_red.trim().toLowerCase() === form.boxer_blue.trim().toLowerCase()) {
-      errs.boxer_blue = 'No puede ser igual al rojo';
+      errs.boxer_blue = 'Cannot be the same as red';
     }
-    if (!form.scheduled_date) errs.scheduled_date = 'Obligatorio';
-    if (!form.weight_class.trim()) errs.weight_class = 'Obligatorio';
+    if (!form.scheduled_date) errs.scheduled_date = 'Required';
+    if (!form.weight_class.trim()) errs.weight_class = 'Required';
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -90,53 +90,53 @@ const CreateFight = () => {
       console.log('Body enviado:', payload);
       const res = await createFight(payload, token);
       navigate(`/fights/${res.data.id}`, {
-        state: { toast: { type: 'success', message: `La pelea "${res.data.event_name || form.event_name.trim()}" fue creada correctamente.` } },
+        state: { toast: { type: 'success', message: `Fight "${res.data.event_name || form.event_name.trim()}" created successfully.` } },
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al crear la pelea');
+      setError(err.response?.data?.message || 'Failed to create fight');
       setLoading(false);
     }
   };
 
   return (
     <FormCard
-      title="Crear Nueva Pelea"
-      subtitle="Registrar una nueva pelea para futuras designaciones y análisis."
+      title="Create Fight"
+      subtitle="Register a new fight for future assignments and analysis."
       backRoute="/fights"
       error={error}
       icon="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
     >
       <form onSubmit={handleSubmit}>
 
-        {/* ── Información del combate ── */}
+        {/* ── Fight information ── */}
         <FormSection
           icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          title="Información del combate"
-          subtitle="Datos principales de la pelea y el evento"
+          title="Fight Information"
+          subtitle="Main fight and event details"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               className="sm:col-span-2"
               name="event_name"
-              label="Evento"
+              label="Event Name"
               value={form.event_name}
               onChange={handleChange}
-              placeholder="Nombre del evento"
+              placeholder="Event name"
               required
               error={fieldErrors.event_name}
             />
             <InputField
               name="weight_class"
-              label="Categoría"
+              label="Weight Class"
               value={form.weight_class}
               onChange={handleChange}
-              placeholder="Ej: Peso Pesado"
+              placeholder="e.g. Heavyweight"
               required
               error={fieldErrors.weight_class}
             />
             <InputField
               name="scheduled_date"
-              label="Fecha"
+              label="Scheduled Date"
               type="date"
               value={form.scheduled_date}
               onChange={handleChange}
@@ -155,84 +155,84 @@ const CreateFight = () => {
           </div>
         </FormSection>
 
-        {/* ── Participantes ── */}
+        {/* ── Boxers ── */}
         <FormSection
           icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          title="Participantes"
-          subtitle="Boxeadores que protagonizarán el combate"
+          title="Boxers"
+          subtitle="Boxers that will compete in the fight"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="boxer_red"
-              label="Boxeador Rojo"
+              label="Red Corner"
               value={form.boxer_red}
               onChange={handleChange}
-              placeholder="Nombre completo"
+              placeholder="Full name"
               required
               error={fieldErrors.boxer_red}
             />
             <InputField
               name="boxer_blue"
-              label="Boxeador Azul"
+              label="Blue Corner"
               value={form.boxer_blue}
               onChange={handleChange}
-              placeholder="Nombre completo"
+              placeholder="Full name"
               required
               error={fieldErrors.boxer_blue}
             />
           </div>
         </FormSection>
 
-        {/* ── Información del evento ── */}
+        {/* ── Event information ── */}
         <FormSection
           icon="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          title="Información del evento"
-          subtitle="Lugar, televisora y detalles adicionales"
+          title="Event Information"
+          subtitle="Venue, broadcaster and additional details"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="venue"
-              label="Lugar"
+              label="Venue"
               value={form.venue}
               onChange={handleChange}
-              placeholder="Ej: Luna Park"
+              placeholder="e.g. Luna Park"
             />
             <InputField
               name="broadcaster"
-              label="Televisora"
+              label="Broadcaster"
               value={form.broadcaster}
               onChange={handleChange}
-              placeholder="Ej: ESPN"
+              placeholder="e.g. ESPN"
             />
             <InputField
               name="title"
-              label="Título"
+              label="Title"
               value={form.title}
               onChange={handleChange}
-              placeholder="Ej: Campeonato WBO"
+              placeholder="e.g. WBO Championship"
             />
             <SelectField
               name="referee_id"
-              label="Árbitro"
+              label="Referee"
               value={form.referee_id}
               onChange={handleChange}
-              placeholder="— Sin asignar —"
+              placeholder="— Unassigned —"
               options={referees.map((r) => ({ value: r.id, label: r.full_name }))}
             />
           </div>
         </FormSection>
 
-        {/* ── Observaciones ── */}
+        {/* ── Comments ── */}
         <FormSection
           icon="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          title="Observaciones"
-          subtitle="Notas internas (opcional)"
+          title="Comments"
+          subtitle="Internal notes (optional)"
         >
           <TextareaField
             name="notes"
             value={form.notes}
             onChange={handleChange}
-            placeholder="Notas y observaciones adicionales sobre la pelea..."
+            placeholder="Additional notes and observations about the fight..."
             rows={3}
           />
         </FormSection>
@@ -247,7 +247,7 @@ const CreateFight = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            {loading ? 'Guardando...' : 'Guardar'}
+            {loading ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"
@@ -257,7 +257,7 @@ const CreateFight = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
-            Cancelar
+            Cancel
           </button>
         </div>
       </form>

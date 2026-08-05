@@ -12,7 +12,7 @@ import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon, BoltIcon, Chec
 
 const formatDateTime = (d) => {
   if (!d) return '';
-  return new Date(d).toLocaleString('es-AR', {
+  return new Date(d).toLocaleString('en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
@@ -20,7 +20,7 @@ const formatDateTime = (d) => {
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const roundFromServer = (rs) => ({
@@ -50,15 +50,15 @@ const SuccessHero = ({ submittedAt }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     </div>
-    <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-3 m-0 tracking-tight">Tarjeta enviada correctamente</h2>
+    <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-3 m-0 tracking-tight">Scorecard submitted successfully</h2>
     <p className="text-base text-slate-500 dark:text-[#94A3B8] max-w-md mx-auto mb-6 m-0">
-      La puntuación fue registrada exitosamente y ya no puede modificarse.
+      The score was recorded successfully and can no longer be modified.
     </p>
     <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-wbo-50 to-wbo-100/60 dark:from-wbo-900/20 dark:to-wbo-800/10 border border-wbo-200/60 dark:border-wbo-800/30 text-sm font-semibold text-wbo-800 dark:text-wbo-300 shadow-sm">
       <svg className="w-4 h-4 text-wbo-600 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      Enviada el {submittedAt}
+      Submitted on {submittedAt}
     </div>
   </div>
 );
@@ -87,10 +87,10 @@ const ResultCard = ({ label, value, icon, accent = 'red' }) => {
 
 const FightSummaryCard = ({ fight, scoreCard, roleLabel }) => {
   const infoItems = [
-    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight.scheduled_date) },
-    { icon: MapPinIcon, label: 'Lugar', value: fight.venue || '\u2014' },
-    { icon: UserGroupIcon, label: 'Rol', value: roleLabel },
-    { icon: CheckBadgeIcon, label: 'Estado', value: 'Finalizada' },
+    { icon: CalendarIcon, label: 'Date', value: formatDate(fight.scheduled_date) },
+    { icon: MapPinIcon, label: 'Venue', value: fight.venue || '\u2014' },
+    { icon: UserGroupIcon, label: 'Role', value: roleLabel },
+    { icon: CheckBadgeIcon, label: 'Status', value: 'Completed' },
   ];
 
   return (
@@ -102,8 +102,8 @@ const FightSummaryCard = ({ fight, scoreCard, roleLabel }) => {
           </svg>
         </div>
         <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen del Combate</h3>
-          <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Detalles de la pelea</p>
+          <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Fight Summary</h3>
+          <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Fight details</p>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -138,8 +138,8 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
         </svg>
       </div>
       <div>
-        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
-        <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Detalle de cada asalto</p>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Score by Round</h3>
+        <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Details for each round</p>
       </div>
     </div>
     <div className="overflow-x-auto scrollbar-thin">
@@ -149,7 +149,7 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
             <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Notas</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Notes</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
@@ -200,7 +200,7 @@ const DraftHeader = ({ fight, allComplete }) => (
           </svg>
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Tarjeta de Puntuación</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Scorecard</p>
           <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
             {fight.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight.boxer_blue}
           </h1>
@@ -213,7 +213,7 @@ const DraftHeader = ({ fight, allComplete }) => (
               : 'bg-amber-500/15 text-amber-200 ring-amber-400/30'
           }`}>
             {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
-            {allComplete ? 'Lista para enviar' : 'En carga'}
+            {allComplete ? 'Ready to send' : 'In progress'}
           </span>
         </div>
       </div>
@@ -224,7 +224,7 @@ const DraftHeader = ({ fight, allComplete }) => (
           <CalendarIcon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Fecha</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Date</p>
           <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{formatDate(fight.scheduled_date)}</p>
         </div>
       </div>
@@ -235,7 +235,7 @@ const DraftHeader = ({ fight, allComplete }) => (
           </svg>
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Categoría</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Category</p>
           <p className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{fight.weight_class || '\u2014'}</p>
         </div>
       </div>
@@ -257,9 +257,9 @@ const DraftHeader = ({ fight, allComplete }) => (
           {allComplete ? <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <ClockIcon className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Tarjeta</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Scorecard</p>
           <p className={`text-sm font-bold m-0 truncate ${allComplete ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
-            {allComplete ? 'Lista para enviar' : 'En carga'}
+            {allComplete ? 'Ready to send' : 'In progress'}
           </p>
         </div>
       </div>
@@ -275,9 +275,9 @@ const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }
           <BoltIcon className="w-5 h-5 text-wbo-700 dark:text-wbo-400" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Progreso de la carga</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Loading progress</h3>
           <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">
-            {allComplete ? '¡Todos los rounds cargados!' : `${completedRounds} de ${totalRounds} rounds cargados`}
+            {allComplete ? 'All rounds loaded!' : `${completedRounds} of ${totalRounds} rounds loaded`}
           </p>
         </div>
       </div>
@@ -293,12 +293,12 @@ const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }
       {allComplete ? (
         <>
           <CheckIcon className="w-4 h-4 shrink-0" />
-          Tarjeta lista para enviar
+          Scorecard ready to send
         </>
       ) : (
         <>
-          {progressPct}% completado
-          {totalRounds - completedRounds > 0 && <> · {totalRounds - completedRounds} {totalRounds - completedRounds === 1 ? 'round pendiente' : 'rounds pendientes'}</>}
+          {progressPct}% completed
+          {totalRounds - completedRounds > 0 && <> · {totalRounds - completedRounds} {totalRounds - completedRounds === 1 ? 'round pending' : 'rounds pending'}</>}
         </>
       )}
     </p>
@@ -307,9 +307,9 @@ const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }
 
 const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
   const items = [
-    { label: 'Rounds completados', value: `${completedRounds} / ${totalRounds}`, strong: true },
-    { label: 'Total cargados', value: `${totalRounds} rounds` },
-    { label: 'Pendientes', value: `${totalRounds - completedRounds} ${totalRounds - completedRounds === 1 ? 'round' : 'rounds'}` },
+    { label: 'Rounds completed', value: `${completedRounds} / ${totalRounds}`, strong: true },
+    { label: 'Total loaded', value: `${totalRounds} rounds` },
+    { label: 'Pending', value: `${totalRounds - completedRounds} ${totalRounds - completedRounds === 1 ? 'round' : 'rounds'}` },
   ];
   return (
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden sticky top-6">
@@ -317,7 +317,7 @@ const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
           <ChartBarIcon className="w-4 h-4 text-white" />
         </div>
-        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Summary</h3>
       </div>
       <div className="p-5 space-y-4">
         {items.map((item) => (
@@ -327,14 +327,14 @@ const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
           </div>
         ))}
         <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Estado</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Status</p>
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ${
             allComplete
               ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
               : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
           }`}>
             {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
-            {allComplete ? 'Lista para enviar' : 'En carga'}
+            {allComplete ? 'Ready to send' : 'In progress'}
           </span>
         </div>
       </div>
@@ -351,7 +351,7 @@ const ActionButtons = ({ navigate }) => (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
-      Volver al Dashboard
+      Back to Dashboard
     </button>
     <button
       onClick={() => navigate('/judges/assignments')}
@@ -360,7 +360,7 @@ const ActionButtons = ({ navigate }) => (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
-      Mis Designaciones
+      My Assignments
     </button>
   </div>
 );
@@ -418,7 +418,7 @@ const ScoreFight = () => {
         setFight(f);
 
         if (user.role !== 'judge') {
-          setRestriction('Esta pelea no está disponible para puntuar.');
+          setRestriction('This fight is not available for scoring.');
           setLoading(false);
           return;
         }
@@ -428,7 +428,7 @@ const ScoreFight = () => {
           myRes = await getMyScorecard(fightId, token);
         } catch (err) {
           if (cancelled) return;
-          setRestriction('Esta pelea no está disponible para puntuar.');
+          setRestriction('This fight is not available for scoring.');
           setLoading(false);
           return;
         }
@@ -447,7 +447,7 @@ const ScoreFight = () => {
         }
 
         if (!isEarlyResult(f) && f.status !== 'active') {
-          setRestriction('Esta pelea no está disponible para puntuar.');
+          setRestriction('This fight is not available for scoring.');
           setLoading(false);
           return;
         }
@@ -469,7 +469,7 @@ const ScoreFight = () => {
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
-        const msg = err.response?.data?.message || 'Error al cargar la tarjeta';
+        const msg = err.response?.data?.message || 'Failed to load the scorecard';
         setRestriction(msg);
         setLoading(false);
       }
@@ -501,11 +501,11 @@ const ScoreFight = () => {
     const sBlue = Number(data.score_blue);
 
     if (sRed < 1 || sRed > 10) {
-      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_red debe estar entre 1 y 10' }));
+      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_red must be between 1 and 10' }));
       return;
     }
     if (sBlue < 1 || sBlue > 10) {
-      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_blue debe estar entre 1 y 10' }));
+      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_blue must be between 1 and 10' }));
       return;
     }
 
@@ -518,9 +518,9 @@ const ScoreFight = () => {
         setJustSavedRound((prev) => (prev === roundNum ? null : prev));
       }, 2000);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Error al guardar';
+      const msg = err.response?.data?.message || 'Failed to save';
       if (msg.includes('finalizada')) {
-        setError('La tarjeta ya fue enviada y no puede modificarse.');
+        setError('The scorecard has already been submitted and cannot be modified.');
       } else {
         setRoundErrors((prev) => ({ ...prev, [roundNum]: msg }));
       }
@@ -543,7 +543,7 @@ const ScoreFight = () => {
     ) {
       setRoundErrors((prev) => ({
         ...prev,
-        [roundNum]: 'El descuento no puede dejar un puntaje por debajo de 1',
+        [roundNum]: 'The deduction cannot leave a score below 1',
       }));
       return;
     }
@@ -566,7 +566,7 @@ const ScoreFight = () => {
         setJustSavedRound((prev) => (prev === roundNum ? null : prev));
       }, 2000);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Error al guardar';
+      const msg = err.response?.data?.message || 'Failed to save';
       setRoundErrors((prev) => ({ ...prev, [roundNum]: msg }));
     } finally {
       setSavingRound((prev) => (prev === roundNum ? null : prev));
@@ -581,11 +581,11 @@ const ScoreFight = () => {
       setScoreCard(res.data.scorecard);
       setShowConfirmModal(false);
       navigate(`/scoring/${fightId}`, {
-        state: { toast: { type: 'success', message: 'Tu tarjeta fue enviada correctamente y quedó lista para su revisión.' } },
+        state: { toast: { type: 'success', message: 'Your scorecard was submitted successfully and is ready for review.' } },
         replace: true,
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al enviar la tarjeta');
+      setError(err.response?.data?.message || 'Failed to submit the scorecard');
     } finally {
       setFinalizing(false);
     }
@@ -596,7 +596,7 @@ const ScoreFight = () => {
       <div className="flex items-center justify-center py-20">
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
-          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta...</span>
+          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Loading scorecard...</span>
         </div>
       </div>
     );
@@ -611,7 +611,7 @@ const ScoreFight = () => {
             className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-lg text-sm font-semibold hover:bg-wbo-800 transition-colors"
             onClick={() => navigate(-1)}
           >
-            Volver
+            Back
           </button>
         </div>
       </div>
@@ -621,12 +621,12 @@ const ScoreFight = () => {
   if (!fight || !scoreCard) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-slate-400 dark:text-[#64748B] py-10 text-center m-0">No se pudo cargar la información de la pelea.</p>
+        <p className="text-slate-400 dark:text-[#64748B] py-10 text-center m-0">The fight information could not be loaded.</p>
       </div>
     );
   }
 
-  const roleLabel = user?.role === 'judge' ? 'Juez' : user?.role || '\u2014';
+  const roleLabel = user?.role === 'judge' ? 'Judge' : user?.role || '\u2014';
   const diff = scoreCard?.total_score_red != null && scoreCard?.total_score_blue != null
     ? Math.abs(scoreCard.total_score_red - scoreCard.total_score_blue)
     : '\u2014';
@@ -650,14 +650,14 @@ const ScoreFight = () => {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Finalizada
+              Completed
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
             <div className="flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                <span className="font-semibold text-slate-600 dark:text-slate-300">Fecha:</span> {formatDate(fight.scheduled_date)}
+                <span className="font-semibold text-slate-600 dark:text-slate-300">Date:</span> {formatDate(fight.scheduled_date)}
               </span>
             </div>
             {fight.weight_class && (
@@ -666,7 +666,7 @@ const ScoreFight = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                 </svg>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-semibold text-slate-600 dark:text-slate-300">Categoría:</span> {fight.weight_class}
+                  <span className="font-semibold text-slate-600 dark:text-slate-300">Category:</span> {fight.weight_class}
                 </span>
               </div>
             )}
@@ -674,7 +674,7 @@ const ScoreFight = () => {
               <div className="flex items-center gap-2">
                 <MapPinIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-semibold text-slate-600 dark:text-slate-300">Lugar:</span> {fight.venue}
+                  <span className="font-semibold text-slate-600 dark:text-slate-300">Venue:</span> {fight.venue}
                 </span>
               </div>
             )}
@@ -692,10 +692,10 @@ const ScoreFight = () => {
             <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
-                Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+                Fight ended by {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round {fight.result_round}.
               </p>
               <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
-                Tarjeta puntuada sobre los {totalRounds} rounds efectivamente disputados.
+                Scorecard scored on the {totalRounds} rounds actually contested.
               </p>
             </div>
           </div>
@@ -705,25 +705,25 @@ const ScoreFight = () => {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
           <ResultCard
-            label="Total Rojo"
+            label="Red Total"
             value={scoreCard.total_score_red}
             icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             accent="red"
           />
           <ResultCard
-            label="Total Azul"
+            label="Blue Total"
             value={scoreCard.total_score_blue}
             icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             accent="blue"
           />
           <ResultCard
-            label="Ganador"
-            value={scoreCard.winner || 'Empate'}
+            label="Winner"
+            value={scoreCard.winner || 'Draw'}
             icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             accent="amber"
           />
           <ResultCard
-            label="Diferencia"
+            label="Difference"
             value={diff === '\u2014' ? diff : `${diff} pts`}
             icon="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
             accent="emerald"
@@ -758,10 +758,10 @@ const ScoreFight = () => {
             <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
-                La pelea finalizó por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+                The fight ended by {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round {fight.result_round}.
               </p>
               <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
-                Solo se puntúan los rounds efectivamente disputados (hasta el round {totalRounds}). Los rounds posteriores están bloqueados.
+                Only the rounds actually contested are scored (up to round {totalRounds}). Later rounds are blocked.
               </p>
             </div>
           </div>
@@ -790,8 +790,8 @@ const ScoreFight = () => {
                   <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
-                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Completá la puntuación de cada boxeador</p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Score by Round</h3>
+                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Complete the score for each boxer</p>
                 </div>
               </div>
 
@@ -815,13 +815,13 @@ const ScoreFight = () => {
                           {saving && (
                             <span className="inline-flex items-center gap-1.5 text-slate-400 dark:text-slate-500 font-medium">
                               <span className="animate-spin h-3 w-3 border-2 border-slate-300 dark:border-slate-600 border-t-slate-500 dark:border-t-slate-300 rounded-full" />
-                              Guardando...
+                              Saving...
                             </span>
                           )}
                           {saved && (
                             <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-semibold">
                               <CheckIcon className="w-3.5 h-3.5" />
-                              Guardado
+                              Saved
                             </span>
                           )}
                           {err && (
@@ -836,7 +836,7 @@ const ScoreFight = () => {
                       <div className="p-4 sm:p-5 grid grid-cols-2 xl:grid-cols-[1fr_1fr_1.6fr] gap-4">
                         <div>
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Rojo</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Red</span>
                             <span className="truncate">{fight.boxer_red}</span>
                           </label>
                           <input
@@ -851,13 +851,13 @@ const ScoreFight = () => {
                             className={inputRedBase}
                           />
                           <div className="mt-2.5 block">
-                            <span id={`ded-red-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+                            <span id={`ded-red-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Deduction (points)</span>
                             <DeductionSelect
                               value={data.deduction_red ?? 0}
                               onChange={(v) => handleDeductionChange(rn, 'deduction_red', v)}
                               disabled={isFinalized}
                               labelId={`ded-red-label-${rn}`}
-                              listboxLabel={`Descuento (puntos) del boxeador rojo (${fight.boxer_red})`}
+                              listboxLabel={`Deduction (points) for the red boxer (${fight.boxer_red})`}
                             />
                           </div>
                           <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_red > 0 ? 'text-red-700 dark:text-red-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
@@ -869,7 +869,7 @@ const ScoreFight = () => {
                         </div>
                         <div>
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Azul</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Blue</span>
                             <span className="truncate">{fight.boxer_blue}</span>
                           </label>
                           <input
@@ -884,13 +884,13 @@ const ScoreFight = () => {
                             className={inputBlueBase}
                           />
                           <div className="mt-2.5 block">
-                            <span id={`ded-blue-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+                            <span id={`ded-blue-label-${rn}`} className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Deduction (points)</span>
                             <DeductionSelect
                               value={data.deduction_blue ?? 0}
                               onChange={(v) => handleDeductionChange(rn, 'deduction_blue', v)}
                               disabled={isFinalized}
                               labelId={`ded-blue-label-${rn}`}
-                              listboxLabel={`Descuento (puntos) del boxeador azul (${fight.boxer_blue})`}
+                              listboxLabel={`Deduction (points) for the blue boxer (${fight.boxer_blue})`}
                             />
                           </div>
                           <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_blue > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
@@ -903,7 +903,7 @@ const ScoreFight = () => {
                         <div className="col-span-2 xl:col-span-1">
                           <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
                             <ChatBubbleOvalLeftIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                            Notas
+                            Notes
                           </label>
                           <input
                             type="text"
@@ -911,7 +911,7 @@ const ScoreFight = () => {
                             onChange={(e) => updateRound(rn, 'notes', e.target.value)}
                             onBlur={() => handleBlur(rn)}
                             disabled={isFinalized}
-                            placeholder="Agregar observaciones del round..."
+                            placeholder="Add round observations..."
                             className={notesInputBase}
                           />
                         </div>
@@ -929,7 +929,7 @@ const ScoreFight = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                 </svg>
                 <p className="text-xs text-slate-500 dark:text-[#94A3B8] m-0 leading-relaxed">
-                  Revisá la puntuación antes de enviarla. Una vez enviada no podrá modificarse.
+                  Review your score before submitting. Once submitted, it cannot be modified.
                 </p>
               </div>
               <div className="flex justify-center">
@@ -940,7 +940,7 @@ const ScoreFight = () => {
                   icon={CheckIcon}
                   className="px-10 py-3.5 text-base shadow-md"
                 >
-                  {finalizing ? 'Enviando tarjeta...' : 'Enviar Tarjeta Oficial'}
+                  {finalizing ? 'Submitting scorecard...' : 'Submit Official Scorecard'}
                 </PageActionButton>
               </div>
             </div>
@@ -960,9 +960,9 @@ const ScoreFight = () => {
           isOpen={showConfirmModal}
           onClose={() => { if (!finalizing) setShowConfirmModal(false); }}
           onConfirm={handleFinalize}
-          title="Enviar tarjeta final"
-          description="Una vez enviada la tarjeta no podrás modificarla. ¿Deseás continuar?"
-          confirmLabel={finalizing ? 'Enviando...' : 'Enviar'}
+          title="Submit final scorecard"
+          description="Once submitted, the scorecard cannot be modified. Do you want to continue?"
+          confirmLabel={finalizing ? 'Submitting...' : 'Submit'}
           type="warning"
           loading={finalizing}
         />

@@ -1,5 +1,5 @@
 export const RESULT_TYPE_LABELS = {
-  decision: 'Decisión',
+  decision: 'Decision',
   ko: 'KO',
   tko: 'TKO',
   rtd: 'RTD',
@@ -8,12 +8,12 @@ export const RESULT_TYPE_LABELS = {
 };
 
 export const RESULT_TYPE_OPTIONS = [
-  { value: 'ko', label: 'Nocaut (KO)' },
-  { value: 'tko', label: 'Nocaut técnico (TKO)' },
-  { value: 'rtd', label: 'Abandono (RTD)' },
-  { value: 'dq', label: 'Descalificación (DQ)' },
-  { value: 'nc', label: 'Sin decisión (NC)' },
-  { value: 'decision', label: 'Decisión' },
+  { value: 'ko', label: 'Knockout (KO)' },
+  { value: 'tko', label: 'Technical Knockout (TKO)' },
+  { value: 'rtd', label: 'Retirement (RTD)' },
+  { value: 'dq', label: 'Disqualification (DQ)' },
+  { value: 'nc', label: 'No Contest (NC)' },
+  { value: 'decision', label: 'Decision' },
 ];
 
 export const EARLY_RESULT_TYPES = ['ko', 'tko', 'rtd', 'dq', 'nc'];
@@ -45,7 +45,7 @@ export const getEffectiveTotalRounds = (fight) => {
 export const formatFightResult = (fight) => {
   if (!fight?.result_type) return null;
   const type = RESULT_TYPE_LABELS[fight.result_type] || fight.result_type;
-  const winner = fight.result_winner ? `Ganador: ${fight.result_winner}` : 'Sin decisión';
+  const winner = fight.result_winner ? `Winner: ${fight.result_winner}` : 'No decision';
   const detail = isEarlyResult(fight)
     ? `R${fight.result_round} · ${fight.result_time || '--:--'}`
     : null;

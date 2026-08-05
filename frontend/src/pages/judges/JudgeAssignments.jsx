@@ -7,11 +7,11 @@ import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 
 const STATE_META = {
-  pending:    { label: 'Designado',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
-  active:     { label: 'Activa',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/50' },
-  finalized:  { label: 'Enviada',     color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/50' },
-  completed:  { label: 'Finalizada',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600/50' },
-  analyzed:   { label: 'Analizada',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800/50' },
+  pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
+  active:     { label: 'Active',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/50' },
+  finalized:  { label: 'Submitted',   color: 'text-blue-700 dark:text-blue-300',   bg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/50' },
+  completed:  { label: 'Completed',  color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600/50' },
+  analyzed:   { label: 'Analyzed',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800/50' },
 };
 
 const getLeftBorder = (state) => {
@@ -27,15 +27,15 @@ const getLeftBorder = (state) => {
 
 const assignmentTypeLabel = (type) => {
   const map = {
-    evaluator: 'Evaluador del combate',
-    referee_evaluator: 'Evaluador del árbitro',
+    evaluator: 'Fight evaluator',
+    referee_evaluator: 'Referee evaluator',
   };
   return map[type] || type;
 };
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const StatCard = ({ label, count, dotColor }) => (
@@ -74,7 +74,7 @@ const JudgeAssignments = () => {
       const res = await getMyAssignments(token);
       setAssignments(res.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cargar las designaciones');
+      setError(err.response?.data?.message || 'Failed to load assignments');
     } finally {
       setLoading(false);
     }
@@ -135,16 +135,16 @@ const JudgeAssignments = () => {
   };
 
   const actionLabel = (a) => {
-    if (a._state === 'active') return 'Puntuar pelea';
-    if (a._state === 'finalized') return 'Ver mi tarjeta';
-    if (a._state === 'analyzed') return 'Ver análisis';
-    return 'Ver pelea';
+    if (a._state === 'active') return 'Score fight';
+    if (a._state === 'finalized') return 'View my scorecard';
+    if (a._state === 'analyzed') return 'View analysis';
+    return 'View fight';
   };
 
   if (!isJudge) {
     return (
       <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
-        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-6 py-4 rounded-xl text-sm font-semibold">Solo los jueces pueden acceder a esta página</div>
+        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-6 py-4 rounded-xl text-sm font-semibold">Only judges can access this page</div>
       </div>
     );
   }
@@ -154,7 +154,7 @@ const JudgeAssignments = () => {
       <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-600 border-t-red-800" />
-          <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando designaciones...</span>
+          <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading assignments...</span>
         </div>
       </div>
     );
@@ -177,8 +177,8 @@ const JudgeAssignments = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">No tenés designaciones</h3>
-          <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Cuando un administrador te asigne una pelea aparecerá aquí.</p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">You have no assignments</h3>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8]">When an administrator assigns you a fight, it will appear here.</p>
         </div>
       </div>
     );
@@ -194,15 +194,15 @@ const JudgeAssignments = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">Mis Designaciones</h1>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">My Assignments</h1>
             </div>
-            <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Todas las peleas que te fueron asignadas y su estado actual.</p>
+            <p className="text-sm text-slate-500 dark:text-[#94A3B8]">All the fights assigned to you and their current status.</p>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             <StatCard label="Total" count={counts.total} dotColor="bg-slate-400" />
-            <StatCard label="Designadas" count={counts.pending} dotColor="bg-amber-500" />
-            <StatCard label="Activas" count={counts.active} dotColor="bg-emerald-500" />
-            <StatCard label="Analizadas" count={counts.analyzed} dotColor="bg-red-500" />
+            <StatCard label="Assigned" count={counts.pending} dotColor="bg-amber-500" />
+            <StatCard label="Active" count={counts.active} dotColor="bg-emerald-500" />
+            <StatCard label="Analyzed" count={counts.analyzed} dotColor="bg-red-500" />
           </div>
         </div>
       </div>
@@ -210,27 +210,27 @@ const JudgeAssignments = () => {
       {/* ─── Filters ─── */}
       <div className="max-w-[1440px] mx-auto mb-6">
         <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-          <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Buscar por evento..." />
+          <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Search by event..." />
           <FilterSelect
             value={filterState}
             onChange={setFilterState}
             options={[
-              { value: 'pending', label: 'Designada' },
-              { value: 'active', label: 'Activa' },
-              { value: 'finalized', label: 'Tarjeta enviada' },
-              { value: 'completed', label: 'Finalizada' },
-              { value: 'analyzed', label: 'Analizada' },
+              { value: 'pending', label: 'Assigned' },
+              { value: 'active', label: 'Active' },
+              { value: 'finalized', label: 'Scorecard submitted' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'analyzed', label: 'Analyzed' },
             ]}
-            placeholder="Estado"
+            placeholder="Status"
           />
           <FilterSelect
             value={sortOrder}
             onChange={setSortOrder}
             options={[
-              { value: 'closest', label: 'Fecha más próxima' },
-              { value: 'farthest', label: 'Fecha más lejana' },
+              { value: 'closest', label: 'Nearest date' },
+              { value: 'farthest', label: 'Farthest date' },
             ]}
-            placeholder="Ordenar por"
+            placeholder="Sort by"
           />
         </FilterBar>
       </div>
@@ -257,7 +257,7 @@ const JudgeAssignments = () => {
                     <div className="min-w-0">
                       <h2 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{a.event_name}</h2>
                       <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                        {[a.weight_class, a.venue].filter(Boolean).join(' · ') || 'Sin detalles'}
+                        {[a.weight_class, a.venue].filter(Boolean).join(' · ') || 'No details'}
                       </p>
                     </div>
                   </div>
@@ -277,7 +277,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      Fecha
+                      Date
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{formatDate(a.scheduled_date)}</p>
                   </div>
@@ -286,7 +286,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      Boxeador rojo
+                      Red boxer
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_red}</p>
                   </div>
@@ -295,7 +295,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      Boxeador azul
+                      Blue boxer
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{a.boxer_blue}</p>
                   </div>
@@ -304,7 +304,7 @@ const JudgeAssignments = () => {
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
-                      Tipo de asignación
+                      Assignment type
                     </p>
                     <p className="text-base font-semibold text-slate-900 dark:text-[#F8FAFC]">{assignmentTypeLabel(a.assignment_type)}</p>
                   </div>
@@ -319,13 +319,13 @@ const JudgeAssignments = () => {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Designado · Esperando que se active la pelea
+                      Assigned · Waiting for the fight to be activated
                     </div>
                     <button
                       className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.98]"
                       onClick={() => goTo(a)}
                     >
-                      Ver pelea
+                      View fight
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>

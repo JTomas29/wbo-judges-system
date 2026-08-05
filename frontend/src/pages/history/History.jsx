@@ -6,14 +6,14 @@ import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterDate, FilterSelect } from '../../components/common/FilterBar';
 
 const statusConfig = {
-  archived: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-300', icon: 'archive', label: 'Archivada' },
+  archived: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-300', icon: 'archive', label: 'Archived' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '\u2014';
-  return new Date(dateStr).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
 const initials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
@@ -62,7 +62,7 @@ const History = () => {
     setError(null);
     getFightHistory(token, { searchEvent, dateFrom, dateTo, weightClass: filterCategory })
       .then((data) => { setFights(data); setLoading(false); })
-      .catch((err) => { setError(err.response?.data?.message || 'Error al cargar historial'); setLoading(false); });
+      .catch((err) => { setError(err.response?.data?.message || 'Failed to load history'); setLoading(false); });
   }, [token, searchEvent, dateFrom, dateTo, filterCategory]);
 
   const categories = useMemo(() => {
@@ -77,7 +77,7 @@ const History = () => {
     <div className="flex items-center justify-center py-20">
       <div className="flex items-center gap-3">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando historial...</span>
+        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Loading history...</span>
       </div>
     </div>
   );
@@ -94,8 +94,8 @@ const History = () => {
       {/* ═══ HEADER ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight leading-tight">Historial de Peleas</h1>
-          <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">Peleas archivadas del sistema.</p>
+          <h1 className="text-[28px] sm:text-[34px] font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight leading-tight">Fight History</h1>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">Archived fights in the system.</p>
         </div>
       </div>
 
@@ -104,29 +104,29 @@ const History = () => {
         <StatCard
           icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
           value={fights.length}
-          label="Peleas archivadas"
+          label="Archived fights"
           color="bg-slate-500"
         />
         <StatCard
           icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
           value={fights.filter(f => Number(f.avg_match_pct) > 0).length}
-          label="Con análisis"
+          label="With analysis"
           color="bg-blue-600"
         />
         <StatCard
           icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>}
           value={fights.filter(f => Number(f.total_matches) > 0).length}
-          label="Con tarjetas"
+          label="With scorecards"
           color="bg-violet-600"
         />
       </div>
 
       {/* ═══ FILTERS ═══ */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-        <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Buscar por evento..." />
-        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Categoría" />
-        <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Fecha desde" />
-        <FilterDate value={dateTo} onChange={setDateTo} placeholder="Fecha hasta" />
+        <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Search by event..." />
+        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Category" />
+        <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Date from" />
+        <FilterDate value={dateTo} onChange={setDateTo} placeholder="Date to" />
       </FilterBar>
 
       {/* ═══ CONTENT ═══ */}
@@ -137,8 +137,8 @@ const History = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-[#F8FAFC] mb-2">No hay peleas archivadas</h3>
-          <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Las peleas archivadas aparecerán aquí.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-[#F8FAFC] mb-2">No archived fights</h3>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8]">Archived fights will appear here.</p>
         </div>
       ) : (
         <>
@@ -148,14 +148,14 @@ const History = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-[#1E293B] bg-slate-50/80 dark:bg-[#0B1120]">
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Evento</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Rojo</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Azul</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Fecha</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Categoría</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Estado</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Archivada</th>
-                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Acciones</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Event</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Red</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Blue</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Date</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Category</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Status</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Archived</th>
+                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -202,7 +202,7 @@ const History = () => {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] text-slate-600 dark:text-[#F8FAFC] rounded-xl hover:bg-slate-50 dark:hover:bg-[#374151] hover:shadow-sm transition-all active:scale-[0.97]"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            Ver
+                            View
                           </button>
                         </td>
                       </tr>
@@ -238,19 +238,19 @@ const History = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Rojo</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Red</p>
                       <p className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{fight.boxer_red}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Azul</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Blue</p>
                       <p className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{fight.boxer_blue}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Fecha</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Date</p>
                       <p className="text-sm text-slate-600 dark:text-[#94A3B8]">{formatDate(fight.scheduled_date)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archivada</p>
+                      <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archived</p>
                       <p className="text-sm text-slate-600 dark:text-[#94A3B8]">{formatDate(fight.archived_at)}</p>
                     </div>
                   </div>
@@ -260,7 +260,7 @@ const History = () => {
                       className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-[#1F2937] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-[#374151] transition-all active:scale-[0.97] border border-slate-200 dark:border-[#374151]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                      Ver detalle
+                      View details
                     </button>
                   </div>
                 </div>
@@ -289,7 +289,7 @@ const History = () => {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.event_name}</h3>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-[#1F2937] text-slate-600 dark:text-[#94A3B8] border border-slate-200 dark:border-[#374151]">ARCHIVADA</span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-[#1F2937] text-slate-600 dark:text-[#94A3B8] border border-slate-200 dark:border-[#374151]">ARCHIVED</span>
               </div>
             </div>
 
@@ -298,24 +298,24 @@ const History = () => {
                 <div className="text-center">
                   <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 flex items-center justify-center text-xs font-bold mx-auto mb-1">R</div>
                   <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.boxer_red}</p>
-                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Rojo</p>
+                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Red</p>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-slate-200 dark:bg-[#374151] text-slate-500 dark:text-[#94A3B8] text-xs font-bold">VS</div>
                 <div className="text-center">
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center text-xs font-bold mx-auto mb-1">A</div>
                   <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{selectedFight.boxer_blue}</p>
-                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Azul</p>
+                  <p className="text-[10px] text-slate-400 dark:text-[#94A3B8] uppercase">Blue</p>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-sm mb-5">
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Fecha</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Date</p>
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{formatDate(selectedFight.scheduled_date)}</p>
               </div>
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Categoría</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Category</p>
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.weight_class || '\u2014'}</p>
               </div>
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
@@ -323,18 +323,18 @@ const History = () => {
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.total_rounds}</p>
               </div>
               <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archivada</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Archived</p>
                 <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{formatDate(selectedFight.archived_at)}</p>
               </div>
               {selectedFight.venue && (
                 <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Sede</p>
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Venue</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.venue}</p>
                 </div>
               )}
               {selectedFight.broadcaster && (
                 <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-[#374151] p-3">
-                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Transmisión</p>
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Broadcast</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{selectedFight.broadcaster}</p>
                 </div>
               )}
@@ -342,19 +342,19 @@ const History = () => {
 
             {Number(selectedFight.total_matches) > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/50 p-4 mb-5">
-                <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-2">Análisis</p>
+                <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wide mb-2">Analysis</p>
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
                     <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{Number(selectedFight.avg_match_pct).toFixed(1)}%</p>
-                    <p className="text-[10px] text-blue-500 dark:text-blue-400">Promedio</p>
+                    <p className="text-[10px] text-blue-500 dark:text-blue-400">Average</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{selectedFight.total_matches}</p>
-                    <p className="text-[10px] text-emerald-500 dark:text-emerald-400">Coincidencias</p>
+                    <p className="text-[10px] text-emerald-500 dark:text-emerald-400">Matches</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-red-600 dark:text-red-400">{selectedFight.total_errors}</p>
-                    <p className="text-[10px] text-red-500 dark:text-red-400">Errores</p>
+                    <p className="text-[10px] text-red-500 dark:text-red-400">Errors</p>
                   </div>
                 </div>
               </div>
@@ -364,7 +364,7 @@ const History = () => {
               onClick={() => setSelectedFight(null)}
               className="w-full px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#F8FAFC] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] rounded-xl hover:bg-slate-50 dark:hover:bg-[#374151] hover:shadow-sm transition-all active:scale-[0.97]"
             >
-              Cerrar
+              Close
             </button>
           </div>
         </div>

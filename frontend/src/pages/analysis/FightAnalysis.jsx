@@ -26,7 +26,7 @@ const pageWrapper =
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const abbreviate = (name) => {
@@ -44,7 +44,7 @@ const WinnerBadge = ({ winner }) => {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
         <span className="w-2 h-2 rounded-sm bg-red-500" />
-        Rojo
+        Red
       </span>
     );
   }
@@ -52,13 +52,13 @@ const WinnerBadge = ({ winner }) => {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800/50 shadow-sm">
         <span className="w-2 h-2 rounded-sm bg-blue-500" />
-        Azul
+        Blue
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-600 shadow-sm">
-      Empate
+      Draw
     </span>
   );
 };
@@ -67,7 +67,7 @@ const LoadingState = () => (
   <div className={`${pageWrapper} flex items-center justify-center`}>
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
       <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
-      <span className="block mt-4 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando análisis de la pelea...</span>
+      <span className="block mt-4 text-slate-500 dark:text-[#94A3B8] text-sm">Loading fight analysis...</span>
     </div>
   </div>
 );
@@ -83,7 +83,7 @@ const ErrorState = ({ message, onBack }) => (
         onClick={onBack}
         className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
       >
-        Volver
+        Back
       </button>
     </div>
   </div>
@@ -95,12 +95,12 @@ const EmptyState = ({ onBack }) => (
       <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-5">
         <ChartBarIcon className="w-7 h-7 text-slate-400 dark:text-slate-500" />
       </div>
-      <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No existen resultados para esta pelea.</p>
+      <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No results exist for this fight.</p>
       <button
         onClick={onBack}
         className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
       >
-        Volver
+        Back
       </button>
     </div>
   </div>
@@ -116,12 +116,12 @@ const statAccents = {
 };
 
 const statItems = [
-  { key: 'total_judges', label: 'Jueces analizados', icon: UserGroupIcon, accent: 'blue' },
-  { key: 'total_rounds', label: 'Rounds analizados', icon: ChartBarIcon, accent: 'violet' },
-  { key: 'rounds_ok', label: 'Rounds exactos', icon: CheckBadgeIcon, accent: 'emerald' },
-  { key: 'rounds_error', label: 'Rounds con error', icon: ExclamationTriangleIcon, accent: 'red' },
-  { key: 'fights_ok', label: 'Tarjetas perfectas', icon: TrophyIcon, accent: 'gold' },
-  { key: 'fights_error', label: 'Tarjetas con error', icon: XCircleIcon, accent: 'amber' },
+  { key: 'total_judges', label: 'Judges analyzed', icon: UserGroupIcon, accent: 'blue' },
+  { key: 'total_rounds', label: 'Rounds analyzed', icon: ChartBarIcon, accent: 'violet' },
+  { key: 'rounds_ok', label: 'Exact rounds', icon: CheckBadgeIcon, accent: 'emerald' },
+  { key: 'rounds_error', label: 'Rounds with errors', icon: ExclamationTriangleIcon, accent: 'red' },
+  { key: 'fights_ok', label: 'Perfect scorecards', icon: TrophyIcon, accent: 'gold' },
+  { key: 'fights_error', label: 'Scorecards with errors', icon: XCircleIcon, accent: 'amber' },
 ];
 
 const StatCard = ({ icon: Icon, label, value, accent = 'slate', delay = 0 }) => {
@@ -144,13 +144,13 @@ const AnalysisHeader = ({ fight }) => {
   const effectiveRounds = fight ? getEffectiveTotalRounds(fight) : 0;
   const early = fight ? isEarlyResult(fight) : false;
   const infoItems = [
-    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
-    { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
+    { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
+    { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
+    { icon: BoltIcon, label: 'Category', value: fight?.weight_class || '\u2014' },
     {
       icon: HashtagIcon,
       label: 'Rounds',
-      value: `${effectiveRounds} de ${fight?.total_rounds ?? 0} rounds${early && fight?.result_round ? ` (fin R${fight.result_round})` : ''}`,
+      value: `${effectiveRounds} of ${fight?.total_rounds ?? 0} rounds${early && fight?.result_round ? ` (end R${fight.result_round})` : ''}`,
     },
   ];
 
@@ -162,7 +162,7 @@ const AnalysisHeader = ({ fight }) => {
             <ChartBarIcon className="w-7 h-7 text-red-200" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Análisis de Pelea</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Fight Analysis</p>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
               {fight?.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight?.boxer_blue}
             </h1>
@@ -171,7 +171,7 @@ const AnalysisHeader = ({ fight }) => {
           <div className="ml-auto shrink-0">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gold/15 text-gold-light ring-1 ring-gold/30">
               <span className="w-1.5 h-1.5 rounded-full bg-gold-light" />
-              Analizada
+              Analyzed
             </span>
           </div>
         </div>
@@ -222,7 +222,7 @@ const OfficialCardTable = ({ fight, card }) => {
     card.total_score_red > card.total_score_blue ? 'red' : card.total_score_blue > card.total_score_red ? 'blue' : 'draw';
 
   return (
-    <SectionCard Icon={ClipboardDocumentCheckIcon} title="Resultado Oficial" description="Puntajes de la tarjeta oficial">
+    <SectionCard Icon={ClipboardDocumentCheckIcon} title="Official Result" description="Official scorecard totals">
       <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full text-sm">
           <thead>
@@ -230,7 +230,7 @@ const OfficialCardTable = ({ fight, card }) => {
               <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider">Round</th>
               <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
               <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
-              <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider">Ganador</th>
+              <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider">Winner</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
@@ -262,7 +262,7 @@ const CoincidenceBadge = ({ matchExact, matchWinner }) => {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shadow-sm">
         <CheckIcon className="w-3 h-3" />
-        Exacto
+        Exact
       </span>
     );
   }
@@ -270,7 +270,7 @@ const CoincidenceBadge = ({ matchExact, matchWinner }) => {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-800/50 shadow-sm">
         <ScaleIcon className="w-3 h-3" />
-        Ganador
+        Winner
       </span>
     );
   }
@@ -321,16 +321,16 @@ const RoundComparisonCard = ({ round, judges, summary }) => (
       <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B1120]/40 flex items-center gap-4">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
           <CheckBadgeIcon className="w-3.5 h-3.5" />
-          {summary.ok} exactos
+          {summary.ok} exact
         </span>
         <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-500 dark:text-red-400">
           <XCircleIcon className="w-3.5 h-3.5" />
-          {summary.errors} errores
+          {summary.errors} errors
         </span>
         {summary.winner_ok !== undefined && (
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400">
             <ScaleIcon className="w-3.5 h-3.5" />
-            {summary.winner_ok} mismo ganador
+            {summary.winner_ok} same winner
           </span>
         )}
       </div>
@@ -371,12 +371,12 @@ const JudgePerformanceCard = ({ judge, index }) => {
           {perfect ? (
             <>
               <TrophyIcon className="w-3.5 h-3.5" />
-              Perfecta
+              Perfect
             </>
           ) : (
             <>
               <XCircleIcon className="w-3.5 h-3.5" />
-              {judge.exact_errors} {judge.exact_errors === 1 ? 'error' : 'errores'}
+              {judge.exact_errors} {judge.exact_errors === 1 ? 'error' : 'errors'}
             </>
           )}
         </span>
@@ -386,26 +386,26 @@ const JudgePerformanceCard = ({ judge, index }) => {
           <div className="flex items-center justify-between mb-1.5">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
               <CheckBadgeIcon className="w-3.5 h-3.5 text-emerald-500" />
-              Precisión exacta
+              Exact accuracy
             </span>
             <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">{judge.exact_match_pct}%</span>
           </div>
           <ProgressBar pct={judge.exact_match_pct} gradient="bg-gradient-to-r from-emerald-500 to-emerald-600" />
           <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">
-            {judge.exact_matches} de {judge.exact_matches + judge.exact_errors} rounds idénticos
+            {judge.exact_matches} of {judge.exact_matches + judge.exact_errors} identical rounds
           </p>
         </div>
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
               <ScaleIcon className="w-3.5 h-3.5 text-blue-500" />
-              Mismo ganador
+              Same winner
             </span>
             <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 tabular-nums">{judge.winner_match_pct}%</span>
           </div>
           <ProgressBar pct={judge.winner_match_pct} gradient="bg-gradient-to-r from-blue-500 to-blue-600" />
           <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">
-            {judge.winner_matches} de {judge.winner_matches + judge.winner_errors} rounds con el mismo ganador
+            {judge.winner_matches} of {judge.winner_matches + judge.winner_errors} rounds with the same winner
           </p>
         </div>
       </div>
@@ -437,7 +437,7 @@ const FightAnalysis = () => {
         const msg = err.response?.data?.message;
         if (status === 400 && msg) setError(msg);
         else if (status === 403 && msg) setError(msg);
-        else setError(msg || 'Error al cargar el análisis');
+        else setError(msg || 'Failed to load the analysis');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -471,8 +471,8 @@ const FightAnalysis = () => {
           <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-4 py-3 animate-[fadeIn_0.3s_ease-out]">
             <BoltIcon className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800 dark:text-amber-200 m-0 leading-relaxed">
-              La pelea finalizó oficialmente en el round {fight.result_round}. El análisis considera únicamente los rounds 1 a {fight.result_round}
-              {ignored_rounds > 0 ? ` y existen ${ignored_rounds} ${ignored_rounds === 1 ? 'puntuación posterior que será ignorada' : 'puntuaciones posteriores que serán ignoradas'}.` : '.'}
+              The fight officially ended in round {fight.result_round}. The analysis only considers rounds 1 through {fight.result_round}
+              {ignored_rounds > 0 ? ` and there are ${ignored_rounds} ${ignored_rounds === 1 ? 'later score that will be ignored' : 'later scores that will be ignored'}.` : '.'}
             </p>
           </div>
         )}
@@ -488,7 +488,7 @@ const FightAnalysis = () => {
         )}
 
         {official_card && visibleJudges.length > 0 && (
-          <SectionCard Icon={ScaleIcon} title="Comparación por Round" description="Tarjeta oficial vs cada juez, round por round">
+          <SectionCard Icon={ScaleIcon} title="Comparison by Round" description="Official scorecard vs each judge, round by round">
             <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
               {official_card.rounds.map((r) => {
                 const pr = per_round_summary.find((p) => p.round_number === r.round_number);
@@ -499,7 +499,7 @@ const FightAnalysis = () => {
         )}
 
         {visibleJudges.length > 0 && (
-          <SectionCard Icon={ArrowTrendingUpIcon} title="Desempeño de los Jueces" description="Precisión y coincidencia de cada tarjeta">
+          <SectionCard Icon={ArrowTrendingUpIcon} title="Judges Performance" description="Accuracy and matching of each scorecard">
             <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {visibleJudges.map((j, i) => (
                 <JudgePerformanceCard key={j.id} judge={j} index={i} />
@@ -513,7 +513,7 @@ const FightAnalysis = () => {
             <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
               <UserGroupIcon className="w-7 h-7 text-slate-400 dark:text-slate-500" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No hay análisis disponible para los jueces de esta pelea.</p>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No analysis is available for the judges of this fight.</p>
           </div>
         )}
       </div>

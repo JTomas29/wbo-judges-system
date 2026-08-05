@@ -20,7 +20,7 @@ import {
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const roundComplete = (r) => {
@@ -65,9 +65,9 @@ const SuccessHero = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     </div>
-    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-3 m-0 tracking-tight">Tarjeta oficial cargada correctamente</h2>
+    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-3 m-0 tracking-tight">Official scorecard loaded successfully</h2>
     <p className="text-base text-slate-500 dark:text-[#94A3B8] max-w-md mx-auto m-0">
-      La tarjeta fue registrada exitosamente y ya no puede modificarse.
+      The scorecard was registered successfully and can no longer be modified.
     </p>
   </div>
 );
@@ -87,14 +87,14 @@ const FightHeaderCard = ({ fight }) => (
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
-        Finalizada
+        Completed
       </span>
     </div>
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
       <div className="flex items-center gap-2">
         <CalendarIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
         <span className="text-xs text-slate-500 dark:text-slate-400">
-          <span className="font-semibold text-slate-600 dark:text-slate-300">Fecha:</span> {formatDate(fight.scheduled_date)}
+          <span className="font-semibold text-slate-600 dark:text-slate-300">Date:</span> {formatDate(fight.scheduled_date)}
         </span>
       </div>
       {fight.weight_class && (
@@ -103,7 +103,7 @@ const FightHeaderCard = ({ fight }) => (
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
           </svg>
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-slate-600 dark:text-slate-300">Categoría:</span> {fight.weight_class}
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Category:</span> {fight.weight_class}
           </span>
         </div>
       )}
@@ -111,7 +111,7 @@ const FightHeaderCard = ({ fight }) => (
         <div className="flex items-center gap-2">
           <MapPinIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-slate-600 dark:text-slate-300">Lugar:</span> {fight.venue}
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Venue:</span> {fight.venue}
           </span>
         </div>
       )}
@@ -141,7 +141,7 @@ const RoundBadge = ({ roundNumber }) => (
 );
 
 const RoundsResultTable = ({ fight, card }) => (
-  <SectionCard Icon={ClipboardDocumentCheckIcon} title="Puntuación por Round" description="Detalle de cada asalto">
+  <SectionCard Icon={ClipboardDocumentCheckIcon} title="Score by Round" description="Detail of each round">
     <div className="overflow-x-auto scrollbar-thin">
       <table className="w-full text-sm">
         <thead>
@@ -181,9 +181,9 @@ const scoreBlueInput = "w-full px-4 py-3.5 text-center rounded-xl text-lg font-e
 
 const OfficialHeaderCard = ({ fight }) => {
   const infoItems = [
-    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
-    { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
+    { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
+    { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
+    { icon: BoltIcon, label: 'Category', value: fight?.weight_class || '\u2014' },
     { icon: ChartBarIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
   ];
 
@@ -195,7 +195,7 @@ const OfficialHeaderCard = ({ fight }) => {
             <ClipboardDocumentCheckIcon className="w-7 h-7 text-red-200" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Tarjeta Oficial</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Official Scorecard</p>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
               {fight?.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight?.boxer_blue}
             </h1>
@@ -206,7 +206,7 @@ const OfficialHeaderCard = ({ fight }) => {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Completada
+              Completed
             </span>
           </div>
         </div>
@@ -236,9 +236,9 @@ const OfficialProgressCard = ({ completed, total, pct, allComplete }) => (
           <BoltIcon className="w-5 h-5 text-wbo-700 dark:text-wbo-400" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Progreso de la carga</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Loading progress</h3>
           <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">
-            {allComplete ? '¡Todos los rounds cargados!' : `${completed} de ${total} rounds cargados`}
+            {allComplete ? 'All rounds loaded!' : `${completed} of ${total} rounds loaded`}
           </p>
         </div>
       </div>
@@ -254,12 +254,12 @@ const OfficialProgressCard = ({ completed, total, pct, allComplete }) => (
       {allComplete ? (
         <>
           <CheckIcon className="w-4 h-4 shrink-0" />
-          Tarjeta lista para guardar
+          Scorecard ready to save
         </>
       ) : (
         <>
-          {pct}% completado
-          {total - completed > 0 && <> · {total - completed} {total - completed === 1 ? 'round pendiente' : 'rounds pendientes'}</>}
+          {pct}% completed
+          {total - completed > 0 && <> · {total - completed} {total - completed === 1 ? 'round pending' : 'rounds pending'}</>}
         </>
       )}
     </p>
@@ -278,7 +278,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
       {complete && (
         <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
           <CheckIcon className="w-3.5 h-3.5" />
-          Completado
+          Completed
         </span>
       )}
     </div>
@@ -286,7 +286,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
       <div>
         <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
           <span className="w-2.5 h-2.5 rounded-full bg-wbo-600 dark:bg-red-400 shrink-0" />
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Rojo</span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-[10px] font-bold uppercase tracking-wide">Red</span>
           <span className="truncate">{boxerRed}</span>
         </label>
         <input
@@ -299,7 +299,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           className={scoreRedInput}
         />
         <label className="mt-2 block">
-          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Deduction (points)</span>
           <select
             value={data.deduction_red ?? 0}
             onChange={(e) => onChange('deduction_red', e.target.value)}
@@ -320,7 +320,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
       <div>
         <label className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0" />
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Azul</span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-[10px] font-bold uppercase tracking-wide">Blue</span>
           <span className="truncate">{boxerBlue}</span>
         </label>
         <input
@@ -333,7 +333,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           className={scoreBlueInput}
         />
         <label className="mt-2 block">
-          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Descuento (puntos)</span>
+          <span className="block text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] mb-1 leading-snug">Deduction (points)</span>
           <select
             value={data.deduction_blue ?? 0}
             onChange={(e) => onChange('deduction_blue', e.target.value)}
@@ -356,7 +356,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
 );
 
 const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplete }) => {
-  const winner = redTotal > blueTotal ? 'Rojo' : blueTotal > redTotal ? 'Azul' : 'Empate';
+  const winner = redTotal > blueTotal ? 'Red' : blueTotal > redTotal ? 'Blue' : 'Draw';
   const winnerCls = redTotal > blueTotal
     ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/40'
     : blueTotal > redTotal
@@ -370,16 +370,16 @@ const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplet
         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
           <ChartBarIcon className="w-4 h-4 text-white" />
         </div>
-        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Summary</h3>
       </div>
       <div className="p-5 space-y-5">
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200/70 dark:ring-emerald-800/40">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 m-0">Completados</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 m-0">Completed</p>
             <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300 m-0 tabular-nums">{completed} <span className="text-sm font-bold text-emerald-500 dark:text-emerald-500">/ {total}</span></p>
           </div>
           <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/70 dark:ring-amber-800/40">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 m-0">Pendientes</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 m-0">Pending</p>
             <p className="text-2xl font-extrabold text-amber-700 dark:text-amber-300 m-0 tabular-nums">{total - completed}</p>
           </div>
         </div>
@@ -387,20 +387,20 @@ const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplet
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] mb-2 m-0 flex items-center gap-1.5">
             <DocumentCheckIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            Puntaje parcial
+            Partial score
           </p>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
                 <span className="w-2 h-2 rounded-full bg-wbo-600 dark:bg-red-400" />
-                Rojo
+                Red
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40 text-sm font-extrabold tabular-nums">{redTotal}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#94A3B8]">
                 <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
-                Azul
+                Blue
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-sm font-extrabold tabular-nums">{blueTotal}</span>
             </div>
@@ -410,14 +410,14 @@ const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplet
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0 flex items-center gap-1.5">
             <TrophyIcon className="w-3.5 h-3.5 text-gold dark:text-gold-light" />
-            Ganador parcial
+            Partial winner
           </p>
           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ring-1 ${winnerCls}`}>{winner}</span>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Rounds cargados</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Rounds loaded</p>
             <span className="text-xs font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums">{pct}%</span>
           </div>
           <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
@@ -426,14 +426,14 @@ const OfficialSummaryCard = ({ completed, total, redTotal, blueTotal, allComplet
         </div>
 
         <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Estado de validación</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1.5 m-0">Validation status</p>
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ${
             allComplete
               ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
               : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
           }`}>
             {allComplete ? <CheckIcon className="w-3.5 h-3.5" /> : <ClockIcon className="w-3.5 h-3.5" />}
-            {allComplete ? 'Lista para guardar' : 'Incompleta'}
+            {allComplete ? 'Ready to save' : 'Incomplete'}
           </span>
         </div>
       </div>
@@ -452,7 +452,7 @@ const SubmitButton = ({ onClick, disabled, saving }) => (
     ) : (
       <CheckIcon className="w-5 h-5" />
     )}
-    {saving ? 'Guardando...' : 'Guardar Tarjeta Oficial'}
+    {saving ? 'Saving...' : 'Save Official Scorecard'}
   </button>
 );
 
@@ -486,7 +486,7 @@ const OfficialCards = () => {
         setError(null);
 
         if (!isStaff) {
-          setError('La tarjeta oficial solo está disponible para administradores y supervisores.');
+          setError('The official scorecard is only available to administrators and supervisors.');
           setLoading(false);
           return;
         }
@@ -497,7 +497,7 @@ const OfficialCards = () => {
         setFight(f);
 
         if (f.status !== 'completed') {
-          setError('La pelea debe finalizar antes de cargar la tarjeta oficial.');
+          setError('The fight must be completed before loading the official scorecard.');
           setLoading(false);
           return;
         }
@@ -528,7 +528,7 @@ const OfficialCards = () => {
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
-        setError(err.response?.data?.message || 'Error al cargar la tarjeta oficial');
+        setError(err.response?.data?.message || 'Failed to load the official scorecard');
         setLoading(false);
       }
     })();
@@ -560,7 +560,7 @@ const OfficialCards = () => {
       setCard(res.data);
       setShowConfirm(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al guardar la tarjeta oficial');
+      setError(err.response?.data?.message || 'Failed to save the official scorecard');
     } finally {
       setSaving(false);
     }
@@ -573,7 +573,7 @@ const OfficialCards = () => {
       <div className={`${pageWrapper} flex items-center justify-center`}>
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] px-10 py-12 text-center max-w-md w-full shadow-md">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-wbo-700 mx-auto" />
-          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando tarjeta oficial...</span>
+          <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Loading official scorecard...</span>
         </div>
       </div>
     );
@@ -593,7 +593,7 @@ const OfficialCards = () => {
             className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
-            Volver
+            Back
           </button>
         </div>
       </div>
@@ -601,7 +601,7 @@ const OfficialCards = () => {
   }
 
   if (!fight) {
-    return <p className={`${pageWrapper} text-slate-400 dark:text-[#64748B] py-10 text-center`}>Pelea no encontrada.</p>;
+    return <p className={`${pageWrapper} text-slate-400 dark:text-[#64748B] py-10 text-center`}>Fight not found.</p>;
   }
 
   if (!isStaff && !card) {
@@ -613,12 +613,12 @@ const OfficialCards = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Solo el personal autorizado puede crear la tarjeta oficial.</p>
+          <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Only authorized staff can create the official scorecard.</p>
           <button
             className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
-            Volver
+            Back
           </button>
         </div>
       </div>
@@ -640,10 +640,10 @@ const OfficialCards = () => {
               <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
-                  Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+                  Fight finished by {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round {fight.result_round}.
                 </p>
                 <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
-                  La tarjeta oficial incluye solo los rounds efectivamente disputados.
+                  The official scorecard includes only the rounds actually contested.
                 </p>
               </div>
             </div>
@@ -659,20 +659,20 @@ const OfficialCards = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
             <ResultCard
-              label="Total Rojo"
+              label="Red Total"
               value={card.total_score_red}
               icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               accent="red"
             />
             <ResultCard
-              label="Total Azul"
+              label="Blue Total"
               value={card.total_score_blue}
               icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               accent="blue"
             />
             <ResultCard
-              label="Ganador"
-              value={card.winner || 'Empate'}
+              label="Winner"
+              value={card.winner || 'Draw'}
               icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               accent="gold"
             />
@@ -709,10 +709,10 @@ const OfficialCards = () => {
             <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
-                Pelea finalizada por {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} en el round {fight.result_round}.
+                Fight finished by {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round {fight.result_round}.
               </p>
               <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
-                Solo se cargan los rounds efectivamente disputados (hasta el round {totalRounds}).
+                Only the rounds actually contested are loaded (up to round {totalRounds}).
               </p>
             </div>
           </div>
@@ -735,8 +735,8 @@ const OfficialCards = () => {
                   <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Puntuación por Round</h3>
-                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Cargá el puntaje de cada round</p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Score by Round</h3>
+                  <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Enter the score for each round</p>
                 </div>
               </div>
               <div className="p-4 sm:p-5 space-y-4">
@@ -776,7 +776,7 @@ const OfficialCards = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
             </svg>
             <p className="text-xs text-slate-500 dark:text-[#94A3B8] m-0 leading-relaxed">
-              Revisá la carga antes de guardar. Una vez guardada la tarjeta oficial no podrá modificarse.
+              Review the entries before saving. Once saved, the official scorecard cannot be modified.
             </p>
           </div>
           <div className="flex justify-center">
@@ -788,9 +788,9 @@ const OfficialCards = () => {
           isOpen={showConfirm}
           onClose={() => { if (!saving) setShowConfirm(false); }}
           onConfirm={handleSave}
-          title="Guardar tarjeta oficial"
-          description="Una vez guardada no podrá modificarse. ¿Deseás continuar?"
-          confirmLabel={saving ? 'Guardando...' : 'Guardar'}
+          title="Save official scorecard"
+          description="It cannot be modified once saved. Do you want to continue?"
+          confirmLabel={saving ? 'Saving...' : 'Save'}
           type="warning"
           loading={saving}
         />
