@@ -106,7 +106,7 @@ const getRelativeTime = (dateStr) => {
   if (diffHr < 24) return `${diffHr}h ago`;
   if (diffDay === 1) return 'Yesterday';
   if (diffDay < 7) return `${diffDay} days ago`;
-  return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 };
 
 const SkeletonCard = () => (

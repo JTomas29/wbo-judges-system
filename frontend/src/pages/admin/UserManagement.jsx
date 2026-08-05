@@ -7,7 +7,7 @@ import InputField from '../../components/common/InputField';
 import SelectField from '../../components/common/SelectField';
 
 const ROLES = [
-  { value: 'judge', label: 'Juez' },
+  { value: 'judge', label: 'Judge' },
   { value: 'supervisor', label: 'Supervisor' },
 ];
 
@@ -31,16 +31,16 @@ const UserManagement = () => {
 
   const validate = () => {
     const errs = {};
-    if (!form.name.trim()) errs.name = 'El nombre es obligatorio';
+    if (!form.name.trim()) errs.name = 'Name is required';
     if (!form.email.trim()) {
-      errs.email = 'El email es obligatorio';
+      errs.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      errs.email = 'Email inválido';
+      errs.email = 'Invalid email';
     }
     if (!form.password) {
-      errs.password = 'La contraseña es obligatoria';
+      errs.password = 'Password is required';
     } else if (form.password.length < 6) {
-      errs.password = 'Debe tener al menos 6 caracteres';
+      errs.password = 'Must be at least 6 characters';
     }
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -58,11 +58,11 @@ const UserManagement = () => {
         { name: form.name.trim(), email: form.email.trim(), password: form.password, role: form.role },
         token
       );
-      setSuccess(`Usuario ${form.role === 'judge' ? 'juez' : 'supervisor'} creado exitosamente.`);
+      setSuccess(`${form.role === 'judge' ? 'Judge' : 'Supervisor'} user created successfully.`);
       setForm({ name: '', email: '', password: '', role: 'judge' });
       setFieldErrors({});
     } catch (err) {
-      setServerError(err.response?.data?.message || 'Error al crear el usuario');
+      setServerError(err.response?.data?.message || 'Error creating user');
     } finally {
       setSaving(false);
     }
@@ -70,8 +70,8 @@ const UserManagement = () => {
 
   return (
     <FormCard
-      title="Crear Nuevo Usuario"
-      subtitle="Registrar un nuevo usuario para acceder al sistema."
+      title="Create New User"
+      subtitle="Register a new user to access the system."
       backRoute="/dashboard"
       error={serverError}
       success={success}
@@ -83,16 +83,16 @@ const UserManagement = () => {
         {/* ── Información personal ── */}
         <FormSection
           icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          title="Información personal"
-          subtitle="Datos de identificación del usuario"
+          title="Personal Information"
+          subtitle="User identification data"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="name"
-              label="Nombre completo"
+              label="Full name"
               value={form.name}
               onChange={handleChange}
-              placeholder="Nombre y apellido"
+              placeholder="First and last name"
               required
               error={fieldErrors.name}
             />
@@ -102,7 +102,7 @@ const UserManagement = () => {
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="correo@ejemplo.com"
+              placeholder="email@example.com"
               required
               error={fieldErrors.email}
             />
@@ -112,23 +112,23 @@ const UserManagement = () => {
         {/* ── Información de acceso ── */}
         <FormSection
           icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-          title="Información de acceso"
-          subtitle="Credenciales para iniciar sesión"
+          title="Access Information"
+          subtitle="Credentials for signing in"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             <InputField
               name="password"
-              label="Contraseña"
+              label="Password"
               type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Minimum 6 characters"
               required
               error={fieldErrors.password}
             />
             <SelectField
               name="role"
-              label="Rol"
+              label="Role"
               value={form.role}
               onChange={handleChange}
               options={ROLES}
@@ -147,7 +147,7 @@ const UserManagement = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            {saving ? 'Creando...' : 'Crear Usuario'}
+            {saving ? 'Creating...' : 'Create User'}
           </button>
         </div>
       </form>

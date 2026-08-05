@@ -20,7 +20,7 @@ const judgeInitials = (name) =>
 const formatDate = (dateStr) => {
   if (!dateStr) return '\u2014';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const levelBadge = (level) => {
@@ -284,7 +284,7 @@ const Dashboard = () => {
   }
 
   const { stats, recent_fights, active_judges } = data;
-  const now = new Date().toLocaleString('es-ES', {
+  const now = new Date().toLocaleString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
@@ -419,7 +419,7 @@ const Dashboard = () => {
                           <p className="text-sm font-bold text-slate-800 truncate">{a.event_name}</p>
                           <p className="text-xs text-slate-500 mt-0.5">{a.boxer_red} vs {a.boxer_blue}</p>
                           <p className="text-[11px] text-slate-400 mt-0.5">
-                            {new Date(a.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date(a.scheduled_date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             {a.venue ? ` \u00B7 ${a.venue}` : ''}
                           </p>
                         </div>
@@ -666,7 +666,7 @@ const Dashboard = () => {
                       const st = getStatusColor(fight.status);
                       const isLast = i === Math.min(recent_fights.length, 5) - 1;
                       const hour = fight.scheduled_date
-                        ? new Date(fight.scheduled_date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+                        ? new Date(fight.scheduled_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                         : '--:--';
                       return (
                         <div key={fight.id} className="relative flex gap-4 pb-4 last:pb-0 group/timeline">

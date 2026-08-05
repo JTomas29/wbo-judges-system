@@ -4,9 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import logoSrc from '../../assets/logoWbo.png';
 
 const devAccounts = [
-  { label: 'Administrador', email: 'admin@wbo.com', password: 'admin123' },
+  { label: 'Administrator', email: 'admin@wbo.com', password: 'admin123' },
   { label: 'Supervisor', email: 'supervisor@wbo.com', password: 'super123' },
-  { label: 'Juez', email: 'rmendez@wbo.com', password: 'juez123' },
+  { label: 'Judge', email: 'rmendez@wbo.com', password: 'juez123' },
 ];
 
 const Login = () => {
@@ -26,7 +26,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       setError(
-        err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.'
+        err.response?.data?.message || 'Login failed. Check your credentials.'
       );
     } finally {
       setSubmitting(false);
@@ -49,7 +49,7 @@ const Login = () => {
           World Boxing Organization
         </div>
         <div className="text-center text-sm text-gray-400 font-medium mb-7">
-          Sistema de Evaluación de Jueces
+          Judges Evaluation System
         </div>
         <hr className="h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent border-0 mx-0 mb-7" />
 
@@ -67,7 +67,7 @@ const Login = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 mb-1">Contraseña</label>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Password</label>
             <input
               type="password"
               value={password}
@@ -83,7 +83,7 @@ const Login = () => {
             disabled={submitting}
             className="w-full inline-flex items-center justify-center px-5 py-3 bg-[#6b1421] text-white rounded-lg text-sm font-semibold hover:bg-[#4a0f14] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Ingresando...' : 'Ingresar'}
+            {submitting ? 'Logging in...' : 'Log In'}
           </button>
 
           {error && (
@@ -101,7 +101,7 @@ const Login = () => {
       {import.meta.env.DEV && (
         <div className="w-[420px] max-w-full mt-6">
           <div className="text-center text-xs font-semibold text-white/60 uppercase tracking-wider mb-2.5">
-            Credenciales de prueba
+            Test credentials
           </div>
           <div className="flex flex-col gap-2">
             {devAccounts.map((acc) => (
@@ -116,7 +116,7 @@ const Login = () => {
                   onClick={() => fillCredentials(acc)}
                   className="shrink-0 text-xs font-semibold text-white bg-white/10 border border-white/30 rounded-lg px-3 py-1.5 hover:bg-white hover:text-[#4a0f14] transition-colors"
                 >
-                  Usar
+                  Use
                 </button>
               </div>
             ))}
