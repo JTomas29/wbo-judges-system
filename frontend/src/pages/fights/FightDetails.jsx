@@ -52,7 +52,7 @@ const levelBadge = (level) => {
 
 const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Referee Evaluator' : 'Evaluator';
 
-const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 
 const initials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
 

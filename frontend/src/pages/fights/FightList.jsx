@@ -21,7 +21,7 @@ const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text:
 const formatDate = (dateStr) => {
   if (!dateStr) return '\u2014';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
 const initials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
@@ -486,7 +486,7 @@ const FightList = () => {
               <span className="font-semibold">{archiveTarget?.boxer_blue}</span>
             </p>
             <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1 m-0">
-              {archiveTarget && new Date(archiveTarget.scheduled_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {archiveTarget && new Date(archiveTarget.scheduled_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
           </div>
           <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-0 m-0">
