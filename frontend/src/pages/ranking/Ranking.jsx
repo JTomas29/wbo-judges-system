@@ -23,8 +23,8 @@ const Ranking = () => {
 
   const canViewReferees = user?.role === 'admin' || user?.role === 'supervisor';
   const tabs = [
-    { id: 'jueces', label: 'Jueces', icon: <JudgeIcon /> },
-    ...(canViewReferees ? [{ id: 'arbitros', label: 'Árbitros', icon: <RefereeIcon /> }] : []),
+    { id: 'jueces', label: 'Judges', icon: <JudgeIcon /> },
+    ...(canViewReferees ? [{ id: 'arbitros', label: 'Referees', icon: <RefereeIcon /> }] : []),
   ];
 
   const requested = searchParams.get('tab');
@@ -47,7 +47,7 @@ const Ranking = () => {
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">Ranking</h1>
             <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-1">
-              Rendimiento de jueces y árbitros del sistema
+              Performance of the system's judges and referees
             </p>
           </div>
           <RankingTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />

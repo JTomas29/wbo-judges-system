@@ -1,7 +1,7 @@
 import BaseModal from './BaseModal';
 import ModalHeader, { ModalFooter, ModalButton } from './ModalParts';
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title, description, confirmLabel = 'Confirmar', cancelLabel = 'Cancelar', type = 'warning', loading = false, danger = false }) {
+export default function ConfirmModal({ isOpen, onClose, onConfirm, title, description, confirmLabel = 'Confirm', cancelLabel = 'Cancel', type = 'warning', loading = false, danger = false }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl p-6">

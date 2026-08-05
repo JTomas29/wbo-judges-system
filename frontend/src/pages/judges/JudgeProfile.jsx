@@ -16,7 +16,7 @@ const LEVEL_BADGE = {
 
 const FORMAT_DATE = (d) => {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const Badge = ({ children, className = '' }) => (

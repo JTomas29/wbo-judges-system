@@ -4,42 +4,42 @@ const STATUS_CONFIG = {
   pending: {
     light: 'bg-amber-50 text-amber-700 border-amber-200',
     dark: 'dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50',
-    label: 'Pendiente'
+    label: 'Pending'
   },
   active: {
     light: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     dark: 'dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50',
-    label: 'Activa'
+    label: 'Active'
   },
   completed: {
     light: 'bg-blue-50 text-blue-700 border-blue-200',
     dark: 'dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50',
-    label: 'Finalizada'
+    label: 'Completed'
   },
   analyzed: {
     light: 'bg-violet-50 text-violet-700 border-violet-200',
     dark: 'dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50',
-    label: 'Analizada'
+    label: 'Analyzed'
   },
   cancelled: {
     light: 'bg-red-50 text-red-700 border-red-200',
     dark: 'dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50',
-    label: 'Cancelada'
+    label: 'Cancelled'
   },
   archived: {
     light: 'bg-slate-100 text-slate-600 border-slate-300',
     dark: 'dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600',
-    label: 'Archivada'
+    label: 'Archived'
   },
   confirmed: {
     light: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     dark: 'dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50',
-    label: 'Confirmada'
+    label: 'Confirmed'
   },
   rejected: {
     light: 'bg-red-50 text-red-700 border-red-200',
     dark: 'dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50',
-    label: 'Rechazada'
+    label: 'Rejected'
   },
   draft: {
     light: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -49,12 +49,12 @@ const STATUS_CONFIG = {
   finalized: {
     light: 'bg-green-50 text-green-700 border-green-200',
     dark: 'dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
-    label: 'Finalizada'
+    label: 'Finalized'
   },
   scheduled: {
     light: 'bg-amber-50 text-amber-700 border-amber-200',
     dark: 'dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50',
-    label: 'Programada'
+    label: 'Scheduled'
   }
 }
 
@@ -101,10 +101,10 @@ export default function StatusBadge({ status, type = 'fight', customLabel, custo
 
 export function LevelBadge({ level }) {
   const levels = {
-    elite: { light: 'bg-green-50 text-green-700 border-green-200', dark: 'dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50', label: 'Élite' },
+    elite: { light: 'bg-green-50 text-green-700 border-green-200', dark: 'dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50', label: 'Elite' },
     senior: { light: 'bg-blue-50 text-blue-700 border-blue-200', dark: 'dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50', label: 'Senior' },
     junior: { light: 'bg-amber-50 text-amber-700 border-amber-200', dark: 'dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50', label: 'Junior' },
-    intermediate: { light: 'bg-amber-50 text-amber-700 border-amber-200', dark: 'dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50', label: 'Intermedio' }
+    intermediate: { light: 'bg-amber-50 text-amber-700 border-amber-200', dark: 'dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50', label: 'Intermediate' }
   }
 
   const config = levels[level] || { light: 'bg-slate-100 text-slate-600 border-slate-200', dark: 'dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600', label: level || '—' }

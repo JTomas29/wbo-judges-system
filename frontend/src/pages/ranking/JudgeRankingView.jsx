@@ -42,7 +42,7 @@ const JudgeRankingView = () => {
     setError(null);
     getAllStatistics(token)
       .then((res) => setJudges(res.data))
-      .catch((err) => setError(err.response?.data?.message || 'Error al cargar el ranking de jueces'))
+      .catch((err) => setError(err.response?.data?.message || 'Error loading the judges ranking'))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -93,7 +93,7 @@ const JudgeRankingView = () => {
       <div className="flex items-center justify-center py-20">
         <div className="flex items-center gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800 dark:border-[#374151]" />
-          <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Cargando ranking de jueces...</span>
+          <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Loading judges ranking...</span>
         </div>
       </div>
     );
@@ -104,7 +104,7 @@ const JudgeRankingView = () => {
       <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-6 text-center max-w-md mx-auto">
         <p className="text-amber-800 dark:text-amber-300 font-medium">{error}</p>
         <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
-          Reintentar
+          Retry
         </button>
       </div>
     );
@@ -117,61 +117,61 @@ const JudgeRankingView = () => {
         <RankingSummaryCard
           icon="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
           value={summaryStats.totalJudges}
-          label="Total de Jueces"
+          label="Total Judges"
           color="bg-blue-50 dark:bg-blue-900/20"
         />
         <RankingSummaryCard
           icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
           value={summaryStats.bestJudge ? summaryStats.bestJudge.name : '—'}
-          label="Juez Mejor Puntuado"
-          sublabel={summaryStats.bestJudge ? `Precisión: ${(Number(summaryStats.bestJudge.avg_match_pct) || 0).toFixed(1)}%` : ''}
+          label="Top Judge"
+          sublabel={summaryStats.bestJudge ? `Precision: ${(Number(summaryStats.bestJudge.avg_match_pct) || 0).toFixed(1)}%` : ''}
           color="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <RankingSummaryCard
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={`${summaryStats.overallAvg.toFixed(1)}%`}
-          label="Precisión General"
+          label="Overall Precision"
           color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
           icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
           value={summaryStats.totalFights}
-          label="Peleas Evaluadas"
+          label="Fights Evaluated"
           color="bg-purple-50 dark:bg-purple-900/20"
         />
       </div>
 
       {/* Filters */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-        <FilterInput value={searchName} onChange={setSearchName} placeholder="Buscar por nombre..." />
+        <FilterInput value={searchName} onChange={setSearchName} placeholder="Search by name..." />
         <FilterSelect
           value={filterLevel}
           onChange={setFilterLevel}
           options={[
             { value: 'junior', label: 'Junior' },
-            { value: 'intermediate', label: 'Intermedio' },
+            { value: 'intermediate', label: 'Intermediate' },
             { value: 'senior', label: 'Senior' },
             { value: 'elite', label: 'Elite' },
           ]}
-          placeholder="Nivel"
+          placeholder="Level"
         />
         <FilterSelect
           value={sortOrder}
           onChange={setSortOrder}
           options={[
-            { value: 'precision_high', label: 'Mayor precisión' },
-            { value: 'precision_low', label: 'Menor precisión' },
-            { value: 'fights_most', label: 'Más peleas' },
-            { value: 'fights_least', label: 'Menos peleas' },
+            { value: 'precision_high', label: 'Highest precision' },
+            { value: 'precision_low', label: 'Lowest precision' },
+            { value: 'fights_most', label: 'Most fights' },
+            { value: 'fights_least', label: 'Least fights' },
           ]}
-          placeholder="Ordenar por"
+          placeholder="Sort by"
         />
       </FilterBar>
 
       {/* List */}
       {filteredJudges.length === 0 ? (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-10 text-center">
-          <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">No se encontraron jueces</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">No judges found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -197,7 +197,7 @@ const JudgeRankingView = () => {
                       <p className="text-base font-bold text-slate-900 truncate dark:text-[#F8FAFC]">{judge.name}</p>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         {levelBadge(judge.level)}
-                        <span className="text-xs text-slate-500 dark:text-[#94A3B8]">{judge.total_fights} peleas</span>
+                        <span className="text-xs text-slate-500 dark:text-[#94A3B8]">{judge.total_fights} fights</span>
                         <span className="text-xs text-slate-500 dark:text-[#94A3B8]">{judge.total_rounds} rounds</span>
                       </div>
                     </div>
@@ -206,7 +206,7 @@ const JudgeRankingView = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-6 sm:min-w-[400px]">
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Precisión histórica</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Historical precision</span>
                         <span className="text-xs font-bold text-slate-700 dark:text-[#94A3B8]">{avgPct.toFixed(1)}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
@@ -215,7 +215,7 @@ const JudgeRankingView = () => {
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Últimas 5 peleas</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Last 5 fights</span>
                         <span className="text-xs font-bold text-slate-700 dark:text-[#94A3B8]">{last5.toFixed(1)}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">

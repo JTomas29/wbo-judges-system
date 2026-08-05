@@ -25,11 +25,11 @@ const LEVEL_BADGE = {
 
 const FORMAT_DATE = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const TODAY_STR = () =>
-  new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 const STATE_META = {
   pending:    { label: 'Assigned',   color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
@@ -306,7 +306,7 @@ const JudgeDashboard = () => {
                 const state = getFightState(a);
                 const meta = STATE_META[state];
                 const currentStep = meta.step;
-                const progressText = currentStep >= 0 ? `Paso ${currentStep + 1} de 5` : '';
+                const progressText = currentStep >= 0 ? `Step ${currentStep + 1} of 5` : '';
 
                 const borderAccent = {
                   pending: 'border-l-amber-500',
