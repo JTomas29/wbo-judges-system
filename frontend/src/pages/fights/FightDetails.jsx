@@ -10,7 +10,7 @@ import ResultRegistration from '../../components/detail/ResultRegistration';
 import { RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
 import { Skeleton } from '../../components/common/Skeletons';
 import { DeleteModal } from '../../components/common/modals';
-import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const summaryAccents = {
   blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400' },
@@ -51,7 +51,7 @@ const levelBadge = (level) => {
   return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold capitalize ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'}`}>{level}</span>;
 };
 
-const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Referee Evaluator' : 'Evaluator';
+const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Referee Evaluator' : t === 'official' ? 'Official' : 'Evaluation';
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 
@@ -481,6 +481,53 @@ const FightDetails = () => {
             </div>
           </DetailSection>
         )}
+
+        {activeTab === 'judges' && fight.official_judge_cards?.length > 0 && (
+          <DetailSection icon={ClipboardDocumentCheckIcon} title="Official Judges Scorecards" description="Paper scorecards loaded by the supervisor">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {fight.official_judge_cards.map((card) => {
+                const totals = card.rounds.reduce(
+                  (acc, r) => ({
+                    red: acc.red + Number(r.final_score_red ?? r.score_red),
+                    blue: acc.blue + Number(r.final_score_blue ?? r.score_blue),
+                  }),
+                  { red: 0, blue: 0 }
+                );
+                const winner = totals.red > totals.blue ? 'Red' : totals.blue > totals.red ? 'Blue' : 'Draw';
+                return (
+                  <div key={card.id} className="rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-amber-500 bg-white dark:bg-[#111827] p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                        {initials(card.judge?.name)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate m-0">{card.judge?.name}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-[#64748B] m-0">{card.rounds.length} rounds</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-red-700 dark:text-red-400 font-bold tabular-nums">
+                          <span className="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400" /> {totals.red}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-400 font-bold tabular-nums">
+                          <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" /> {totals.blue}
+                        </span>
+                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ring-1 ${
+                        winner === 'Red'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/40'
+                          : winner === 'Blue'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-200 dark:ring-blue-800/40'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700'
+                      }`}>{winner}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </DetailSection>
+        )}
       </SimpleTabs>
 
       {canScore && (
@@ -503,6 +550,15 @@ const FightDetails = () => {
                 disabled={fight.status !== 'completed'}
               >
                 Load Official Scorecard
+              </ActionButton>
+            )}
+            {isStaff && (
+              <ActionButton
+                variant="secondary"
+                onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
+                disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
+              >
+                Official Judges Scorecards
               </ActionButton>
             )}
             <ActionButton
@@ -583,6 +639,13 @@ const FightDetails = () => {
       <ActionPanel>
         <ActionButton variant="secondary" onClick={() => navigate(`/official-cards/${fight.id}`)}>
           View Scorecards
+        </ActionButton>
+        <ActionButton
+          variant="secondary"
+          onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
+          disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
+        >
+          Official Judges Scorecards
         </ActionButton>
         <ActionButton variant="secondary" onClick={() => navigate(`/analysis/${fight.id}`)}>
           View Analysis

@@ -15,6 +15,7 @@ import JudgeAssignments from '../pages/judges/JudgeAssignments';
 import ScoreFight from '../pages/scoring/ScoreFight';
 import LiveScore from '../pages/scoring/LiveScore';
 import OfficialCards from '../pages/official-cards/OfficialCards';
+import OfficialJudgeCards from '../pages/official-judge-cards/OfficialJudgeCards';
 import FightAnalysis from '../pages/analysis/FightAnalysis';
 import Ranking from '../pages/ranking/Ranking';
 import UserManagement from '../pages/admin/UserManagement';
@@ -75,6 +76,7 @@ const AppRoutes = () => (
     <Route path="/scoring/live/:fightId" element={<ProtectedRoute><LiveScore /></ProtectedRoute>} />
 
     <Route path="/official-cards/:fightId" element={<ProtectedRoute><OfficialCards /></ProtectedRoute>} />
+    <Route path="/official-judge-cards/:fightId" element={<SupervisorRoute><OfficialJudgeCards /></SupervisorRoute>} />
 
     <Route path="/analysis/:fightId" element={<ProtectedRoute><FightAnalysis /></ProtectedRoute>} />
     <Route path="/analysis/statistics" element={<Navigate to="/ranking?tab=jueces" replace />} />

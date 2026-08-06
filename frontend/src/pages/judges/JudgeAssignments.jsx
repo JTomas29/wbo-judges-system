@@ -28,8 +28,9 @@ const getLeftBorder = (state) => {
 
 const assignmentTypeLabel = (type) => {
   const map = {
-    evaluator: 'Fight evaluator',
-    referee_evaluator: 'Referee evaluator',
+    evaluation: 'Fight Evaluator',
+    official: 'Official',
+    referee_evaluator: 'Referee Evaluator',
   };
   return map[type] || type;
 };
@@ -124,7 +125,9 @@ const JudgeAssignments = () => {
   const hasActiveFilters = searchEvent || filterState || sortOrder;
 
   const goTo = (a) => {
-    if (a._state === 'active') {
+    if (a.assignment_type === 'official') {
+      navigate(`/fights/${a.fight_id}`);
+    } else if (a._state === 'active') {
       navigate(`/scoring/${a.fight_id}`);
     } else if (a._state === 'finalized') {
       navigate(`/scoring/${a.fight_id}`);
@@ -136,6 +139,7 @@ const JudgeAssignments = () => {
   };
 
   const actionLabel = (a) => {
+    if (a.assignment_type === 'official') return 'View fight';
     if (a._state === 'active') return 'Score fight';
     if (a._state === 'finalized') return 'View my scorecard';
     if (a._state === 'analyzed') return 'View analysis';

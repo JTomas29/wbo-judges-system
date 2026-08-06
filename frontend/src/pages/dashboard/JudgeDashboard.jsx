@@ -341,7 +341,8 @@ const JudgeDashboard = () => {
                             <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
                               aria-label="View fight"
                               onClick={() => {
-                                if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
+                                if (a.assignment_type === 'official') navigate(`/fights/${a.fight_id}`);
+                                else if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
                                 else if (state === 'analyzed') navigate(`/analysis/${a.fight_id}`);
                                 else navigate(`/fights/${a.fight_id}`);
                               }}>
@@ -414,7 +415,13 @@ const JudgeDashboard = () => {
                       {state === 'finalized' && (
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Submitted</div>
                       )}
-                      {state === 'active' && a.scorecard_status !== 'finalized' && (
+                      {state === 'active' && a.assignment_type === 'official' && (
+                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
+                          onClick={() => navigate(`/fights/${a.fight_id}`)}>
+                          View fight
+                        </button>
+                      )}
+                      {state === 'active' && a.assignment_type !== 'official' && a.scorecard_status !== 'finalized' && (
                         <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-wbo-700 hover:bg-wbo-800 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
                           Score fight

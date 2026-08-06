@@ -46,6 +46,15 @@ JudgeAssignment.getCount = async (fightId) => {
   return rows[0].total;
 };
 
+JudgeAssignment.getCountByType = async (fightId, assignmentType) => {
+  const { rows } = await pool.query(`
+    SELECT COUNT(*)::INTEGER AS total
+    FROM judge_assignments
+    WHERE fight_id = $1 AND assignment_type = $2::assignment_type
+  `, [fightId, assignmentType]);
+  return rows[0].total;
+};
+
 JudgeAssignment.delete = async (fightId, judgeId) => {
   const { rowCount } = await pool.query(`
     DELETE FROM judge_assignments

@@ -54,10 +54,13 @@ const levelBadge = (level) => {
   );
 };
 
+const MAX_OFFICIAL_JUDGES = 3;
+
 const assignmentTypeLabel = (type) => {
   const map = {
-    evaluator: 'Fight evaluator',
-    referee_evaluator: 'Referee evaluator',
+    evaluation: 'Fight Evaluator',
+    official: 'Official',
+    referee_evaluator: 'Referee Evaluator',
   };
   return map[type] || type;
 };
@@ -80,6 +83,7 @@ const AssignJudges = () => {
   const [error, setError] = useState(null);
 
   const [selectedJudge, setSelectedJudge] = useState('');
+  const [selectedOfficialJudge, setSelectedOfficialJudge] = useState('');
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState(null);
   const [activating, setActivating] = useState(false);
@@ -109,14 +113,22 @@ const AssignJudges = () => {
 
   const assignedIds = new Set(assignments.map((a) => a.judge_id));
   const unassignedJudges = availableJudges.filter((j) => !assignedIds.has(j.id));
+  const officialCount = assignments.filter((a) => a.assignment_type === 'official').length;
+  const officialsComplete = officialCount >= MAX_OFFICIAL_JUDGES;
+  const totalAssigned = assignments.length;
+  const progressPct = totalAssigned > 0 ? Math.min((totalAssigned / MAX_JUDGES) * 100, 100) : 0;
+  const progressColor = totalAssigned >= MIN_JUDGES ? 'bg-emerald-500' : totalAssigned > 0 ? 'bg-amber-500' : 'bg-red-500';
+  const atMax = totalAssigned >= MAX_JUDGES;
 
-  const handleAssign = async () => {
-    if (!selectedJudge) return;
+  const handleAssign = async (type) => {
+    const judgeId = type === 'official' ? Number(selectedOfficialJudge) : Number(selectedJudge);
+    if (!judgeId) return;
     setAssignError(null);
     setAssigning(true);
     try {
-      await createAssignment(fightId, { judge_id: Number(selectedJudge), assignment_type: 'evaluator' }, token);
+      await createAssignment(fightId, { judge_id: judgeId, assignment_type: type }, token);
       setSelectedJudge('');
+      setSelectedOfficialJudge('');
       await loadData();
     } catch (err) {
       setAssignError(err.response?.data?.message || 'Failed to assign judge');
@@ -204,11 +216,6 @@ const AssignJudges = () => {
     </div>
   );
 
-  const totalAssigned = assignments.length;
-  const progressPct = totalAssigned > 0 ? Math.min((totalAssigned / MAX_JUDGES) * 100, 100) : 0;
-  const progressColor = totalAssigned >= MIN_JUDGES ? 'bg-emerald-500' : totalAssigned > 0 ? 'bg-amber-500' : 'bg-red-500';
-  const atMax = totalAssigned >= MAX_JUDGES;
-
   return (
     <div className="animate-fadeIn space-y-5">
 
@@ -247,13 +254,20 @@ const AssignJudges = () => {
             />
           </div>
           <div className="flex items-center justify-between mt-2.5">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                 atMax
                   ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400'
                   : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
               }`}>
                 {totalAssigned} / {MAX_JUDGES} assigned
+              </span>
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                officialsComplete
+                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                  : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+              }`}>
+                {officialCount} / {MAX_OFFICIAL_JUDGES} official
               </span>
               <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                 Minimum required: {MIN_JUDGES}
@@ -360,7 +374,60 @@ const AssignJudges = () => {
         </div>
       )}
 
-      {/* ── Nueva Asignación ── */}
+      {/* ── Official Judges ── */}
+      {canManage && !atMax && (
+        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-amber-500 shadow-sm overflow-hidden transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
+          <div className="px-5 py-3.5 bg-amber-50/60 dark:bg-[#0B1120] border-b border-slate-200 dark:border-[#1E293B] flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg className="w-4 h-4 text-amber-700 dark:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-[#F8FAFC]">Official Judges</h3>
+              <p className="text-[11px] text-slate-400 dark:text-[#64748B] m-0">Exactly {MAX_OFFICIAL_JUDGES} official judges score on paper. The supervisor loads their scorecards.</p>
+            </div>
+            <span className={`ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+              officialsComplete ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+            }`}>
+              {officialCount} / {MAX_OFFICIAL_JUDGES}
+            </span>
+          </div>
+          {!officialsComplete ? (
+            <div className="p-5">
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+                <div className="min-w-[200px] flex-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Official Judge</label>
+                  <select value={selectedOfficialJudge} onChange={(e) => setSelectedOfficialJudge(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
+                    <option value="">— Select an official judge —</option>
+                    {unassignedJudges.map((j) => (
+                      <option key={j.id} value={j.id}>{j.name} ({j.level || 'no level'})</option>
+                    ))}
+                  </select>
+                </div>
+                <button disabled={!selectedOfficialJudge || assigning}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
+                  onClick={() => handleAssign('official')}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {assigning ? 'Assigning...' : 'Assign'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="px-5 py-4 flex items-center gap-3">
+              <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 m-0">The {MAX_OFFICIAL_JUDGES} official judges have been designated.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Evaluation Judges ── */}
       {canManage && !atMax && (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
           <div className="px-5 py-3.5 bg-slate-50 dark:bg-[#0B1120] border-b border-slate-200 dark:border-[#1E293B] flex items-center gap-2">
@@ -369,7 +436,10 @@ const AssignJudges = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
             </div>
-            <h3 className="text-sm font-bold text-slate-700 dark:text-[#F8FAFC]">New Assignment</h3>
+            <div>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-[#F8FAFC]">Evaluation Judges</h3>
+              <p className="text-[11px] text-slate-400 dark:text-[#64748B] m-0">Evaluation judges score in the app; they feed the ranking and analysis.</p>
+            </div>
           </div>
           <div className="p-5">
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
@@ -385,7 +455,7 @@ const AssignJudges = () => {
               </div>
               <button disabled={!selectedJudge || assigning}
                 className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
-                onClick={handleAssign}>
+                onClick={() => handleAssign('evaluation')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
@@ -448,7 +518,15 @@ const AssignJudges = () => {
                     </td>
                     <td className="py-3.5 px-5 text-slate-500 dark:text-[#94A3B8] text-xs hidden md:table-cell">{a.email}</td>
                     <td className="py-3.5 px-5 hidden lg:table-cell">{levelBadge(a.level)}</td>
-                    <td className="py-3.5 px-5 text-slate-600 dark:text-slate-400 text-xs hidden lg:table-cell">{assignmentTypeLabel(a.assignment_type)}</td>
+                    <td className="py-3.5 px-5 hidden lg:table-cell">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
+                        a.assignment_type === 'official'
+                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40'
+                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
+                      }`}>
+                        {assignmentTypeLabel(a.assignment_type)}
+                      </span>
+                    </td>
                     <td className="py-3.5 px-5">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

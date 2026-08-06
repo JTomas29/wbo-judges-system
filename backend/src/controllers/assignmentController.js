@@ -1,6 +1,7 @@
 ﻿const Fight = require('../models/Fight');
 const User = require('../models/User');
 const JudgeAssignment = require('../models/JudgeAssignment');
+const OfficialJudgeCard = require('../models/OfficialJudgeCard');
 const Notification = require('../models/Notification');
 
 exports.assign = async (req, res, next) => {
@@ -20,9 +21,9 @@ exports.assign = async (req, res, next) => {
       return res.status(400).json({ message: 'judge_id inválido' });
     }
 
-    const validTypes = ['evaluator', 'referee_evaluator'];
+    const validTypes = ['evaluation', 'official', 'referee_evaluator'];
     if (!validTypes.includes(assignment_type)) {
-      return res.status(400).json({ message: 'assignment_type debe ser evaluator o referee_evaluator' });
+      return res.status(400).json({ message: 'assignment_type debe ser evaluation, official o referee_evaluator' });
     }
 
     const fight = await Fight.getById(fightId);
@@ -40,19 +41,29 @@ exports.assign = async (req, res, next) => {
     const count = await JudgeAssignment.getCount(fightId);
     if (count >= 10) return res.status(400).json({ message: 'No se pueden asignar más de 10 jueces a una pelea' });
 
+    if (assignment_type === 'official') {
+      const officialCount = await JudgeAssignment.getCountByType(fightId, 'official');
+      if (officialCount >= 3) {
+        return res.status(400).json({ message: 'Una pelea puede tener como máximo 3 jueces oficiales' });
+      }
+    }
+
     const assignment = await JudgeAssignment.create(fightId, judgeNum, assignment_type);
 
     const totalAssigned = await JudgeAssignment.getCount(fightId);
     await Fight.updateMinJudgesRequired(fightId, totalAssigned);
 
-    await Notification.create({
-      userId: judgeNum,
-      type: 'assignment',
-      title: 'Fuiste designado para una pelea',
-      message: `Has sido asignado a la pelea "${fight.event_name}".`,
-      referenceType: 'fight',
-      referenceId: fightId,
-    });
+    // Los jueces oficiales puntúan en papel: no reciben notificación de la app.
+    if (assignment_type !== 'official') {
+      await Notification.create({
+        userId: judgeNum,
+        type: 'assignment',
+        title: 'Fuiste designado para una pelea',
+        message: `Has sido asignado a la pelea "${fight.event_name}".`,
+        referenceType: 'fight',
+        referenceId: fightId,
+      });
+    }
 
     res.status(201).json(assignment);
   } catch (err) {
@@ -89,6 +100,10 @@ exports.remove = async (req, res, next) => {
     const assignment = await JudgeAssignment.findOne(fightNum, judgeNum);
     if (!assignment) return res.status(404).json({ message: 'Asignación no encontrada' });
     if (fight.status === 'active') return res.status(400).json({ message: 'No se puede eliminar asignaciones de una pelea activa' });
+
+    if (assignment.assignment_type === 'official') {
+      await OfficialJudgeCard.deleteByFightAndJudge(fightNum, judgeNum);
+    }
 
     await JudgeAssignment.delete(fightNum, judgeNum);
 
