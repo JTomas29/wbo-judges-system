@@ -22,7 +22,7 @@ const Login = () => {
     setError('');
     setSubmitting(true);
     try {
-      const result = await login({ email, password });
+      await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
       setError(

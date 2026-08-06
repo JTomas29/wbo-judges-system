@@ -2,7 +2,6 @@
 import { useNavigate } from 'react-router-dom';
 import { getFights, deleteFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
 import { BaseModal, ModalHeader, ModalFooter, ModalButton } from '../../components/common/modals';
 import { Skeleton, FilterBarSkeleton, StatCardsSkeleton, TableSkeleton } from '../../components/common/Skeletons';
@@ -81,7 +80,6 @@ const BoxerAvatar = ({ name }) => (
 
 /* ─── Fight Card (mobile) ─── */
 const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
-  const st = getStatus(fight.status);
   const pct = fight.min_judges_required > 0 ? (fight.confirmed_judges / fight.min_judges_required) * 100 : 0;
   return (
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md">
@@ -239,7 +237,6 @@ const FightList = () => {
   };
 
   const totalAnalyzed = fights.filter((f) => f.status === 'analyzed').length;
-  const totalPending = fights.filter((f) => f.status === 'pending').length;
   const totalActive = fights.filter((f) => f.status === 'active').length;
   const totalCompleted = fights.filter((f) => f.status === 'completed').length;
   const totalJudges = fights.reduce((acc, f) => acc + (f.confirmed_judges || 0), 0);
@@ -353,7 +350,6 @@ const FightList = () => {
                 </thead>
                 <tbody>
                   {filteredFights.map((fight, i) => {
-                    const st = getStatus(fight.status);
                     const pct = fight.min_judges_required > 0 ? (fight.confirmed_judges / fight.min_judges_required) * 100 : 0;
                     return (
                       <tr

@@ -70,7 +70,7 @@ const DOT_COLORS = {
   scheduled: 'bg-amber-500'
 }
 
-export default function StatusBadge({ status, type = 'fight', customLabel, customClasses }) {
+export default function StatusBadge({ status, customLabel, customClasses }) {
   if (customClasses) {
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border border-transparent ${customClasses}`}>

@@ -85,7 +85,7 @@ const ResultCard = ({ label, value, icon, accent = 'red' }) => {
   );
 };
 
-const FightSummaryCard = ({ fight, scoreCard, roleLabel }) => {
+const FightSummaryCard = ({ fight, roleLabel }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight.venue || '\u2014' },
@@ -397,8 +397,9 @@ const ScoreFight = () => {
   const timersRef = useRef({});
 
   useEffect(() => {
+    const timers = timersRef.current;
     return () => {
-      Object.values(timersRef.current).forEach(clearTimeout);
+      Object.values(timers).forEach(clearTimeout);
     };
   }, []);
 
@@ -426,7 +427,7 @@ const ScoreFight = () => {
         let myRes;
         try {
           myRes = await getMyScorecard(fightId, token);
-        } catch (err) {
+        } catch {
           if (cancelled) return;
           setRestriction('This fight is not available for scoring.');
           setLoading(false);
@@ -735,7 +736,7 @@ const ScoreFight = () => {
         </div>
 
         <div className="animate-[fadeIn_0.6s_ease-out]">
-          <FightSummaryCard fight={fight} scoreCard={scoreCard} roleLabel={roleLabel} />
+          <FightSummaryCard fight={fight} roleLabel={roleLabel} />
         </div>
 
         <ActionButtons navigate={navigate} />

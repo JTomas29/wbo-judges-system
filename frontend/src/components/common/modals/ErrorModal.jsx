@@ -1,5 +1,5 @@
 import BaseModal from './BaseModal';
-import ModalHeader, { ModalFooter, ModalButton } from './ModalParts';
+import { ModalButton } from './ModalParts';
 
 export default function ErrorModal({ isOpen, onClose, title = 'Error', description, buttonText = 'Close' }) {
   return (

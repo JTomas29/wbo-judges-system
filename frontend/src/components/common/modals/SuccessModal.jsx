@@ -1,5 +1,5 @@
 import BaseModal from './BaseModal';
-import ModalHeader, { ModalFooter, ModalButton } from './ModalParts';
+import { ModalButton } from './ModalParts';
 
 export default function SuccessModal({ isOpen, onClose, title = 'Operation successful', description, buttonText = 'Got it' }) {
   return (

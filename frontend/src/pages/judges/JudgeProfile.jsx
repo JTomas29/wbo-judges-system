@@ -170,7 +170,7 @@ const JudgeProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, targetJudgeId, user, navigate]);
+  }, [token, targetJudgeId, user]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

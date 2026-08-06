@@ -155,7 +155,7 @@ const Navbar = () => {
               >
                 {({ isActive }) => (
                   <>
-                    {item.icon && item.icon}
+                    {item.icon}
                     {item.label}
                     {isActive && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[calc(100%-28px)] h-[2.5px] rounded-full bg-wbo-700 dark:bg-wbo-500 transition-all duration-200" />
@@ -261,7 +261,7 @@ const Navbar = () => {
                   }`
                 }
               >
-                {item.icon && item.icon}
+                {item.icon}
                 {item.label}
               </NavLink>
             ))}

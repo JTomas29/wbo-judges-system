@@ -585,7 +585,6 @@ const Dashboard = () => {
                       </thead>
                       <tbody>
                         {recent_fights.map((fight) => {
-                          const st = getStatusColor(fight.status);
                           return (
                             <tr
                               key={fight.id}

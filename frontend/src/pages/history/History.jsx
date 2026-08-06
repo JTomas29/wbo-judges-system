@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getFightHistory } from '../../services/historyService';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterDate, FilterSelect } from '../../components/common/FilterBar';
 import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
@@ -46,7 +44,6 @@ const StatCard = ({ icon, value, label, color }) => (
 
 const History = () => {
   const { token } = useAuth();
-  const navigate = useNavigate();
   const [fights, setFights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

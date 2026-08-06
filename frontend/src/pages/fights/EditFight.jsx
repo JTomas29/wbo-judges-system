@@ -14,7 +14,7 @@ const ROUNDS = [4, 6, 8, 10, 12];
 
 const EditFight = () => {
   const { id } = useParams();
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
   const [referees, setReferees] = useState([]);

@@ -86,8 +86,6 @@ const CreateFight = () => {
         notes: form.notes.trim() || undefined,
         referee_id: form.referee_id ? Number(form.referee_id) : undefined,
       };
-      console.log('Referee seleccionado:', referees.find((r) => String(r.id) === String(form.referee_id)));
-      console.log('Body enviado:', payload);
       const res = await createFight(payload, token);
       navigate(`/fights/${res.data.id}`, {
         state: { toast: { type: 'success', message: `Fight "${res.data.event_name || form.event_name.trim()}" created successfully.` } },
