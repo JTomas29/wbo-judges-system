@@ -8,8 +8,9 @@ import ActionPanel, { ActionButton } from '../../components/detail/ActionPanel';
 import RefereeEvaluationSection from '../../components/detail/RefereeEvaluation';
 import ResultRegistration from '../../components/detail/ResultRegistration';
 import { RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
+import { Skeleton } from '../../components/common/Skeletons';
 import { DeleteModal } from '../../components/common/modals';
-import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const summaryAccents = {
   blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400' },
@@ -29,12 +30,12 @@ const detailAccents = {
 };
 
 const statusConfig = {
-  pending: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/50', icon: 'clock', label: 'Pendiente' },
-  active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'zap', label: 'Activa' },
-  completed: { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500', border: 'border-blue-200 dark:border-blue-800/50', icon: 'check', label: 'Finalizada' },
-  analyzed: { bg: 'bg-violet-50 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-300', dot: 'bg-violet-500', border: 'border-violet-200 dark:border-violet-800/50', icon: 'chart', label: 'Analizada' },
-  cancelled: { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500', border: 'border-red-200 dark:border-red-800/50', icon: 'x', label: 'Cancelada' },
-  archived: { bg: 'bg-slate-100 dark:bg-slate-800/30', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400', border: 'border-slate-300 dark:border-slate-700', icon: 'archive', label: 'Archivada' },
+  pending: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/50', icon: 'clock', label: 'Pending' },
+  active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'zap', label: 'Active' },
+  completed: { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500', border: 'border-blue-200 dark:border-blue-800/50', icon: 'check', label: 'Completed' },
+  analyzed: { bg: 'bg-violet-50 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-300', dot: 'bg-violet-500', border: 'border-violet-200 dark:border-violet-800/50', icon: 'chart', label: 'Analyzed' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500', border: 'border-red-200 dark:border-red-800/50', icon: 'x', label: 'Cancelled' },
+  archived: { bg: 'bg-slate-100 dark:bg-slate-800/30', text: 'text-slate-600 dark:text-slate-400', dot: 'bg-slate-400', border: 'border-slate-300 dark:border-slate-700', icon: 'archive', label: 'Archived' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
@@ -50,9 +51,9 @@ const levelBadge = (level) => {
   return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold capitalize ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'}`}>{level}</span>;
 };
 
-const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Evaluador de Árbitro' : 'Evaluador';
+const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Referee Evaluator' : t === 'official' ? 'Official' : 'Evaluation';
 
-const formatDate = (d) => d ? new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 
 const initials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
 
@@ -102,15 +103,15 @@ const FighterCard = ({ name, corner, color }) => (
     </div>
     <p className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] m-0">{name}</p>
     <span className={`inline-block mt-3 px-4 py-1 rounded-full text-xs font-semibold shadow-sm ring-1 ${corner === 'red' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/50' : 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-200 dark:ring-blue-800/50'}`}>
-      Esquina {corner === 'red' ? 'Roja' : 'Azul'}
+      {corner === 'red' ? 'Red Corner' : 'Blue Corner'}
     </span>
   </div>
 );
 
 const tabs = [
-  { id: 'details', label: 'Detalles' },
-  { id: 'notes', label: 'Notas' },
-  { id: 'judges', label: 'Jueces' },
+  { id: 'details', label: 'Details' },
+  { id: 'notes', label: 'Notes' },
+  { id: 'judges', label: 'Judges' },
 ];
 
 const SimpleTabs = ({ active, onChange, children }) => (
@@ -151,7 +152,7 @@ const JudgeRow = ({ judge }) => (
     <td className="py-3.5 px-5">
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-        Designado
+        Assigned
       </span>
     </td>
   </tr>
@@ -180,18 +181,20 @@ const FightDetails = () => {
     getFightById(id, token)
       .then((res) => { setFight(res.data); setLoading(false); })
       .catch((err) => {
-        if (err.response?.status === 404) setError('Pelea no encontrada');
-        else setError(err.response?.data?.message || 'Error al cargar la pelea');
+        if (err.response?.status === 404) setError('Fight not found');
+        else setError(err.response?.data?.message || 'Failed to load fight');
         setLoading(false);
       });
   }, [id, token]);
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-slate-700 border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando pelea...</span>
+    <div className="space-y-5">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <Skeleton className="h-64 rounded-2xl xl:col-span-2" />
+        <Skeleton className="h-64 rounded-2xl" />
       </div>
+      <Skeleton className="h-36 rounded-2xl" />
     </div>
   );
 
@@ -203,7 +206,7 @@ const FightDetails = () => {
 
   if (!fight) return (
     <div className="flex items-center justify-center py-20">
-      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">Pelea no encontrada</div>
+      <div className="bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-sm font-semibold text-red-700 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300">Fight not found</div>
     </div>
   );
 
@@ -220,7 +223,7 @@ const FightDetails = () => {
       const res = await getFightById(id, token);
       setFight(res.data);
     } catch (err) {
-      setActivateError(err.response?.data?.message || 'Error al activar la pelea');
+      setActivateError(err.response?.data?.message || 'Failed to activate the fight');
     } finally {
       setActivating(false);
     }
@@ -232,9 +235,9 @@ const FightDetails = () => {
     try {
       await deleteFight(id, token);
       setShowDeleteModal(false);
-      navigate('/history', { state: { toast: { type: 'success', message: 'Pelea archivada correctamente' } } });
+      navigate('/history', { state: { toast: { type: 'success', message: 'Fight archived successfully.' } } });
     } catch (err) {
-      setDeleteError(err.response?.data?.message || 'Error al archivar la pelea');
+      setDeleteError(err.response?.data?.message || 'Failed to archive the fight');
       setDeleting(false);
     }
   };
@@ -304,8 +307,8 @@ const FightDetails = () => {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Designado</p>
-              <p className="text-xs text-amber-600 dark:text-amber-400 m-0 mt-0.5">Fuiste designado para esta pelea. Esperá a que se active para puntuar.</p>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 m-0">Pending</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 m-0 mt-0.5">You have been assigned to this fight. Wait for it to be activated to score.</p>
             </div>
           </div>
         </div>
@@ -313,11 +316,11 @@ const FightDetails = () => {
 
       {/* ── Summary cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <SummaryCard icon={MapPinIcon} label="Lugar" value={fight.venue || '—'} accent="sky" />
-        <SummaryCard icon={CalendarIcon} label="Fecha" value={formatDate(fight.scheduled_date)} accent="violet" />
+        <SummaryCard icon={MapPinIcon} label="Venue" value={fight.venue || '—'} accent="sky" />
+        <SummaryCard icon={CalendarIcon} label="Date" value={formatDate(fight.scheduled_date)} accent="violet" />
         <SummaryCard icon={BoltIcon} label="Rounds" value={`${fight.total_rounds} rounds`} accent="amber" />
-        <SummaryCard icon={UserGroupIcon} label="Jueces" value={`${fight.assigned_judges?.length || 0} asignados`} accent="emerald" />
-        <SummaryCard icon={CheckBadgeIcon} label="Mínimo" value={`${fight.min_judges_required || 3} jueces`} accent="blue" />
+        <SummaryCard icon={UserGroupIcon} label="Judges" value={`${fight.assigned_judges?.length || 0} assigned`} accent="emerald" />
+        <SummaryCard icon={CheckBadgeIcon} label="Minimum" value={`${fight.min_judges_required || 3} judges`} accent="blue" />
       </div>
 
       {/* ── Referee card ── */}
@@ -329,8 +332,8 @@ const FightDetails = () => {
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Árbitro</h3>
-            <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Oficial del combate</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Referee</h3>
+            <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Fight official</p>
           </div>
         </div>
         {fight.referee ? (
@@ -342,7 +345,7 @@ const FightDetails = () => {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Nombre</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Name</p>
                 <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.first_name} {fight.referee.last_name}</p>
               </div>
             </div>
@@ -353,7 +356,7 @@ const FightDetails = () => {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Licencia</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">License</p>
                 <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.license_number || '—'}</p>
               </div>
             </div>
@@ -364,7 +367,7 @@ const FightDetails = () => {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Federación</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Federation</p>
                 <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{fight.referee.federation || '—'}</p>
               </div>
             </div>
@@ -375,10 +378,10 @@ const FightDetails = () => {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Estado</p>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Status</p>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${fight.referee.active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${fight.referee.active ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                  {fight.referee.active ? 'Activo' : 'Inactivo'}
+                  {fight.referee.active ? 'Active' : 'Inactive'}
                 </span>
               </div>
             </div>
@@ -388,7 +391,7 @@ const FightDetails = () => {
             <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
-            <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No se ha asignado un árbitro a esta pelea.</p>
+            <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No referee has been assigned to this fight.</p>
           </div>
         )}
       </div>
@@ -404,18 +407,18 @@ const FightDetails = () => {
         <FighterCard name={fight.boxer_blue} corner="blue" color="bg-gradient-to-br from-blue-600 to-blue-800" />
       </div>
 
-      {/* ── Tabs: Detalles / Notas / Jueces ── */}
+      {/* ── Tabs: Details / Notes / Judges ── */}
       <SimpleTabs active={activeTab} onChange={setActiveTab}>
         {activeTab === 'details' && (
-          <DetailSection icon={InformationCircleIcon} title="Detalles de la pelea" description="Información general del combate">
+          <DetailSection icon={InformationCircleIcon} title="Fight Details" description="General fight information">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {[
-                { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight.scheduled_date), a: detailAccents.blue },
-                { icon: MapPinIcon, label: 'Lugar', value: fight.venue, a: detailAccents.sky },
-                { icon: Cog6ToothIcon, label: 'Categoría', value: fight.weight_class, a: detailAccents.violet },
-                { icon: CheckBadgeIcon, label: 'Título', value: fight.title, a: detailAccents.amber },
+                { icon: CalendarIcon, label: 'Date', value: formatDate(fight.scheduled_date), a: detailAccents.blue },
+                { icon: MapPinIcon, label: 'Venue', value: fight.venue, a: detailAccents.sky },
+                { icon: Cog6ToothIcon, label: 'Weight Class', value: fight.weight_class, a: detailAccents.violet },
+                { icon: CheckBadgeIcon, label: 'Title', value: fight.title, a: detailAccents.amber },
                 { icon: BoltIcon, label: 'Rounds', value: `${fight.total_rounds} rounds`, a: detailAccents.red },
-                { icon: UserGroupIcon, label: 'Jueces asignados', value: `${fight.assigned_judges?.length || 0} / 10`, a: detailAccents.emerald },
+                { icon: UserGroupIcon, label: 'Assigned judges', value: `${fight.assigned_judges?.length || 0} / 10`, a: detailAccents.emerald },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                   <div className={`w-9 h-9 rounded-lg ${item.a.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
@@ -432,7 +435,7 @@ const FightDetails = () => {
         )}
 
         {activeTab === 'notes' && (
-          <DetailSection icon={PencilSquareIcon} title="Notas del combate" description="Observaciones del combate">
+          <DetailSection icon={PencilSquareIcon} title="Fight Notes" description="Fight observations">
             {fight.notes ? (
               <div className="bg-gradient-to-br from-white to-amber-50/30 dark:from-[#1F2937] dark:to-[#1a1510] rounded-xl border border-amber-100 dark:border-amber-800/30 p-5">
                 <p className="text-sm text-slate-700 leading-relaxed dark:text-[#94A3B8] m-0">{fight.notes}</p>
@@ -442,22 +445,22 @@ const FightDetails = () => {
                 <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No hay observaciones registradas.</p>
+                <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No observations recorded.</p>
               </div>
             )}
           </DetailSection>
         )}
 
         {activeTab === 'judges' && fight.assigned_judges?.length > 0 && (
-          <DetailSection icon={UsersIcon} title="Jueces Asignados" description="Cuerpo de árbitros asignados a este combate">
+          <DetailSection icon={UsersIcon} title="Assigned Judges" description="Judges assigned to this fight">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-[#1E293B]">
-                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Nombre</th>
-                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Nivel</th>
-                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Rol</th>
-                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Estado</th>
+                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Name</th>
+                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Level</th>
+                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Role</th>
+                    <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -471,35 +474,91 @@ const FightDetails = () => {
         )}
 
         {activeTab === 'judges' && (!fight.assigned_judges || fight.assigned_judges.length === 0) && (
-          <DetailSection icon={UsersIcon} title="Jueces Asignados" description="Cuerpo de árbitros asignados a este combate">
+          <DetailSection icon={UsersIcon} title="Assigned Judges" description="Judges assigned to this fight">
             <div className="flex items-center gap-3 py-2">
               <UsersIcon className="w-5 h-5 text-slate-300 dark:text-slate-600" />
-              <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No hay jueces asignados a este combate.</p>
+              <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No judges assigned to this fight.</p>
+            </div>
+          </DetailSection>
+        )}
+
+        {activeTab === 'judges' && fight.official_judge_cards?.length > 0 && (
+          <DetailSection icon={ClipboardDocumentCheckIcon} title="Official Judges Scorecards" description="Paper scorecards loaded by the supervisor">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {fight.official_judge_cards.map((card) => {
+                const totals = card.rounds.reduce(
+                  (acc, r) => ({
+                    red: acc.red + Number(r.final_score_red ?? r.score_red),
+                    blue: acc.blue + Number(r.final_score_blue ?? r.score_blue),
+                  }),
+                  { red: 0, blue: 0 }
+                );
+                const winner = totals.red > totals.blue ? 'Red' : totals.blue > totals.red ? 'Blue' : 'Draw';
+                return (
+                  <div key={card.id} className="rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-amber-500 bg-white dark:bg-[#111827] p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                        {initials(card.judge?.name)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate m-0">{card.judge?.name}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-[#64748B] m-0">{card.rounds.length} rounds</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-red-700 dark:text-red-400 font-bold tabular-nums">
+                          <span className="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400" /> {totals.red}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-400 font-bold tabular-nums">
+                          <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" /> {totals.blue}
+                        </span>
+                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ring-1 ${
+                        winner === 'Red'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/40'
+                          : winner === 'Blue'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-200 dark:ring-blue-800/40'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700'
+                      }`}>{winner}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </DetailSection>
         )}
       </SimpleTabs>
 
       {canScore && (
-        <DetailSection icon={StarIcon} title="Tu tarjeta de puntuación" description="Puntuación">
+        <DetailSection icon={StarIcon} title="Your scorecard" description="Scoring">
           <ActionButton
             onClick={() => navigate(`/scoring/${fight.id}`)}
             icon={StarIcon}
           >
-            Puntuar pelea
+            Score fight
           </ActionButton>
         </DetailSection>
       )}
 
       {isStaff && (
-        <DetailSection icon={Cog6ToothIcon} title="Acciones" description="Gestión de la pelea">
+        <DetailSection icon={Cog6ToothIcon} title="Actions" description="Fight management">
           <ActionPanel>
             {isStaff && (
               <ActionButton
                 onClick={() => navigate(`/official-cards/${fight.id}`)}
                 disabled={fight.status !== 'completed'}
               >
-                Cargar Tarjeta Oficial
+                Load Official Scorecard
+              </ActionButton>
+            )}
+            {isStaff && (
+              <ActionButton
+                variant="secondary"
+                onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
+                disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
+              >
+                Official Judges Scorecards
               </ActionButton>
             )}
             <ActionButton
@@ -507,14 +566,14 @@ const FightDetails = () => {
               onClick={() => navigate(`/judges/assign/${fight.id}`)}
               disabled={fight.status !== 'pending'}
             >
-              Asignar Jueces
+              Assign Judges
             </ActionButton>
             <ActionButton
               variant="danger"
               onClick={handleActivateFight}
               disabled={fight.status !== 'pending' || (fight.assigned_judges?.length || 0) < (fight.min_judges_required || 3) || activating}
             >
-              {activating ? 'Finalizando...' : 'Finalizar designación'}
+              {activating ? 'Finishing...' : 'Finish Assignment'}
             </ActionButton>
             {!fight.official_card && (
               <ActionButton
@@ -522,7 +581,7 @@ const FightDetails = () => {
                 onClick={() => navigate(`/scoring/live/${fight.id}`)}
                 disabled={fight.status !== 'active'}
               >
-                Seguimiento en vivo
+                Live Tracking
               </ActionButton>
             )}
             {isStaff && (
@@ -536,12 +595,12 @@ const FightDetails = () => {
                     await analyzeFight(id, token);
                     navigate(`/analysis/${id}`);
                   } catch (err) {
-                    setAnalyzeError(err.response?.data?.message || 'Error al ejecutar el análisis');
+                    setAnalyzeError(err.response?.data?.message || 'Failed to run analysis');
                     setAnalyzing(false);
                   }
                 }}
               >
-                {analyzing ? 'Procesando...' : 'Analizar Pelea'}
+                {analyzing ? 'Processing...' : 'Analyze Fight'}
               </ActionButton>
             )}
             {user?.role === 'admin' && (
@@ -550,7 +609,7 @@ const FightDetails = () => {
                 disabled={fight.status === 'completed' || fight.status === 'analyzed' || fight.status === 'cancelled' || fight.status === 'archived'}
                 onClick={() => navigate(`/fights/${fight.id}/edit`)}
               >
-                Editar
+                Edit
               </ActionButton>
             )}
             <div className="flex-1" />
@@ -559,7 +618,7 @@ const FightDetails = () => {
                 variant="danger"
                 onClick={() => { setShowDeleteModal(true); setDeleteError(null); }}
               >
-                Eliminar Pelea
+                Delete Fight
               </ActionButton>
             )}
           </ActionPanel>
@@ -579,10 +638,17 @@ const FightDetails = () => {
 
       <ActionPanel>
         <ActionButton variant="secondary" onClick={() => navigate(`/official-cards/${fight.id}`)}>
-          Ver Tarjetas
+          View Scorecards
+        </ActionButton>
+        <ActionButton
+          variant="secondary"
+          onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
+          disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
+        >
+          Official Judges Scorecards
         </ActionButton>
         <ActionButton variant="secondary" onClick={() => navigate(`/analysis/${fight.id}`)}>
-          Ver Análisis
+          View Analysis
         </ActionButton>
       </ActionPanel>
 
@@ -590,10 +656,10 @@ const FightDetails = () => {
         isOpen={showDeleteModal}
         onClose={() => { setShowDeleteModal(false); setDeleteError(null); }}
         onConfirm={handleDelete}
-        title="Archivar pelea"
+        title="Archive Fight"
         itemName={fight.event_name}
-        description={<>La pelea <strong>{fight.event_name}</strong> será archivada. Ya no aparecerá en el listado principal. Esta acción no elimina tarjetas, análisis ni estadísticas.</>}
-        confirmLabel={deleting ? 'Archivando...' : 'Archivar pelea'}
+        description={<>The fight <strong>{fight.event_name}</strong> will be archived. It will no longer appear in the main list. This action does not delete scorecards, analysis or statistics.</>}
+        confirmLabel={deleting ? 'Archiving...' : 'Archive Fight'}
         loading={deleting}
         error={deleteError}
       />

@@ -18,16 +18,20 @@ export default function BaseModal({ isOpen, onClose, maxWidth = 'max-w-md', chil
   if (!isOpen) return null;
 
   return createPortal(
-    <div
-      ref={overlayRef}
-      className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]`}
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
-    >
-      <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm transition-opacity" />
-      <div className={`relative w-full ${maxWidth} animate-[scaleIn_0.2s_ease-out]`}>
-        {children}
-      </div>
-    </div>,
+      <div
+        ref={overlayRef}
+        className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]`}
+        onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      >
+        <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm transition-opacity" />
+        <div
+          role="dialog"
+          aria-modal="true"
+          className={`relative w-full ${maxWidth} animate-[scaleIn_0.2s_ease-out]`}
+        >
+          {children}
+        </div>
+      </div>,
     document.body
   );
 }

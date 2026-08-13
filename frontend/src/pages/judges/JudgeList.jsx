@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { ConfirmModal } from '../../components/common/modals';
+import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
 const levelBadge = (level) => {
   const map = {
@@ -89,7 +90,7 @@ const JudgeList = () => {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.response?.data?.message || 'Error al cargar jueces');
+        setError(err.response?.data?.message || 'Error loading judges');
         setLoading(false);
       });
   }, [token]);
@@ -107,7 +108,7 @@ const JudgeList = () => {
       );
       setConfirmTarget(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cambiar estado del juez');
+      setError(err.response?.data?.message || 'Error updating judge status');
       setConfirmTarget(null);
     }
   };
@@ -137,12 +138,12 @@ const JudgeList = () => {
   if (!isStaff) {
     return (
       <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm p-6 text-center">
-        <p className="text-slate-700 dark:text-[#F8FAFC] font-medium">No tienes permiso para acceder a la gestión de jueces.</p>
+        <p className="text-slate-700 dark:text-[#F8FAFC] font-medium">You do not have permission to access judge management.</p>
         <button
           className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors"
           onClick={() => navigate('/dashboard')}
         >
-          Volver al Dashboard
+          Back to Dashboard
         </button>
       </div>
     );
@@ -150,9 +151,10 @@ const JudgeList = () => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-[#374151] border-t-wbo-700" />
-        <span className="ml-3 text-slate-500 dark:text-[#94A3B8] text-sm">Cargando jueces...</span>
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <FilterBarSkeleton />
+        <TableSkeleton rows={6} cols={6} />
       </div>
     );
   }
@@ -172,38 +174,38 @@ const JudgeList = () => {
       <div className="mb-4">
         <BackButton fallbackRoute="/dashboard" />
       </div>
-      <h2 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-4">Gestión de Jueces</h2>
+      <h2 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-4">Judge Management</h2>
 
       {/* Filters */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-        <FilterInput value={searchName} onChange={setSearchName} placeholder="Buscar por nombre..." />
-        <FilterInput value={searchEmail} onChange={setSearchEmail} placeholder="Buscar por email..." />
-        <FilterSelect value={filterLevel} onChange={setFilterLevel} options={LEVEL_OPTIONS} placeholder="Nivel" />
+        <FilterInput value={searchName} onChange={setSearchName} placeholder="Search by name..." />
+        <FilterInput value={searchEmail} onChange={setSearchEmail} placeholder="Search by email..." />
+        <FilterSelect value={filterLevel} onChange={setFilterLevel} options={LEVEL_OPTIONS} placeholder="Level" />
         <FilterSelect
           value={filterActive}
           onChange={setFilterActive}
           options={[
-            { value: 'active', label: 'Activo' },
-            { value: 'inactive', label: 'Inactivo' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
           ]}
-          placeholder="Estado"
+          placeholder="Status"
         />
       </FilterBar>
 
       {filteredJudges.length === 0 ? (
         <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-10 text-center text-slate-400 dark:text-[#94A3B8] text-sm">
-          {hasActiveFilters ? 'No se encontraron jueces con los filtros aplicados' : 'No hay jueces registrados'}
+          {hasActiveFilters ? 'No judges found with the applied filters' : 'No judges registered'}
         </div>
       ) : (
         <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-5 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-wbo-700 dark:bg-red-900/50 text-white rounded-lg">
-                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nombre</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Name</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Email</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Nivel</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Estado</th>
-                  {isStaff && <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Acciones</th>}
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Level</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Status</th>
+                  {isStaff && <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -220,7 +222,7 @@ const JudgeList = () => {
                   <td className="py-3 px-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
                       {statusIcon(juez.is_active)}
-                      {juez.is_active ? 'Activo' : 'Inactivo'}
+                      {juez.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   {isStaff && (
@@ -233,12 +235,12 @@ const JudgeList = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
-                          Ver Perfil
+                          View Profile
                         </button>
                         {user?.role === 'admin' && (
                           <>
                             <button className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:border-wbo-700 dark:hover:border-red-800/50 hover:text-wbo-700 dark:hover:text-red-400 hover:bg-wbo-50 dark:hover:bg-red-900/30 transition-all duration-200 shadow-sm"
-                              onClick={() => navigate(`/judges/${juez.id}/edit`)}>Editar</button>
+                              onClick={() => navigate(`/judges/${juez.id}/edit`)}>Edit</button>
                             <button
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm ${
                                 juez.is_active
@@ -247,7 +249,7 @@ const JudgeList = () => {
                               }`}
                               onClick={() => setConfirmTarget(juez)}
                             >
-                              {juez.is_active ? 'Desactivar' : 'Activar'}
+                              {juez.is_active ? 'Deactivate' : 'Activate'}
                             </button>
                           </>
                         )}
@@ -265,10 +267,10 @@ const JudgeList = () => {
         isOpen={!!confirmTarget}
         onClose={() => setConfirmTarget(null)}
         onConfirm={() => handleToggleActive(confirmTarget)}
-        title={confirmTarget?.is_active ? 'Desactivar juez' : 'Activar juez'}
-        description={<>¿Estás seguro de que quieres {confirmTarget?.is_active ? 'desactivar' : 'activar'} a <strong className="text-slate-800 dark:text-[#F8FAFC]">{confirmTarget?.name}</strong>?</>}
-        confirmLabel={confirmTarget?.is_active ? 'Sí, desactivar' : 'Sí, activar'}
-        cancelLabel="No"
+        title={confirmTarget?.is_active ? 'Deactivate judge' : 'Activate judge'}
+        description={<>Are you sure you want to {confirmTarget?.is_active ? 'deactivate' : 'activate'} <strong className="text-slate-800 dark:text-[#F8FAFC]">{confirmTarget?.name}</strong>?</>}
+        confirmLabel={confirmTarget?.is_active ? 'Yes, deactivate' : 'Yes, activate'}
+        cancelLabel="Cancel"
         type="warning"
       />
     </div>

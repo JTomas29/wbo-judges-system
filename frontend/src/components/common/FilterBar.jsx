@@ -7,29 +7,42 @@ const FilterBar = ({ children, onClear }) => (
       <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end dark:border-[#1E293B]">
         <button
           onClick={onClear}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-red-800 transition-colors dark:text-[#94A3B8] dark:hover:text-red-400"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-wbo-800 transition-colors dark:text-[#94A3B8] dark:hover:text-wbo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 rounded-md"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Limpiar filtros
+          Clear filters
         </button>
       </div>
     )}
   </div>
 );
 
-const baseInput = "w-full px-3.5 py-2.5 border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-red-800/20 hover:border-slate-300 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-red-800 dark:focus:ring-red-800/20 dark:hover:border-[#334155] dark:bg-[#0B1120]";
+const baseInput = "w-full px-3.5 py-2.5 border rounded-xl text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-wbo-700/15 hover:border-slate-300 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:focus:ring-wbo-700/20 dark:hover:border-[#334155] dark:bg-[#0B1120]";
 
 export const FilterInput = ({ value, onChange, placeholder, className = '' }) => (
-  <div className={`min-w-[180px] flex-1 ${className}`}>
+  <div className={`min-w-[180px] flex-1 relative ${className}`}>
     <input
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`${baseInput} border-slate-200 text-slate-900 placeholder-slate-400 focus:border-red-800 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-red-800 dark:bg-[#0B1120]`}
+      aria-label={placeholder}
+      className={`${baseInput} pr-9 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-wbo-600 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:bg-[#0B1120]`}
     />
+    {value && (
+      <button
+        type="button"
+        onClick={() => onChange('')}
+        aria-label={`Clear ${placeholder || 'search'}`}
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    )}
   </div>
 );
 
@@ -38,7 +51,8 @@ export const FilterSelect = ({ value, onChange, options, placeholder, className 
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`${baseInput} border-slate-200 text-slate-900 focus:border-red-800 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:focus:border-red-800 dark:bg-[#0B1120]`}
+      aria-label={placeholder}
+      className={`${baseInput} border-slate-200 text-slate-900 focus:border-wbo-600 bg-white dark:border-[#1E293B] dark:text-[#F8FAFC] dark:focus:border-wbo-400 dark:bg-[#0B1120]`}
     >
       <option value="">{placeholder}</option>
       {options.map((opt) => (
@@ -57,7 +71,7 @@ export const FilterDate = ({ value, onChange, placeholder, className = '' }) => 
       type="date"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`${baseInput} border-slate-200 text-slate-900 focus:border-red-800 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:focus:border-red-800 dark:bg-[#0B1120]`}
+      className={`${baseInput} border-slate-200 text-slate-900 focus:border-wbo-600 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:focus:border-wbo-400 dark:bg-[#0B1120]`}
     />
   </div>
 );

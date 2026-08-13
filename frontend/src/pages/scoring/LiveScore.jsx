@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getFightById, getScorecards, completeFight } from '../../services/fightService';
 import { getEffectiveTotalRounds } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
+import { Skeleton } from '../../components/common/Skeletons';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -21,12 +22,12 @@ import {
 
 const formatDate = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const formatDateTime = (d) => {
   if (!d) return '\u2014';
-  return new Date(d).toLocaleString('es-AR', {
+  return new Date(d).toLocaleString('en-US', {
     day: '2-digit', month: 'short',
     hour: '2-digit', minute: '2-digit',
   });
@@ -39,13 +40,13 @@ const statusBadge = (status) => {
   if (!status) return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700">
       <ClockIcon className="w-3.5 h-3.5" />
-      Pendiente
+      Pending
     </span>
   );
   if (status === 'draft') return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-800/40">
       <ClockIcon className="w-3.5 h-3.5" />
-      En progreso
+      In progress
     </span>
   );
   return (
@@ -53,7 +54,7 @@ const statusBadge = (status) => {
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
-      Recibido
+      Received
     </span>
   );
 };
@@ -61,11 +62,11 @@ const statusBadge = (status) => {
 const fightStatusBadge = (status) => {
   if (!status) return null;
   const map = {
-    pending: { label: 'Pendiente', cls: 'bg-amber-500/15 text-amber-200 ring-amber-400/30', dot: 'bg-amber-300' },
-    active: { label: 'En vivo', cls: 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30', dot: 'bg-emerald-300' },
-    completed: { label: 'Completada', cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' },
-    analyzed: { label: 'Analizada', cls: 'bg-gold/15 text-gold-light ring-gold/30', dot: 'bg-gold-light' },
-    archived: { label: 'Archivada', cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' },
+    pending: { label: 'Pending', cls: 'bg-amber-500/15 text-amber-200 ring-amber-400/30', dot: 'bg-amber-300' },
+    active: { label: 'Live', cls: 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30', dot: 'bg-emerald-300' },
+    completed: { label: 'Completed', cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' },
+    analyzed: { label: 'Analyzed', cls: 'bg-gold/15 text-gold-light ring-gold/30', dot: 'bg-gold-light' },
+    archived: { label: 'Archived', cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' },
   };
   const m = map[status] || { label: status, cls: 'bg-slate-500/15 text-slate-200 ring-slate-400/30', dot: 'bg-slate-300' };
   return (
@@ -102,9 +103,9 @@ const StatCard = ({ icon: Icon, label, value, suffix = '', accent = 'slate', del
 const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
   const isActive = fight?.status === 'active';
   const infoItems = [
-    { icon: CalendarIcon, label: 'Fecha', value: formatDate(fight?.scheduled_date) },
-    { icon: MapPinIcon, label: 'Lugar', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Categoría', value: fight?.weight_class || '\u2014' },
+    { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
+    { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
+    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
     { icon: HashtagIcon, label: 'Rounds', value: `${maxCompleted} / ${getEffectiveTotalRounds(fight)}` },
   ];
 
@@ -118,7 +119,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
             </svg>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Puntuación en Vivo</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1 m-0">Live Scoring</p>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white m-0 leading-tight tracking-tight">
               {fight?.boxer_red} <span className="text-red-300 font-semibold">vs</span> {fight?.boxer_blue}
             </h1>
@@ -131,7 +132,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 text-white ring-1 ring-white/25 text-xs font-bold hover:bg-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-sm"
               >
                 <ArrowPathIcon className="w-3.5 h-3.5" />
-                Actualizar
+                Refresh
               </button>
             )}
             {fightStatusBadge(fight?.status)}
@@ -155,14 +156,14 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
         <div className="flex items-center justify-between mb-2">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
             <ChartBarIcon className="w-3.5 h-3.5 text-wbo-700 dark:text-wbo-400" />
-            Progreso de la pelea
+            Fight progress
           </span>
           <span className="text-xs font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums">{roundsPct}%</span>
         </div>
         <div className="w-full h-2.5 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-wbo-600 to-wbo-700 rounded-full transition-all duration-700 ease-out" style={{ width: `${roundsPct}%` }} />
         </div>
-        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-2 m-0">{maxCompleted} de {getEffectiveTotalRounds(fight)} rounds completados</p>
+        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-2 m-0">{maxCompleted} of {getEffectiveTotalRounds(fight)} rounds completed</p>
       </div>
     </div>
   );
@@ -189,10 +190,10 @@ const RoundBadges = ({ completed, total }) => (
 );
 
 const ResultCell = ({ entry }) => {
-  if (!entry.scorecard_status) return <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">Sin comenzar</span>;
-  if (entry.scorecard_status === 'draft') return <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">En progreso</span>;
+  if (!entry.scorecard_status) return <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">Not started</span>;
+  if (entry.scorecard_status === 'draft') return <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">In progress</span>;
 
-  const winner = entry.winner || 'Empate';
+  const winner = entry.winner || 'Draw';
   return (
     <div className="leading-tight">
       <div className="flex items-center justify-end gap-2">
@@ -200,7 +201,7 @@ const ResultCell = ({ entry }) => {
         <span className="text-slate-400 dark:text-slate-500 font-bold text-xs">–</span>
         <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/70 dark:ring-blue-800/40 text-sm font-extrabold tabular-nums">{entry.total_score_blue}</span>
       </div>
-      <span className="block text-xs text-slate-500 mt-1 dark:text-[#94A3B8]">Ganador: {winner}</span>
+      <span className="block text-xs text-slate-500 mt-1 dark:text-[#94A3B8]">Winner: {winner}</span>
     </div>
   );
 };
@@ -212,20 +213,20 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
         <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
       </div>
       <div>
-        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Tarjetas de Jueces</h3>
-        <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Estado de cada tarjeta en tiempo real</p>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Judges' Scorecards</h3>
+        <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Real-time status of each scorecard</p>
       </div>
     </div>
     <div className="overflow-x-auto scrollbar-thin">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-slate-50 dark:bg-[#0B1120]">
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Juez</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Nivel</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Tipo</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Judge</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Level</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Type</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Rounds</th>
-            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Estado</th>
-            <th className="text-right px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Resultado</th>
+            <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Status</th>
+            <th className="text-right px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Result</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
@@ -234,7 +235,7 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
               <td colSpan="6" className="px-4 py-10 text-center text-slate-400 dark:text-[#94A3B8]">
                 <div className="flex flex-col items-center gap-2">
                   <UserGroupIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-                  <span>No hay jueces designados para esta pelea.</span>
+                  <span>No judges are assigned to this fight.</span>
                 </div>
               </td>
             </tr>
@@ -270,22 +271,22 @@ const SummaryCard = ({ received, pendingCards, cardsPct, roundsPct, maxCompleted
       <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
         <ChartBarIcon className="w-4 h-4 text-white" />
       </div>
-      <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resumen</h3>
+      <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Summary</h3>
     </div>
     <div className="p-5 space-y-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200/70 dark:ring-emerald-800/40">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 m-0">Recibidas</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 m-0">Received</p>
           <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300 m-0 tabular-nums">{received}</p>
         </div>
         <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200/70 dark:ring-amber-800/40">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 m-0">Pendientes</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 m-0">Pending</p>
           <p className="text-2xl font-extrabold text-amber-700 dark:text-amber-300 m-0 tabular-nums">{pendingCards}</p>
         </div>
       </div>
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Tarjetas completadas</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Scorecards completed</p>
           <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">{cardsPct}%</span>
         </div>
         <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
@@ -294,19 +295,19 @@ const SummaryCard = ({ received, pendingCards, cardsPct, roundsPct, maxCompleted
       </div>
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Rounds completados</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Rounds completed</p>
           <span className="text-xs font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums">{roundsPct}%</span>
         </div>
         <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-wbo-600 to-wbo-700 rounded-full transition-all duration-700" style={{ width: `${roundsPct}%` }} />
         </div>
-        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">{maxCompleted} de {totalRounds} rounds</p>
+        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1.5 m-0">{maxCompleted} of {totalRounds} rounds</p>
       </div>
       <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1 m-0">Última actualización</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] mb-1 m-0">Last updated</p>
         <p className="text-sm font-bold text-slate-700 dark:text-[#94A3B8] m-0 flex items-center gap-1.5">
           <ClockIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-          {lastUpdate ? formatDateTime(lastUpdate) : 'Sin recibos aún'}
+          {lastUpdate ? formatDateTime(lastUpdate) : 'No scorecards yet'}
         </p>
       </div>
     </div>
@@ -329,7 +330,7 @@ const LiveScore = () => {
   const fetchData = useCallback(async () => {
     try {
       if (!isStaff) {
-        setError('El seguimiento en vivo solo está disponible para administradores y supervisores.');
+        setError('Live tracking is only available to administrators and supervisors.');
         setLoading(false);
         return;
       }
@@ -341,7 +342,7 @@ const LiveScore = () => {
       setEntries(scRes.data);
       setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al cargar datos');
+      setError(err.response?.data?.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -366,7 +367,7 @@ const LiveScore = () => {
       await completeFight(fightId, token);
       await fetchData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al finalizar la pelea');
+      setError(err.response?.data?.message || 'Failed to finalize the fight');
     } finally {
       setCompleting(false);
     }
@@ -374,10 +375,14 @@ const LiveScore = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-400 dark:text-[#94A3B8] py-16">
-          <span className="animate-spin h-8 w-8 border-[3px] border-wbo-700 border-t-transparent rounded-full" />
-          <p className="text-sm font-medium m-0">Cargando seguimiento en vivo...</p>
+      <div className="bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16">
+        <div className="max-w-3xl mx-auto space-y-5">
+          <Skeleton className="h-9 w-72" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+          </div>
+          <Skeleton className="h-72 rounded-2xl" />
         </div>
       </div>
     );
@@ -397,7 +402,7 @@ const LiveScore = () => {
                 className="mt-4 px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 hover:shadow-md transition-all duration-200"
                 onClick={() => navigate(-1)}
               >
-                Volver
+                Back
               </button>
             </div>
           </div>
@@ -417,22 +422,22 @@ const LiveScore = () => {
                 <DocumentCheckIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-emerald-700 dark:text-emerald-300 font-semibold m-0">El seguimiento en vivo ya no está disponible.</p>
+                <p className="text-emerald-700 dark:text-emerald-300 font-semibold m-0">Live tracking is no longer available.</p>
                 <p className="text-sm text-emerald-600/80 dark:text-emerald-400/80 mt-1 m-0">
-                  Esta pelea ya cuenta con su tarjeta oficial cargada.
+                  This fight already has its official scorecard loaded.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-4">
                   <button
                     className="px-5 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 hover:shadow-md transition-all duration-200"
                     onClick={() => navigate(`/official-cards/${fightId}`)}
                   >
-                    Ver tarjeta oficial
+                    View official scorecard
                   </button>
                   <button
                     className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200"
                     onClick={() => navigate(-1)}
                   >
-                    Volver
+                    Back
                   </button>
                 </div>
               </div>
@@ -473,12 +478,12 @@ const LiveScore = () => {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <StatCard icon={HashtagIcon} label="Round actual" value={currentRound} accent="amber" delay={0} />
-          <StatCard icon={ChartBarIcon} label="Rounds completados" value={maxCompleted} suffix={totalRounds ? `/${totalRounds}` : ''} accent="emerald" delay={60} />
-          <StatCard icon={DocumentCheckIcon} label="Tarjetas recibidas" value={received} accent="emerald" delay={120} />
-          <StatCard icon={InboxIcon} label="Tarjetas pendientes" value={pendingCards} accent="amber" delay={180} />
-          <StatCard icon={BoltIcon} label="Jueces en carga" value={inProgress} accent="blue" delay={240} />
-          <StatCard icon={UserGroupIcon} label="Jueces designados" value={totalJudges} accent="red" delay={300} />
+          <StatCard icon={HashtagIcon} label="Current round" value={currentRound} accent="amber" delay={0} />
+          <StatCard icon={ChartBarIcon} label="Rounds completed" value={maxCompleted} suffix={totalRounds ? `/${totalRounds}` : ''} accent="emerald" delay={60} />
+          <StatCard icon={DocumentCheckIcon} label="Scorecards received" value={received} accent="emerald" delay={120} />
+          <StatCard icon={InboxIcon} label="Pending scorecards" value={pendingCards} accent="amber" delay={180} />
+          <StatCard icon={BoltIcon} label="Judges scoring" value={inProgress} accent="blue" delay={240} />
+          <StatCard icon={UserGroupIcon} label="Judges assigned" value={totalJudges} accent="red" delay={300} />
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">
@@ -509,21 +514,21 @@ const LiveScore = () => {
                 {completing ? (
                   <>
                     <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                    Finalizando...
+                    Finalizing...
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Finalizar pelea
+                    Finalize fight
                   </>
                 )}
               </button>
             ) : (
               <p className="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-5 py-3 inline-flex items-center gap-2 shadow-sm">
                 <ClockIcon className="w-4 h-4 shrink-0" />
-                Esperando que todos los jueces finalicen sus tarjetas.
+                Waiting for all judges to submit their scorecards.
               </p>
             )}
           </div>

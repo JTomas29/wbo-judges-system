@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Referee = require('../models/Referee');
 const ScoreCard = require('../models/ScoreCard');
 const OfficialCard = require('../models/OfficialCard');
+const OfficialJudgeCard = require('../models/OfficialJudgeCard');
 const JudgeAssignment = require('../models/JudgeAssignment');
 const Notification = require('../models/Notification');
 
@@ -32,17 +33,24 @@ exports.getById = async (req, res, next) => {
     const fight = await Fight.getById(id);
     if (!fight) return res.status(404).json({ message: 'Pelea no encontrada' });
 
-    const [assignedJudges, officialCard, analysisSummary] = await Promise.all([
+    const [assignedJudges, officialCard, analysisSummary, officialJudgeCards] = await Promise.all([
       Fight.getAssignedJudges(id),
       Fight.getOfficialCard(id),
       Fight.getAnalysisSummary(id),
+      OfficialJudgeCard.findByFight(id),
     ]);
 
     const filteredJudges = req.user.role === 'judge'
       ? assignedJudges.filter((j) => j.id === req.user.id)
       : assignedJudges;
 
-    res.json({ ...fight, assigned_judges: filteredJudges, official_card: officialCard || null, analysis_summary: analysisSummary });
+    res.json({
+      ...fight,
+      assigned_judges: filteredJudges,
+      official_card: officialCard || null,
+      official_judge_cards: officialJudgeCards,
+      analysis_summary: analysisSummary,
+    });
   } catch (err) {
     next(err);
   }
@@ -221,16 +229,18 @@ exports.activate = async (req, res, next) => {
 
     const assignments = await JudgeAssignment.getByFight(id);
     await Promise.all(
-      assignments.map((a) =>
-        Notification.create({
-          userId: a.judge_id,
-          type: 'status_change',
-          title: 'Pelea lista para comenzar',
-          message: `La pelea "${fight.event_name}" está activa. Ya podés cargar tu tarjeta de puntuación.`,
-          referenceType: 'fight',
-          referenceId: Number(id),
-        })
-      )
+      assignments
+        .filter((a) => a.assignment_type !== 'official')
+        .map((a) =>
+          Notification.create({
+            userId: a.judge_id,
+            type: 'status_change',
+            title: 'Pelea lista para comenzar',
+            message: `La pelea "${fight.event_name}" está activa. Ya podés cargar tu tarjeta de puntuación.`,
+            referenceType: 'fight',
+            referenceId: Number(id),
+          })
+        )
     );
 
     res.json({

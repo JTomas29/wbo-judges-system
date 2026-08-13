@@ -54,6 +54,10 @@ exports.createOrGetScorecard = async (req, res, next) => {
       return res.status(403).json({ message: 'No tienes una asignación para esta pelea' });
     }
 
+    if (assignment.assignment_type === 'official') {
+      return res.status(403).json({ message: 'Los jueces oficiales puntúan en papel; su tarjeta es cargada por el Supervisor' });
+    }
+
     //aca esta el problema de que se debe confirmar antes la asignacion para poder puntuar, si no se confirma no se puede puntuar
     ///if (assignment.status !== 'confirmed') {
     //  return res.status(403).json({ message: 'Debes confirmar la asignación antes de puntuar' });

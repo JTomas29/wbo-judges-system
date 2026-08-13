@@ -1,7 +1,7 @@
 import BaseModal from './BaseModal';
 import ModalHeader, { ModalFooter, ModalButton } from './ModalParts';
 
-export default function DeleteModal({ isOpen, onClose, onConfirm, title = 'Eliminar', itemName, description, confirmLabel = 'Eliminar', loading = false, error }) {
+export default function DeleteModal({ isOpen, onClose, onConfirm, title = 'Delete', itemName, description, confirmLabel = 'Delete', loading = false, error }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl p-6">
@@ -9,8 +9,8 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, title = 'Elimi
           title={title}
           description={description || (
             <>
-              {itemName && <><strong className="text-slate-700 dark:text-[#F8FAFC]">{itemName}</strong> será eliminado/a.</>}
-              {' '}Esta acción no se puede deshacer.
+              {itemName && <><strong className="text-slate-700 dark:text-[#F8FAFC]">{itemName}</strong> will be deleted.</>}
+              {' '}This action cannot be undone.
             </>
           )}
           type="danger"
@@ -22,10 +22,10 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, title = 'Elimi
         )}
         <ModalFooter>
           <ModalButton variant="secondary" onClick={onClose} disabled={loading}>
-            Cancelar
+            Cancel
           </ModalButton>
           <ModalButton variant="danger" onClick={onConfirm} loading={loading}>
-            {loading ? 'Eliminando...' : confirmLabel}
+            {loading ? 'Deleting...' : confirmLabel}
           </ModalButton>
         </ModalFooter>
       </div>

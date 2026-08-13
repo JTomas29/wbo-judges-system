@@ -4,10 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { getRefereeRanking } from '../../services/refereeRankingService';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { RankingSummaryCard, PositionBadge, ScoreBadge, StatusBadge } from '../../components/ranking/RankingBadges';
+import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
 const formatDate = (d) => {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
 const getInitials = (first, last) => {
@@ -37,7 +38,7 @@ const RefereeRankingView = () => {
     setError(null);
     getRefereeRanking(token)
       .then((res) => setRanking(res.data))
-      .catch((err) => setError(err.response?.data?.message || 'Error al cargar el ranking de árbitros'))
+      .catch((err) => setError(err.response?.data?.message || 'Error loading referee ranking'))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -118,11 +119,9 @@ const RefereeRankingView = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-red-800 dark:border-[#374151]" />
-          <span className="text-sm text-slate-500 font-medium dark:text-[#94A3B8]">Cargando ranking de árbitros...</span>
-        </div>
+      <div className="space-y-6">
+        <FilterBarSkeleton />
+        <CardsGridSkeleton count={3} />
       </div>
     );
   }
@@ -132,7 +131,7 @@ const RefereeRankingView = () => {
       <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-6 text-center max-w-md mx-auto">
         <p className="text-amber-800 dark:text-amber-300 font-medium">{error}</p>
         <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
-          Reintentar
+          Retry
         </button>
       </div>
     );
@@ -145,26 +144,26 @@ const RefereeRankingView = () => {
         <RankingSummaryCard
           icon="M12 3v18m0-18c-2.5 2-4 4.5-4 7.5S9.5 16 12 18c2.5-2 4-4.5 4-7.5S14.5 5 12 3Zm-7 8h14"
           value={summaryStats.totalReferees}
-          label="Total de Árbitros"
+          label="Total Referees"
           color="bg-blue-50 dark:bg-blue-900/20"
         />
         <RankingSummaryCard
           icon="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
           value={summaryStats.bestReferee ? `${summaryStats.bestReferee.first_name} ${summaryStats.bestReferee.last_name}` : '—'}
-          label="Árbitro Mejor Puntuado"
-          sublabel={summaryStats.bestReferee ? `Promedio: ${num(summaryStats.bestReferee.average_final_score).toFixed(1)}` : ''}
+          label="Top-Rated Referee"
+          sublabel={summaryStats.bestReferee ? `Average: ${num(summaryStats.bestReferee.average_final_score).toFixed(1)}` : ''}
           color="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <RankingSummaryCard
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={summaryStats.overallAvg.toFixed(1)}
-          label="Promedio General"
+          label="Average Final Score"
           color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
           icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
           value={summaryStats.totalEvaluations}
-          label="Total de Evaluaciones"
+          label="Total Evaluations"
           color="bg-purple-50 dark:bg-purple-900/20"
         />
       </div>
@@ -174,44 +173,44 @@ const RefereeRankingView = () => {
         <FilterInput
           value={searchName}
           onChange={setSearchName}
-          placeholder="Buscar por nombre..."
+          placeholder="Search by name..."
         />
         <FilterSelect
           value={filterFederation}
           onChange={setFilterFederation}
           options={federations.map((f) => ({ value: f, label: f }))}
-          placeholder="Federación"
+          placeholder="Federation"
         />
         <FilterSelect
           value={filterStatus}
           onChange={setFilterStatus}
           options={[
-            { value: 'all', label: 'Evaluaciones: todas' },
-            { value: 'with_evaluations', label: 'Con evaluaciones' },
-            { value: 'without_evaluations', label: 'Sin evaluaciones' },
+            { value: 'all', label: 'Evaluations: all' },
+            { value: 'with_evaluations', label: 'With evaluations' },
+            { value: 'without_evaluations', label: 'Without evaluations' },
           ]}
-          placeholder="Evaluaciones"
+          placeholder="Evaluations"
         />
         <FilterSelect
           value={filterActive}
           onChange={setFilterActive}
           options={[
-            { value: 'all', label: 'Estado: todos' },
-            { value: 'active', label: 'Activos' },
-            { value: 'inactive', label: 'Inactivos' },
+            { value: 'all', label: 'Status: all' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
           ]}
-          placeholder="Estado"
+          placeholder="Status"
         />
         <FilterSelect
           value={sortOrder}
           onChange={setSortOrder}
           options={[
             { value: 'ranking', label: 'Ranking' },
-            { value: 'name', label: 'Nombre' },
-            { value: 'fights', label: 'Cantidad de peleas' },
-            { value: 'average', label: 'Promedio' },
+            { value: 'name', label: 'Name' },
+            { value: 'fights', label: 'Number of fights' },
+            { value: 'average', label: 'Average Final Score' },
           ]}
-          placeholder="Ordenar por"
+          placeholder="Sort by"
         />
       </FilterBar>
 
@@ -223,7 +222,7 @@ const RefereeRankingView = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">No se encontraron árbitros</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">No referees found</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
@@ -232,15 +231,15 @@ const RefereeRankingView = () => {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0F172A]/50">
                   <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider w-16">Pos</th>
-                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Árbitro</th>
-                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden md:table-cell">Federación</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Peleas</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Promedio</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Descuento</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Puntaje Final</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Última Eval.</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Estado</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Acciones</th>
+                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Referee</th>
+                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden md:table-cell">Federation</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Fights</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Average Score</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Deduction</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Average Final Score</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Last Evaluation</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Status</th>
+                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -317,7 +316,7 @@ const RefereeRankingView = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        Ver Perfil
+                        View Profile
                       </button>
                     </td>
                   </tr>

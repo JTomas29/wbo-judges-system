@@ -61,3 +61,23 @@ export const createOfficialCard = (id, data, token) =>
   axios.post(`${API_URL}/fights/${id}/official-card`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+export const getOfficialJudgeCards = (id, token) =>
+  axios.get(`${API_URL}/fights/${id}/official-judge-cards`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const createOfficialJudgeCard = (id, data, token) =>
+  axios.post(`${API_URL}/fights/${id}/official-judge-cards`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const getOfficialJudgeCard = (cardId, token) =>
+  axios.get(`${API_URL}/fights/official-judge-cards/${cardId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const updateOfficialJudgeCard = (cardId, data, token) =>
+  axios.put(`${API_URL}/fights/official-judge-cards/${cardId}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });

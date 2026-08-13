@@ -1,7 +1,7 @@
 import BaseModal from './BaseModal';
-import ModalHeader, { ModalFooter, ModalButton } from './ModalParts';
+import { ModalButton } from './ModalParts';
 
-export default function SuccessModal({ isOpen, onClose, title = 'Operación exitosa', description, buttonText = 'Entendido' }) {
+export default function SuccessModal({ isOpen, onClose, title = 'Operation successful', description, buttonText = 'Got it' }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl p-6 text-center">

@@ -2,18 +2,18 @@
 import { useNavigate } from 'react-router-dom';
 import { getFights, deleteFight } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../components/common/FilterBar';
 import { BaseModal, ModalHeader, ModalFooter, ModalButton } from '../../components/common/modals';
+import { Skeleton, FilterBarSkeleton, StatCardsSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
 const canEdit = (status) => status === 'pending' || status === 'active';
 
 const statusConfig = {
-  pending: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', icon: 'clock', label: 'Pendiente' },
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', icon: 'zap', label: 'Activa' },
-  completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200', icon: 'check', label: 'Finalizada' },
-  analyzed: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', border: 'border-violet-200', icon: 'chart', label: 'Analizada' },
-  cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200', icon: 'x', label: 'Cancelada' },
+  pending: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', icon: 'clock', label: 'Pending' },
+  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', icon: 'zap', label: 'Active' },
+  completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200', icon: 'check', label: 'Completed' },
+  analyzed: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', border: 'border-violet-200', icon: 'chart', label: 'Analyzed' },
+  cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200', icon: 'x', label: 'Cancelled' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
@@ -21,7 +21,7 @@ const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text:
 const formatDate = (dateStr) => {
   if (!dateStr) return '\u2014';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
 const initials = (name) => name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
@@ -88,7 +88,6 @@ const BoxerAvatar = ({ name }) => (
 
 /* ─── Fight Card (mobile) ─── */
 const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
-  const st = getStatus(fight.status);
   const pct = fight.min_judges_required > 0 ? (fight.confirmed_judges / fight.min_judges_required) * 100 : 0;
   return (
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md">
@@ -109,19 +108,19 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
 
       <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
         <div>
-          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Rojo</p>
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Red</p>
           <BoxerAvatar name={fight.boxer_red} />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Azul</p>
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Blue</p>
           <BoxerAvatar name={fight.boxer_blue} />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Fecha</p>
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Date</p>
           <p className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{formatDate(fight.scheduled_date)}</p>
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Jueces</p>
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wide mb-0.5">Judges</p>
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC]">{fight.confirmed_judges}/{fight.min_judges_required}</span>
             <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-[#1E293B] overflow-hidden max-w-[60px]">
@@ -134,7 +133,7 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
       <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-[#1E293B]">
         <button onClick={() => onView(fight.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all active:scale-[0.97]">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-          Ver
+          View
         </button>
         <button
           onClick={() => canEditFlag && onEdit(fight.id)}
@@ -144,16 +143,16 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
               ? 'bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#374151] hover:border-slate-400'
               : 'bg-slate-50 dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] text-slate-400 dark:text-[#94A3B8] cursor-not-allowed'
           }`}
-          title={!canEditFlag ? 'Solo se puede editar peleas pendientes o activas' : ''}
+          title={!canEditFlag ? 'Only pending or active fights can be edited' : ''}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-          Editar
+          Edit
         </button>
         {onArchive && (
           <button
             onClick={() => onArchive(fight)}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] bg-white dark:bg-[#1F2937] border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:shadow-sm"
-            title="Archivar pelea"
+            title="Archive fight"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -189,7 +188,7 @@ const FightList = () => {
     setError(null);
     getFights(token)
       .then((res) => { setFights(res.data); setLoading(false); })
-      .catch((err) => { setError(err.response?.data?.message || 'Error al cargar peleas'); setLoading(false); });
+      .catch((err) => { setError(err.response?.data?.message || 'Failed to load fights'); setLoading(false); });
   }, [token]);
 
   const categories = useMemo(() => {
@@ -238,33 +237,38 @@ const FightList = () => {
     try {
       await deleteFight(archiveTarget.id, token);
       setArchiveTarget(null);
-      navigate('/history', { state: { toast: { type: 'success', message: 'Pelea archivada correctamente' } } });
+      navigate('/history', { state: { toast: { type: 'success', message: 'Fight archived successfully.' } } });
     } catch (err) {
-      setArchiveError(err.response?.data?.message || 'Error al archivar la pelea');
+      setArchiveError(err.response?.data?.message || 'Failed to archive the fight');
       setArchiving(false);
     }
   };
 
   const totalAnalyzed = fights.filter((f) => f.status === 'analyzed').length;
-  const totalPending = fights.filter((f) => f.status === 'pending').length;
   const totalActive = fights.filter((f) => f.status === 'active').length;
   const totalCompleted = fights.filter((f) => f.status === 'completed').length;
   const totalJudges = fights.reduce((acc, f) => acc + (f.confirmed_judges || 0), 0);
 
   const STATUS_OPTIONS = [
-    { value: 'pending', label: 'Pendiente' },
-    { value: 'active', label: 'Activa' },
-    { value: 'completed', label: 'Finalizada' },
-    { value: 'analyzed', label: 'Analizada' },
-    { value: 'cancelled', label: 'Cancelada' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'active', label: 'Active' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'analyzed', label: 'Analyzed' },
+    { value: 'cancelled', label: 'Cancelled' },
   ];
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 dark:border-[#374151] border-t-red-800" />
-        <span className="text-sm text-slate-500 dark:text-[#94A3B8] font-medium">Cargando peleas...</span>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Skeleton className="h-10 w-36" />
       </div>
+      <FilterBarSkeleton />
+      <StatCardsSkeleton count={4} />
+      <TableSkeleton rows={6} cols={6} />
     </div>
   );
 
@@ -290,32 +294,31 @@ const FightList = () => {
         </div>
         <button
           onClick={() => navigate('/fights/create')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Crear Pelea
+          Create Fight
         </button>
       </div>
-
       {/* ═══ STATS CARDS ═══ */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} value={fights.length} label="Total peleas" color="bg-red-800" />
-        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>} value={totalActive} label="Activas" color="bg-emerald-600" />
-        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} value={totalCompleted} label="Finalizadas" color="bg-blue-600" />
-        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>} value={totalAnalyzed} label="Analizadas" color="bg-violet-600" />
-        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>} value={totalJudges} label="Jueces asignados" color="bg-amber-600" />
+        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} value={fights.length} label="Total fights" color="bg-red-800" />
+        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>} value={totalActive} label="Active" color="bg-emerald-600" />
+        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} value={totalCompleted} label="Completed" color="bg-blue-600" />
+        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>} value={totalAnalyzed} label="Analyzed" color="bg-violet-600" />
+        <StatCard icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>} value={totalJudges} label="Assigned judges" color="bg-amber-600" />
       </div>
 
       {/* ═══ FILTERS ═══ */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-        <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Buscar por evento..." />
-        <FilterInput value={searchBoxer} onChange={setSearchBoxer} placeholder="Buscar por boxeador..." />
-        <FilterSelect value={filterStatus} onChange={setFilterStatus} options={STATUS_OPTIONS} placeholder="Estado" />
-        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Categoría" />
-        <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Fecha desde" />
-        <FilterDate value={dateTo} onChange={setDateTo} placeholder="Fecha hasta" />
+        <FilterInput value={searchEvent} onChange={setSearchEvent} placeholder="Search by event..." />
+        <FilterInput value={searchBoxer} onChange={setSearchBoxer} placeholder="Search by boxer..." />
+        <FilterSelect value={filterStatus} onChange={setFilterStatus} options={STATUS_OPTIONS} placeholder="Status" />
+        <FilterSelect value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Category" />
+        <FilterDate value={dateFrom} onChange={setDateFrom} placeholder="Date from" />
+        <FilterDate value={dateTo} onChange={setDateTo} placeholder="Date to" />
       </FilterBar>
 
       {/* ═══ CONTENT ═══ */}
@@ -327,16 +330,16 @@ const FightList = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-[#F8FAFC] mb-2">No se encontraron peleas</h3>
-          <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">Prueba modificando los filtros o crea una nueva pelea.</p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-[#F8FAFC] mb-2">No fights found</h3>
+          <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">Try adjusting the filters or create a new fight.</p>
           <button
             onClick={() => navigate('/fights/create')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-800 rounded-xl hover:bg-red-900 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            Crear Pelea
+            Create Fight
           </button>
         </div>
       ) : (
@@ -347,20 +350,19 @@ const FightList = () => {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-slate-50/80 dark:bg-[#0B1120] z-10">
                   <tr className="border-b border-slate-200 dark:border-[#1E293B]">
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Evento</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Rojo</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Azul</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Fecha</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Categoría</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Árbitro</th>
-                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Estado</th>
-                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Jueces</th>
-                    <th className="text-right py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Acciones</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Event</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Red</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Blue</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Date</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Weight Class</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Referee</th>
+                    <th className="text-left py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Status</th>
+                    <th className="text-center py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Judges</th>
+                    <th className="text-right py-4 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredFights.map((fight, i) => {
-                    const st = getStatus(fight.status);
                     const pct = fight.min_judges_required > 0 ? (fight.confirmed_judges / fight.min_judges_required) * 100 : 0;
                     return (
                       <tr
@@ -419,7 +421,7 @@ const FightList = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              Ver
+                              View
                             </button>
                             {user?.role === 'admin' && (
                               <button
@@ -430,19 +432,19 @@ const FightList = () => {
                                     ? 'bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#374151] hover:border-slate-400 hover:shadow-sm'
                                     : 'bg-slate-50 dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] text-slate-400 dark:text-[#94A3B8] cursor-not-allowed'
                                 }`}
-                                title={!canEdit(fight.status) ? 'Solo se puede editar peleas pendientes o activas' : ''}
+                                title={!canEdit(fight.status) ? 'Only pending or active fights can be edited' : ''}
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                Editar
+                                Edit
                               </button>
                             )}
                             {user?.role === 'admin' && (
                               <button
                                 onClick={() => { setArchiveTarget(fight); setArchiveError(null); }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-[#1F2937] border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 hover:shadow-sm transition-all active:scale-[0.97]"
-                                title="Archivar pelea"
+                                title="Archive fight"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -459,10 +461,10 @@ const FightList = () => {
             </div>
             <div className="px-5 py-4 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
               <p className="text-xs text-slate-400 dark:text-[#94A3B8]">
-                Mostrando <span className="font-semibold text-slate-600 dark:text-[#F8FAFC]">{filteredFights.length}</span> de{' '}
-                <span className="font-semibold text-slate-600 dark:text-[#F8FAFC]">{fights.length}</span> peleas
+                Showing <span className="font-semibold text-slate-600 dark:text-[#F8FAFC]">{filteredFights.length}</span> of{' '}
+                <span className="font-semibold text-slate-600 dark:text-[#F8FAFC]">{fights.length}</span> fights
               </p>
-              <p className="text-xs text-slate-300 dark:text-[#94A3B8]/50">Temporada 2026</p>
+              <p className="text-xs text-slate-300 dark:text-[#94A3B8]/50">Season 2026</p>
             </div>
           </div>
 
@@ -480,7 +482,7 @@ const FightList = () => {
             ))}
             <div className="text-center pt-2 pb-4">
               <p className="text-xs text-slate-400 dark:text-[#94A3B8]">
-                {filteredFights.length} de {fights.length} peleas
+                {filteredFights.length} of {fights.length} fights
               </p>
             </div>
           </div>
@@ -490,7 +492,7 @@ const FightList = () => {
       <BaseModal isOpen={!!archiveTarget} onClose={() => !archiving && setArchiveTarget(null)}>
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-100 dark:border-[#1E293B] shadow-xl p-6">
           <ModalHeader
-            title="Archivar Pelea"
+            title="Archive Fight"
             description={archiveTarget?.event_name}
             type="danger"
           />
@@ -500,11 +502,11 @@ const FightList = () => {
               <span className="font-semibold">{archiveTarget?.boxer_blue}</span>
             </p>
             <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1 m-0">
-              {archiveTarget && new Date(archiveTarget.scheduled_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {archiveTarget && new Date(archiveTarget.scheduled_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
           </div>
           <p className="text-sm text-slate-600 dark:text-[#94A3B8] mb-0 m-0">
-            La pelea será archivada y <strong className="text-slate-800 dark:text-[#F8FAFC]">ya no aparecerá en el listado principal</strong>. Esta acción no elimina tarjetas, análisis ni estadísticas.
+            The fight will be archived and <strong className="text-slate-800 dark:text-[#F8FAFC]">will no longer appear in the main list</strong>. This action does not delete scorecards, analysis or statistics.
           </p>
           {archiveError && (
             <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-sm text-red-700 dark:text-red-300">
@@ -513,10 +515,10 @@ const FightList = () => {
           )}
           <ModalFooter>
             <ModalButton variant="secondary" onClick={() => setArchiveTarget(null)} disabled={archiving}>
-              Cancelar
+              Cancel
             </ModalButton>
             <ModalButton variant="danger" onClick={handleArchive} loading={archiving}>
-              {archiving ? 'Archivando...' : 'Archivar pelea'}
+              {archiving ? 'Archiving...' : 'Archive Fight'}
             </ModalButton>
           </ModalFooter>
         </div>

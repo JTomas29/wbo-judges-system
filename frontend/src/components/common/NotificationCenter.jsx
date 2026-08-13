@@ -18,7 +18,7 @@ const TYPE_CONFIG = {
     text: 'text-blue-600 dark:text-blue-400',
     ring: 'ring-blue-100 dark:ring-blue-800/30',
     dot: 'bg-blue-500',
-    label: 'Asignación',
+    label: 'Assignment',
     icon: (
       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -30,7 +30,7 @@ const TYPE_CONFIG = {
     text: 'text-amber-600 dark:text-amber-400',
     ring: 'ring-amber-100 dark:ring-amber-800/30',
     dot: 'bg-amber-500',
-    label: 'Estado',
+    label: 'Status',
     icon: (
       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.183" />
@@ -42,7 +42,7 @@ const TYPE_CONFIG = {
     text: 'text-red-600 dark:text-red-400',
     ring: 'ring-red-100 dark:ring-red-800/30',
     dot: 'bg-red-500',
-    label: 'Recordatorio',
+    label: 'Reminder',
     icon: (
       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
@@ -54,7 +54,7 @@ const TYPE_CONFIG = {
     text: 'text-emerald-600 dark:text-emerald-400',
     ring: 'ring-emerald-100 dark:ring-emerald-800/30',
     dot: 'bg-emerald-500',
-    label: 'Sistema',
+    label: 'System',
     icon: (
       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -72,13 +72,13 @@ const getDateGroup = (dateStr) => {
   const startOfWeek = new Date(startOfToday);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
 
-  if (date >= startOfToday) return 'Hoy';
-  if (date >= startOfYesterday) return 'Ayer';
-  if (date >= startOfWeek) return 'Esta semana';
-  return 'Más antiguas';
+  if (date >= startOfToday) return 'Today';
+  if (date >= startOfYesterday) return 'Yesterday';
+  if (date >= startOfWeek) return 'This week';
+  return 'Older';
 };
 
-const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Más antiguas'];
+const GROUP_ORDER = ['Today', 'Yesterday', 'This week', 'Older'];
 
 const groupNotifications = (notifications) => {
   const groups = {};
@@ -99,14 +99,14 @@ const getRelativeTime = (dateStr) => {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffMin < 1) return 'Ahora';
-  if (diffMin === 1) return 'Hace 1 min';
-  if (diffMin < 60) return `Hace ${diffMin} min`;
-  if (diffHr === 1) return 'Hace 1 hora';
-  if (diffHr < 24) return `Hace ${diffHr}h`;
-  if (diffDay === 1) return 'Ayer';
-  if (diffDay < 7) return `Hace ${diffDay} días`;
-  return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+  if (diffMin < 1) return 'Now';
+  if (diffMin === 1) return '1 min ago';
+  if (diffMin < 60) return `${diffMin} min ago`;
+  if (diffHr === 1) return '1 hour ago';
+  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffDay === 1) return 'Yesterday';
+  if (diffDay < 7) return `${diffDay} days ago`;
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 };
 
 const SkeletonCard = () => (
@@ -136,9 +136,9 @@ const EmptyState = () => (
         </svg>
       </div>
     </div>
-    <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8] mb-1">No tenés notificaciones</p>
+    <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8] mb-1">You have no notifications</p>
     <p className="text-xs text-slate-400 dark:text-slate-500 text-center max-w-[240px] leading-relaxed">
-      Las novedades importantes aparecerán aquí automáticamente.
+      Important updates will appear here automatically.
     </p>
   </div>
 );
@@ -161,7 +161,9 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
   return (
     <div
       onClick={handleClick}
-      className={`group relative px-4 py-3 border-b border-slate-100/60 dark:border-[#1E293B]/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-[#1E293B]/40 hover:pl-5 ${
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      className={`group relative px-4 py-3 border-b border-slate-100/60 dark:border-[#1E293B]/60 transition-all duration-200 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-[#1E293B]/40 hover:pl-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-inset ${
         isUnread
           ? 'bg-gradient-to-r from-red-50/40 via-white to-white dark:from-red-900/10 dark:via-[#0F172A] dark:to-[#0F172A] hover:from-red-50/60 dark:hover:from-red-900/15'
           : ''
@@ -181,6 +183,7 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
             </p>
             <button
               onClick={handleDelete}
+              aria-label="Delete notification"
               className="sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 shrink-0 mt-[-1px]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -301,11 +304,11 @@ const NotificationCenter = () => {
       setNotifications([]);
       setUnreadCount(0);
       prevUnreadRef.current = 0;
-      setFeedback({ type: 'success', message: 'Bandeja de notificaciones vaciada correctamente.' });
+      setFeedback({ type: 'success', message: 'Notification inbox cleared successfully.' });
       setShowClearModal(false);
       setTimeout(() => setIsOpen(false), 1200);
     } catch {
-      setFeedback({ type: 'error', message: 'Error al vaciar la bandeja de notificaciones.' });
+      setFeedback({ type: 'error', message: 'Error clearing the notification inbox.' });
     } finally {
       setClearing(false);
       setTimeout(() => setFeedback(null), 4000);
@@ -326,7 +329,7 @@ const NotificationCenter = () => {
   const handleDelete = async (id) => {
     const target = notifications.find((n) => n.id === id);
     if (!target) return;
-    const confirmed = window.confirm(`¿Eliminar la notificación "${target.title}"?`);
+    const confirmed = window.confirm(`Delete notification "${target.title}"?`);
     if (!confirmed) return;
     try {
       await deleteNotification(id);
@@ -343,7 +346,7 @@ const NotificationCenter = () => {
     setIsOpen(false);
     if (deleted) {
       navigate('/dashboard', {
-        state: { toast: { type: 'info', message: 'El contenido ya no está disponible' } },
+        state: { toast: { type: 'info', message: 'The content is no longer available' } },
       });
     } else {
       navigate(path);
@@ -374,6 +377,8 @@ const NotificationCenter = () => {
       {/* Bell button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Notifications"
+        aria-expanded={isOpen}
         className={`relative p-2 rounded-xl transition-all duration-200 ${
           isOpen
             ? 'text-wbo-700 bg-wbo-50 dark:text-wbo-400 dark:bg-wbo-500/10'
@@ -405,7 +410,7 @@ const NotificationCenter = () => {
           <div className="px-5 py-4 border-b border-slate-100 dark:border-[#1E293B] bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-sm shrink-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5 min-w-0">
-                <h2 className="text-[15px] font-bold text-slate-800 dark:text-[#F8FAFC] truncate">Notificaciones</h2>
+                <h2 className="text-[15px] font-bold text-slate-800 dark:text-[#F8FAFC] truncate">Notifications</h2>
                 {unreadCount > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40 animate-scaleIn shrink-0">
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -417,8 +422,8 @@ const NotificationCenter = () => {
                   <button
                     onClick={() => setShowClearModal(true)}
                     className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
-                    title="Vaciar bandeja"
-                    aria-label="Vaciar bandeja"
+                    title="Clear inbox"
+                    aria-label="Clear inbox"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -429,8 +434,8 @@ const NotificationCenter = () => {
                   <button
                     onClick={handleMarkAllRead}
                     className="p-2 rounded-lg text-slate-400 dark:text-slate-500 hover:text-wbo-700 dark:hover:text-wbo-400 hover:bg-wbo-50 dark:hover:bg-wbo-500/10 transition-all duration-200"
-                    title="Marcar todas como leídas"
-                    aria-label="Marcar todas como leídas"
+                    title="Mark all as read"
+                    aria-label="Mark all as read"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -441,7 +446,7 @@ const NotificationCenter = () => {
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200"
-                  aria-label="Cerrar"
+                  aria-label="Close"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -512,10 +517,10 @@ const NotificationCenter = () => {
         isOpen={showClearModal}
         onClose={() => { if (!clearing) setShowClearModal(false); }}
         onConfirm={handleClearAll}
-        title="Vaciar bandeja de notificaciones"
-        description="Se eliminarán todas las notificaciones de forma permanente. Esta acción no se puede deshacer."
-        confirmLabel="Vaciar bandeja"
-        cancelLabel="Cancelar"
+        title="Clear notification inbox"
+        description="All notifications will be permanently deleted. This action cannot be undone."
+        confirmLabel="Clear inbox"
+        cancelLabel="Cancel"
         danger
         loading={clearing}
       />

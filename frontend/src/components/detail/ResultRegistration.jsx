@@ -24,21 +24,21 @@ const ResultRegistration = ({ fight, onResultChange }) => {
     setError(null);
 
     if (!resultType) {
-      setError('Seleccione el tipo de resultado.');
+      setError('Select the result type.');
       return;
     }
     if (resultType !== 'nc' && !winner) {
-      setError('Indique el ganador de la pelea.');
+      setError('Indicate the winner of the fight.');
       return;
     }
     if (resultType !== 'decision' && resultType !== 'nc') {
       const roundNum = parseInt(round, 10);
       if (!roundNum || roundNum < 1 || roundNum > Number(fight.total_rounds)) {
-        setError(`Indique un round entre 1 y ${fight.total_rounds}.`);
+        setError(`Indicate a round between 1 and ${fight.total_rounds}.`);
         return;
       }
       if (!/^[0-9]{1,2}:[0-5][0-9]$/.test(time)) {
-        setError('Indique el tiempo con formato m:ss (ej: 2:35).');
+        setError('Indicate the time in m:ss format (e.g. 2:35).');
         return;
       }
     }
@@ -53,7 +53,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
       const res = await registerResult(fight.id, payload, token);
       if (onResultChange) onResultChange(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrar el resultado');
+      setError(err.response?.data?.message || 'Failed to register result');
     } finally {
       setSaving(false);
     }
@@ -68,30 +68,30 @@ const ResultRegistration = ({ fight, onResultChange }) => {
           </svg>
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Resultado oficial</h3>
-          <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Registro exclusivo del Supervisor del combate</p>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Official Result</h3>
+          <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Exclusive registration by the Fight Supervisor</p>
         </div>
       </div>
 
       {isRegistered ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-            <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Resultado</p>
+            <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Result</p>
             <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{RESULT_TYPE_LABELS[fight.result_type] || fight.result_type}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-            <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Ganador</p>
+            <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Winner</p>
             <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">{fight.result_winner || '—'}</p>
           </div>
           {isEarly ? (
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-              <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Round / Tiempo</p>
+              <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Round / Time</p>
               <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">R{fight.result_round} · {fight.result_time || '--:--'}</p>
             </div>
           ) : (
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-              <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Tipo</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Por puntos</p>
+              <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5 m-0">Type</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">By points</p>
             </div>
           )}
         </div>
@@ -99,13 +99,13 @@ const ResultRegistration = ({ fight, onResultChange }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Tipo de resultado *</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Result type *</label>
               <select
                 className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                 value={resultType}
                 onChange={(e) => setResultType(e.target.value)}
               >
-                <option value="">Seleccione...</option>
+                <option value="">Select...</option>
                 {RESULT_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
@@ -114,20 +114,20 @@ const ResultRegistration = ({ fight, onResultChange }) => {
 
             {(resultType && resultType !== 'nc') ? (
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Ganador *</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Winner *</label>
                 <select
                   className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                   value={winner}
                   onChange={(e) => setWinner(e.target.value)}
                 >
-                  <option value="">Seleccione...</option>
+                  <option value="">Select...</option>
                   <option value={fight.boxer_red}>{fight.boxer_red}</option>
                   <option value={fight.boxer_blue}>{fight.boxer_blue}</option>
                 </select>
               </div>
             ) : (
               <div className="flex items-end pb-1">
-                <p className="text-xs text-slate-400 dark:text-[#64748B] italic m-0">Una pelea sin decisión (NC) no tiene ganador.</p>
+                <p className="text-xs text-slate-400 dark:text-[#64748B] italic m-0">A fight with no decision (NC) has no winner.</p>
               </div>
             )}
           </div>
@@ -135,20 +135,20 @@ const ResultRegistration = ({ fight, onResultChange }) => {
           {resultType && resultType !== 'decision' && resultType !== 'nc' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Round de finalización *</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Final round *</label>
                 <select
                   className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                   value={round}
                   onChange={(e) => setRound(e.target.value)}
                 >
-                  <option value="">Seleccione...</option>
+                  <option value="">Select...</option>
                   {Array.from({ length: Number(fight.total_rounds) }, (_, i) => i + 1).map((r) => (
                     <option key={r} value={r}>Round {r}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Tiempo (m:ss) *</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Time (m:ss) *</label>
                 <input
                   type="text"
                   className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
@@ -166,11 +166,11 @@ const ResultRegistration = ({ fight, onResultChange }) => {
               disabled={saving}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 transition-all shadow-sm hover:shadow-md disabled:opacity-40"
             >
-              {saving ? 'Registrando...' : 'Registrar resultado'}
+              {saving ? 'Registering...' : 'Register result'}
             </button>
             {resultType && resultType !== 'decision' && resultType !== 'nc' && (
               <p className="text-[11px] text-slate-400 dark:text-[#64748B] italic m-0">
-                Al registrar este resultado la pelea quedará finalizada y no se podrán puntuar rounds posteriores.
+                By registering this result the fight will be finalized and later rounds can no longer be scored.
               </p>
             )}
           </div>
