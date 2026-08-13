@@ -14,6 +14,12 @@ const ROLES = [
 const primaryBtnClass =
   'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-bold text-white bg-wbo-700 shadow-md shadow-wbo-700/20 hover:bg-wbo-800 hover:shadow-lg hover:shadow-wbo-700/25 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100';
 
+const UserIcon = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path fillRule="evenodd" clipRule="evenodd" d="M6.5 7.5c0 3.035 2.465 5.5 5.5 5.5s5.5-2.465 5.5-5.5S15.035 2 12 2a5.503 5.503 0 0 0-5.5 5.5m1.5 0c0-2.205 1.795-4 4-4s4 1.795 4 4s-1.795 4-4 4s-4-1.795-4-4m10.57 10.91l1.015 3.785l1.45-.39l-1.015-3.785a4.76 4.76 0 0 0-4.59-3.52H8.57a4.75 4.75 0 0 0-4.59 3.52l-1.015 3.785l1.45.39L5.43 18.41A3.25 3.25 0 0 1 8.57 16h6.86c1.47 0 2.76.99 3.14 2.41" />
+  </svg>
+);
+
 const UserManagement = () => {
   const { token } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'judge' });
@@ -76,7 +82,7 @@ const UserManagement = () => {
       error={serverError}
       success={success}
       maxWidth="max-w-xl"
-      icon="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+      icon={<UserIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />}
     >
       <form onSubmit={handleSubmit}>
 

@@ -6,14 +6,14 @@ import JudgeRankingView from './JudgeRankingView';
 import RefereeRankingView from './RefereeRankingView';
 
 const JudgeIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" viewBox="0 0 24 24">
+    <path d="m20.01 18.51l-4.95-4.95m0 0l-3.54 3.54c-.78.78-2.05.78-2.83 0l-4.24-4.24c-.78-.78-.78-2.05 0-2.83l7.07-7.07c.78-.78 2.05-.78 2.83 0l4.24 4.24c.78.78.78 2.05 0 2.83zM2 21h6M6.56 7.92l7.07 7.07" />
   </svg>
 );
 
 const RefereeIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11 20a1 1 0 1 0 2 0zm5-6a1 1 0 1 0 0 2zm1 2a1 1 0 1 0 0-2zm-1-5l-.447.894a1 1 0 0 0 1.437-.753zm-8 0l-.99.141a1 1 0 0 0 1.437.753zm.78-7.625a1 1 0 0 0-1.56 1.25L8 4zm8 1.25a1 1 0 1 0-1.56-1.25L16 4zm-9.617.516l-.99.142zm9.674 0L15.847 5zM20 9.561h-1V18h2V9.562zM18 20v-1H6v2h12zM4 18h1V9.562H3V18zM5.515 7.621l.242.97l1.986-.496l-.243-.97l-.243-.97l-1.985.496zM16.5 7.125l-.242.97l1.985.496l.242-.97l.243-.97l-1.986-.496zM12 9h-1v11h2V9zm4 6v1h1v-2h-1zM8.153 4v1h7.694V3H8.153zm8.684 1.141L15.847 5l-.837 5.859L16 11l.99.141l.837-5.858zM16 11l.447-.894l-4-2L12 9l-.447.894l4 2zm-4-2l-.447-.894l-4 2L8 11l.447.894l4-2zm-4 2l.99-.141L8.153 5l-.99.141l-.99.142l.837 5.858zm4-2l.78-.625l-4-5L8 4l-.78.625l4 5zm0 0l.78.625l4-5L16 4l-.78-.625l-4 5zm-8 .562h1a1 1 0 0 1 .757-.97l-.242-.97l-.243-.97A3 3 0 0 0 3 9.561zM6 20v-1a1 1 0 0 1-1-1H3a3 3 0 0 0 3 3zm14-2h-1a1 1 0 0 1-1 1v2a3 3 0 0 0 3-3zM8.153 4V3a2 2 0 0 0-1.98 2.283l.99-.142l.99-.141zm7.694 0v1l.99.141l.99.142A2 2 0 0 0 15.847 3zM20 9.562h1a3 3 0 0 0-2.272-2.91l-.243.97l-.242.97a1 1 0 0 1 .757.97z" />
   </svg>
 );
 

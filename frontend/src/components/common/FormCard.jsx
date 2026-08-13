@@ -36,9 +36,13 @@ const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, 
       <div className="flex items-start gap-4 sm:gap-5 mt-6 sm:mt-8 mb-8 sm:mb-10 animate-[fadeIn_0.3s_ease-out]">
         {icon && (
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-lg shadow-wbo-700/20 ring-1 ring-white/10">
-            <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-            </svg>
+            {typeof icon === 'string' ? (
+              <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+              </svg>
+            ) : (
+              icon
+            )}
           </div>
         )}
         <div className="min-w-0 pt-1">

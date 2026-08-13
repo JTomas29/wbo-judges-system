@@ -93,7 +93,7 @@ const Login = () => {
           )}
         </form>
 
-        <div className="text-center text-xs text-gray-300 mt-5">
+        <div className="text-center text-xs text-gray-500 mt-5">
           WBO Judges Evaluation System v1.0
         </div>
       </div>
