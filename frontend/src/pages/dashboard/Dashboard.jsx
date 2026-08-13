@@ -157,20 +157,6 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-/* ─── System Status Item ─── */
-const SystemStatusItem = ({ label, status, uptime }) => (
-  <div className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0 dark:border-[#1E293B]">
-    <div className="flex items-center gap-2.5">
-      <span className="relative flex w-2 h-2">
-        {status === 'ok' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />}
-        <span className={`relative inline-flex rounded-full w-2 h-2 ${status === 'ok' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-      </span>
-      <span className="text-sm font-medium text-slate-700 dark:text-[#94A3B8]">{label}</span>
-    </div>
-    {uptime && <span className="text-[11px] text-slate-400 dark:text-slate-500">{uptime}</span>}
-  </div>
-);
-
 /* ─── Judge Card ─── */
 const JudgeCard = ({ judge, index }) => {
   const pct = judge.avg_match_pct !== null ? judge.avg_match_pct : 0;
@@ -183,25 +169,25 @@ const JudgeCard = ({ judge, index }) => {
   const barColor = pct >= 80 ? 'bg-emerald-500' : pct >= 60 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
-    <div className="group bg-white rounded-xl border border-slate-200 shadow-sm p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.from} ${c.to} text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm`}>
+    <div className="group bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+      <div className="flex items-center gap-4 mb-4">
+        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${c.from} ${c.to} text-white flex items-center justify-center text-base font-bold shrink-0 shadow-sm`}>
           {judgeInitials(judge.name)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-slate-900 truncate group-hover:text-red-800 transition-colors dark:text-[#F8FAFC] dark:group-hover:text-red-400">{judge.name}</p>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-base font-bold text-slate-900 truncate group-hover:text-red-800 transition-colors dark:text-[#F8FAFC] dark:group-hover:text-red-400">{judge.name}</p>
+          <div className="flex items-center gap-1.5 mt-1">
             {judge.level && levelBadge(judge.level)}
             {judge.level && <span className="text-slate-300 dark:text-slate-600">|</span>}
-            <span className="text-[11px] text-slate-400 dark:text-slate-500">{judge.total_analyzed || 0} fights</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">{judge.total_analyzed || 0} fights</span>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-bold text-slate-800 dark:text-[#94A3B8]">{pct.toFixed(0)}%</span>
+        <span className="text-sm font-bold text-slate-800 dark:text-[#94A3B8]">{pct.toFixed(0)}%</span>
         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-slate-500">Accuracy</span>
       </div>
-      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
+      <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
         <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -295,13 +281,6 @@ const Dashboard = () => {
     { label: 'Completed', value: stats.completed_fights, icon: 'completed', desc: 'Completed and analyzed', color: { bg: 'bg-blue-50', text: 'text-blue-700', top: 'border-t-[3px] border-t-blue-500' }, trend: null },
     { label: 'Judges', value: stats.total_judges, icon: 'judges', desc: 'Registered in the system', color: { bg: 'bg-amber-50', text: 'text-amber-700', top: 'border-t-[3px] border-t-amber-500' }, trend: null },
   ];
-
-  const statusDistribution = ['pending', 'active', 'completed', 'cancelled'].map((st) => {
-    const count = recent_fights.filter((f) => f.status === st).length;
-    return { ...getStatusColor(st), key: st, count };
-  }).filter((s) => s.count > 0);
-
-  const maxStatusCount = Math.max(...statusDistribution.map((s) => s.count), 1);
 
   const isEmpty = recent_fights.length === 0 && active_judges.length === 0;
 
@@ -503,45 +482,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* System Status */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">System Status</p>
-                <h3 className="text-lg font-bold text-slate-900 mb-3 dark:text-[#F8FAFC]">Services</h3>
-                <div className="divide-y divide-slate-100">
-                  <SystemStatusItem label="Database" status="ok" uptime="Connected" />
-                  <SystemStatusItem label="API REST" status="ok" uptime="Active" />
-                  <SystemStatusItem label="Server" status="ok" uptime="Responding" />
-                  <SystemStatusItem label="Authentication" status="ok" uptime="JWT active" />
-                </div>
-              </div>
-
-              {/* Status Distribution (mini chart) */}
-              {statusDistribution.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
-                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Distribution</p>
-                  <h3 className="text-lg font-bold text-slate-900 mb-4 dark:text-[#F8FAFC]">Fight status</h3>
-                  <div className="space-y-3">
-                    {statusDistribution.map((s) => (
-                      <div key={s.key}>
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${s.dot}`} />
-                            <span className="text-sm font-medium text-slate-700 dark:text-[#94A3B8]">{s.label}</span>
-                          </div>
-                          <span className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC]">{s.count}</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${s.dot.replace('bg-', 'bg-')}`}
-                            style={{ width: `${(s.count / maxStatusCount) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
             </div>
 
             {/* ── RIGHT COLUMN ── */}
@@ -628,72 +568,74 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Judges Detail Cards */}
-              {active_judges.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
-                  <div className="flex items-center justify-between mb-5">
-                    <div>
-                      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Judges Panel</p>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">Top Judges</h3>
-                    </div>
-                    {user?.role !== 'judge' && (
-                      <button
-                        onClick={() => navigate('/judges')}
-                        className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
-                      >
-                        View full panel
-                        <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {active_judges.slice(0, 3).map((judge, idx) => (
-                      <JudgeCard key={judge.id} judge={judge} index={idx} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Timeline / Recent Activity Log */}
-              {recent_fights.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
-                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Real-time Activity</p>
-                  <h3 className="text-lg font-bold text-slate-900 mb-4 dark:text-[#F8FAFC]">Recent Events</h3>
-                  <div className="space-y-0">
-                    {recent_fights.slice(0, 5).map((fight, i) => {
-                      const st = getStatusColor(fight.status);
-                      const isLast = i === Math.min(recent_fights.length, 5) - 1;
-                      const hour = fight.scheduled_date
-                        ? new Date(fight.scheduled_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                        : '--:--';
-                      return (
-                        <div key={fight.id} className="relative flex gap-4 pb-4 last:pb-0 group/timeline">
-                          {!isLast && <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-200 dark:bg-[#1E293B] group-last/timeline:hidden" />}
-                          <div className={`relative w-6 h-6 rounded-full border-2 border-white dark:border-[#111827] shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.bg} transition-transform duration-200 group-hover/timeline:scale-110`}>
-                            <div className={`w-2 h-2 rounded-full ${st.dot}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-slate-900 truncate dark:text-[#F8FAFC]">{fight.event_name}</p>
-                              <span className="text-[11px] text-slate-400 shrink-0 dark:text-slate-500">{hour}</span>
-                            </div>
-                            <p className="text-xs text-slate-500 mt-0.5 dark:text-[#94A3B8]">{fight.boxer_red} vs {fight.boxer_blue}</p>
-                            <div className="mt-1">
-                              <StatusBadge status={fight.status} />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
             </div>
           </div>
+
+          {/* ── Top Judges (full-width, bottom) ── */}
+          {active_judges.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Judges Panel</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC]">Top Judges</h3>
+                </div>
+                {user?.role !== 'judge' && (
+                  <button
+                    onClick={() => navigate('/judges')}
+                    className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    View full panel
+                    <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {active_judges.slice(0, 6).map((judge, idx) => (
+                  <JudgeCard key={judge.id} judge={judge} index={idx} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Real-time Activity (full-width, bottom) ── */}
+          {recent_fights.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:bg-[#111827] dark:border-[#1E293B]">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1 dark:text-[#94A3B8]">Real-time Activity</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC]">Recent Events</h3>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
+                {recent_fights.slice(0, 8).map((fight) => {
+                  const st = getStatusColor(fight.status);
+                  const hour = fight.scheduled_date
+                    ? new Date(fight.scheduled_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                    : '--:--';
+                  return (
+                    <div key={fight.id} className="relative flex gap-4 pb-5 last:pb-0 group/timeline">
+                      <div className={`relative w-7 h-7 rounded-full border-2 border-white dark:border-[#111827] shadow-sm flex items-center justify-center shrink-0 mt-0.5 ${st.bg} transition-transform duration-200 group-hover/timeline:scale-110`}>
+                        <div className={`w-2.5 h-2.5 rounded-full ${st.dot}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[15px] font-semibold text-slate-900 truncate dark:text-[#F8FAFC]">{fight.event_name}</p>
+                          <span className="text-xs text-slate-400 shrink-0 dark:text-slate-500">{hour}</span>
+                        </div>
+                        <p className="text-sm text-slate-500 mt-0.5 dark:text-[#94A3B8]">{fight.boxer_red} vs {fight.boxer_blue}</p>
+                        <div className="mt-1.5">
+                          <StatusBadge status={fight.status} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
