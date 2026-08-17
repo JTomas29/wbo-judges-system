@@ -388,6 +388,7 @@ const ScoreFight = () => {
   const [restriction, setRestriction] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
+  const [fightUpdateMessage, setFightUpdateMessage] = useState(null);
 
   const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
   const earlyEnded = fight ? isEarlyResult(fight) : false;
@@ -486,6 +487,42 @@ const ScoreFight = () => {
     load();
     return () => { cancelled = true; };
   }, [fightId, token, user]);
+
+  useEffect(() => {
+    if (!token || !fight || !scoreCard || isFinalized) return;
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const res = await getFightById(fightId, token);
+        if (cancelled) return;
+        const updated = res.data;
+
+        setFight((prev) => {
+          if (!prev) return prev;
+          const changed =
+            updated.result_type !== prev.result_type ||
+            updated.result_round !== prev.result_round ||
+            updated.result_winner !== prev.result_winner ||
+            updated.status !== prev.status;
+          if (changed && updated.result_type && isEarlyResult(updated)) {
+            const label = RESULT_TYPE_LABELS[updated.result_type] || updated.result_type;
+            setFightUpdateMessage(
+              `Fight ended by ${label} in round ${updated.result_round}. ` +
+              `You can complete your scorecard through round ${updated.result_round}. ` +
+              `Rounds after the knockout are unavailable.`
+            );
+          }
+          return changed ? updated : prev;
+        });
+      } catch {
+        /* polling should not break the UI */
+      }
+    };
+
+    const interval = setInterval(poll, 10000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [fightId, token, scoreCard, isFinalized, fight?.result_type]);
 
   const updateRound = useCallback((roundNum, field, value) => {
     if (isFinalized) return;
@@ -762,14 +799,24 @@ const ScoreFight = () => {
         <DraftHeader fight={fight} allComplete={allComplete} />
 
         {earlyEnded && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out]">
+          <div className={`rounded-xl p-4 flex items-start gap-3 animate-[fadeIn_0.3s_ease-out] border ${
+            fightUpdateMessage
+              ? 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700/50 shadow-md'
+              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/40'
+          }`}>
             <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700 dark:text-red-300 m-0">
-                The fight ended by {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round {fight.result_round}.
+                {fightUpdateMessage
+                  ? `Fight ended by ${RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round ${fight.result_round}.`
+                  : `The fight ended by ${RESULT_TYPE_LABELS[fight.result_type] || fight.result_type} in round ${fight.result_round}.`
+                }
               </p>
               <p className="text-xs text-red-600/90 dark:text-red-400/90 m-0 mt-0.5">
-                Only the rounds actually contested are scored (up to round {totalRounds}). Later rounds are blocked.
+                {fightUpdateMessage
+                  ? `You can complete your scorecard through round ${totalRounds}. Rounds after the knockout are unavailable.`
+                  : `Only the rounds actually contested are scored (up to round ${totalRounds}). Later rounds are blocked.`
+                }
               </p>
             </div>
           </div>

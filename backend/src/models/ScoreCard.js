@@ -60,8 +60,8 @@ ScoreCard.finalize = async (id) => {
   return rows[0] || null;
 };
 
-ScoreCard.getAllByFight = async (fightId) => {
-  const { rows } = await pool.query(`
+ScoreCard.getAllByFight = async (fightId, assignmentType = null) => {
+  let query = `
     SELECT
       u.id AS judge_id,
       u.name AS judge_name,
@@ -80,11 +80,19 @@ ScoreCard.getAllByFight = async (fightId) => {
     LEFT JOIN score_cards sc ON sc.fight_id = ja.fight_id AND sc.judge_id = ja.judge_id
     LEFT JOIN round_scores rs ON rs.score_card_id = sc.id
     WHERE ja.fight_id = $1
+  `;
+  const params = [fightId];
+  if (assignmentType) {
+    query += ` AND ja.assignment_type = $2::assignment_type`;
+    params.push(assignmentType);
+  }
+  query += `
     GROUP BY u.id, u.name, u.level, ja.assignment_type, sc.status,
              sc.total_score_red, sc.total_score_blue, sc.winner, sc.submitted_at,
              f.total_rounds
     ORDER BY u.name
-  `, [fightId]);
+  `;
+  const { rows } = await pool.query(query, params);
   return rows;
 };
 

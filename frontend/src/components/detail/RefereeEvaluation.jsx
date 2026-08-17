@@ -101,7 +101,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
 
   // Form state
   const [formStars, setFormStars] = useState(0);
-  const [formDeduction, setFormDeduction] = useState(0);
   const [formComments, setFormComments] = useState('');
 
   const isSupervisor = user?.role === 'supervisor';
@@ -121,13 +120,11 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
       const res = await getRefereeEvaluation(fight.id, token);
       setEvaluation(res.data);
       setFormStars(scoreToStars(res.data.score));
-      setFormDeduction(res.data.point_deduction);
       setFormComments(res.data.comments || '');
     } catch (err) {
       if (err.response?.status === 404) {
         setEvaluation(null);
         setFormStars(0);
-        setFormDeduction(0);
         setFormComments('');
       } else {
         setError(err.response?.data?.message || 'Failed to load evaluation');
@@ -161,12 +158,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     }
     const scoreNum = formStars * 2;
 
-    const deductionNum = parseInt(formDeduction, 10);
-    if (isNaN(deductionNum) || deductionNum < 0 || deductionNum > 5) {
-      setSaveError('The deduction must be a number between 0 and 5');
-      return;
-    }
-
     if (formComments && formComments.length > 500) {
       setSaveError('Comments cannot exceed 500 characters');
       return;
@@ -177,7 +168,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
       if (evaluation?.id) {
         const res = await updateRefereeEvaluation(evaluation.id, {
           score: scoreNum,
-          point_deduction: deductionNum,
+          point_deduction: 0,
           comments: formComments || null,
         }, token);
         setEvaluation(res.data);
@@ -188,7 +179,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
           fight_id: fight.id,
           referee_id: fight.referee?.id,
           score: scoreNum,
-          point_deduction: deductionNum,
+          point_deduction: 0,
           comments: formComments || null,
         }, token);
         setEvaluation(res.data);
@@ -205,7 +196,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   const handleEdit = () => {
     if (evaluation) {
       setFormStars(scoreToStars(evaluation.score));
-      setFormDeduction(evaluation.point_deduction);
       setFormComments(evaluation.comments || '');
     }
     setEditing(true);
@@ -214,11 +204,9 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   const handleCancel = () => {
     if (evaluation) {
       setFormStars(scoreToStars(evaluation.score));
-      setFormDeduction(evaluation.point_deduction);
       setFormComments(evaluation.comments || '');
     } else {
       setFormStars(0);
-      setFormDeduction(0);
       setFormComments('');
     }
     setEditing(false);
@@ -235,7 +223,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
       await deleteRefereeEvaluation(evaluation.id, token);
       setEvaluation(null);
       setFormStars(0);
-      setFormDeduction(0);
       setFormComments('');
       setEditing(false);
       if (onEvaluationChange) onEvaluationChange(null);
@@ -246,7 +233,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     }
   };
 
-  const finalScore = Math.max(0, (formStars || 0) * 2 - (parseInt(formDeduction, 10) || 0));
+  const finalScore = (formStars || 0) * 2;
 
   if (!canView) return null;
 
@@ -351,7 +338,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
             <div className="w-9 h-9 rounded-lg bg-wbo-100 dark:bg-wbo-900/30 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -361,17 +348,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
             <div className="min-w-0">
               <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Rating</p>
               <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{evaluation.score}/10</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
-            <div className="w-9 h-9 rounded-lg bg-wbo-100 dark:bg-wbo-900/30 flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4 text-wbo-700 dark:text-wbo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-0.5">Deduction</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">-{evaluation.point_deduction} pts</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-xl bg-wbo-50 dark:bg-wbo-900/20 border border-wbo-100 dark:border-wbo-800/30">
@@ -411,9 +387,9 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {/* Calificación */}
-          <div className="sm:col-span-2">
+          <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Rating <span className="text-red-500">*</span>
             </label>
@@ -428,22 +404,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
                 Score: {formStars ? formStars * 2 : '—'}/10
               </span>
             </div>
-          </div>
-
-          {/* Descuento */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
-              Deduction
-            </label>
-            <select
-              value={formDeduction}
-              onChange={(e) => setFormDeduction(parseInt(e.target.value, 10))}
-              className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-wbo-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
-            >
-              {[0, 1, 2, 3, 4, 5].map((v) => (
-                <option key={v} value={v}>{v} point{v !== 1 ? 's' : ''}</option>
-              ))}
-            </select>
           </div>
 
           {/* Puntaje Final */}
@@ -530,9 +490,9 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {/* Calificación */}
-          <div className="sm:col-span-2">
+          <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
               Rating <span className="text-red-500">*</span>
             </label>
@@ -547,22 +507,6 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
                 Score: {formStars ? formStars * 2 : '—'}/10
               </span>
             </div>
-          </div>
-
-          {/* Descuento */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">
-              Deduction
-            </label>
-            <select
-              value={formDeduction}
-              onChange={(e) => setFormDeduction(parseInt(e.target.value, 10))}
-              className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-wbo-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
-            >
-              {[0, 1, 2, 3, 4, 5].map((v) => (
-                <option key={v} value={v}>{v} point{v !== 1 ? 's' : ''}</option>
-              ))}
-            </select>
           </div>
 
           {/* Puntaje Final */}

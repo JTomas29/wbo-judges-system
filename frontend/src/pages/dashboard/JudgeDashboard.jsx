@@ -102,6 +102,19 @@ const JudgeDashboard = () => {
     if (token && user) loadData();
   }, [token, user, loadData]);
 
+  useEffect(() => {
+    if (!token || !user) return;
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const res = await getMyAssignments(token);
+        if (!cancelled) setAssignments(res.data || []);
+      } catch { /* silent */ }
+    };
+    const interval = setInterval(refresh, 15000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [token, user]);
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">

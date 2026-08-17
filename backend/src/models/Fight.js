@@ -219,21 +219,48 @@ Fight.registerResult = async (id, data) => {
 Fight.getRoundDetail = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
-      rs.score_card_id,
-      sc.judge_id,
-      rs.round_number,
-      rs.final_score_red AS judge_score_red,
-      rs.final_score_blue AS judge_score_blue,
-      ors.final_score_red AS official_score_red,
-      ors.final_score_blue AS official_score_blue
-    FROM round_scores rs
-    JOIN score_cards sc ON sc.id = rs.score_card_id
-    JOIN official_cards oc ON oc.fight_id = sc.fight_id
-    JOIN official_round_scores ors ON ors.official_card_id = oc.id AND ors.round_number = rs.round_number
-    JOIN fights f ON f.id = sc.fight_id
-    WHERE sc.fight_id = $1 AND sc.status = 'finalized'
-      AND rs.round_number <= COALESCE(NULLIF(f.result_round, 0), f.total_rounds)
-    ORDER BY sc.judge_id, rs.round_number
+      judge_id,
+      round_number,
+      judge_score_red,
+      judge_score_blue,
+      official_score_red,
+      official_score_blue
+    FROM (
+      -- Evaluation judges: score_cards + round_scores
+      SELECT
+        sc.judge_id,
+        rs.round_number,
+        rs.final_score_red  AS judge_score_red,
+        rs.final_score_blue AS judge_score_blue,
+        ors.final_score_red AS official_score_red,
+        ors.final_score_blue AS official_score_blue
+      FROM round_scores rs
+      JOIN score_cards sc ON sc.id = rs.score_card_id
+      JOIN official_cards oc ON oc.fight_id = sc.fight_id
+      JOIN official_round_scores ors ON ors.official_card_id = oc.id AND ors.round_number = rs.round_number
+      JOIN fights f ON f.id = sc.fight_id
+      WHERE sc.fight_id = $1 AND sc.status = 'finalized'
+        AND rs.round_number <= COALESCE(NULLIF(f.result_round, 0), f.total_rounds)
+
+      UNION ALL
+
+      -- Official judges: official_judge_cards + official_judge_round_scores
+      SELECT
+        ojc.judge_id,
+        ojrs.round_number,
+        ojrs.final_score_red  AS judge_score_red,
+        ojrs.final_score_blue AS judge_score_blue,
+        ors.final_score_red   AS official_score_red,
+        ors.final_score_blue  AS official_score_blue
+      FROM official_judge_round_scores ojrs
+      JOIN official_judge_cards ojc ON ojc.id = ojrs.official_judge_card_id
+      JOIN official_cards oc ON oc.fight_id = ojc.fight_id
+      JOIN official_round_scores ors ON ors.official_card_id = oc.id AND ors.round_number = ojrs.round_number
+      JOIN fights f ON f.id = ojc.fight_id
+      WHERE ojc.fight_id = $1
+        AND ojrs.round_number <= COALESCE(NULLIF(f.result_round, 0), f.total_rounds)
+    ) all_rounds
+    ORDER BY judge_id, round_number
   `, [fightId]);
   return rows;
 };

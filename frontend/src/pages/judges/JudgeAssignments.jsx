@@ -84,6 +84,19 @@ const JudgeAssignments = () => {
 
   useEffect(() => { loadAssignments(); }, [loadAssignments]);
 
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const res = await getMyAssignments(token);
+        if (!cancelled) setAssignments(res.data || []);
+      } catch { /* silent */ }
+    };
+    const interval = setInterval(refresh, 15000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [token]);
+
   const withState = useMemo(
     () => assignments.map((a) => ({ ...a, _state: getFightState(a) })),
     [assignments],

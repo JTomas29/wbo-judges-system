@@ -263,10 +263,14 @@ exports.complete = async (req, res, next) => {
       return res.status(400).json({ message: 'Solo se puede finalizar una pelea activa' });
     }
 
-    const scorecards = await ScoreCard.getAllByFight(Number(id));
-    const allFinalized = scorecards.every((sc) => sc.scorecard_status === 'finalized');
+    const scorecards = await ScoreCard.getAllByFight(Number(id), 'evaluation');
+    const allFinalized = scorecards.length > 0 && scorecards.every((sc) => sc.scorecard_status === 'finalized');
     if (!allFinalized) {
-      return res.status(400).json({ message: 'Todos los jueces deben haber enviado su tarjeta' });
+      const missing = scorecards
+        .filter((sc) => sc.scorecard_status !== 'finalized')
+        .map((sc) => sc.judge_name);
+      const detail = missing.length > 0 ? `: ${missing.join(', ')}` : '';
+      return res.status(400).json({ message: `All evaluation judges must have submitted their scorecards${detail}` });
     }
 
     const updated = await Fight.complete(Number(id));
@@ -536,10 +540,14 @@ exports.analyze = async (req, res, next) => {
       return res.status(400).json({ message: 'Debe existir una tarjeta oficial para poder analizar la pelea.' });
     }
 
-    const scorecards = await ScoreCard.getAllByFight(Number(id));
+    const scorecards = await ScoreCard.getAllByFight(Number(id), 'evaluation');
     const allFinalized = scorecards.length > 0 && scorecards.every((sc) => sc.scorecard_status === 'finalized');
     if (!allFinalized) {
-      return res.status(400).json({ message: 'Todos los jueces deben haber enviado su tarjeta para ejecutar el análisis.' });
+      const missing = scorecards
+        .filter((sc) => sc.scorecard_status !== 'finalized')
+        .map((sc) => sc.judge_name);
+      const detail = missing.length > 0 ? `: ${missing.join(', ')}` : '';
+      return res.status(400).json({ message: `All evaluation judges must have submitted their scorecards${detail}` });
     }
 
     const results = await Fight.analyze(Number(id));
