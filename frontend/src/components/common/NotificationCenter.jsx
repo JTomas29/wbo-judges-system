@@ -379,7 +379,7 @@ const NotificationCenter = () => {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
         aria-expanded={isOpen}
-        className={`relative p-2 rounded-xl transition-all duration-200 ${
+        className={`relative p-2 min-w-11 min-h-11 inline-flex items-center justify-center rounded-xl transition-all duration-200 ${
           isOpen
             ? 'text-wbo-700 bg-wbo-50 dark:text-wbo-400 dark:bg-wbo-500/10'
             : 'text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.06]'

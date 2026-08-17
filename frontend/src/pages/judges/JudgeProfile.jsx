@@ -6,7 +6,8 @@ import { getJudgeStatistics } from '../../services/statisticsService';
 import { getFightState } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
-import { BoltIcon, UserGroupIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
+import { BoltIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
+import { JudgeIcon } from '../../components/common/icons';
 import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
 
 const LEVEL_BADGE = {
@@ -41,7 +42,7 @@ const performanceBadge = (pct) => {
 };
 
 const statAccents = {
-  fights: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400', icon: UserGroupIcon },
+  fights: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400', icon: JudgeIcon },
   rounds: { border: 'border-t-amber-500', iconBg: 'bg-amber-50 dark:bg-amber-900/20', iconColor: 'text-amber-700 dark:text-amber-400', icon: BoltIcon },
   precision: { border: 'border-t-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/20', iconColor: 'text-emerald-700 dark:text-emerald-400', icon: ChartBarIcon },
   level: { border: 'border-t-violet-500', iconBg: 'bg-violet-50 dark:bg-violet-900/20', iconColor: 'text-violet-700 dark:text-violet-400', icon: ShieldCheckIcon },
@@ -334,7 +335,7 @@ const JudgeProfile = () => {
             <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
               <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-2">
-                  <UserGroupIcon className="w-4 h-4 text-blue-700 dark:text-blue-400" />
+                  <JudgeIcon className="w-4 h-4 text-blue-700 dark:text-blue-400" />
                 </div>
                 <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalFights}</p>
                 <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Fights</p>
@@ -407,7 +408,7 @@ const JudgeProfile = () => {
       )}
 
       {/* ── Assignments ── */}
-      <DetailSection icon={UserGroupIcon} title="Assignments" description="History of assigned fights">
+      <DetailSection icon={JudgeIcon} title="Assignments" description="History of assigned fights">
         {assignments.length === 0 ? (
           <div className="py-10 text-center">
             <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3 dark:bg-[#1F2937]">

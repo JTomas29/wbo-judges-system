@@ -229,13 +229,13 @@ const JudgeDashboard = () => {
             <span>Member since: {FORMAT_DATE(user?.created_at)}</span>
           </div>
           <div className="flex gap-2">
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
+            <button className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
               Edit profile
             </button>
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
+            <button className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 text-xs font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#111827] border border-slate-300 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-red-200 dark:hover:border-red-800/40 transition-all duration-250 active:scale-[0.97]">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
@@ -255,7 +255,7 @@ const JudgeDashboard = () => {
                 {assignments.length} assigned fight{assignments.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
+            <button onClick={() => navigate('/judges/assignments')} className="inline-flex items-center gap-1.5 px-4 py-3 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]">
               View all
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />

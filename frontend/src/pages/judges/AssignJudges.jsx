@@ -253,7 +253,7 @@ const AssignJudges = () => {
               style={{ width: `${progressPct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between mt-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mt-2.5">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                 atMax
@@ -276,7 +276,7 @@ const AssignJudges = () => {
             <button
               disabled={totalAssigned < MIN_JUDGES || activating}
               onClick={handleActivate}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-11 w-full sm:w-auto bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -399,7 +399,7 @@ const AssignJudges = () => {
                 <div className="min-w-[200px] flex-1">
                   <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Official Judge</label>
                   <select value={selectedOfficialJudge} onChange={(e) => setSelectedOfficialJudge(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
+                    className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
                     <option value="">— Select an official judge —</option>
                     {unassignedJudges.map((j) => (
                       <option key={j.id} value={j.id}>{j.name} ({j.level || 'no level'})</option>
@@ -407,7 +407,7 @@ const AssignJudges = () => {
                   </select>
                 </div>
                 <button disabled={!selectedOfficialJudge || assigning}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-11 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
                   onClick={() => handleAssign('official')}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -446,7 +446,7 @@ const AssignJudges = () => {
               <div className="min-w-[200px] flex-1">
                 <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Judge</label>
                 <select value={selectedJudge} onChange={(e) => setSelectedJudge(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
+                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
                   <option value="">— Select a judge —</option>
                   {unassignedJudges.map((j) => (
                     <option key={j.id} value={j.id}>{j.name} ({j.level || 'no level'})</option>
@@ -454,7 +454,7 @@ const AssignJudges = () => {
                 </select>
               </div>
               <button disabled={!selectedJudge || assigning}
-                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-bold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
                 onClick={() => handleAssign('evaluation')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

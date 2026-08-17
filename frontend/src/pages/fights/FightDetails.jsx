@@ -10,7 +10,8 @@ import ResultRegistration from '../../components/detail/ResultRegistration';
 import { RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
 import { Skeleton } from '../../components/common/Skeletons';
 import { DeleteModal } from '../../components/common/modals';
-import { MapPinIcon, CalendarIcon, BoltIcon, UserGroupIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, UsersIcon, StarIcon, Cog6ToothIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import { JudgeIcon, RefereeIcon, WeightIcon, RoundsIcon, TitleIcon } from '../../components/common/icons';
+import { MapPinIcon, CalendarIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, StarIcon, Cog6ToothIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const summaryAccents = {
   blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400' },
@@ -97,7 +98,7 @@ const SummaryCard = ({ icon: Icon, label, value, accent = 'blue' }) => {
 };
 
 const FighterCard = ({ name, corner, color }) => (
-  <div className={`bg-white dark:bg-[#111827] rounded-2xl border-2 shadow-sm p-6 sm:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-center group ${corner === 'red' ? 'border-red-200/60 dark:border-red-800/30' : 'border-blue-200/60 dark:border-blue-800/30'}`}>
+  <div className={`bg-white dark:bg-[#111827] rounded-2xl border-2 shadow-sm p-5 sm:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-center group ${corner === 'red' ? 'border-red-200/60 dark:border-red-800/30' : 'border-blue-200/60 dark:border-blue-800/30'}`}>
     <div className={`w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-white shadow-md transition-transform duration-300 group-hover:scale-110 ${color}`}>
       {initials(name)}
     </div>
@@ -121,7 +122,7 @@ const SimpleTabs = ({ active, onChange, children }) => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`relative px-5 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 ${
+          className={`relative px-5 py-2.5 min-h-11 text-xs font-bold rounded-xl transition-all duration-200 ${
             active === t.id
               ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-sm border-t-2 border-t-wbo-700'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-white/5'
@@ -250,7 +251,7 @@ const FightDetails = () => {
     <div className="space-y-8 animate-[fadeIn_0.3s_ease-out]">
 
       {/* ── Hero ── */}
-      <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-6 md:p-8 animate-[fadeIn_0.3s_ease-out]">
+      <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-5 sm:p-6 md:p-8 animate-[fadeIn_0.3s_ease-out]">
         <BackButton fallbackRoute="/fights" />
         <div className="mt-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight m-0 leading-tight">
@@ -318,8 +319,8 @@ const FightDetails = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <SummaryCard icon={MapPinIcon} label="Venue" value={fight.venue || '—'} accent="sky" />
         <SummaryCard icon={CalendarIcon} label="Date" value={formatDate(fight.scheduled_date)} accent="violet" />
-        <SummaryCard icon={BoltIcon} label="Rounds" value={`${fight.total_rounds} rounds`} accent="amber" />
-        <SummaryCard icon={UserGroupIcon} label="Judges" value={`${fight.assigned_judges?.length || 0} assigned`} accent="emerald" />
+        <SummaryCard icon={RoundsIcon} label="Rounds" value={`${fight.total_rounds} rounds`} accent="amber" />
+        <SummaryCard icon={JudgeIcon} label="Judges" value={`${fight.assigned_judges?.length || 0} assigned`} accent="emerald" />
         <SummaryCard icon={CheckBadgeIcon} label="Minimum" value={`${fight.min_judges_required || 3} judges`} accent="blue" />
       </div>
 
@@ -327,9 +328,7 @@ const FightDetails = () => {
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-violet-500 shadow-sm p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-violet-700 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
+            <RefereeIcon className="w-5 h-5 text-violet-700 dark:text-violet-400" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Referee</h3>
@@ -388,9 +387,7 @@ const FightDetails = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3 py-2">
-            <svg className="w-5 h-5 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
+            <RefereeIcon className="w-5 h-5 text-slate-300 dark:text-slate-600" />
             <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No referee has been assigned to this fight.</p>
           </div>
         )}
@@ -415,10 +412,10 @@ const FightDetails = () => {
               {[
                 { icon: CalendarIcon, label: 'Date', value: formatDate(fight.scheduled_date), a: detailAccents.blue },
                 { icon: MapPinIcon, label: 'Venue', value: fight.venue, a: detailAccents.sky },
-                { icon: Cog6ToothIcon, label: 'Weight Class', value: fight.weight_class, a: detailAccents.violet },
-                { icon: CheckBadgeIcon, label: 'Title', value: fight.title, a: detailAccents.amber },
-                { icon: BoltIcon, label: 'Rounds', value: `${fight.total_rounds} rounds`, a: detailAccents.red },
-                { icon: UserGroupIcon, label: 'Assigned judges', value: `${fight.assigned_judges?.length || 0} / 10`, a: detailAccents.emerald },
+                { icon: WeightIcon, label: 'Weight Class', value: fight.weight_class, a: detailAccents.violet },
+                { icon: TitleIcon, label: 'Title', value: fight.title, a: detailAccents.amber },
+                { icon: RoundsIcon, label: 'Rounds', value: `${fight.total_rounds} rounds`, a: detailAccents.red },
+                { icon: JudgeIcon, label: 'Assigned judges', value: `${fight.assigned_judges?.length || 0} / 10`, a: detailAccents.emerald },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                   <div className={`w-9 h-9 rounded-lg ${item.a.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
@@ -452,7 +449,7 @@ const FightDetails = () => {
         )}
 
         {activeTab === 'judges' && fight.assigned_judges?.length > 0 && (
-          <DetailSection icon={UsersIcon} title="Assigned Judges" description="Judges assigned to this fight">
+          <DetailSection icon={JudgeIcon} title="Assigned Judges" description="Judges assigned to this fight">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -474,9 +471,9 @@ const FightDetails = () => {
         )}
 
         {activeTab === 'judges' && (!fight.assigned_judges || fight.assigned_judges.length === 0) && (
-          <DetailSection icon={UsersIcon} title="Assigned Judges" description="Judges assigned to this fight">
+          <DetailSection icon={JudgeIcon} title="Assigned Judges" description="Judges assigned to this fight">
             <div className="flex items-center gap-3 py-2">
-              <UsersIcon className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+              <JudgeIcon className="w-5 h-5 text-slate-300 dark:text-slate-600" />
               <p className="text-sm text-slate-400 italic dark:text-slate-500 m-0">No judges assigned to this fight.</p>
             </div>
           </DetailSection>

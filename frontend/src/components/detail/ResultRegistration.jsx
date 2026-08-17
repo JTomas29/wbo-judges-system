@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { registerResult } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 import { RESULT_TYPE_OPTIONS, RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
@@ -11,6 +11,8 @@ const ResultRegistration = ({ fight, onResultChange }) => {
   const [time, setTime] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const timerRef = useRef(null);
 
   const isSupervisor = user?.role === 'supervisor';
   const isRegistered = !!fight?.result_type;
@@ -51,6 +53,9 @@ const ResultRegistration = ({ fight, onResultChange }) => {
         payload.time = time;
       }
       const res = await registerResult(fight.id, payload, token);
+      setSuccess(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setSuccess(false), 5000);
       if (onResultChange) onResultChange(res.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to register result');
@@ -72,6 +77,17 @@ const ResultRegistration = ({ fight, onResultChange }) => {
           <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mt-0.5">Exclusive registration by the Fight Supervisor</p>
         </div>
       </div>
+
+      {success && (
+        <div className="mb-4 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 animate-[fadeIn_0.3s_ease-out]">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 m-0">Result saved successfully</p>
+        </div>
+      )}
 
       {isRegistered ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

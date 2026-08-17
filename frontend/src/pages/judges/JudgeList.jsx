@@ -202,8 +202,8 @@ const JudgeList = () => {
             <thead>
               <tr className="bg-wbo-700 dark:bg-red-900/50 text-white rounded-lg">
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Name</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Email</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Level</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">Email</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">Level</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Status</th>
                   {isStaff && <th className="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider">Actions</th>}
               </tr>
@@ -212,8 +212,8 @@ const JudgeList = () => {
               {filteredJudges.map((juez) => (
                 <tr key={juez.id} className="border-b border-slate-100 dark:border-[#1E293B] last:border-0 hover:bg-slate-50 dark:hover:bg-[#1A2435] transition-colors">
                   <td className="py-3 px-4 font-semibold text-slate-800 dark:text-[#F8FAFC]">{juez.name}</td>
-                  <td className="py-3 px-4 text-slate-600 dark:text-[#94A3B8]">{juez.email}</td>
-                  <td className="py-3 px-4">
+                  <td className="py-3 px-4 text-slate-600 dark:text-[#94A3B8] hidden sm:table-cell">{juez.email}</td>
+                  <td className="py-3 px-4 hidden sm:table-cell">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
                       {levelIcon(juez.level)}
                       {juez.level || '—'}

@@ -131,14 +131,14 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
       </div>
 
       <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-[#1E293B]">
-        <button onClick={() => onView(fight.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all active:scale-[0.97]">
+        <button onClick={() => onView(fight.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-11 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all active:scale-[0.97]">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
           View
         </button>
         <button
           onClick={() => canEditFlag && onEdit(fight.id)}
           disabled={!canEditFlag}
-          className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] ${
+          className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-11 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] ${
             canEditFlag
               ? 'bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#374151] hover:border-slate-400'
               : 'bg-slate-50 dark:bg-[#1F2937] border border-slate-200 dark:border-[#374151] text-slate-400 dark:text-[#94A3B8] cursor-not-allowed'
@@ -151,7 +151,7 @@ const FightCard = ({ fight, onView, onEdit, canEditFlag, onArchive }) => {
         {onArchive && (
           <button
             onClick={() => onArchive(fight)}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] bg-white dark:bg-[#1F2937] border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:shadow-sm"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-11 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] bg-white dark:bg-[#1F2937] border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:shadow-sm"
             title="Archive fight"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -294,7 +294,7 @@ const FightList = () => {
         </div>
         <button
           onClick={() => navigate('/fights/create')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

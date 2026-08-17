@@ -8,6 +8,7 @@ import BackButton from '../../components/common/BackButton';
 import { PageActionButton } from '../../components/detail/PageActions';
 import { ConfirmModal } from '../../components/common/modals';
 import DeductionSelect from '../../components/common/DeductionSelect';
+import { WeightIcon } from '../../components/common/icons';
 import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon, BoltIcon, CheckIcon, ChatBubbleOvalLeftIcon, ChartBarIcon, ClockIcon, ExclamationTriangleIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 const formatDateTime = (d) => {
@@ -37,11 +38,19 @@ const roundFromServer = (rs) => ({
 const computeFinal = (score, deduction) =>
   score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
 
-const inputRedBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+const inputRedBase = "w-full min-h-12 px-3 py-3 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
-const inputBlueBase = "w-full px-3 py-3 text-center rounded-xl text-lg font-extrabold text-blue-700 dark:text-blue-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-900/60 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+const inputBlueBase = "w-full min-h-12 px-3 py-3 text-center rounded-xl text-lg font-extrabold text-blue-700 dark:text-blue-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-900/60 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
-const notesInputBase = "w-full px-4 py-3.5 rounded-xl text-sm text-slate-800 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:border-wbo-700 focus:ring-4 focus:ring-wbo-700/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
+const notesInputBase = "w-full min-h-12 px-4 py-3 rounded-xl text-base text-slate-800 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:border-wbo-700 focus:ring-4 focus:ring-wbo-700/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70 resize-y";
+
+const scrollToField = (e) => {
+  try {
+    e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  } catch {
+    /* ignore */
+  }
+};
 
 const SuccessHero = ({ submittedAt }) => (
   <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
@@ -230,9 +239,7 @@ const DraftHeader = ({ fight, allComplete }) => (
       </div>
       <div className="flex items-center gap-2.5 min-w-0">
         <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
-          <svg className="w-4 h-4 text-gold dark:text-gold-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-          </svg>
+          <WeightIcon className="w-4 h-4 text-gold dark:text-gold-light" />
         </div>
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Weight Class</p>
@@ -346,7 +353,7 @@ const ActionButtons = ({ navigate }) => (
   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-[fadeIn_0.6s_ease-out]">
     <button
       onClick={() => navigate('/dashboard')}
-      className="inline-flex items-center gap-2 px-6 py-3 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+      className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-4 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -355,7 +362,7 @@ const ActionButtons = ({ navigate }) => (
     </button>
     <button
       onClick={() => navigate('/judges/assignments')}
-      className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-sm font-semibold hover:border-red-200 dark:hover:border-red-800/40 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+      className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-4 bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#1E293B] text-slate-700 dark:text-[#94A3B8] rounded-xl text-sm font-semibold hover:border-red-200 dark:hover:border-red-800/40 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -844,9 +851,11 @@ const ScoreFight = () => {
                             type="number"
                             min="1"
                             max="10"
+                            inputMode="numeric"
                             value={data.score_red ?? ''}
                             onChange={(e) => updateRound(rn, 'score_red', e.target.value === '' ? null : Number(e.target.value))}
                             onBlur={() => handleBlur(rn)}
+                            onFocus={scrollToField}
                             disabled={isFinalized}
                             placeholder="10"
                             className={inputRedBase}
@@ -877,9 +886,11 @@ const ScoreFight = () => {
                             type="number"
                             min="1"
                             max="10"
+                            inputMode="numeric"
                             value={data.score_blue ?? ''}
                             onChange={(e) => updateRound(rn, 'score_blue', e.target.value === '' ? null : Number(e.target.value))}
                             onBlur={() => handleBlur(rn)}
+                            onFocus={scrollToField}
                             disabled={isFinalized}
                             placeholder="10"
                             className={inputBlueBase}
@@ -906,11 +917,12 @@ const ScoreFight = () => {
                             <ChatBubbleOvalLeftIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                             Notes
                           </label>
-                          <input
-                            type="text"
+                          <textarea
+                            rows={2}
                             value={data.notes || ''}
                             onChange={(e) => updateRound(rn, 'notes', e.target.value)}
                             onBlur={() => handleBlur(rn)}
+                            onFocus={scrollToField}
                             disabled={isFinalized}
                             placeholder="Add round observations..."
                             className={notesInputBase}
@@ -939,7 +951,7 @@ const ScoreFight = () => {
                   disabled={!allComplete || finalizing}
                   loading={finalizing}
                   icon={CheckIcon}
-                  className="px-10 py-3.5 text-base shadow-md"
+                  className="w-full sm:w-auto !py-4 text-base shadow-md"
                 >
                   {finalizing ? 'Submitting scorecard...' : 'Submit Official Scorecard'}
                 </PageActionButton>

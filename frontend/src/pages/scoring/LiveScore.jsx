@@ -5,15 +5,14 @@ import { getFightById, getScorecards, completeFight } from '../../services/fight
 import { getEffectiveTotalRounds } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import { Skeleton } from '../../components/common/Skeletons';
+import { JudgeIcon, WeightIcon, RoundsIcon } from '../../components/common/icons';
 import {
   CalendarIcon,
   MapPinIcon,
-  BoltIcon,
   ChartBarIcon,
   ClipboardDocumentCheckIcon,
   ClockIcon,
   ExclamationTriangleIcon,
-  UserGroupIcon,
   DocumentCheckIcon,
   HashtagIcon,
   InboxIcon,
@@ -105,13 +104,13 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
-    { icon: HashtagIcon, label: 'Rounds', value: `${maxCompleted} / ${getEffectiveTotalRounds(fight)}` },
+    { icon: WeightIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
+    { icon: RoundsIcon, label: 'Rounds', value: `${maxCompleted} / ${getEffectiveTotalRounds(fight)}` },
   ];
 
   return (
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
-      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
+      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-4 py-5 sm:px-8 sm:py-6">
         <div className="flex flex-wrap items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 shadow-inner">
             <svg className="w-7 h-7 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
@@ -129,7 +128,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
             {isActive && (
               <button
                 onClick={onRefresh}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 text-white ring-1 ring-white/25 text-xs font-bold hover:bg-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 rounded-xl bg-white/10 text-white ring-1 ring-white/25 text-xs font-bold hover:bg-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-sm"
               >
                 <ArrowPathIcon className="w-3.5 h-3.5" />
                 Refresh
@@ -139,7 +138,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
           </div>
         </div>
       </div>
-      <div className="px-6 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
+      <div className="px-4 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
         {infoItems.map((item) => (
           <div key={item.label} className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
@@ -152,7 +151,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
           </div>
         ))}
       </div>
-      <div className="px-6 sm:px-8 py-5">
+      <div className="px-4 sm:px-8 py-5">
         <div className="flex items-center justify-between mb-2">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
             <ChartBarIcon className="w-3.5 h-3.5 text-wbo-700 dark:text-wbo-400" />
@@ -189,6 +188,59 @@ const RoundBadges = ({ completed, total }) => (
   </div>
 );
 
+const MobileRoundChips = ({ completed, total }) => (
+  <div className="flex items-center gap-1.5 flex-wrap">
+    {Array.from({ length: total }, (_, i) => {
+      const done = i < completed;
+      return (
+        <span
+          key={i}
+          className={`min-w-[28px] h-7 rounded-lg text-[11px] font-bold flex items-center justify-center transition-colors duration-200 ${
+            done
+              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/40'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 ring-1 ring-slate-200 dark:ring-slate-700'
+          }`}
+        >
+          {i + 1}
+        </span>
+      );
+    })}
+  </div>
+);
+
+const JudgeCardMobile = ({ entry, totalRounds }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md p-4 transition-all duration-200 active:scale-[0.98]">
+    <div className="flex items-center gap-3 mb-3">
+      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-wbo-700 to-wbo-800 text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">
+        {initials(entry.judge_name)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0 truncate">{entry.judge_name}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          {entry.level && (
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B]">{entry.level}</span>
+          )}
+          {entry.assignment_type && (
+            <>
+              <span className="text-slate-300 dark:text-slate-600">·</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] capitalize">{entry.assignment_type}</span>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="shrink-0">
+        {statusBadge(entry.scorecard_status)}
+      </div>
+    </div>
+    <div className="mb-3">
+      <MobileRoundChips completed={entry.completed_rounds || 0} total={totalRounds || 0} />
+    </div>
+    <div className="pt-2.5 border-t border-slate-100 dark:border-[#1E293B]">
+      <ResultCell entry={entry} />
+    </div>
+  </div>
+);
+
 const ResultCell = ({ entry }) => {
   if (!entry.scorecard_status) return <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">Not started</span>;
   if (entry.scorecard_status === 'draft') return <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">In progress</span>;
@@ -208,7 +260,7 @@ const ResultCell = ({ entry }) => {
 
 const ScorecardsTable = ({ entries, totalRounds }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]">
-    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+    <div className="px-4 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
       <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
         <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" />
       </div>
@@ -217,13 +269,33 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
         <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Real-time status of each scorecard</p>
       </div>
     </div>
-    <div className="overflow-x-auto scrollbar-thin">
+
+    {/* Mobile: card layout */}
+    <div className="md:hidden">
+      {entries.length === 0 ? (
+        <div className="px-4 py-10 text-center text-slate-400 dark:text-[#94A3B8]">
+          <div className="flex flex-col items-center gap-2">
+            <JudgeIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+            <span className="text-sm">No judges are assigned to this fight.</span>
+          </div>
+        </div>
+      ) : (
+        <div className="p-3 space-y-2.5">
+          {entries.map((e) => (
+            <JudgeCardMobile key={e.judge_id} entry={e} totalRounds={totalRounds} />
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Desktop: table layout */}
+    <div className="hidden md:block overflow-x-auto scrollbar-thin">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-slate-50 dark:bg-[#0B1120]">
             <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Judge</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Level</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Type</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] hidden md:table-cell">Level</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] hidden md:table-cell">Type</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Rounds</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Status</th>
             <th className="text-right px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">Result</th>
@@ -234,7 +306,7 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
             <tr>
               <td colSpan="6" className="px-4 py-10 text-center text-slate-400 dark:text-[#94A3B8]">
                 <div className="flex flex-col items-center gap-2">
-                  <UserGroupIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                  <JudgeIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                   <span>No judges are assigned to this fight.</span>
                 </div>
               </td>
@@ -250,10 +322,10 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
                   <span className="font-semibold text-slate-900 dark:text-[#F8FAFC] truncate">{e.judge_name}</span>
                 </div>
               </td>
-              <td className="px-5 py-4">
+              <td className="px-5 py-4 hidden md:table-cell">
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold capitalize">{e.level}</span>
               </td>
-              <td className="px-5 py-4 text-slate-500 dark:text-[#94A3B8] capitalize">{e.assignment_type}</td>
+              <td className="px-5 py-4 text-slate-500 dark:text-[#94A3B8] capitalize hidden md:table-cell">{e.assignment_type}</td>
               <td className="px-5 py-4"><RoundBadges completed={e.completed_rounds || 0} total={totalRounds || 0} /></td>
               <td className="px-5 py-4 text-center">{statusBadge(e.scorecard_status)}</td>
               <td className="px-5 py-4 text-right"><ResultCell entry={e} /></td>
@@ -482,8 +554,8 @@ const LiveScore = () => {
           <StatCard icon={ChartBarIcon} label="Rounds completed" value={maxCompleted} suffix={totalRounds ? `/${totalRounds}` : ''} accent="emerald" delay={60} />
           <StatCard icon={DocumentCheckIcon} label="Scorecards received" value={received} accent="emerald" delay={120} />
           <StatCard icon={InboxIcon} label="Pending scorecards" value={pendingCards} accent="amber" delay={180} />
-          <StatCard icon={BoltIcon} label="Judges scoring" value={inProgress} accent="blue" delay={240} />
-          <StatCard icon={UserGroupIcon} label="Judges assigned" value={totalJudges} accent="red" delay={300} />
+          <StatCard icon={JudgeIcon} label="Judges scoring" value={inProgress} accent="blue" delay={240} />
+          <StatCard icon={JudgeIcon} label="Judges assigned" value={totalJudges} accent="red" delay={300} />
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">
@@ -507,7 +579,7 @@ const LiveScore = () => {
           <div className="flex flex-col items-center gap-3">
             {allFinalized ? (
               <button
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-wbo-700 text-white rounded-xl text-base font-bold shadow-md hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 w-full sm:w-auto bg-wbo-700 text-white rounded-xl text-base font-bold shadow-md hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 disabled={completing}
                 onClick={handleComplete}
               >

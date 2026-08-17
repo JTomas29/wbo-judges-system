@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getRefereeRanking } from '../../services/refereeRankingService';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { RankingSummaryCard, PositionBadge, ScoreBadge, StatusBadge } from '../../components/ranking/RankingBadges';
+import { RefereeIcon } from '../../components/common/icons';
 import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
 const formatDate = (d) => {
@@ -137,34 +138,53 @@ const RefereeRankingView = () => {
     );
   }
 
+  const positionBar = (i) => {
+    if (i === 0) return 'bg-[#C9A44C]';
+    if (i === 1) return 'bg-slate-400';
+    if (i === 2) return 'bg-[#CD7F32]';
+    return 'bg-slate-200 dark:bg-[#1E293B]';
+  };
+
+  const finalScoreColor = (s) => {
+    if (s >= 90) return 'text-emerald-600 dark:text-emerald-400';
+    if (s >= 75) return 'text-blue-600 dark:text-blue-400';
+    if (s >= 60) return 'text-amber-600 dark:text-amber-400';
+    if (s > 0) return 'text-red-600 dark:text-red-400';
+    return 'text-slate-400 dark:text-[#64748B]';
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <RankingSummaryCard
-          icon="M12 3v18m0-18c-2.5 2-4 4.5-4 7.5S9.5 16 12 18c2.5-2 4-4.5 4-7.5S14.5 5 12 3Zm-7 8h14"
+          accent="blue"
+          delay={0}
+          icon={<RefereeIcon className="w-5 h-5" />}
           value={summaryStats.totalReferees}
           label="Total Referees"
-          color="bg-blue-50 dark:bg-blue-900/20"
         />
         <RankingSummaryCard
+          accent="gold"
+          delay={80}
           icon="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
           value={summaryStats.bestReferee ? `${summaryStats.bestReferee.first_name} ${summaryStats.bestReferee.last_name}` : '—'}
           label="Top-Rated Referee"
           sublabel={summaryStats.bestReferee ? `Average: ${num(summaryStats.bestReferee.average_final_score).toFixed(1)}` : ''}
-          color="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <RankingSummaryCard
+          accent="emerald"
+          delay={160}
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={summaryStats.overallAvg.toFixed(1)}
           label="Average Final Score"
-          color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
+          accent="violet"
+          delay={240}
           icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
           value={summaryStats.totalEvaluations}
           label="Total Evaluations"
-          color="bg-purple-50 dark:bg-purple-900/20"
         />
       </div>
 
@@ -174,12 +194,14 @@ const RefereeRankingView = () => {
           value={searchName}
           onChange={setSearchName}
           placeholder="Search by name..."
+          icon="search"
         />
         <FilterSelect
           value={filterFederation}
           onChange={setFilterFederation}
           options={federations.map((f) => ({ value: f, label: f }))}
           placeholder="Federation"
+          icon="filter"
         />
         <FilterSelect
           value={filterStatus}
@@ -190,6 +212,7 @@ const RefereeRankingView = () => {
             { value: 'without_evaluations', label: 'Without evaluations' },
           ]}
           placeholder="Evaluations"
+          icon="filter"
         />
         <FilterSelect
           value={filterActive}
@@ -200,6 +223,7 @@ const RefereeRankingView = () => {
             { value: 'inactive', label: 'Inactive' },
           ]}
           placeholder="Status"
+          icon="filter"
         />
         <FilterSelect
           value={sortOrder}
@@ -211,10 +235,11 @@ const RefereeRankingView = () => {
             { value: 'average', label: 'Average Final Score' },
           ]}
           placeholder="Sort by"
+          icon="sort"
         />
       </FilterBar>
 
-      {/* Table */}
+      {/* List */}
       {filteredRanking.length === 0 ? (
         <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-10 text-center">
           <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#1F2937] flex items-center justify-center mx-auto mb-4">
@@ -225,105 +250,91 @@ const RefereeRankingView = () => {
           <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">No referees found</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0F172A]/50">
-                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider w-16">Pos</th>
-                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Referee</th>
-                  <th className="text-left py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden md:table-cell">Federation</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Fights</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Average Score</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Deduction</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Average Final Score</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Last Evaluation</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Status</th>
-                  <th className="text-center py-3.5 px-4 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRanking.map((ref) => (
-                  <tr
-                    key={ref.id}
-                    className="border-b border-slate-50 dark:border-[#1E293B] hover:bg-red-50/40 dark:hover:bg-[#1A2435] transition-colors"
-                  >
-                    <td className="py-3.5 px-4">
-                      <PositionBadge pos={num(ref.position)} />
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">
-                          {getInitials(ref.first_name, ref.last_name)}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">
-                            {ref.first_name} {ref.last_name}
-                          </p>
-                          {ref.license_number && (
-                            <p className="text-[10px] text-slate-400 dark:text-[#64748B]">Lic. {ref.license_number}</p>
-                          )}
-                        </div>
+        <div className="grid grid-cols-1 gap-4">
+          {filteredRanking.map((ref, i) => {
+            const finalScore = num(ref.average_final_score);
+            return (
+              <div
+                key={ref.id}
+                className="group relative bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+              >
+                <span className={`absolute inset-y-0 left-0 w-1 rounded-l-2xl ${positionBar(i)}`} />
+                <div className="flex flex-col xl:flex-row xl:items-center gap-5 xl:gap-8">
+                  {/* Identity */}
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <PositionBadge pos={num(ref.position)} />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-wbo-600 to-wbo-800 text-white flex items-center justify-center text-base font-bold shrink-0 shadow-md shadow-wbo-700/20 ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105">
+                      {getInitials(ref.first_name, ref.last_name)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-base sm:text-lg font-bold text-slate-900 truncate dark:text-[#F8FAFC]">
+                        {ref.first_name} {ref.last_name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {ref.license_number && (
+                          <span className="text-[11px] font-medium text-slate-400 dark:text-[#64748B]">Lic. {ref.license_number}</span>
+                        )}
+                        {ref.federation && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" />
+                            </svg>
+                            {ref.federation}
+                          </span>
+                        )}
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4 hidden md:table-cell">
-                      <span className="text-sm text-slate-600 dark:text-[#94A3B8]">
-                        {ref.federation || '—'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="text-sm font-bold text-slate-800 dark:text-[#F8FAFC]">
-                        {num(ref.total_fights)}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center hidden sm:table-cell">
-                      <ScoreBadge score={num(ref.average_score)} />
-                    </td>
-                    <td className="py-3.5 px-4 text-center hidden lg:table-cell">
-                      <span className="text-sm font-medium text-slate-600 dark:text-[#94A3B8]">
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 xl:w-[480px] xl:shrink-0">
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#64748B]">Fights</p>
+                      <p className="text-lg font-extrabold text-slate-800 dark:text-[#F8FAFC] tabular-nums">{num(ref.total_fights)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#64748B]">Avg Score</p>
+                      <div className="mt-1"><ScoreBadge score={num(ref.average_score)} /></div>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#64748B]">Deduction</p>
+                      <p className="text-lg font-bold text-slate-700 dark:text-[#94A3B8] tabular-nums">
                         {num(ref.average_deduction) > 0 ? `-${num(ref.average_deduction).toFixed(1)}` : '0'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`text-sm font-bold ${
-                        num(ref.average_final_score) >= 90
-                          ? 'text-green-600 dark:text-green-400'
-                          : num(ref.average_final_score) >= 75
-                            ? 'text-blue-600 dark:text-blue-400'
-                            : num(ref.average_final_score) >= 60
-                              ? 'text-amber-600 dark:text-amber-400'
-                              : num(ref.average_final_score) > 0
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-slate-400 dark:text-[#64748B]'
-                      }`}>
-                        {num(ref.average_final_score) > 0 ? num(ref.average_final_score).toFixed(1) : '—'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center hidden lg:table-cell">
-                      <span className="text-xs text-slate-500 dark:text-[#94A3B8] whitespace-nowrap">
-                        {formatDate(ref.last_evaluation)}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center hidden sm:table-cell">
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#64748B]">Avg Final</p>
+                      <p className={`text-lg font-extrabold tabular-nums ${finalScoreColor(finalScore)}`}>
+                        {finalScore > 0 ? finalScore.toFixed(1) : '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Status + Action */}
+                  <div className="flex items-center justify-between gap-4 xl:flex-col xl:items-end xl:gap-3 xl:shrink-0">
+                    <div className="flex items-center gap-2">
                       <StatusBadge active={ref.active} />
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => navigate(`/referees/${ref.id}/profile`)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-wbo-700 dark:text-wbo-400 bg-wbo-50 dark:bg-wbo-500/10 rounded-lg hover:bg-wbo-100 dark:hover:bg-wbo-500/20 transition-all duration-200"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        View Profile
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      {ref.last_evaluation && (
+                        <span className="hidden sm:inline text-xs text-slate-400 dark:text-[#64748B] whitespace-nowrap">
+                          Last: {formatDate(ref.last_evaluation)}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => navigate(`/referees/${ref.id}/profile`)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 min-h-11 rounded-xl text-xs font-bold text-wbo-700 dark:text-wbo-300 bg-wbo-50 dark:bg-wbo-500/10 ring-1 ring-wbo-200 dark:ring-wbo-500/20 hover:bg-wbo-100 dark:hover:bg-wbo-500/20 hover:ring-wbo-300 transition-all duration-200 active:scale-[0.97]"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      View Profile
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

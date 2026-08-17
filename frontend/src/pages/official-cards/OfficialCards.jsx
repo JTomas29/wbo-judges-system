@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightById, getOfficialCard, createOfficialCard } from '../../services/fightService';
@@ -6,6 +6,7 @@ import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../.
 import BackButton from '../../components/common/BackButton';
 import { ConfirmModal } from '../../components/common/modals';
 import { Skeleton } from '../../components/common/Skeletons';
+import { WeightIcon, RoundsIcon } from '../../components/common/icons';
 import {
   ClipboardDocumentCheckIcon,
   CalendarIcon,
@@ -60,7 +61,7 @@ const ResultCard = ({ label, value, icon, accent = 'red' }) => {
 };
 
 const SuccessHero = () => (
-  <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
+  <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-6 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 flex items-center justify-center mx-auto mb-5 animate-[scaleIn_0.5s_ease-out] shadow-md ring-1 ring-green-200/50 dark:ring-green-800/40">
       <svg className="w-8 h-8 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -122,7 +123,7 @@ const FightHeaderCard = ({ fight }) => (
 
 const SectionCard = ({ Icon, title, description, children }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden animate-[fadeIn_0.6s_ease-out]">
-    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B]">
+    <div className="px-4 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B]">
       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-wbo-50 to-wbo-100/60 dark:from-wbo-900/20 dark:to-wbo-800/10 flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
       </div>
@@ -184,13 +185,13 @@ const OfficialHeaderCard = ({ fight }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
-    { icon: ChartBarIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
+    { icon: WeightIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
+    { icon: RoundsIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
   ];
 
   return (
     <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
-      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
+      <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-4 py-5 sm:px-8 sm:py-6">
         <div className="flex flex-wrap items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-white/10 ring-1 ring-white/20 flex items-center justify-center shrink-0 shadow-inner">
             <ClipboardDocumentCheckIcon className="w-7 h-7 text-red-200" />
@@ -212,7 +213,7 @@ const OfficialHeaderCard = ({ fight }) => {
           </div>
         </div>
       </div>
-      <div className="px-6 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
+      <div className="px-4 py-4 sm:px-8 grid grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B]">
         {infoItems.map((item) => (
           <div key={item.label} className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center shrink-0 shadow-sm">
@@ -304,7 +305,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           <select
             value={data.deduction_red ?? 0}
             onChange={(e) => onChange('deduction_red', e.target.value)}
-            className="w-full px-2 py-1.5 text-center rounded-lg text-sm font-bold text-red-700 dark:text-red-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10"
+            className="w-full px-3 py-2.5 text-center rounded-lg text-base sm:text-sm font-bold text-red-700 dark:text-red-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10"
           >
             <option value={0}>0</option>
             <option value={1}>1</option>
@@ -338,7 +339,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           <select
             value={data.deduction_blue ?? 0}
             onChange={(e) => onChange('deduction_blue', e.target.value)}
-            className="w-full px-2 py-1.5 text-center rounded-lg text-sm font-bold text-blue-700 dark:text-blue-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+            className="w-full px-3 py-2.5 text-center rounded-lg text-base sm:text-sm font-bold text-blue-700 dark:text-blue-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
           >
             <option value={0}>0</option>
             <option value={1}>1</option>
@@ -446,7 +447,7 @@ const SubmitButton = ({ onClick, disabled, saving }) => (
   <button
     onClick={onClick}
     disabled={disabled || saving}
-    className="inline-flex items-center justify-center gap-2 px-10 py-3.5 rounded-xl text-base font-bold text-white bg-gradient-to-r from-wbo-700 to-wbo-800 shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:from-wbo-800 hover:to-wbo-900 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md"
+    className="inline-flex items-center justify-center gap-2 px-10 py-3.5 w-full sm:w-auto rounded-xl text-base font-bold text-white bg-gradient-to-r from-wbo-700 to-wbo-800 shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:from-wbo-800 hover:to-wbo-900 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md"
   >
     {saving ? (
       <span className="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full" />
@@ -594,7 +595,7 @@ const OfficialCards = () => {
           </div>
           <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">{error}</p>
           <button
-            className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
+            className="mt-6 px-8 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
             Back
@@ -619,7 +620,7 @@ const OfficialCards = () => {
           </div>
           <p className="text-yellow-900 dark:text-amber-300 font-medium text-base leading-relaxed">Only authorized staff can create the official scorecard.</p>
           <button
-            className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
+            className="mt-6 px-8 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors shadow-sm"
             onClick={() => navigate(-1)}
           >
             Back

@@ -5,6 +5,7 @@ import { getFightAnalysis } from '../../services/fightService';
 import { getEffectiveTotalRounds, isEarlyResult } from '../../utils/fightResult';
 import BackButton from '../../components/common/BackButton';
 import { Skeleton } from '../../components/common/Skeletons';
+import { JudgeIcon, WeightIcon, RoundsIcon } from '../../components/common/icons';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -14,7 +15,6 @@ import {
   CheckIcon,
   ExclamationTriangleIcon,
   UserGroupIcon,
-  HashtagIcon,
   TrophyIcon,
   CheckBadgeIcon,
   ScaleIcon,
@@ -121,8 +121,8 @@ const statAccents = {
 };
 
 const statItems = [
-  { key: 'total_judges', label: 'Judges analyzed', icon: UserGroupIcon, accent: 'blue' },
-  { key: 'total_rounds', label: 'Rounds analyzed', icon: ChartBarIcon, accent: 'violet' },
+  { key: 'total_judges', label: 'Judges analyzed', icon: JudgeIcon, accent: 'blue' },
+  { key: 'total_rounds', label: 'Rounds analyzed', icon: RoundsIcon, accent: 'violet' },
   { key: 'rounds_ok', label: 'Exact rounds', icon: CheckBadgeIcon, accent: 'emerald' },
   { key: 'rounds_error', label: 'Rounds with errors', icon: ExclamationTriangleIcon, accent: 'red' },
   { key: 'fights_ok', label: 'Perfect scorecards', icon: TrophyIcon, accent: 'gold' },
@@ -151,9 +151,9 @@ const AnalysisHeader = ({ fight }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
+    { icon: WeightIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
     {
-      icon: HashtagIcon,
+      icon: RoundsIcon,
       label: 'Rounds',
       value: `${effectiveRounds} of ${fight?.total_rounds ?? 0} rounds${early && fight?.result_round ? ` (end R${fight.result_round})` : ''}`,
     },
@@ -229,10 +229,10 @@ const OfficialCardTable = ({ fight, card }) => {
   return (
     <SectionCard Icon={ClipboardDocumentCheckIcon} title="Official Result" description="Official scorecard totals">
       <div className="overflow-x-auto scrollbar-thin">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[540px]">
           <thead>
             <tr className="bg-gradient-to-r from-wbo-700 to-wbo-800 text-white">
-              <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider">Round</th>
+              <th className="sticky left-0 z-10 bg-wbo-800 px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider">Round</th>
               <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
               <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
               <th className="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider">Winner</th>
@@ -241,7 +241,7 @@ const OfficialCardTable = ({ fight, card }) => {
           <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
             {card.rounds.map((r, i) => (
               <tr key={r.round_number} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
-                <td className="px-5 py-3"><RoundBadge roundNumber={r.round_number} /></td>
+                <td className={`sticky left-0 z-10 px-5 py-3 ${i % 2 === 1 ? 'bg-slate-50 dark:bg-[#0B1120]' : 'bg-white dark:bg-[#111827]'}`}><RoundBadge roundNumber={r.round_number} /></td>
                 <td className="px-5 py-3 text-center text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{r.score_red}</td>
                 <td className="px-5 py-3 text-center text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{r.score_blue}</td>
                 <td className="px-5 py-3 text-center"><WinnerBadge winner={r.winner} /></td>
@@ -250,7 +250,7 @@ const OfficialCardTable = ({ fight, card }) => {
           </tbody>
           <tfoot>
             <tr className="bg-amber-50/80 dark:bg-amber-900/10 border-t-2 border-amber-200/60 dark:border-amber-800/30">
-              <td className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">Total</td>
+              <td className="sticky left-0 z-10 bg-amber-50 dark:bg-[#1E293B] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">Total</td>
               <td className="px-5 py-3.5 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">{card.total_score_red}</td>
               <td className="px-5 py-3.5 text-center text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tabular-nums">{card.total_score_blue}</td>
               <td className="px-5 py-3.5 text-center"><WinnerBadge winner={overallWinner} /></td>

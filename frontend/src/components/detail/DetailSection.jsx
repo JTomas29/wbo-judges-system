@@ -1,7 +1,7 @@
 export default function DetailSection({ icon: Icon, title, description, children, className = '' }) {
   return (
     <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden ${className}`}>
-      <div className="px-5 py-4 border-b border-slate-100 dark:border-[#1E293B]">
+      <div className="px-4 sm:px-5 py-4 border-b border-slate-100 dark:border-[#1E293B]">
         <div className="flex items-center gap-2.5">
           {Icon && (
             <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center shrink-0">

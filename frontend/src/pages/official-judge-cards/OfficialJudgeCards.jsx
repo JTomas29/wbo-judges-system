@@ -7,11 +7,11 @@ import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../.
 import BackButton from '../../components/common/BackButton';
 import { ConfirmModal } from '../../components/common/modals';
 import { Skeleton } from '../../components/common/Skeletons';
+import { WeightIcon, RoundsIcon } from '../../components/common/icons';
 import {
   ClipboardDocumentCheckIcon,
   CalendarIcon,
   MapPinIcon,
-  BoltIcon,
   ChartBarIcon,
   CheckIcon,
   ClockIcon,
@@ -61,8 +61,8 @@ const OfficialHeaderCard = ({ fight }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight?.scheduled_date) },
     { icon: MapPinIcon, label: 'Venue', value: fight?.venue || '\u2014' },
-    { icon: BoltIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
-    { icon: ChartBarIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
+    { icon: WeightIcon, label: 'Weight Class', value: fight?.weight_class || '\u2014' },
+    { icon: RoundsIcon, label: 'Rounds', value: `${getEffectiveTotalRounds(fight)} rounds` },
   ];
 
   return (

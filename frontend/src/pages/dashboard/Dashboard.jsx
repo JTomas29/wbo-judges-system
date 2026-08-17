@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
 import JudgeDashboard from './JudgeDashboard';
 import { Skeleton } from '../../components/common/Skeletons';
+import { JudgeIcon } from '../../components/common/icons';
 
 const statusColors = {
   scheduled: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', label: 'Scheduled', icon: 'clock', border: 'border-amber-200 dark:border-amber-800/50' },
@@ -78,11 +79,11 @@ const AnimatedCounter = ({ value }) => {
 };
 
 const KpiIcon = ({ type }) => {
+  if (type === 'judges') return <JudgeIcon className="w-5 h-5" />;
   const icons = {
     fights: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
     active: 'M13 10V3L4 14h7v7l9-11h-7z',
     completed: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-    judges: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
   };
   return (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
@@ -307,7 +308,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={fetchData}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.97] shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.97] shadow-sm"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -316,7 +317,7 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={() => navigate('/fights/create')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-red-800 to-red-900 rounded-xl hover:from-red-900 hover:to-red-950 transition-all shadow-sm hover:shadow-md active:scale-[0.97]"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-semibold text-white bg-gradient-to-r from-red-800 to-red-900 rounded-xl hover:from-red-900 hover:to-red-950 transition-all shadow-sm hover:shadow-md active:scale-[0.97]"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -497,7 +498,7 @@ const Dashboard = () => {
                   {user?.role !== 'judge' && (
                     <button
                       onClick={() => navigate('/fights')}
-                      className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
+                      className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1 py-2 -my-2 min-h-11"
                     >
                       View all
                       <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -582,7 +583,7 @@ const Dashboard = () => {
                 {user?.role !== 'judge' && (
                   <button
                     onClick={() => navigate('/judges')}
-                    className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1"
+                    className="group text-sm font-semibold text-red-700 hover:text-red-800 transition-colors shrink-0 flex items-center gap-1 py-2 -my-2 min-h-11"
                   >
                     View full panel
                     <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">

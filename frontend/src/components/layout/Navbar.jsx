@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import logoSrc from '../../assets/logoWbo.png';
 import logoSrcDark from '../../assets/logoWboModoOscuro.png';
 import NotificationCenter from '../common/NotificationCenter';
+import { RefereeIcon } from '../common/icons';
 
 const roleLabels = {
   admin: 'Administrator',
@@ -75,12 +76,6 @@ const HistoryIcon = () => (
   </svg>
 );
 
-const ShirtIcon = () => (
-  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M11 20a1 1 0 1 0 2 0zm5-6a1 1 0 1 0 0 2zm1 2a1 1 0 1 0 0-2zm-1-5l-.447.894a1 1 0 0 0 1.437-.753zm-8 0l-.99.141a1 1 0 0 0 1.437.753zm.78-7.625a1 1 0 0 0-1.56 1.25L8 4zm8 1.25a1 1 0 1 0-1.56-1.25L16 4zm-9.617.516l-.99.142zm9.674 0L15.847 5zM20 9.561h-1V18h2V9.562zM18 20v-1H6v2h12zM4 18h1V9.562H3V18zM5.515 7.621l.242.97l1.986-.496l-.243-.97l-.243-.97l-1.985.496zM16.5 7.125l-.242.97l1.985.496l.242-.97l.243-.97l-1.986-.496zM12 9h-1v11h2V9zm4 6v1h1v-2h-1zM8.153 4v1h7.694V3H8.153zm8.684 1.141L15.847 5l-.837 5.859L16 11l.99.141l.837-5.858zM16 11l.447-.894l-4-2L12 9l-.447.894l4 2zm-4-2l-.447-.894l-4 2L8 11l.447.894l4-2zm-4 2l.99-.141L8.153 5l-.99.141l-.99.142l.837 5.858zm4-2l.78-.625l-4-5L8 4l-.78.625l4 5zm0 0l.78.625l4-5L16 4l-.78-.625l-4 5zm-8 .562h1a1 1 0 0 1 .757-.97l-.242-.97l-.243-.97A3 3 0 0 0 3 9.561zM6 20v-1a1 1 0 0 1-1-1H3a3 3 0 0 0 3 3zm14-2h-1a1 1 0 0 1-1 1v2a3 3 0 0 0 3-3zM8.153 4V3a2 2 0 0 0-1.98 2.283l.99-.142l.99-.141zm7.694 0v1l.99.141l.99.142A2 2 0 0 0 15.847 3zM20 9.562h1a3 3 0 0 0-2.272-2.91l-.243.97l-.242.97a1 1 0 0 1 .757.97z" />
-  </svg>
-);
-
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -130,7 +125,7 @@ const Navbar = () => {
       ? [{
           label: 'Referees',
           path: '/admin/referees',
-          icon: <ShirtIcon />,
+          icon: <RefereeIcon />,
         }]
       : []),
     ...(user?.role === 'admin'
@@ -194,7 +189,7 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="relative p-2 rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200 active:scale-90"
+                  className="relative p-2 min-w-11 min-h-11 inline-flex items-center justify-center rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200 active:scale-90"
                   title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
                 >
                   <span className={`block transition-transform duration-300 ease-out ${theme === 'light' ? 'rotate-0' : 'rotate-360'}`} style={{ transform: `rotate(${theme === 'light' ? '0deg' : '360deg'})` }}>
@@ -240,7 +235,7 @@ const Navbar = () => {
             {user && (
               <div className="lg:hidden flex items-center gap-2">
                 <NavLink to={`/profile/${user.id}`} onClick={() => setMobileOpen(false)}>
-                  <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-[11px] font-bold shadow-sm ring-2 ring-white dark:ring-[#0F172A] cursor-pointer select-none">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-xs font-bold shadow-sm ring-2 ring-white dark:ring-[#0F172A] cursor-pointer select-none">
                     {getInitials(user.name)}
                   </div>
                 </NavLink>
@@ -250,7 +245,7 @@ const Navbar = () => {
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
-              className="lg:hidden p-2 rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
+              className="lg:hidden p-2 min-w-11 min-h-11 inline-flex items-center justify-center rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-slate-600 dark:hover:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
@@ -269,13 +264,13 @@ const Navbar = () => {
         <div className="lg:hidden border-t border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] animate-fadeIn transition-colors duration-200">
           <div className="px-4 py-3 space-y-1">
             {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === '/dashboard'}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === '/dashboard'}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-wbo-700 dark:text-white bg-wbo-50 dark:bg-wbo-500/10 font-semibold border-l-[3px] border-wbo-700 dark:border-wbo-500'
                       : 'text-slate-600 dark:text-[#CBD5E1] hover:text-slate-900 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.04] border-l-[3px] border-transparent'
@@ -290,7 +285,7 @@ const Navbar = () => {
             {/* Mobile theme toggle */}
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 dark:text-[#CBD5E1] hover:text-slate-800 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.04] border-l-[3px] border-transparent transition-all duration-200"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-slate-500 dark:text-[#CBD5E1] hover:text-slate-800 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.04] border-l-[3px] border-transparent transition-all duration-200"
             >
               {theme === 'light' ? <MoonIconSm /> : <SunIconSm />}
               {theme === 'light' ? 'Dark mode' : 'Light mode'}
@@ -302,7 +297,7 @@ const Navbar = () => {
                 to={`/profile/${user.id}`}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-wbo-700 dark:text-white bg-wbo-50 dark:bg-wbo-500/10 font-semibold border-l-[3px] border-wbo-700 dark:border-wbo-500'
                       : 'text-slate-600 dark:text-[#CBD5E1] hover:text-slate-900 dark:hover:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-white/[0.04] border-l-[3px] border-transparent'
@@ -326,7 +321,7 @@ const Navbar = () => {
                 </div>
                   <button
                     onClick={logout}
-                    className="text-sm font-medium text-slate-400 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl px-3 py-1.5 hover:border-slate-300 dark:hover:border-[#334155] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-all shrink-0"
+                    className="text-sm font-medium text-slate-400 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] rounded-xl px-3.5 py-2 min-h-11 hover:border-slate-300 dark:hover:border-[#334155] hover:text-slate-600 dark:hover:text-[#F8FAFC] transition-all shrink-0"
                   >
                     Logout
                   </button>

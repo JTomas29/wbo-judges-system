@@ -3,28 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllStatistics } from '../../services/statisticsService';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
-import { RankingSummaryCard } from '../../components/ranking/RankingBadges';
+import { RankingSummaryCard, PositionBadge, LevelBadge, AccuracyBar } from '../../components/ranking/RankingBadges';
+import { JudgeIcon } from '../../components/common/icons';
 import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
-
-const levelBadge = (level) => {
-  if (!level) return null;
-  const colors = {
-    junior: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-    intermediate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-    senior: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-    elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  };
-  return (
-    <span className={`inline-block px-2.5 py-0.5 rounded-lg text-xs font-semibold ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}>
-      {level}
-    </span>
-  );
-};
-
-const barColor = (pct) => {
-  const value = Number(pct) || 0;
-  return value >= 80 ? 'bg-green-500' : value >= 60 ? 'bg-amber-500' : 'bg-red-500';
-};
 
 const JudgeRankingView = () => {
   const { token } = useAuth();
@@ -109,40 +90,51 @@ const JudgeRankingView = () => {
     );
   }
 
+  const positionBar = (i) => {
+    if (i === 0) return 'bg-[#C9A44C]';
+    if (i === 1) return 'bg-slate-400';
+    if (i === 2) return 'bg-[#CD7F32]';
+    return 'bg-slate-200 dark:bg-[#1E293B]';
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <RankingSummaryCard
-          icon="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          accent="blue"
+          delay={0}
+          icon={<JudgeIcon className="w-5 h-5" />}
           value={summaryStats.totalJudges}
           label="Total Judges"
-          color="bg-blue-50 dark:bg-blue-900/20"
         />
         <RankingSummaryCard
+          accent="gold"
+          delay={80}
           icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
           value={summaryStats.bestJudge ? summaryStats.bestJudge.name : '—'}
           label="Top Judge"
           sublabel={summaryStats.bestJudge ? `Accuracy: ${(Number(summaryStats.bestJudge.avg_match_pct) || 0).toFixed(1)}%` : ''}
-          color="bg-yellow-50 dark:bg-yellow-900/20"
         />
         <RankingSummaryCard
+          accent="emerald"
+          delay={160}
           icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           value={`${summaryStats.overallAvg.toFixed(1)}%`}
           label="Overall Accuracy"
-          color="bg-green-50 dark:bg-green-900/20"
         />
         <RankingSummaryCard
+          accent="violet"
+          delay={240}
           icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
           value={summaryStats.totalFights}
           label="Fights Evaluated"
-          color="bg-purple-50 dark:bg-purple-900/20"
         />
       </div>
 
       {/* Filters */}
       <FilterBar onClear={hasActiveFilters ? clearFilters : null}>
-        <FilterInput value={searchName} onChange={setSearchName} placeholder="Search by name..." />
+        <FilterInput value={searchName} onChange={setSearchName} placeholder="Search by name..." icon="search" />
         <FilterSelect
           value={filterLevel}
           onChange={setFilterLevel}
@@ -153,6 +145,7 @@ const JudgeRankingView = () => {
             { value: 'elite', label: 'Elite' },
           ]}
           placeholder="Level"
+          icon="filter"
         />
         <FilterSelect
           value={sortOrder}
@@ -164,6 +157,7 @@ const JudgeRankingView = () => {
             { value: 'fights_least', label: 'Least fights' },
           ]}
           placeholder="Sort by"
+          icon="sort"
         />
       </FilterBar>
 
@@ -181,47 +175,52 @@ const JudgeRankingView = () => {
             return (
               <div
                 key={judge.id}
-                className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
+                className="group relative bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
                 onClick={() => navigate(`/profile/${judge.id}`)}
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/profile/${judge.id}`); } }}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                <span className={`absolute inset-y-0 left-0 w-1 rounded-l-2xl ${positionBar(i)}`} />
+                <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-8">
                   <div className="flex items-center gap-4 min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-slate-300 dark:text-slate-600 w-6 text-right shrink-0">#{i + 1}</span>
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
-                        {initials}
-                      </div>
+                    <PositionBadge pos={i + 1} />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-base font-bold shrink-0 shadow-md shadow-red-900/20 ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105">
+                      {initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-base font-bold text-slate-900 truncate dark:text-[#F8FAFC]">{judge.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        {levelBadge(judge.level)}
-                        <span className="text-xs text-slate-500 dark:text-[#94A3B8]">{judge.total_fights} fights</span>
-                        <span className="text-xs text-slate-500 dark:text-[#94A3B8]">{judge.total_rounds} rounds</span>
+                      <p className="text-base sm:text-lg font-bold text-slate-900 truncate dark:text-[#F8FAFC]">{judge.name}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <LevelBadge level={judge.level} />
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-[#94A3B8]">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          {judge.total_fights} fights
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-[#94A3B8]">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {judge.total_rounds} rounds
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-6 sm:min-w-[400px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:w-[420px] lg:shrink-0">
                     <div>
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Historical accuracy</span>
-                        <span className="text-xs font-bold text-slate-700 dark:text-[#94A3B8]">{avgPct.toFixed(1)}%</span>
+                        <span className={`text-xs font-bold ${avgPct >= 80 ? 'text-emerald-600 dark:text-emerald-400' : avgPct >= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>{avgPct.toFixed(1)}%</span>
                       </div>
-                      <div className="h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
-                        <div className={`h-full rounded-full transition-all duration-700 ${barColor(avgPct)}`} style={{ width: `${Math.min(avgPct, 100)}%` }} />
-                      </div>
+                      <AccuracyBar value={avgPct} color="auto" delay={200 + i * 60} />
                     </div>
                     <div>
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Last 5 fights</span>
-                        <span className="text-xs font-bold text-slate-700 dark:text-[#94A3B8]">{last5.toFixed(1)}%</span>
+                        <span className={`text-xs font-bold ${last5 >= 80 ? 'text-emerald-600 dark:text-emerald-400' : last5 >= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>{last5.toFixed(1)}%</span>
                       </div>
-                      <div className="h-2 rounded-full bg-slate-100 overflow-hidden dark:bg-[#1F2937]">
-                        <div className={`h-full rounded-full transition-all duration-700 ${barColor(last5)}`} style={{ width: `${Math.min(last5, 100)}%` }} />
-                      </div>
+                      <AccuracyBar value={last5} color="auto" delay={300 + i * 60} />
                     </div>
                   </div>
                 </div>
