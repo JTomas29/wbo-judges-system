@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import { getJudgeById, getJudgeAssignments, getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
 import { getFightState } from '../../utils/fightResult';
-import BackButton from '../../components/common/BackButton';
 import DetailSection from '../../components/detail/DetailSection';
 import { BoltIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { JudgeIcon } from '../../components/common/icons';
@@ -39,31 +38,6 @@ const performanceBadge = (pct) => {
   if (pct >= 60) return { emoji: '🥈', label: 'Very good' };
   if (pct >= 40) return { emoji: '🥉', label: 'Good' };
   return { emoji: '📈', label: 'In progress' };
-};
-
-const statAccents = {
-  fights: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400', icon: JudgeIcon },
-  rounds: { border: 'border-t-amber-500', iconBg: 'bg-amber-50 dark:bg-amber-900/20', iconColor: 'text-amber-700 dark:text-amber-400', icon: BoltIcon },
-  precision: { border: 'border-t-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/20', iconColor: 'text-emerald-700 dark:text-emerald-400', icon: ChartBarIcon },
-  level: { border: 'border-t-violet-500', iconBg: 'bg-violet-50 dark:bg-violet-900/20', iconColor: 'text-violet-700 dark:text-violet-400', icon: ShieldCheckIcon },
-};
-
-const StatCard = ({ accent, label, value }) => {
-  const a = statAccents[accent];
-  const Icon = a.icon;
-  return (
-    <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-sm p-4 sm:p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 group`}>
-      <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-xl ${a.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110`}>
-          <Icon className={`w-5 h-5 ${a.iconColor}`} />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-[#64748B] m-0 leading-none">{label}</p>
-          <p className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] mt-1 m-0 leading-tight truncate">{value}</p>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const ProgressBar = ({ value, size = 'md' }) => {
@@ -224,87 +198,138 @@ const JudgeProfile = () => {
     <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-[fadeIn_0.3s_ease-out]">
 
       {/* ── Hero: Judge Header ── */}
-      <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-6 md:p-8">
-        <BackButton fallbackRoute={isOwnProfile ? '/dashboard' : '/judges'} />
-        <div className="mt-4 flex flex-col lg:flex-row lg:items-start gap-6">
-          <div className="flex items-start gap-5 flex-1 min-w-0">
-            <div className="shrink-0">
-              <div className="w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-2xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-md ring-2 ring-red-300 dark:ring-red-700/50">
-                {initials}
-              </div>
-            </div>
-            <div className="min-w-0 pt-1.5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight truncate dark:text-[#F8FAFC] m-0">{judge?.name}</h1>
-                <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 shadow-sm">
-                  <span>{pBadge.emoji}</span>
-                  <span>{pBadge.label}</span>
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 mt-1 dark:text-[#94A3B8] m-0">{judge?.email}</p>
-              <div className="flex items-center gap-2 mt-3">
-                <Badge className="bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50">
-                  Judge
-                </Badge>
-                <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
-                  {judge?.level || '—'}
-                </Badge>
-                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                  {judge?.is_active ? 'Active' : 'Inactive'}
-                </span>
-              </div>
-            </div>
+      <div className="relative overflow-hidden bg-gradient-to-br from-wbo-900 via-wbo-800 to-red-900 dark:from-[#111827] dark:via-[#1a1528] dark:to-[#2d1020] rounded-2xl border border-wbo-700/30 dark:border-[#1E293B] shadow-lg p-6 md:p-8">
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+        <div className="relative">
+          <div className="mb-5">
+            <button onClick={() => navigate(isOwnProfile ? '/dashboard' : '/judges')}
+              className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-0 bg-transparent border-0 cursor-pointer">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              {isOwnProfile ? 'Dashboard' : 'Judges'}
+            </button>
           </div>
-
-          {stats && totalFights > 0 && (
-            <div className="shrink-0 w-full lg:w-auto lg:min-w-[420px]">
-              <div className="border-t border-slate-100 dark:border-[#1E293B] pt-4 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-6 lg:border-slate-100 lg:dark:border-[#1E293B]">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center">
-                    <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalFights}</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Fights</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalRounds}</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Rounds</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{precision}%</p>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Accuracy</p>
-                  </div>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+            <div className="flex items-center gap-5 flex-1 min-w-0">
+              <div className="shrink-0">
+                <div className="w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-2xl bg-gradient-to-br from-white/20 to-white/5 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-xl ring-2 ring-white/20 backdrop-blur-sm">
+                  {initials}
                 </div>
-                <div className="mt-3">
-                  <ProgressBar value={precision} size="sm" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight truncate m-0">{judge?.name}</h1>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-white/15 text-amber-200 border border-white/10 backdrop-blur-sm">
+                    <span>{pBadge.emoji}</span>
+                    <span>{pBadge.label}</span>
+                  </span>
+                </div>
+                <p className="text-sm text-wbo-200 dark:text-[#94A3B8] mt-1 m-0">{judge?.email}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Badge className="bg-white/15 text-white border border-white/10 backdrop-blur-sm">
+                    Judge
+                  </Badge>
+                  <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
+                    {judge?.level || '—'}
+                  </Badge>
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-300 dark:text-green-400' : 'text-white/40 dark:text-slate-500'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-400' : 'bg-white/30 dark:bg-slate-600'}`} />
+                    {judge?.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
               </div>
             </div>
-          )}
 
-          {loading && (
-            <div className="shrink-0 flex items-center gap-3 py-4 px-6">
-              {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-20 w-28 rounded-xl shrink-0" />
-              ))}
-            </div>
-          )}
+            {stats && totalFights > 0 && (
+              <div className="shrink-0 w-full lg:w-auto lg:min-w-[420px]">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 lg:border-l lg:pl-5">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{totalFights}</p>
+                      <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Fights</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{totalRounds}</p>
+                      <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Rounds</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{precision}%</p>
+                      <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Accuracy</p>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-1000 ease-out" style={{ width: `${Math.min(precision, 100)}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {!loading && stats && totalFights === 0 && (
-            <div className="shrink-0 py-4 px-6 text-center">
-              <p className="text-sm text-slate-400 dark:text-[#64748B] m-0">No performance data yet.</p>
-              <p className="text-xs text-slate-300 dark:text-slate-600 mt-0.5 m-0">Complete their first fight to see statistics.</p>
-            </div>
-          )}
+            {loading && (
+              <div className="shrink-0 flex items-center gap-3 py-4 px-6">
+                {[0, 1, 2].map((i) => (
+                  <Skeleton key={i} className="h-20 w-28 rounded-xl shrink-0 bg-white/10" />
+                ))}
+              </div>
+            )}
+
+            {!loading && stats && totalFights === 0 && (
+              <div className="shrink-0 py-4 px-6 text-center">
+                <p className="text-sm text-wbo-200 dark:text-[#64748B] m-0">No performance data yet.</p>
+                <p className="text-xs text-wbo-300/60 dark:text-slate-600 mt-0.5 m-0">Complete their first fight to see statistics.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ── Stat cards ── */}
       {totalAssigned > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard accent="fights" label="Pending" value={pendingConfirm} />
-          <StatCard accent="rounds" label="Total" value={totalAssigned} />
-          <StatCard accent="precision" label="Active" value={activeScoring} />
-          <StatCard accent="level" label="Analyzed" value={analyzedCount} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/25 p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-800/30 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-500 dark:text-blue-400/70 m-0 leading-none">Pending</p>
+                <p className="text-lg font-extrabold text-blue-800 dark:text-blue-200 mt-1 m-0 leading-tight tabular-nums">{pendingConfirm}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-slate-200 dark:border-slate-700/30 p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700/30 flex items-center justify-center shrink-0">
+                <JudgeIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 m-0 leading-none">Total</p>
+                <p className="text-lg font-extrabold text-slate-800 dark:text-slate-200 mt-1 m-0 leading-tight tabular-nums">{totalAssigned}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-green-50 dark:bg-green-900/10 rounded-2xl border border-green-100 dark:border-green-800/25 p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-800/30 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-green-500 dark:text-green-400/70 m-0 leading-none">Active</p>
+                <p className="text-lg font-extrabold text-green-800 dark:text-green-200 mt-1 m-0 leading-tight tabular-nums">{activeScoring}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-violet-50 dark:bg-violet-900/10 rounded-2xl border border-violet-100 dark:border-violet-800/25 p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-800/30 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-violet-500 dark:text-violet-400/70 m-0 leading-none">Analyzed</p>
+                <p className="text-lg font-extrabold text-violet-800 dark:text-violet-200 mt-1 m-0 leading-tight tabular-nums">{analyzedCount}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -333,47 +358,47 @@ const JudgeProfile = () => {
             </div>
 
             <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/15 border border-blue-100 dark:border-blue-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-800/30 flex items-center justify-center mx-auto mb-2">
                   <JudgeIcon className="w-4 h-4 text-blue-700 dark:text-blue-400" />
                 </div>
-                <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalFights}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Fights</p>
+                <p className="text-lg font-extrabold text-blue-800 dark:text-blue-200 m-0 tabular-nums">{totalFights}</p>
+                <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400/60 uppercase tracking-wider mt-0.5 m-0">Fights</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-100 dark:border-amber-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-800/30 flex items-center justify-center mx-auto mb-2">
                   <BoltIcon className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                 </div>
-                <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{totalRounds}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Rounds</p>
+                <p className="text-lg font-extrabold text-amber-800 dark:text-amber-200 m-0 tabular-nums">{totalRounds}</p>
+                <p className="text-[10px] font-bold text-amber-500 dark:text-amber-400/60 uppercase tracking-wider mt-0.5 m-0">Rounds</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-violet-50 dark:bg-violet-900/15 border border-violet-100 dark:border-violet-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-800/30 flex items-center justify-center mx-auto mb-2">
                   <ShieldCheckIcon className="w-4 h-4 text-violet-700 dark:text-violet-400" />
                 </div>
-                <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 capitalize">{judge?.level || '—'}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Level</p>
+                <p className="text-sm font-extrabold text-violet-800 dark:text-violet-200 m-0 capitalize">{judge?.level || '—'}</p>
+                <p className="text-[10px] font-bold text-violet-500 dark:text-violet-400/60 uppercase tracking-wider mt-0.5 m-0">Level</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-100 dark:border-emerald-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-800/30 flex items-center justify-center mx-auto mb-2">
                   <CheckBadgeIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 </div>
-                <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{analyzedCount}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Analyzed</p>
+                <p className="text-lg font-extrabold text-emerald-800 dark:text-emerald-200 m-0 tabular-nums">{analyzedCount}</p>
+                <p className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400/60 uppercase tracking-wider mt-0.5 m-0">Analyzed</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-sky-50 dark:bg-sky-900/15 border border-sky-100 dark:border-sky-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-800/30 flex items-center justify-center mx-auto mb-2">
                   <ScaleIcon className="w-4 h-4 text-sky-700 dark:text-sky-400" />
                 </div>
-                <p className="text-lg font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0 tabular-nums">{stats?.history?.length || 0}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">History</p>
+                <p className="text-lg font-extrabold text-sky-800 dark:text-sky-200 m-0 tabular-nums">{stats?.history?.length || 0}</p>
+                <p className="text-[10px] font-bold text-sky-500 dark:text-sky-400/60 uppercase tracking-wider mt-0.5 m-0">History</p>
               </div>
-              <div className="text-center p-3 rounded-xl bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mx-auto mb-2">
+              <div className="text-center p-3 rounded-xl bg-rose-50 dark:bg-rose-900/15 border border-rose-100 dark:border-rose-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-800/30 flex items-center justify-center mx-auto mb-2">
                   <ArrowTrendingUpIcon className="w-4 h-4 text-rose-700 dark:text-rose-400" />
                 </div>
-                <p className="text-sm font-extrabold text-slate-900 dark:text-[#F8FAFC] m-0">{pBadge.label}</p>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mt-0.5 m-0">Consistency</p>
+                <p className="text-sm font-extrabold text-rose-800 dark:text-rose-200 m-0">{pBadge.label}</p>
+                <p className="text-[10px] font-bold text-rose-500 dark:text-rose-400/60 uppercase tracking-wider mt-0.5 m-0">Consistency</p>
               </div>
             </div>
           </div>
@@ -383,24 +408,24 @@ const JudgeProfile = () => {
       {/* ── Performance Bars ── */}
       {stats && totalFights > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+          <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800/25 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Overall Accuracy</span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400/70 uppercase tracking-wider">Overall Accuracy</span>
               <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(precision).color}`}>{precision}%</span>
             </div>
             <ProgressBar value={precision} size="md" />
           </div>
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+          <div className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/25 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Completed Fights</span>
-              <span className="text-xs font-extrabold text-slate-800 dark:text-[#F8FAFC] tabular-nums">{totalFights}</span>
+              <span className="text-xs font-bold text-blue-600 dark:text-blue-400/70 uppercase tracking-wider">Completed Fights</span>
+              <span className="text-xs font-extrabold text-blue-800 dark:text-blue-200 tabular-nums">{totalFights}</span>
             </div>
             <ProgressBar value={Math.min(totalFights * 10, 100)} size="md" />
           </div>
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+          <div className="bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/25 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">Rounds Scored</span>
-              <span className="text-xs font-extrabold text-slate-800 dark:text-[#F8FAFC] tabular-nums">{totalRounds}</span>
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-400/70 uppercase tracking-wider">Rounds Scored</span>
+              <span className="text-xs font-extrabold text-amber-800 dark:text-amber-200 tabular-nums">{totalRounds}</span>
             </div>
             <ProgressBar value={Math.min(totalRounds * 5, 100)} size="md" />
           </div>

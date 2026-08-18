@@ -151,14 +151,51 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
         <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">Details for each round</p>
       </div>
     </div>
-    <div className="overflow-x-auto scrollbar-thin">
+
+    {/* ── Mobile: card layout ── */}
+    <div className="md:hidden divide-y divide-slate-100 dark:divide-[#1E293B]">
+      {Array.from({ length: totalRounds }, (_, i) => {
+        const rn = i + 1;
+        const data = roundData[rn] || {};
+        const hasNotes = !!data.notes;
+        return (
+          <div key={rn} className={`px-4 py-3.5 ${i % 2 === 1 ? 'bg-slate-50/50 dark:bg-[#0B1120]/30' : ''}`}>
+            <div className="flex items-center justify-between mb-2.5">
+              <RoundBadge roundNumber={rn} />
+              {hasNotes && (
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-[#64748B] italic truncate max-w-[55%] text-right ml-2">{data.notes}</span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/15 rounded-xl px-3 py-2.5 border border-red-100 dark:border-red-800/25">
+                <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                <span className="text-xs font-semibold text-red-600 dark:text-red-300 truncate">{fight.boxer_red}</span>
+                <span className="ml-auto text-lg font-extrabold text-red-700 dark:text-red-400 tabular-nums shrink-0">
+                  {data.final_score_red ?? '\u2014'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/15 rounded-xl px-3 py-2.5 border border-blue-100 dark:border-blue-800/25">
+                <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                <span className="text-xs font-semibold text-blue-600 dark:text-blue-300 truncate">{fight.boxer_blue}</span>
+                <span className="ml-auto text-lg font-extrabold text-blue-700 dark:text-blue-400 tabular-nums shrink-0">
+                  {data.final_score_blue ?? '\u2014'}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* ── Desktop: enhanced table ── */}
+    <div className="hidden md:block overflow-x-auto scrollbar-thin">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-wbo-700 text-white">
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Round</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider rounded-tl-lg">Round</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-red-200">{fight.boxer_red}</th>
             <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-blue-200">{fight.boxer_blue}</th>
-            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Notes</th>
+            <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider rounded-tr-lg">Notes</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
@@ -169,13 +206,19 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
               <tr key={rn} className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}>
                 <td className="px-5 py-3.5"><RoundBadge roundNumber={rn} /></td>
                 <td className="px-5 py-3.5 text-center">
-                  <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.final_score_red ?? '\u2014'}</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-400 dark:bg-red-500/70" />
+                    <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.final_score_red ?? '\u2014'}</span>
+                  </span>
                   {data.deduction_red > 0 && (
                     <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
                   )}
                 </td>
                 <td className="px-5 py-3.5 text-center">
-                  <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.final_score_blue ?? '\u2014'}</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-400 dark:bg-blue-500/70" />
+                    <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.final_score_blue ?? '\u2014'}</span>
+                  </span>
                   {data.deduction_blue > 0 && (
                     <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
                   )}

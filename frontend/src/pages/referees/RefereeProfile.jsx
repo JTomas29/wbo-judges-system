@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getRefereeProfile } from '../../services/refereeRankingService';
-import BackButton from '../../components/common/BackButton';
+import { RefereeIcon } from '../../components/common/icons';
+import { ChartBarIcon, ArrowTrendingUpIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
 
 const formatDate = (d) => {
@@ -22,15 +23,51 @@ const getInitials = (first, last) => {
   return `${f}${l}`;
 };
 
-const StatCard = ({ icon, value, label, color }) => (
-  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color || 'bg-red-50 dark:bg-[#1F2937]'}`}>
-      <svg className="w-5 h-5 text-red-700 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-      </svg>
+const getResultMeta = (pct) => {
+  if (pct >= 80) return { label: 'Excellent', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800/50', bar: 'bg-gradient-to-r from-green-500 to-emerald-400' };
+  if (pct >= 60) return { label: 'Good', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', bar: 'bg-gradient-to-r from-amber-500 to-yellow-400' };
+  if (pct >= 40) return { label: 'Fair', color: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', bar: 'bg-gradient-to-r from-orange-500 to-amber-400' };
+  return { label: 'Needs improvement', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', bar: 'bg-gradient-to-r from-red-500 to-rose-400' };
+};
+
+const ProgressBar = ({ value, size = 'md' }) => {
+  const meta = getResultMeta(value);
+  const heights = { sm: 'h-1.5', md: 'h-2.5', lg: 'h-3.5' };
+  return (
+    <div className={`w-full ${heights[size]} rounded-full bg-slate-100 dark:bg-[#1E293B] overflow-hidden`}>
+      <div className={`${heights[size]} rounded-full ${meta.bar} transition-all duration-1000 ease-out`} style={{ width: `${Math.min(value, 100)}%` }} />
     </div>
-    <p className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] mb-0.5">{value}</p>
-    <p className="text-xs font-medium text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">{label}</p>
+  );
+};
+
+const SectionCard = ({ Icon, title, description, children, delay = 0 }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]" style={{ animationDelay: `${delay}ms` }}>
+    <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
+      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">
+        <Icon className="w-4 h-4 text-white" />
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] m-0">{title}</h3>
+        {description && <p className="text-xs text-slate-400 dark:text-[#64748B] m-0">{description}</p>}
+      </div>
+    </div>
+    {children}
+  </div>
+);
+
+const StatCard = ({ icon, value, label, color, iconBg, iconColor, labelColor, valueColor }) => (
+  <div className={`${color} rounded-2xl p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5`}>
+    <div className="flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
+        <svg className={`w-5 h-5 ${iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+        </svg>
+      </div>
+      <div className="min-w-0">
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${labelColor} m-0 leading-none`}>{label}</p>
+        <p className={`text-lg font-extrabold ${valueColor} mt-1 m-0 leading-tight tabular-nums`}>{value}</p>
+      </div>
+    </div>
   </div>
 );
 
@@ -239,162 +276,265 @@ const RefereeProfile = () => {
 
   return (
     <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-10 sm:pb-12">
-      <div className="max-w-[1440px] mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6 animate-[fadeIn_0.3s_ease-out]">
 
-        {/* Back */}
-        <div className="mb-2">
-          <BackButton fallbackRoute="/ranking?tab=arbitros" />
-        </div>
-
-        {/* Profile Header */}
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-6 transition-all duration-300 hover:shadow-md">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-3xl font-bold shadow-sm shrink-0">
-              {initials}
+        {/* ── Hero: Referee Header ── */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-wbo-900 via-wbo-800 to-red-900 dark:from-[#111827] dark:via-[#1a1528] dark:to-[#2d1020] rounded-2xl border border-wbo-700/30 dark:border-[#1E293B] shadow-lg p-6 md:p-8">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+          <div className="relative">
+            <div className="mb-5">
+              <button onClick={() => navigate('/ranking?tab=arbitros')}
+                className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-0 bg-transparent border-0 cursor-pointer">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                Ranking
+              </button>
             </div>
-            <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">
-                {profile.first_name} {profile.last_name}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2">
-                {profile.license_number && (
-                  <span className="text-xs font-medium text-slate-500 dark:text-[#94A3B8] bg-slate-100 dark:bg-[#1E293B] px-2.5 py-1 rounded-lg">
-                    License: {profile.license_number}
-                  </span>
-                )}
-                {profile.federation && (
-                  <span className="text-xs font-medium text-slate-500 dark:text-[#94A3B8] bg-slate-100 dark:bg-[#1E293B] px-2.5 py-1 rounded-lg">
-                    {profile.federation}
-                  </span>
-                )}
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-lg ${
-                  profile.active
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                }`}>
-                  {profile.active ? 'Active' : 'Inactive'}
-                </span>
+            <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+              <div className="flex items-start gap-5 flex-1 min-w-0">
+                <div className="shrink-0">
+                  <div className="w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-2xl bg-gradient-to-br from-white/20 to-white/5 text-white flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-xl ring-2 ring-white/20 backdrop-blur-sm">
+                    {initials}
+                  </div>
+                </div>
+                <div className="min-w-0 pt-1.5">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight truncate m-0">{profile.first_name} {profile.last_name}</h1>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/15 text-white border border-white/10 backdrop-blur-sm text-xs font-bold">
+                      <RefereeIcon className="w-3.5 h-3.5" />
+                      Arbitro
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 text-white border border-white/10 backdrop-blur-sm text-xs font-bold">
+                      WBO
+                    </span>
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${profile.active ? 'text-green-300 dark:text-green-400' : 'text-white/40 dark:text-slate-500'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${profile.active ? 'bg-green-400' : 'bg-white/30 dark:bg-slate-600'}`} />
+                      {profile.active ? 'Active' : 'Inactive'}
+                    </span>
+                    {profile.license_number && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 text-wbo-200 border border-white/10 backdrop-blur-sm text-xs font-bold">
+                        License: {profile.license_number}
+                      </span>
+                    )}
+                    {profile.federation && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 text-wbo-200 border border-white/10 backdrop-blur-sm text-xs font-bold">
+                        {profile.federation}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
+
+              {stats && stats.totalFights > 0 && (
+                <div className="shrink-0 w-full lg:w-auto lg:min-w-[360px]">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 lg:border-l lg:pl-5">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center">
+                        <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{stats.totalFights}</p>
+                        <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Peleas</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{stats.averageFinalScore.toFixed(1)}</p>
+                        <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Avg. Final</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-extrabold text-white m-0 tabular-nums">{stats.bestScore.toFixed(1)}</p>
+                        <p className="text-[10px] font-bold text-wbo-200 uppercase tracking-wider mt-0.5 m-0">Best</p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-1000 ease-out" style={{ width: `${Math.min(stats.averageFinalScore, 100)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* ── Stat Cards ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <StatCard
             icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
             value={stats.totalFights}
-            label="Fights"
-            color="bg-blue-50 dark:bg-blue-900/20"
+            label="Peleas"
+            color="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/25"
+            iconBg="bg-blue-100 dark:bg-blue-800/30"
+            iconColor="text-blue-600 dark:text-blue-400"
+            labelColor="text-blue-500 dark:text-blue-400/70"
+            valueColor="text-blue-800 dark:text-blue-200"
           />
           <StatCard
             icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             value={stats.averageFinalScore.toFixed(1)}
-            label="Average Final Score"
-            color="bg-green-50 dark:bg-green-900/20"
+            label="Avg. Final"
+            color="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/25"
+            iconBg="bg-green-100 dark:bg-green-800/30"
+            iconColor="text-green-600 dark:text-green-400"
+            labelColor="text-green-500 dark:text-green-400/70"
+            valueColor="text-green-800 dark:text-green-200"
           />
           <StatCard
             icon="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
             value={stats.bestScore.toFixed(1)}
-            label="Best Evaluation"
-            color="bg-yellow-50 dark:bg-yellow-900/20"
+            label="Mejor Eval."
+            color="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/25"
+            iconBg="bg-amber-100 dark:bg-amber-800/30"
+            iconColor="text-amber-600 dark:text-amber-400"
+            labelColor="text-amber-500 dark:text-amber-400/70"
+            valueColor="text-amber-800 dark:text-amber-200"
           />
           <StatCard
             icon="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
             value={stats.worstScore.toFixed(1)}
-            label="Worst Evaluation"
-            color="bg-red-50 dark:bg-red-900/20"
+            label="Peor Eval."
+            color="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800/25"
+            iconBg="bg-red-100 dark:bg-red-800/30"
+            iconColor="text-red-600 dark:text-red-400"
+            labelColor="text-red-500 dark:text-red-400/70"
+            valueColor="text-red-800 dark:text-red-200"
           />
           <StatCard
             icon="M20 12H4m16 0a8 8 0 01-8 8m8-8a8 8 0 00-8-8m0 0a8 8 0 00-8 8m8-8v16"
             value={stats.averageDeduction.toFixed(1)}
-            label="Avg. Deduction"
-            color="bg-purple-50 dark:bg-purple-900/20"
+            label="Avg. Deduccion"
+            color="bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/25"
+            iconBg="bg-violet-100 dark:bg-violet-800/30"
+            iconColor="text-violet-600 dark:text-violet-400"
+            labelColor="text-violet-500 dark:text-violet-400/70"
+            valueColor="text-violet-800 dark:text-violet-200"
           />
         </div>
 
-        {/* Evolution Chart */}
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-6 transition-all duration-300 hover:shadow-md">
-          <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC] mb-4">Score Evolution</h3>
-          <EvolutionChart data={history} />
-        </div>
+        {/* ── Rendimiento ── */}
+        {stats && stats.totalFights > 0 && (
+          <SectionCard Icon={ArrowTrendingUpIcon} title="Rendimiento del Arbitro" description="Indicadores de desempeno general" delay={100}>
+            <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/25 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400/70 uppercase tracking-wider">Precision General</span>
+                  <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(stats.averageFinalScore).color}`}>{stats.averageFinalScore.toFixed(1)}%</span>
+                </div>
+                <ProgressBar value={stats.averageFinalScore} size="lg" />
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-800/25 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400/70 uppercase tracking-wider">Consistencia</span>
+                  <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(Math.max(0, 100 - (stats.bestScore - stats.worstScore))).color}`}>{Math.max(0, Math.round(100 - (stats.bestScore - stats.worstScore)))}%</span>
+                </div>
+                <ProgressBar value={Math.max(0, 100 - (stats.bestScore - stats.worstScore))} size="lg" />
+              </div>
+            </div>
+          </SectionCard>
+        )}
 
-        {/* Evaluation History */}
-        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-          <div className="px-6 pt-5 pb-3 border-b border-slate-100 dark:border-[#1E293B]">
-            <h3 className="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Evaluation History</h3>
-            <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
-              {history.length} evaluation{history.length !== 1 ? 's' : ''} recorded
-            </p>
+        {/* ── Evolution Chart ── */}
+        <SectionCard Icon={ChartBarIcon} title="Evolucion de Puntuacion" description="Tendencia de calificaciones a lo largo del tiempo" delay={200}>
+          <div className="p-5 sm:p-6">
+            <EvolutionChart data={history} />
           </div>
+        </SectionCard>
 
+        {/* ── Evaluation History ── */}
+        <SectionCard Icon={TrophyIcon} title="Historial de Evaluaciones" description={`${history.length} evaluacion${history.length !== 1 ? 'es' : ''} registrada${history.length !== 1 ? 's' : ''}`} delay={300}>
           {history.length === 0 ? (
-            <div className="p-10 text-center">
-              <p className="text-sm font-semibold text-slate-500 dark:text-[#94A3B8]">
-                This referee has no recorded evaluations
-              </p>
+            <div className="py-10 text-center">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3 dark:bg-[#1F2937]">
+                <svg className="w-6 h-6 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-sm font-semibold text-slate-600 dark:text-[#94A3B8] m-0">Sin evaluaciones</p>
+              <p className="text-xs text-slate-400 mt-1 dark:text-slate-500 m-0">Este arbitro no tiene evaluaciones registradas aun.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0F172A]/50">
-                    <th className="text-left py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Date</th>
-                    <th className="text-left py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Event</th>
-                    <th className="text-left py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden sm:table-cell">Supervisor</th>
-                    <th className="text-center py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Rating</th>
-                    <th className="text-center py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden md:table-cell">Deduction</th>
-                    <th className="text-center py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider">Final Score</th>
-                    <th className="text-left py-3.5 px-6 text-[10px] font-semibold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider hidden lg:table-cell">Comments</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((evalItem) => (
-                    <tr
-                      key={evalItem.id}
-                      className="border-b border-slate-50 dark:border-[#1E293B] hover:bg-red-50/40 dark:hover:bg-[#1A2435] transition-colors cursor-pointer"
-                      onClick={() => navigate(`/analysis/${evalItem.fight_id}`)}
-                    >
-                      <td className="py-3.5 px-6 text-xs text-slate-600 dark:text-[#94A3B8] whitespace-nowrap">
-                        {formatDate(evalItem.evaluation_date)}
-                      </td>
-                      <td className="py-3.5 px-6 font-semibold text-slate-800 dark:text-[#F8FAFC] text-sm">
-                        {evalItem.event_name}
-                      </td>
-                      <td className="py-3.5 px-6 text-sm text-slate-600 dark:text-[#94A3B8] hidden sm:table-cell">
-                        {evalItem.supervisor_name}
-                      </td>
-                      <td className="py-3.5 px-6 text-center">
+            <>
+              {/* ── Mobile: cards ── */}
+              <div className="md:hidden divide-y divide-slate-100 dark:divide-[#1E293B]">
+                {history.map((evalItem) => {
+                  const finalMeta = getResultMeta(evalItem.final_score);
+                  return (
+                    <div key={evalItem.id} onClick={() => navigate(`/analysis/${evalItem.fight_id}`)}
+                      className="px-4 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1A2435] transition-colors active:bg-slate-100 dark:active:bg-[#0B1120]">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC] m-0 leading-tight">{evalItem.event_name}</p>
                         <ScoreBadge score={evalItem.score} />
-                      </td>
-                      <td className="py-3.5 px-6 text-center hidden md:table-cell">
-                        <span className="text-sm font-medium text-slate-600 dark:text-[#94A3B8]">
-                          {evalItem.point_deduction > 0 ? `-${evalItem.point_deduction}` : '0'}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-[#94A3B8] mb-2.5">
+                        <span className="inline-flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                          {formatDate(evalItem.evaluation_date)}
                         </span>
-                      </td>
-                      <td className="py-3.5 px-6 text-center">
-                        <span className={`text-sm font-bold ${
-                          evalItem.final_score >= 90
-                            ? 'text-green-600 dark:text-green-400'
-                            : evalItem.final_score >= 75
-                              ? 'text-blue-600 dark:text-blue-400'
-                              : evalItem.final_score >= 60
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-red-600 dark:text-red-400'
-                        }`}>
+                        <span className="text-slate-300 dark:text-slate-600">·</span>
+                        <span>{evalItem.supervisor_name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${finalMeta.bg} ${finalMeta.color} border ${finalMeta.border}`}>
                           {evalItem.final_score.toFixed(1)}
                         </span>
-                      </td>
-                      <td className="py-3.5 px-6 text-sm text-slate-500 dark:text-[#94A3B8] max-w-[200px] truncate hidden lg:table-cell">
-                        {evalItem.comments || '—'}
-                      </td>
+                        {evalItem.point_deduction > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[11px] font-bold border border-red-200 dark:border-red-800/50">
+                            -{evalItem.point_deduction} pts
+                          </span>
+                        )}
+                        {evalItem.comments && (
+                          <span className="text-[11px] text-slate-400 dark:text-[#64748B] italic truncate max-w-[45%]">{evalItem.comments}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ── Desktop: table ── */}
+              <div className="hidden md:block overflow-x-auto scrollbar-thin">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-wbo-700 text-white">
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider rounded-tl-lg">Fecha</th>
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Evento</th>
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider hidden lg:table-cell">Supervisor</th>
+                      <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Rating</th>
+                      <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider hidden lg:table-cell">Deduccion</th>
+                      <th className="text-center px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider">Score Final</th>
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider rounded-tr-lg hidden xl:table-cell">Comentarios</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+                    {history.map((evalItem, i) => {
+                      const finalMeta = getResultMeta(evalItem.final_score);
+                      return (
+                        <tr key={evalItem.id}
+                          className={`transition-colors duration-150 hover:bg-wbo-50/40 dark:hover:bg-[#1A2435] cursor-pointer ${i % 2 === 1 ? 'bg-slate-50/60 dark:bg-[#0B1120]/40' : ''}`}
+                          onClick={() => navigate(`/analysis/${evalItem.fight_id}`)}>
+                          <td className="px-5 py-3.5 text-xs text-slate-500 dark:text-[#94A3B8] whitespace-nowrap">{formatDate(evalItem.evaluation_date)}</td>
+                          <td className="px-5 py-3.5 font-semibold text-slate-800 dark:text-[#F8FAFC] text-sm">{evalItem.event_name}</td>
+                          <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-[#94A3B8] hidden lg:table-cell">{evalItem.supervisor_name}</td>
+                          <td className="px-5 py-3.5 text-center"><ScoreBadge score={evalItem.score} /></td>
+                          <td className="px-5 py-3.5 text-center hidden lg:table-cell">
+                            <span className="text-sm font-medium text-slate-600 dark:text-[#94A3B8]">
+                              {evalItem.point_deduction > 0 ? `-${evalItem.point_deduction}` : '0'}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-center">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${finalMeta.bg} ${finalMeta.color} border ${finalMeta.border}`}>
+                              {evalItem.final_score.toFixed(1)}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-sm text-slate-500 dark:text-[#94A3B8] max-w-[200px] truncate hidden xl:table-cell">{evalItem.comments || '\u2014'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
-        </div>
+        </SectionCard>
+
       </div>
     </div>
   );
