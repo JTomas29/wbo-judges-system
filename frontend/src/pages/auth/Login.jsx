@@ -39,18 +39,14 @@ const Login = () => {
     setError('');
   };
 
-  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true';
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#2d080a] via-[#6b1421] to-[#2d080a] p-5">
-      {isDemo && (
-        <div className="w-[420px] max-w-full mb-4 px-2">
-          <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 border border-gold/40 rounded-xl px-4 py-3">
-            <span className="text-base font-extrabold text-gold-light uppercase tracking-widest">Demo</span>
-            <span className="text-xs text-white/70">Portfolio · datos de ejemplo · sin backend</span>
-          </div>
+      <div className="w-[420px] max-w-full mb-4 px-2">
+        <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 border border-gold/40 rounded-xl px-4 py-3">
+          <span className="text-base font-extrabold text-gold-light uppercase tracking-widest">Demo</span>
+          <span className="text-xs text-white/70">Portfolio · datos de ejemplo · sin backend</span>
         </div>
-      )}
+      </div>
       <div className="bg-white rounded-xl shadow-2xl border-t-4 border-gold w-[420px] max-w-full pt-10 px-6 pb-8 sm:px-10 sm:pt-12 sm:pb-10 relative">
         <div className="text-center mb-2">
           <img src={logoSrc} alt="WBO Logo" className="max-h-[120px] w-auto object-contain inline-block" />
@@ -108,13 +104,12 @@ const Login = () => {
         </div>
       </div>
 
-      {isDemo && (
-        <div className="w-[420px] max-w-full mt-6 px-2">
-          <div className="text-center text-xs font-semibold text-white/60 uppercase tracking-wider mb-2.5">
-            Cuentas de demostración
-          </div>
-          <div className="flex flex-col gap-2">
-            {devAccounts.map((acc) => (
+      <div className="w-[420px] max-w-full mt-6 px-2">
+        <div className="text-center text-xs font-semibold text-white/60 uppercase tracking-wider mb-2.5">
+          Cuentas de demostración
+        </div>
+        <div className="flex flex-col gap-2">
+          {devAccounts.map((acc) => (
               <div key={acc.email} className="flex items-center justify-between backdrop-blur-sm bg-white/5 border border-white/10 rounded-lg px-3.5 py-3">
                 <div className="leading-relaxed">
                   <div className="text-sm font-semibold text-white">{acc.label}</div>
@@ -132,7 +127,6 @@ const Login = () => {
             ))}
           </div>
         </div>
-      )}
     </div>
   );
 };
