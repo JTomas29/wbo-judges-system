@@ -4,7 +4,7 @@ import './index.css';
 import App from './App.jsx';
 import { registerSW } from 'virtual:pwa-register';
 
-if (import.meta.env.VITE_DEMO_MODE === 'true') {
+if (import.meta.env.VITE_DEMO_MODE !== 'false') {
   const { setupMocks } = await import('./mocks/setupMocks.js');
   setupMocks();
 }
