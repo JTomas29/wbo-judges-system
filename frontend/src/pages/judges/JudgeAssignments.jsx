@@ -41,7 +41,7 @@ const formatDate = (d) => {
 };
 
 const StatCard = ({ label, count, dotColor }) => (
-  <div className="flex items-center gap-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm px-4 py-3 min-w-[130px] transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
+  <div className="flex items-center gap-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm px-4 py-3 transition-all duration-250 hover:shadow-md hover:-translate-y-0.5">
     <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
       <svg className="w-4 h-4 text-red-700 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -211,10 +211,14 @@ const JudgeAssignments = () => {
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">My Assignments</h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-200/60 dark:ring-green-800/40">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                Live
+              </span>
             </div>
             <p className="text-sm text-slate-500 dark:text-[#94A3B8]">All the fights assigned to you and their current status.</p>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatCard label="Total" count={counts.total} dotColor="bg-slate-400" />
             <StatCard label="Pending" count={counts.pending} dotColor="bg-amber-500" />
             <StatCard label="Active" count={counts.active} dotColor="bg-emerald-500" />
@@ -253,6 +257,12 @@ const JudgeAssignments = () => {
 
       {/* ─── List ─── */}
       <div className="max-w-[1440px] mx-auto space-y-5">
+        {filteredAssignments.length === 0 && assignments.length > 0 && (
+          <div className="text-center py-12">
+            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 m-0">No assignments match the current filters.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 m-0">Try adjusting the search or status filter.</p>
+          </div>
+        )}
         {filteredAssignments.map((a) => {
           const meta = STATE_META[a._state];
 
@@ -338,7 +348,7 @@ const JudgeAssignments = () => {
                       Pending · Waiting for the fight to be activated
                     </div>
                     <button
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.98]"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.98]"
                       onClick={() => goTo(a)}
                     >
                       View fight
@@ -350,7 +360,7 @@ const JudgeAssignments = () => {
                 )}
                 {a._state !== 'pending' && (
                   <button
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-sm font-semibold transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 bg-wbo-700 hover:bg-wbo-800 text-white rounded-xl text-sm font-semibold transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98]"
                     onClick={() => goTo(a)}
                   >
                     {actionLabel(a)}

@@ -63,7 +63,7 @@ const Login = () => {
               placeholder="admin@wbo.com"
               disabled={submitting}
               required
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3.5 py-2.5 min-h-11 border border-gray-200 rounded-lg text-base sm:text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           <div className="mb-4">
@@ -75,13 +75,13 @@ const Login = () => {
               placeholder="••••••••"
               disabled={submitting}
               required
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3.5 py-2.5 min-h-11 border border-gray-200 rounded-lg text-base sm:text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="w-full inline-flex items-center justify-center px-5 py-3 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center px-5 py-3 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-semibold hover:bg-wbo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Logging in...' : 'Log In'}
           </button>

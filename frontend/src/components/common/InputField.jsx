@@ -23,7 +23,7 @@ const InputField = ({ name, label, value, onChange, placeholder, type = 'text', 
           onChange={onChange}
           placeholder={placeholder}
           {...rest}
-          className={`w-full px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 outline-none shadow-sm ${stateClasses} ${valid ? 'pr-10' : ''}`}
+          className={`w-full px-4 py-3 min-h-11 border rounded-xl text-base sm:text-sm font-medium text-slate-900 dark:text-[#F8FAFC] transition-all duration-200 outline-none shadow-sm ${stateClasses} ${valid ? 'pr-10' : ''}`}
         />
         {valid && (
           <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">

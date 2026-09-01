@@ -125,7 +125,7 @@ const JudgeDashboard = () => {
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-2">Error loading</h3>
         <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">{error}</p>
-        <button onClick={loadData} className="px-6 py-2.5 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Retry</button>
+        <button onClick={loadData} className="px-6 py-2.5 min-h-11 text-sm font-semibold text-white bg-wbo-700 hover:bg-wbo-800 transition-all duration-250 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">Retry</button>
       </div>
     );
   }
@@ -150,7 +150,7 @@ const JudgeDashboard = () => {
     .toUpperCase() || '??';
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-6xl mx-auto space-y-8 pb-12 px-4 sm:px-6">
 
       {/* ─── 1. HEADER / MI PERFIL (Premium Card) ─── */}
       <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-slate-200 dark:border-[#1E293B] overflow-hidden">
@@ -166,7 +166,7 @@ const JudgeDashboard = () => {
               </div>
               <div className="min-w-0 pt-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight truncate">{user?.name}</h1>
-                <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5">{user?.email}</p>
+                <p className="text-sm text-slate-500 dark:text-[#94A3B8] mt-0.5 truncate">{user?.email}</p>
                 <div className="flex flex-wrap items-center gap-2 mt-2.5">
                   <Badge className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/40">
                     Judge
@@ -221,7 +221,7 @@ const JudgeDashboard = () => {
             {loadingStats && (
               <div className="shrink-0 flex items-center gap-3 py-4 px-6">
                 {[0, 1, 2].map((i) => (
-                  <Skeleton key={i} className="h-20 w-32 rounded-xl shrink-0" />
+                  <Skeleton key={i} className="h-20 flex-1 min-w-0 rounded-xl" />
                 ))}
               </div>
             )}
@@ -351,7 +351,7 @@ const JudgeDashboard = () => {
                             {meta.label}
                           </Badge>
                           {state !== 'completed' && (
-                            <button className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
+                            <button className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
                               aria-label="View fight"
                               onClick={() => {
                                 if (a.assignment_type === 'official') navigate(`/fights/${a.fight_id}`);
@@ -416,7 +416,7 @@ const JudgeDashboard = () => {
                       {state === 'pending' && (
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-xl">Pending · Waiting for the fight to be activated</div>
-                          <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
+                          <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-11 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
                             onClick={() => navigate(`/fights/${a.fight_id}`)}>
                             View fight
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -429,13 +429,13 @@ const JudgeDashboard = () => {
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs font-semibold rounded-xl">{progressText} · Submitted</div>
                       )}
                       {state === 'active' && a.assignment_type === 'official' && (
-                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
+                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-11 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-250 active:scale-[0.97]"
                           onClick={() => navigate(`/fights/${a.fight_id}`)}>
                           View fight
                         </button>
                       )}
                       {state === 'active' && a.assignment_type !== 'official' && a.scorecard_status !== 'finalized' && (
-                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-wbo-700 hover:bg-wbo-800 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
+                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-11 bg-wbo-700 hover:bg-wbo-800 text-white text-xs font-semibold rounded-xl transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.97]"
                           onClick={() => navigate(`/scoring/${a.fight_id}`)}>
                           Score fight
                         </button>
@@ -444,7 +444,7 @@ const JudgeDashboard = () => {
                         <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl">{progressText} · Waiting for analysis</div>
                       )}
                       {state === 'analyzed' && (
-                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-600 transition-all duration-250 active:scale-[0.97]"
+                        <button className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-11 border border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-500 dark:hover:border-red-600 transition-all duration-250 active:scale-[0.97]"
                           onClick={() => navigate(`/analysis/${a.fight_id}`)}>
                           View analysis
                         </button>

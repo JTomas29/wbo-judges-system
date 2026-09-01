@@ -14,10 +14,10 @@ const ROUNDS = [4, 6, 8, 10, 12];
 const todayStr = new Date().toISOString().split('T')[0];
 
 const primaryBtnClass =
-  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-bold text-white bg-wbo-700 shadow-md shadow-wbo-700/20 hover:bg-wbo-800 hover:shadow-lg hover:shadow-wbo-700/25 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100';
+  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 min-h-11 rounded-xl text-sm font-bold text-white bg-wbo-700 shadow-md shadow-wbo-700/20 hover:bg-wbo-800 hover:shadow-lg hover:shadow-wbo-700/25 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100';
 
 const secondaryBtnClass =
-  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-xl text-sm font-semibold text-slate-600 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] shadow-sm hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] active:translate-y-0 transition-all duration-200';
+  'inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 min-h-11 rounded-xl text-sm font-semibold text-slate-600 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] shadow-sm hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] active:translate-y-0 transition-all duration-200';
 
 const CreateFight = () => {
   const { token } = useAuth();

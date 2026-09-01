@@ -22,7 +22,7 @@ const SelectField = ({ name, label, value, onChange, options, placeholder, requi
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full px-4 py-3 pr-10 border rounded-xl text-sm font-medium transition-all duration-200 outline-none shadow-sm appearance-none ${textColor} ${stateClasses}`}
+          className={`w-full px-4 py-3 min-h-11 pr-10 border rounded-xl text-base sm:text-sm font-medium transition-all duration-200 outline-none shadow-sm appearance-none ${textColor} ${stateClasses}`}
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((opt) => (

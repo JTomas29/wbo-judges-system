@@ -184,13 +184,13 @@ const EditJudge = () => {
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, is_active: !form.is_active })}
-                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 ${
+                  className={`relative inline-flex min-h-11 w-14 items-center rounded-full transition-colors duration-300 ${
                     form.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
                   }`}
                 >
                   <span
                     className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 ${
-                      form.is_active ? 'translate-x-6' : 'translate-x-1'
+                      form.is_active ? 'translate-x-7' : 'translate-x-1.5'
                     }`}
                   />
                 </button>
@@ -231,29 +231,29 @@ const EditJudge = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center justify-between mt-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-10">
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-250 active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 px-4 py-3 min-h-11 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-250 active:scale-[0.98] order-2 sm:order-1"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             Delete Judge
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 order-1 sm:order-2">
             <button
               type="button"
               onClick={() => navigate('/admin/users')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-11 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-11 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

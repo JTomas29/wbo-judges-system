@@ -19,7 +19,7 @@ const TextareaField = ({ name, label, value, onChange, placeholder, required, er
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
-        className={`w-full px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 outline-none shadow-sm resize-none ${stateClasses}`}
+        className={`w-full px-4 py-3 border rounded-xl text-base sm:text-sm font-medium transition-all duration-200 outline-none shadow-sm resize-none ${stateClasses}`}
       />
       {error && (
         <p className="flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 mt-2">

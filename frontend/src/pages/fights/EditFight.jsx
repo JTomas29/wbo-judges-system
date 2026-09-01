@@ -261,11 +261,11 @@ const EditFight = () => {
         </FormSection>
 
         {/* ── Actions ── */}
-        <div className="flex items-center gap-3 mt-10">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-10">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all duration-250 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -275,7 +275,7 @@ const EditFight = () => {
           <button
             type="button"
             onClick={() => navigate(`/fights/${id}`)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 text-sm font-semibold text-slate-700 dark:text-[#94A3B8] bg-white dark:bg-[#1F2937] border border-slate-200 dark:border-[#1E293B] rounded-xl hover:bg-slate-50 dark:hover:bg-[#1E293B] hover:border-slate-300 dark:hover:border-[#374151] transition-all duration-250 active:scale-[0.98]"
           >
             Cancel
           </button>

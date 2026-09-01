@@ -1,6 +1,6 @@
-export default function ActionPanel({ children, className = '' }) {
+export default function ActionPanel({ children, className = '', stacked = false }) {
   return (
-    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+    <div className={`${stacked ? 'flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center' : 'flex flex-wrap items-center'} gap-3 ${className}`}>
       {children}
     </div>
   )

@@ -86,7 +86,7 @@ const ErrorState = ({ message, onBack }) => (
       <p className="text-slate-800 dark:text-[#F8FAFC] font-semibold text-base leading-relaxed m-0">{message}</p>
       <button
         onClick={onBack}
-        className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+        className="mt-6 px-8 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
       >
         Back
       </button>
@@ -103,7 +103,7 @@ const EmptyState = ({ onBack }) => (
       <p className="text-slate-500 dark:text-slate-400 font-medium text-sm m-0">No results exist for this fight.</p>
       <button
         onClick={onBack}
-        className="mt-6 px-8 py-2.5 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+        className="mt-6 px-8 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
       >
         Back
       </button>
@@ -116,7 +116,7 @@ const statAccents = {
   violet: { border: 'border-t-violet-500', chip: 'bg-violet-50 dark:bg-violet-900/20', color: 'text-violet-600 dark:text-violet-400', value: 'text-violet-700 dark:text-violet-400' },
   emerald: { border: 'border-t-emerald-500', chip: 'bg-emerald-50 dark:bg-emerald-900/20', color: 'text-emerald-600 dark:text-emerald-400', value: 'text-emerald-600 dark:text-emerald-400' },
   red: { border: 'border-t-red-500', chip: 'bg-red-50 dark:bg-red-900/20', color: 'text-red-600 dark:text-red-400', value: 'text-red-700 dark:text-red-400' },
-  gold: { border: 'border-t-gold', chip: 'bg-gold/10', color: 'text-gold dark:text-gold-light', value: 'text-gold dark:text-gold-light' },
+  gold: { border: 'border-t-gold', chip: 'bg-gold/10', color: 'text-gold-dark dark:text-gold-light', value: 'text-gold-dark dark:text-gold-light' },
   amber: { border: 'border-t-amber-500', chip: 'bg-amber-50 dark:bg-amber-900/20', color: 'text-amber-600 dark:text-amber-500', value: 'text-amber-600 dark:text-amber-500' },
 };
 
@@ -137,7 +137,7 @@ const StatCard = ({ icon: Icon, label, value, accent = 'slate', delay = 0 }) => 
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className={`w-9 h-9 rounded-xl ${a.chip} flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-110`}>
-        <Icon className={`w-4.5 h-4.5 ${a.color}`} />
+        <Icon className={`w-5 h-5 ${a.color}`} />
       </div>
       <p className={`text-2xl sm:text-3xl font-extrabold ${a.value} m-0 leading-none tabular-nums`}>{value}</p>
       <p className="text-[10px] font-semibold text-slate-500 dark:text-[#64748B] uppercase tracking-wider mt-1.5 m-0">{label}</p>
@@ -174,8 +174,8 @@ const AnalysisHeader = ({ fight }) => {
             <p className="text-sm text-red-100/90 mt-0.5 m-0">{fight?.event_name}</p>
           </div>
           <div className="ml-auto shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gold/15 text-gold-light ring-1 ring-gold/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold-light" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gold/15 text-gold-dark dark:text-gold-light ring-1 ring-gold/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold-dark dark:bg-gold-light" />
               Analyzed
             </span>
           </div>
@@ -423,7 +423,7 @@ const JudgePerformanceCard = ({ judge, index }) => {
         </div>
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ring-1 shrink-0 ${
           perfect
-            ? 'bg-gold/10 text-gold dark:text-gold-light ring-gold/30'
+            ? 'bg-gold/10 text-gold-dark dark:text-gold-light ring-gold/30'
             : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
         }`}>
           {perfect ? (

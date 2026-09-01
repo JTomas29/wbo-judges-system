@@ -119,7 +119,7 @@ const FightSummaryCard = ({ fight, roleLabel }) => {
         {infoItems.map((item, i) => (
           <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#0B1120] border border-slate-100 dark:border-[#1E293B] transition-all duration-200 hover:shadow-sm">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-wbo-50 to-wbo-100/60 dark:from-wbo-900/20 dark:to-wbo-800/10 flex items-center justify-center shrink-0">
-              <item.icon className="w-4.5 h-4.5 text-wbo-700 dark:text-wbo-400" />
+              <item.icon className="w-5 h-5 text-wbo-700 dark:text-wbo-400" />
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold text-slate-400 dark:text-[#64748B] uppercase tracking-wider mb-0.5 m-0">{item.label}</p>
@@ -893,6 +893,25 @@ const ScoreFight = () => {
                 </div>
               </div>
 
+              <div className="xl:hidden px-5 sm:px-6 py-3 flex items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#0B1120] border-b border-slate-100 dark:border-[#1E293B]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ring-1 ${
+                    allComplete
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40'
+                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'
+                  }`}>
+                    {allComplete ? <CheckIcon className="w-3 h-3" /> : <ClockIcon className="w-3 h-3" />}
+                    {allComplete ? 'Ready' : `${completedRounds}/${totalRounds}`}
+                  </span>
+                </div>
+                <div className="w-24 h-2 bg-slate-200 dark:bg-[#1E293B] rounded-full overflow-hidden shrink-0">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${allComplete ? 'bg-emerald-500' : 'bg-wbo-600'}`}
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+              </div>
+
               <div className="p-4 sm:p-5 space-y-4">
                 {Array.from({ length: totalRounds }, (_, i) => {
                   const rn = i + 1;
@@ -923,9 +942,9 @@ const ScoreFight = () => {
                             </span>
                           )}
                           {err && (
-                            <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-semibold" title={err}>
+                            <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-semibold">
                               <ExclamationTriangleIcon className="w-3.5 h-3.5" />
-                              Error
+                              {err.length > 40 ? err.slice(0, 40) + '…' : err}
                             </span>
                           )}
                         </div>

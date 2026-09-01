@@ -305,7 +305,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           <select
             value={data.deduction_red ?? 0}
             onChange={(e) => onChange('deduction_red', e.target.value)}
-            className="w-full px-3 py-2.5 text-center rounded-lg text-base sm:text-sm font-bold text-red-700 dark:text-red-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10"
+            className="w-full px-3 py-2.5 min-h-11 text-center rounded-lg text-base sm:text-sm font-bold text-red-700 dark:text-red-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10"
           >
             <option value={0}>0</option>
             <option value={1}>1</option>
@@ -339,7 +339,7 @@ const RoundInputCard = ({ roundNumber, data, boxerRed, boxerBlue, complete, onCh
           <select
             value={data.deduction_blue ?? 0}
             onChange={(e) => onChange('deduction_blue', e.target.value)}
-            className="w-full px-3 py-2.5 text-center rounded-lg text-base sm:text-sm font-bold text-blue-700 dark:text-blue-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+            className="w-full px-3 py-2.5 min-h-11 text-center rounded-lg text-base sm:text-sm font-bold text-blue-700 dark:text-blue-400 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
           >
             <option value={0}>0</option>
             <option value={1}>1</option>
@@ -699,6 +699,7 @@ const OfficialCards = () => {
     (acc, rn) => acc + (Number(rounds[rn]?.score_blue) || 0) - (Number(rounds[rn]?.deduction_blue) || 0),
     0
   );
+  const summaryWinner = redTotal > blueTotal ? 'Red' : blueTotal > redTotal ? 'Blue' : 'Draw';
 
   return (
     <div className={`${pageWrapper} animate-[fadeIn_0.3s_ease-out]`}>
@@ -734,6 +735,38 @@ const OfficialCards = () => {
 
         <div className="flex flex-col xl:flex-row gap-6">
           <div className="flex-1 min-w-0 space-y-4">
+            <div className="xl:hidden bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 animate-[fadeIn_0.35s_ease-out]">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <ChartBarIcon className="w-4 h-4 text-wbo-700 dark:text-wbo-400" />
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-[#F8FAFC] m-0">Live Summary</h3>
+                </div>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ring-1 ${allComplete ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40'}`}>
+                  {allComplete ? <CheckIcon className="w-3 h-3" /> : <ClockIcon className="w-3 h-3" />}
+                  {allComplete ? 'Ready' : `${completed}/${totalRounds}`}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 ring-1 ring-red-200/70 dark:ring-red-800/40">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 m-0">Red</p>
+                  <p className="text-lg font-extrabold text-red-700 dark:text-red-300 m-0 tabular-nums">{redTotal}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 ring-1 ring-slate-200/70 dark:ring-slate-700/50 flex flex-col items-center justify-center">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8] m-0">Winner</p>
+                  <span className={`inline-flex mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ring-1 ${summaryWinner === 'Red' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-200 dark:ring-red-800/40' : summaryWinner === 'Blue' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-200 dark:ring-blue-800/40' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700'}`}>{summaryWinner}</span>
+                </div>
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 ring-1 ring-blue-200/70 dark:ring-blue-800/40">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 m-0">Blue</p>
+                  <p className="text-lg font-extrabold text-blue-700 dark:text-blue-300 m-0 tabular-nums">{blueTotal}</p>
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="w-full h-2 bg-slate-100 dark:bg-[#1E293B] rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-700 ${allComplete ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-wbo-600 to-wbo-700'}`} style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            </div>
+
             <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.4s_ease-out]">
               <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-wbo-700 to-wbo-800 flex items-center justify-center shrink-0 shadow-sm">

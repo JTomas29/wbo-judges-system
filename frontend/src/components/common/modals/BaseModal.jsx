@@ -27,7 +27,7 @@ export default function BaseModal({ isOpen, onClose, maxWidth = 'max-w-md', chil
         <div
           role="dialog"
           aria-modal="true"
-          className={`relative w-full ${maxWidth} animate-[scaleIn_0.2s_ease-out]`}
+          className={`relative w-full ${maxWidth} max-h-[85vh] overflow-y-auto animate-[scaleIn_0.2s_ease-out]`}
         >
           {children}
         </div>

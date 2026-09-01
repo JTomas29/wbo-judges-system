@@ -138,6 +138,27 @@ const SimpleTabs = ({ active, onChange, children }) => (
   </div>
 );
 
+const JudgeCardMobile = ({ judge }) => (
+  <div className="p-4 space-y-3">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <span className="w-10 h-10 rounded-full bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-sm">
+          {initials(judge.name)}
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate m-0">{judge.name}</p>
+          <p className="text-xs text-slate-400 dark:text-[#94A3B8] capitalize m-0 mt-0.5">{assignmentLabel(judge.assignment_type)}</p>
+        </div>
+      </div>
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shrink-0">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        Assigned
+      </span>
+    </div>
+    <div className="flex items-center gap-2">{levelBadge(judge.level)}</div>
+  </div>
+);
+
 const JudgeRow = ({ judge }) => (
   <tr className="border-b border-slate-50 hover:bg-red-50/40 transition-colors dark:border-[#1E293B] dark:hover:bg-[#1A2435]">
     <td className="py-3.5 px-5">
@@ -254,7 +275,7 @@ const FightDetails = () => {
       <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-2 border-t-wbo-700 shadow-md p-5 sm:p-6 md:p-8 animate-[fadeIn_0.3s_ease-out]">
         <BackButton fallbackRoute="/fights" />
         <div className="mt-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight m-0 leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight m-0 leading-tight">
             {fight.event_name}
           </h1>
           <p className="text-base sm:text-lg font-semibold text-slate-600 dark:text-slate-300 mt-2 m-0">
@@ -281,7 +302,7 @@ const FightDetails = () => {
             )}
           </div>
         </div>
-        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-[#1E293B] flex items-center gap-3">
+        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-[#1E293B] flex flex-wrap items-center gap-2 sm:gap-3">
           <FightStatusBadge status={fight.status} />
           {fight.title && (
             <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-full ring-1 ring-amber-200 dark:ring-amber-800/40 font-semibold">
@@ -289,10 +310,14 @@ const FightDetails = () => {
             </span>
           )}
           {fight.result_type && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-red-700 text-white shadow-sm">
-              {RESULT_TYPE_LABELS[fight.result_type] || fight.result_type}
-              {isEarlyResult(fight) && ` · R${fight.result_round} · ${fight.result_time || '--:--'}`}
-              {fight.result_winner && ` · ${fight.result_winner}`}
+            <span className="inline-flex items-center flex-wrap gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-red-700 text-white shadow-sm">
+              <span>{RESULT_TYPE_LABELS[fight.result_type] || fight.result_type}</span>
+              {isEarlyResult(fight) && (
+                <span>· R{fight.result_round} · {fight.result_time || '--:--'}</span>
+              )}
+              {fight.result_winner && (
+                <span>· {fight.result_winner}</span>
+              )}
             </span>
           )}
         </div>
@@ -314,6 +339,15 @@ const FightDetails = () => {
           </div>
         </div>
       )}
+
+      {/* ── Fighters ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FighterCard name={fight.boxer_red} corner="red" color="bg-gradient-to-br from-red-700 to-red-900" />
+        <FighterCard name={fight.boxer_blue} corner="blue" color="bg-gradient-to-br from-blue-600 to-blue-800" />
+      </div>
+
+      {/* ── Official Result (solo supervisor) ── */}
+      <ResultRegistration fight={fight} onResultChange={handleResultChange} />
 
       {/* ── Summary cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -396,14 +430,6 @@ const FightDetails = () => {
       {/* ── Referee Evaluation ── */}
       <RefereeEvaluationSection fight={fight} />
 
-      {/* ── Official Result (solo supervisor) ── */}
-      <ResultRegistration fight={fight} onResultChange={handleResultChange} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <FighterCard name={fight.boxer_red} corner="red" color="bg-gradient-to-br from-red-700 to-red-900" />
-        <FighterCard name={fight.boxer_blue} corner="blue" color="bg-gradient-to-br from-blue-600 to-blue-800" />
-      </div>
-
       {/* ── Tabs: Details / Notes / Judges ── */}
       <SimpleTabs active={activeTab} onChange={setActiveTab}>
         {activeTab === 'details' && (
@@ -450,7 +476,12 @@ const FightDetails = () => {
 
         {activeTab === 'judges' && fight.assigned_judges?.length > 0 && (
           <DetailSection icon={JudgeIcon} title="Assigned Judges" description="Judges assigned to this fight">
-            <div className="overflow-x-auto">
+            <div className="md:hidden divide-y divide-slate-100 dark:divide-[#1E293B]">
+              {fight.assigned_judges.map((j) => (
+                <JudgeCardMobile key={j.id} judge={j} />
+              ))}
+            </div>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-[#1E293B]">
@@ -540,7 +571,7 @@ const FightDetails = () => {
 
       {isStaff && (
         <DetailSection icon={Cog6ToothIcon} title="Actions" description="Fight management">
-          <ActionPanel>
+          <ActionPanel stacked>
             {isStaff && (
               <ActionButton
                 onClick={() => navigate(`/official-cards/${fight.id}`)}
@@ -609,7 +640,7 @@ const FightDetails = () => {
                 Edit
               </ActionButton>
             )}
-            <div className="flex-1" />
+            <div className="flex-1 hidden sm:block" />
             {user?.role === 'admin' && fight.status !== 'archived' && (
               <ActionButton
                 variant="danger"
@@ -633,7 +664,7 @@ const FightDetails = () => {
         </DetailSection>
       )}
 
-      <ActionPanel>
+      <ActionPanel stacked>
         <ActionButton variant="secondary" onClick={() => navigate(`/official-cards/${fight.id}`)}>
           View Scorecards
         </ActionButton>

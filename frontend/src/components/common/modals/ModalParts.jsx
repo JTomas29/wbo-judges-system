@@ -59,14 +59,14 @@ export default function ModalHeader({ title, description, type = 'info', icon })
 
 export function ModalFooter({ children, className = '' }) {
   return (
-    <div className={`flex gap-3 justify-end mt-6 pt-4 border-t border-slate-100 dark:border-[#1E293B] ${className}`}>
+    <div className={`flex flex-col sm:flex-row gap-3 sm:justify-end mt-6 pt-4 border-t border-slate-100 dark:border-[#1E293B] ${className}`}>
       {children}
     </div>
   );
 }
 
 export function ModalButton({ children, onClick, variant = 'primary', disabled = false, loading = false, icon: Icon, className = '' }) {
-  const base = 'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#111827]'
+  const base = 'inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#111827]'
 
   const variants = {
     primary: 'bg-wbo-700 text-white hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] shadow-sm',

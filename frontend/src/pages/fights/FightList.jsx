@@ -9,11 +9,11 @@ import { Skeleton, FilterBarSkeleton, StatCardsSkeleton, TableSkeleton } from '.
 const canEdit = (status) => status === 'pending' || status === 'active';
 
 const statusConfig = {
-  pending: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', icon: 'clock', label: 'Pending' },
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200', icon: 'zap', label: 'Active' },
-  completed: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200', icon: 'check', label: 'Completed' },
-  analyzed: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', border: 'border-violet-200', icon: 'chart', label: 'Analyzed' },
-  cancelled: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200', icon: 'x', label: 'Cancelled' },
+  pending: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/40', icon: 'clock', label: 'Pending' },
+  active: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/40', icon: 'zap', label: 'Active' },
+  completed: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500', border: 'border-blue-200 dark:border-blue-800/40', icon: 'check', label: 'Completed' },
+  analyzed: { bg: 'bg-violet-50 dark:bg-violet-900/20', text: 'text-violet-700 dark:text-violet-300', dot: 'bg-violet-500', border: 'border-violet-200 dark:border-violet-800/40', icon: 'chart', label: 'Analyzed' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/20', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500', border: 'border-red-200 dark:border-red-800/40', icon: 'x', label: 'Cancelled' },
 };
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
@@ -78,11 +78,11 @@ const StatCard = ({ icon, value, label, color }) => (
 
 /* ─── Boxer Avatar ─── */
 const BoxerAvatar = ({ name }) => (
-  <div className="flex items-center gap-2">
+  <div className="flex items-center gap-2 min-w-0">
     <span className="w-7 h-7 rounded-full bg-gradient-to-br from-red-800 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-sm">
       {initials(name)}
     </span>
-    <span className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC]">{name}</span>
+    <span className="text-sm font-medium text-slate-800 dark:text-[#F8FAFC] truncate">{name}</span>
   </div>
 );
 
@@ -334,7 +334,7 @@ const FightList = () => {
           <p className="text-sm text-slate-500 dark:text-[#94A3B8] mb-6">Try adjusting the filters or create a new fight.</p>
           <button
             onClick={() => navigate('/fights/create')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 text-sm font-bold text-white bg-wbo-700 rounded-xl hover:bg-wbo-800 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

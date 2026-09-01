@@ -7,6 +7,9 @@ export default {
   ],
   theme: {
     extend: {
+      transitionDuration: {
+        '250': '250ms',
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },

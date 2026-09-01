@@ -479,7 +479,7 @@ const AssignJudges = () => {
         </div>
       )}
 
-      {/* ── Tabla ── */}
+      {/* ── Assigned Judges ── */}
       <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden transition-all duration-250 hover:shadow-md">
         {assignments.length === 0 ? (
           <div className="p-12 text-center">
@@ -492,67 +492,124 @@ const AssignJudges = () => {
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Use the form above to assign judges to this fight.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50/80 dark:bg-[#0B1120]">
-                <tr className="border-b border-slate-200 dark:border-[#1E293B]">
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Judge</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden md:table-cell">Email</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Level</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Type</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Status</th>
-                  <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Assigned</th>
-                  {canManage && <th className="text-right py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Action</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {assignments.map((a) => (
-                  <tr key={a.judge_id} className="border-b border-slate-100 dark:border-[#1E293B] last:border-0 hover:bg-red-50/30 dark:hover:bg-red-900/10 transition-all duration-200">
-                    <td className="py-3.5 px-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 ring-2 ring-white dark:ring-[#111827] shadow-sm">
-                          {a.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
-                        </div>
-                        <span className="font-semibold text-slate-800 dark:text-[#F8FAFC] truncate">{a.name}</span>
+          <>
+            {/* ─── Mobile Card View ─── */}
+            <div className="md:hidden divide-y divide-slate-100 dark:divide-[#1E293B]">
+              {assignments.map((a) => (
+                <div key={a.judge_id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-sm">
+                        {a.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
                       </div>
-                    </td>
-                    <td className="py-3.5 px-5 text-slate-500 dark:text-[#94A3B8] text-xs hidden md:table-cell">{a.email}</td>
-                    <td className="py-3.5 px-5 hidden lg:table-cell">{levelBadge(a.level)}</td>
-                    <td className="py-3.5 px-5 hidden lg:table-cell">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
-                        a.assignment_type === 'official'
-                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40'
-                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
-                      }`}>
-                        {assignmentTypeLabel(a.assignment_type)}
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{a.name}</p>
+                        <p className="text-xs text-slate-400 dark:text-[#94A3B8] truncate">{a.email}</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 shrink-0">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Designated
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {levelBadge(a.level)}
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
+                      a.assignment_type === 'official'
+                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40'
+                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
+                    }`}>
+                      {assignmentTypeLabel(a.assignment_type)}
+                    </span>
+                    {a.assigned_at && (
+                      <span className="text-[10px] text-slate-400 dark:text-[#94A3B8]">
+                        {formatDateTime(a.assigned_at)}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-5">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Designated
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-5 text-slate-400 dark:text-slate-500 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.assigned_at)}</td>
-                    {canManage && (
-                      <td className="py-3.5 px-5 text-right">
-                        <button
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-400 dark:hover:border-red-600 hover:text-red-700 dark:hover:text-red-300 transition-all duration-250"
-                          onClick={() => handleRemove(a.judge_id)}>
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Remove
-                          </button>
-                      </td>
                     )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </div>
+
+                  {canManage && (
+                    <button
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-11 w-full border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-400 transition-all active:scale-[0.97]"
+                      onClick={() => handleRemove(a.judge_id)}>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* ─── Desktop Table ─── */}
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/80 dark:bg-[#0B1120]">
+                    <tr className="border-b border-slate-200 dark:border-[#1E293B]">
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Judge</th>
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden md:table-cell">Email</th>
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Level</th>
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden lg:table-cell">Type</th>
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Status</th>
+                      <th className="text-left py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide hidden xl:table-cell">Assigned</th>
+                      {canManage && <th className="text-right py-3.5 px-5 text-[11px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wide">Action</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignments.map((a) => (
+                      <tr key={a.judge_id} className="border-b border-slate-100 dark:border-[#1E293B] last:border-0 hover:bg-red-50/30 dark:hover:bg-red-900/10 transition-all duration-200">
+                        <td className="py-3.5 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0 ring-2 ring-white dark:ring-[#111827] shadow-sm">
+                              {a.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
+                            </div>
+                            <span className="font-semibold text-slate-800 dark:text-[#F8FAFC] truncate">{a.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-5 text-slate-500 dark:text-[#94A3B8] text-xs hidden md:table-cell">{a.email}</td>
+                        <td className="py-3.5 px-5 hidden lg:table-cell">{levelBadge(a.level)}</td>
+                        <td className="py-3.5 px-5 hidden lg:table-cell">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
+                            a.assignment_type === 'official'
+                              ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40'
+                              : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
+                          }`}>
+                            {assignmentTypeLabel(a.assignment_type)}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Designated
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-5 text-slate-400 dark:text-slate-500 whitespace-nowrap text-xs hidden xl:table-cell">{formatDateTime(a.assigned_at)}</td>
+                        {canManage && (
+                          <td className="py-3.5 px-5 text-right">
+                            <button
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-400 dark:hover:border-red-600 hover:text-red-700 dark:hover:text-red-300 transition-all duration-250"
+                              onClick={() => handleRemove(a.judge_id)}>
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Remove
+                              </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

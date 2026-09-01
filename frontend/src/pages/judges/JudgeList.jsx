@@ -60,6 +60,78 @@ const statusIcon = (active) => {
   );
 };
 
+/* ─── Judge Card (mobile) ─── */
+const JudgeCardMobile = ({ juez, isStaff, onViewProfile, onEdit, onToggleActive }) => (
+  <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 transition-all duration-200 hover:shadow-md">
+    <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-wbo-700 to-wbo-800 text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
+          {juez.name?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '??'}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{juez.name}</p>
+          <p className="text-xs text-slate-400 dark:text-[#94A3B8] truncate">{juez.email}</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex items-center gap-2 flex-wrap mb-4">
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
+        {levelIcon(juez.level)}
+        {juez.level || '—'}
+      </span>
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
+        {statusIcon(juez.is_active)}
+        {juez.is_active ? 'Active' : 'Inactive'}
+      </span>
+    </div>
+
+    <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-[#1E293B]">
+      <button
+        onClick={() => onViewProfile(juez.id)}
+        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-11 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all active:scale-[0.97]"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        Profile
+      </button>
+      {isStaff && (
+        <>
+          <button
+            onClick={() => onEdit(juez.id)}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 min-h-11 bg-white dark:bg-[#1F2937] border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-[#F8FAFC] rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-[#374151] hover:border-slate-400 transition-all active:scale-[0.97]"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit
+          </button>
+          <button
+            onClick={() => onToggleActive(juez)}
+            className={`inline-flex items-center justify-center min-h-11 min-w-11 px-3 rounded-xl text-xs font-semibold transition-all active:scale-[0.97] shadow-sm ${
+              juez.is_active
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+          >
+            {juez.is_active ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </button>
+        </>
+      )}
+    </div>
+  </div>
+);
+
 const LEVEL_OPTIONS = [
   { value: 'junior', label: 'Junior' },
   { value: 'senior', label: 'Senior' },
@@ -197,7 +269,23 @@ const JudgeList = () => {
           {hasActiveFilters ? 'No judges found with the applied filters' : 'No judges registered'}
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#111827] rounded-xl shadow-sm p-5 overflow-x-auto">
+        <>
+          {/* ─── Mobile Card View ─── */}
+          <div className="sm:hidden space-y-4">
+            {filteredJudges.map((juez) => (
+              <JudgeCardMobile
+                key={juez.id}
+                juez={juez}
+                isStaff={isStaff}
+                onViewProfile={(id) => navigate(`/profile/${id}`)}
+                onEdit={(id) => navigate(`/judges/${id}/edit`)}
+                onToggleActive={(j) => setConfirmTarget(j)}
+              />
+            ))}
+          </div>
+
+          {/* ─── Desktop Table ─── */}
+          <div className="hidden sm:block bg-white dark:bg-[#111827] rounded-xl shadow-sm p-5 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-wbo-700 dark:bg-red-900/50 text-white rounded-lg">
@@ -261,6 +349,7 @@ const JudgeList = () => {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       <ConfirmModal

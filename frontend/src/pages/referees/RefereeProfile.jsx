@@ -158,13 +158,13 @@ const EvolutionChart = ({ data }) => {
       ))}
 
       {/* Line */}
-      <path d={linePath} fill="none" stroke="#991B1B" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={linePath} fill="none" stroke={isDark ? '#EF4444' : '#991B1B'} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
 
       {/* Area fill */}
       <defs>
         <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#991B1B" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#991B1B" stopOpacity="0.01" />
+          <stop offset="0%" stopColor={isDark ? '#EF4444' : '#991B1B'} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={isDark ? '#EF4444' : '#991B1B'} stopOpacity="0.01" />
         </linearGradient>
       </defs>
       <path
@@ -284,7 +284,7 @@ const RefereeProfile = () => {
           <div className="relative">
             <div className="mb-5">
               <button onClick={() => navigate('/ranking?tab=arbitros')}
-                className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-0 bg-transparent border-0 cursor-pointer">
+                className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-2 min-h-11 min-w-11 bg-transparent border-0 cursor-pointer rounded-lg">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 Ranking
               </button>

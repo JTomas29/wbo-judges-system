@@ -117,7 +117,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Result type *</label>
               <select
-                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
+                className="w-full px-3.5 py-2.5 min-h-11 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                 value={resultType}
                 onChange={(e) => setResultType(e.target.value)}
               >
@@ -132,7 +132,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
               <div>
                 <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Winner *</label>
                 <select
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
+                  className="w-full px-3.5 py-2.5 min-h-11 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                   value={winner}
                   onChange={(e) => setWinner(e.target.value)}
                 >
@@ -153,7 +153,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
               <div>
                 <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Final round *</label>
                 <select
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
+                  className="w-full px-3.5 py-2.5 min-h-11 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC]"
                   value={round}
                   onChange={(e) => setRound(e.target.value)}
                 >
@@ -167,7 +167,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
                 <label className="block text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">Time (m:ss) *</label>
                 <input
                   type="text"
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
+                  className="w-full px-3.5 py-2.5 min-h-11 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500"
                   placeholder="2:35"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
@@ -176,11 +176,11 @@ const ResultRegistration = ({ fight, onResultChange }) => {
             </div>
           )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 transition-all shadow-sm hover:shadow-md disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 transition-all shadow-sm hover:shadow-md disabled:opacity-40"
             >
               {saving ? 'Registering...' : 'Register result'}
             </button>

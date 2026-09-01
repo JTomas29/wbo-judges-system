@@ -203,7 +203,7 @@ const JudgeProfile = () => {
         <div className="relative">
           <div className="mb-5">
             <button onClick={() => navigate(isOwnProfile ? '/dashboard' : '/judges')}
-              className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-0 bg-transparent border-0 cursor-pointer">
+              className="inline-flex items-center gap-1.5 text-wbo-200 dark:text-[#94A3B8] text-xs font-semibold hover:text-white dark:hover:text-white transition-colors m-0 p-2 min-h-11 min-w-11 bg-transparent border-0 cursor-pointer rounded-lg">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
               {isOwnProfile ? 'Dashboard' : 'Judges'}
             </button>
@@ -491,7 +491,39 @@ const JudgeProfile = () => {
       {/* ── Performance History ── */}
       {stats?.history && stats.history.length > 0 && (
         <DetailSection icon={ChartBarIcon} title="Performance History" description="Accuracy and results per fight">
-          <div className="overflow-x-auto">
+          <div className="sm:hidden space-y-3 p-4">
+            {stats.history.map((h) => {
+              const rMeta = getResultMeta(h.match_pct);
+              return (
+                <div key={h.fight_id} className="bg-slate-50 dark:bg-[#0B1120]/50 rounded-xl border border-slate-100 dark:border-[#1E293B] p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{h.event_name}</p>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${rMeta.bg} ${rMeta.color} border ${rMeta.border}`}>
+                      {h.match_pct >= 80 ? '🥇' : h.match_pct >= 60 ? '🥈' : h.match_pct >= 40 ? '🥉' : '⚠'} {rMeta.label}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Accuracy</p>
+                      <p className={`text-sm font-extrabold tabular-nums m-0 ${rMeta.color}`}>{h.match_pct}%</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Matches</p>
+                      <p className="text-sm font-extrabold tabular-nums text-slate-700 dark:text-slate-300 m-0">{h.matches}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Errors</p>
+                      <p className="text-sm font-extrabold tabular-nums text-slate-700 dark:text-slate-300 m-0">{h.errors}</p>
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <ProgressBar value={h.match_pct} size="sm" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-[#1E293B]">

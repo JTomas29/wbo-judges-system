@@ -88,7 +88,7 @@ const StatCard = ({ icon: Icon, label, value, suffix = '', accent = 'slate', del
   return (
     <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] ${a.border} shadow-md p-4 sm:p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 animate-[fadeIn_0.4s_ease-out] group`} style={{ animationDelay: `${delay}ms` }}>
       <div className={`w-9 h-9 rounded-xl ${a.chip} flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-110`}>
-        <Icon className={`w-4.5 h-4.5 ${a.color}`} />
+        <Icon className={`w-5 h-5 ${a.color}`} />
       </div>
       <p className={`text-2xl sm:text-3xl font-extrabold ${a.value} m-0 leading-none tabular-nums`}>
         {value}
@@ -556,6 +556,17 @@ const LiveScore = () => {
           <StatCard icon={InboxIcon} label="Pending scorecards" value={pendingCards} accent="amber" delay={180} />
           <StatCard icon={JudgeIcon} label="Judges scoring" value={inProgress} accent="blue" delay={240} />
           <StatCard icon={JudgeIcon} label="Judges assigned" value={totalJudges} accent="red" delay={300} />
+        </div>
+
+        <div className="xl:hidden bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 flex items-center justify-between gap-4 text-sm">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-[#94A3B8]">
+            <ClockIcon className="w-4 h-4 shrink-0" />
+            <span className="text-xs">Updated {lastUpdate ? new Date(lastUpdate).toLocaleTimeString() : '—'}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{received}/{entries.length} received</span>
+            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{pendingCards} pending</span>
+          </div>
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">

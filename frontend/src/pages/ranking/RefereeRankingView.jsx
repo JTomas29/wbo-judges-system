@@ -131,7 +131,7 @@ const RefereeRankingView = () => {
     return (
       <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-6 text-center max-w-md mx-auto">
         <p className="text-amber-800 dark:text-amber-300 font-medium">{error}</p>
-        <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
+        <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 min-h-11 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors">
           Retry
         </button>
       </div>
