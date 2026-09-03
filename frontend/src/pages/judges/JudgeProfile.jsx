@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getJudgeById, getJudgeAssignments, getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
 import { getFightState } from '../../utils/fightResult';
+import { getJudgeObservations, downloadJudgePdf, createObservation, deleteObservation } from '../../services/profileService';
 import DetailSection from '../../components/detail/DetailSection';
 import { BoltIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { JudgeIcon } from '../../components/common/icons';
@@ -95,8 +96,14 @@ const JudgeProfile = () => {
   const [judge, setJudge] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [stats, setStats] = useState(null);
+  const [observations, setObservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [showObsForm, setShowObsForm] = useState(false);
+  const [obsFormFightId, setObsFormFightId] = useState('');
+  const [obsFormText, setObsFormText] = useState('');
+  const [obsSubmitting, setObsSubmitting] = useState(false);
 
   const targetJudgeId = parseInt(judgeId || userId, 10);
   const isOwnProfile = user?.id === targetJudgeId;
@@ -116,17 +123,20 @@ const JudgeProfile = () => {
       if (user?.role === 'judge') {
         if (user.id !== targetJudgeId) return;
         setJudge(user);
-        const [assignRes, statsRes] = await Promise.allSettled([
+        const [assignRes, statsRes, obsRes] = await Promise.allSettled([
           getMyAssignments(token),
           getJudgeStatistics(targetJudgeId, token),
+          getJudgeObservations(targetJudgeId, token),
         ]);
         setAssignments(assignRes.status === 'fulfilled' ? (assignRes.value.data || []) : []);
         setStats(statsRes.status === 'fulfilled' ? statsRes.value.data : null);
+        setObservations(obsRes.status === 'fulfilled' ? (obsRes.value.data || []) : []);
       } else {
-        const [judgeRes, assignRes, statsRes] = await Promise.allSettled([
+        const [judgeRes, assignRes, statsRes, obsRes] = await Promise.allSettled([
           getJudgeById(targetJudgeId, token),
           getJudgeAssignments(targetJudgeId, token),
           getJudgeStatistics(targetJudgeId, token),
+          getJudgeObservations(targetJudgeId, token),
         ]);
 
         if (judgeRes.status === 'rejected') {
@@ -139,6 +149,7 @@ const JudgeProfile = () => {
         setJudge(judgeRes.value.data);
         setAssignments(assignRes.status === 'fulfilled' ? (assignRes.value.data || []) : []);
         setStats(statsRes.status === 'fulfilled' ? statsRes.value.data : null);
+        setObservations(obsRes.status === 'fulfilled' ? (obsRes.value.data || []) : []);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error loading profile');
@@ -173,6 +184,58 @@ const JudgeProfile = () => {
       </div>
     );
   }
+
+  const handleDownloadPdf = async () => {
+    setPdfLoading(true);
+    try {
+      const res = await downloadJudgePdf(targetJudgeId, token);
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `perfil-juez-${judge?.name?.replace(/\s+/g, '-').toLowerCase() || 'judge'}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert('Error generating PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const handleSubmitObservation = async (e) => {
+    e.preventDefault();
+    if (!obsFormFightId || !obsFormText.trim()) return;
+    setObsSubmitting(true);
+    try {
+      await createObservation({
+        entity_type: 'judge',
+        entity_id: targetJudgeId,
+        fight_id: parseInt(obsFormFightId, 10),
+        observation: obsFormText.trim(),
+      }, token);
+      const res = await getJudgeObservations(targetJudgeId, token);
+      setObservations(res.data || []);
+      setShowObsForm(false);
+      setObsFormFightId('');
+      setObsFormText('');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error creating observation');
+    } finally {
+      setObsSubmitting(false);
+    }
+  };
+
+  const handleDeleteObservation = async (obsId) => {
+    if (!window.confirm('Delete this observation?')) return;
+    try {
+      await deleteObservation(obsId, token);
+      setObservations((prev) => prev.filter((o) => o.id !== obsId));
+    } catch {
+      alert('Error deleting observation');
+    }
+  };
 
   const totalAssigned = assignments.length;
   const pendingConfirm = assignments.filter((a) => a.fight_status === 'pending').length;
@@ -235,6 +298,18 @@ const JudgeProfile = () => {
                     <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-400' : 'bg-white/30 dark:bg-slate-600'}`} />
                     {judge?.is_active ? 'Active' : 'Inactive'}
                   </span>
+                  {!isOwnProfile && user?.role !== 'judge' && (
+                    <button
+                      onClick={handleDownloadPdf}
+                      disabled={pdfLoading}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 text-white border border-white/10 backdrop-blur-sm text-xs font-bold hover:bg-white/25 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {pdfLoading ? 'Generating...' : 'Export PDF'}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -563,6 +638,109 @@ const JudgeProfile = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        </DetailSection>
+      )}
+
+      {/* ── Observations ── */}
+      {user?.role !== 'judge' && (
+        <DetailSection
+          icon={({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+          )}
+          title="Observaciones"
+          description={`${observations.length} observación${observations.length !== 1 ? 'es' : ''} registrada${observations.length !== 1 ? 's' : ''}`}
+        >
+          <div className="p-4 sm:p-5">
+            {observations.length === 0 && !showObsForm ? (
+              <div className="py-6 text-center">
+                <p className="text-sm text-slate-500 dark:text-[#94A3B8] m-0">No hay observaciones registradas.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {observations.map((obs) => (
+                  <div key={obs.id} className="bg-slate-50 dark:bg-[#0B1120]/50 rounded-xl border border-slate-100 dark:border-[#1E293B] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC] m-0">{obs.event_name}</p>
+                        <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5 m-0">
+                          {obs.boxer_red} vs {obs.boxer_blue} · {FORMAT_DATE(obs.scheduled_date)}
+                        </p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300 mt-2 m-0 whitespace-pre-wrap">{obs.observation}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-2 m-0">
+                          Creada por {obs.creator_name} · {FORMAT_DATE(obs.created_at)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteObservation(obs.id)}
+                        className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        title="Delete"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showObsForm ? (
+              <form onSubmit={handleSubmitObservation} className="mt-4 bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-[#1E293B] p-4 space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] mb-1">Pelea</label>
+                  <select
+                    value={obsFormFightId}
+                    onChange={(e) => setObsFormFightId(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] focus:ring-2 focus:ring-wbo-700/40 focus:outline-none"
+                  >
+                    <option value="">Select fight...</option>
+                    {assignments.map((a) => (
+                      <option key={a.fight_id} value={a.fight_id}>
+                        {a.event_name} ({a.boxer_red} vs {a.boxer_blue})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] mb-1">Observación</label>
+                  <textarea
+                    value={obsFormText}
+                    onChange={(e) => setObsFormText(e.target.value)}
+                    required
+                    maxLength={2000}
+                    rows={3}
+                    placeholder="Write the observation..."
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0B1120] text-slate-800 dark:text-[#F8FAFC] focus:ring-2 focus:ring-wbo-700/40 focus:outline-none resize-none"
+                  />
+                  <p className="text-[11px] text-slate-400 dark:text-[#64748B] mt-1 m-0">{obsFormText.length}/2000</p>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button type="button" onClick={() => { setShowObsForm(false); setObsFormFightId(''); setObsFormText(''); }}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#1E293B] rounded-lg transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={obsSubmitting || !obsFormFightId || !obsFormText.trim()}
+                    className="px-3 py-1.5 text-xs font-semibold text-white bg-wbo-700 hover:bg-wbo-800 rounded-lg transition-colors disabled:opacity-50">
+                    {obsSubmitting ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setShowObsForm(true)}
+                className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-wbo-700 dark:text-wbo-300 bg-wbo-50 dark:bg-wbo-900/20 hover:bg-wbo-100 dark:hover:bg-wbo-900/30 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add observation
+              </button>
+            )}
           </div>
         </DetailSection>
       )}
