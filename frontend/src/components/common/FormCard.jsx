@@ -1,8 +1,17 @@
 import BackButton from './BackButton';
 
+// ─── FormCard ──────────────────────────────────────────────────────────────────
+// Envoltura de página para formularios: fondo, botón de retroceso, encabezado
+// con título/subtítulo/ícono, alertas de error o éxito y el contenido (generalmente
+// FormSection) como children. Usa BackButton para la navegación de vuelta.
+// No usa contexto; recibe todo por props.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Clases de la página envolvente: anula los márgenes del layout para fondo a sangre completa
 const pageWrapper =
   'bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16';
 
+// Banner interno de alerta (error o éxito) con ícono y color según el tipo
 const AlertBanner = ({ type, message }) => {
   const isError = type === 'error';
   return (
@@ -27,6 +36,8 @@ const AlertBanner = ({ type, message }) => {
   );
 };
 
+// FormCard: props → title, subtitle, icon (path o nodo), backRoute (ruta de respaldo),
+// children (campos del formulario), error, success (mensajes de alerta) y maxWidth
 const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, maxWidth = 'max-w-3xl' }) => (
   <div className={pageWrapper}>
     <div className={`${maxWidth} mx-auto`}>
@@ -61,4 +72,5 @@ const FormCard = ({ title, subtitle, icon, backRoute, children, error, success, 
   </div>
 );
 
+// Exporta la tarjeta de formulario para páginas de creación/edición
 export default FormCard;

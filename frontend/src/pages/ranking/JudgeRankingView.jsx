@@ -6,6 +6,14 @@ import FilterBar, { FilterInput, FilterSelect } from '../../components/common/Fi
 import { RankingSummaryCard, PositionBadge, LevelBadge, AccuracyBar } from '../../components/ranking/RankingBadges';
 import { JudgeIcon } from '../../components/common/icons';
 import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
+import { JUDGE_LEVEL_OPTIONS, normalizeJudgeLevel } from '../../utils/judgeLevels';
+
+// ─── Ranking de Jueces ──────────────────────────────────────────────────────
+// Pestaña por defecto de "/ranking". Muestra el rendimiento de todos los
+// jueces del sistema ordenable/filtrable: precisión histórica (avg_match_pct)
+// y últimos 5 combates (last_5_avg), con tarjetas resumen globales.
+// Consume: getAllStatistics (statisticsService). Click en un juez →
+// /profile/:id.
 
 const JudgeRankingView = () => {
   const { token } = useAuth();
@@ -14,10 +22,12 @@ const JudgeRankingView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Filtros: búsqueda por nombre, nivel y orden de listado.
   const [searchName, setSearchName] = useState('');
   const [filterLevel, setFilterLevel] = useState('');
   const [sortOrder, setSortOrder] = useState('');
 
+  // Carga las estadísticas agregadas de todos los jueces.
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -28,6 +38,7 @@ const JudgeRankingView = () => {
       .finally(() => setLoading(false));
   }, [token]);
 
+  // Aplica búsqueda por nombre, filtro de nivel y ordenamiento por precisión/combates.
   const filteredJudges = useMemo(() => {
     let result = [...judges];
     if (searchName) {
@@ -35,7 +46,7 @@ const JudgeRankingView = () => {
       result = result.filter((j) => j.name?.toLowerCase().includes(q));
     }
     if (filterLevel) {
-      result = result.filter((j) => j.level === filterLevel);
+      result = result.filter((j) => normalizeJudgeLevel(j.level) === filterLevel);
     }
     if (sortOrder === 'precision_high') {
       result.sort((a, b) => (Number(b.avg_match_pct) || 0) - (Number(a.avg_match_pct) || 0));
@@ -49,6 +60,7 @@ const JudgeRankingView = () => {
     return result;
   }, [judges, searchName, filterLevel, sortOrder]);
 
+  // Estadísticas globales: total de jueces, combates evaluados, precisión media y top juez.
   const summaryStats = useMemo(() => {
     const totalJudges = judges.length;
     const withFights = judges.filter((j) => Number(j.total_fights) > 0);
@@ -62,6 +74,7 @@ const JudgeRankingView = () => {
     return { totalJudges, totalFights, overallAvg, bestJudge };
   }, [judges]);
 
+  // Limpia los filtros de búsqueda/nivel/orden.
   const clearFilters = () => {
     setSearchName('');
     setFilterLevel('');
@@ -90,6 +103,7 @@ const JudgeRankingView = () => {
     );
   }
 
+  // Color de la barra lateral según la posición (oro, plata, bronce o neutro).
   const positionBar = (i) => {
     if (i === 0) return 'bg-[#C9A44C]';
     if (i === 1) return 'bg-slate-400';
@@ -138,12 +152,7 @@ const JudgeRankingView = () => {
         <FilterSelect
           value={filterLevel}
           onChange={setFilterLevel}
-          options={[
-            { value: 'junior', label: 'Junior' },
-            { value: 'intermediate', label: 'Intermediate' },
-            { value: 'senior', label: 'Senior' },
-            { value: 'elite', label: 'Elite' },
-          ]}
+          options={JUDGE_LEVEL_OPTIONS}
           placeholder="Level"
           icon="filter"
         />

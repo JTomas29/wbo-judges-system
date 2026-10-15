@@ -1,7 +1,16 @@
+// ─── Notification.js — Modelo de notificaciones de la plataforma.
+// ─── Mensajes por usuario asociados opcionalmente a una entidad (referencia
+// ─── type + id). Incluye creación (con deduplicación), consulta, marcado como
+// ─── leída, borrado y limpieza por antigüedad ───
 const { pool } = require('../config/db');
 
 const Notification = {};
 
+// Crea una notificación para un usuario. Regla de negocio clave: cuando se pasa
+// `referenceType` y `referenceId`, primero consulta si ya existe una notificación
+// idéntica (mismo usuario, tipo y referencia) y, de existir, la devuelve sin
+// insertar duplicado (patrón idempotente para eventos repetidos, p. ej. varias
+// asignaciones seguidas sobre la misma pelea).
 Notification.create = async ({ userId, type, title, message, referenceType = null, referenceId = null }) => {
   if (referenceType && referenceId) {
     const { rows: existing } = await pool.query(
@@ -21,6 +30,8 @@ Notification.create = async ({ userId, type, title, message, referenceType = nul
   return rows[0];
 };
 
+// Notificaciones de un usuario con paginación (LIMIT/OFFSET), las más recientes
+// primero. `limit` y `offset` tienen defaults para consumo directo desde rutas.
 Notification.getByUser = async (userId, { limit = 20, offset = 0 } = {}) => {
   const { rows } = await pool.query(
     `SELECT id, user_id, type, title, message, reference_type, reference_id, is_read, created_at
@@ -33,6 +44,8 @@ Notification.getByUser = async (userId, { limit = 20, offset = 0 } = {}) => {
   return rows;
 };
 
+// Cuenta las notificaciones no leídas de un usuario. Se usa para el contador
+// del panel de navegación (badge).
 Notification.getUnreadCount = async (userId) => {
   const { rows } = await pool.query(
     `SELECT COUNT(*)::int AS count
@@ -43,6 +56,10 @@ Notification.getUnreadCount = async (userId) => {
   return rows[0].count;
 };
 
+// Marca una notificación como leída, validando además que pertenezca al usuario
+// (`id` + `user_id`): evita que un usuario marque/lea la notificación de otro,
+// pues la consulta no encuentra fila y devuelve null (cuando ya estaba leída o
+// no le pertenece, el UPDATE no afecta filas).
 Notification.markAsRead = async (id, userId) => {
   const { rows } = await pool.query(
     `UPDATE notifications SET is_read = TRUE
@@ -53,6 +70,9 @@ Notification.markAsRead = async (id, userId) => {
   return rows[0] || null;
 };
 
+// Marca como leídas todas las notificaciones pendientes de un usuario,
+// acotado a las no leídas (`is_read = FALSE`) para no re-escribir filas.
+// Devuelve el número de notificaciones actualizadas.
 Notification.markAllAsRead = async (userId) => {
   const { rowCount } = await pool.query(
     `UPDATE notifications SET is_read = TRUE
@@ -62,6 +82,8 @@ Notification.markAllAsRead = async (userId) => {
   return rowCount;
 };
 
+// Elimina una notificación validando propiedad (id + user_id), con la misma
+// guarda que `markAsRead`: devuelve la fila borrada o null si no la encontró.
 Notification.deleteById = async (id, userId) => {
   const { rows } = await pool.query(
     `DELETE FROM notifications
@@ -72,20 +94,8 @@ Notification.deleteById = async (id, userId) => {
   return rows[0] || null;
 };
 
-Notification.getAdminIds = async () => {
-  const { rows } = await pool.query(
-    "SELECT id FROM users WHERE role = 'admin' AND is_active = TRUE"
-  );
-  return rows.map((r) => r.id);
-};
-
-Notification.createForUsers = async (userIds, data) => {
-  if (!userIds || userIds.length === 0) return;
-  await Promise.all(
-    userIds.map((userId) => Notification.create({ ...data, userId }))
-  );
-};
-
+// Purga todas las notificaciones de un usuario (p. ej. al eliminar su cuenta).
+// Devuelve la cantidad de filas eliminadas.
 Notification.deleteAllByUser = async (userId) => {
   const { rowCount } = await pool.query(
     'DELETE FROM notifications WHERE user_id = $1',
@@ -94,6 +104,8 @@ Notification.deleteAllByUser = async (userId) => {
   return rowCount;
 };
 
+// Tarea de mantenimiento: borra notificaciones más antiguas que `days` días
+// (default 20) usando `NOW() - INTERVAL '1 day' * $1`. Devuelve el total borrado.
 Notification.deleteExpired = async (days = 20) => {
   const { rowCount } = await pool.query(
     `DELETE FROM notifications WHERE created_at < NOW() - INTERVAL '1 day' * $1`,

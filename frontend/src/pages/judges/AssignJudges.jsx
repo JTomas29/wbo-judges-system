@@ -5,10 +5,23 @@ import { getJudges, getFightAssignments, createAssignment, deleteAssignment } fr
 import { useAuth } from '../../context/AuthContext';
 import BackButton from '../../components/common/BackButton';
 import { Skeleton } from '../../components/common/Skeletons';
+import SelectField from '../../components/common/SelectField';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── Asignación de Jueces a una Pelea ──────────────────────────────────────
+// Ruta: "/fights/:fightId/assign-judges". Solo admin/supervisor y solo
+// mientras la pelea esté en estado "pending". Permite designar jueces
+// oficiales (máx. 3, puntúan en papel) y de evaluación, y activar la pelea
+// al alcanzar el mínimo exigido. Consume: getFightById, activateFight
+// (fightService); getJudges, getFightAssignments, createAssignment,
+// deleteAssignment (judgeService).
+
+// Límites de jueces de evaluación por pelea.
 const MIN_JUDGES = 3;
 const MAX_JUDGES = 10;
 
+// Badge visual del nivel del juez (junior/senior/elite) con su icono.
+// Normaliza siempre a uno de los 3 niveles: nunca muestra un cuarto valor.
 const levelBadge = (level) => {
   const configs = {
     elite: {
@@ -38,24 +51,20 @@ const levelBadge = (level) => {
       ),
     },
   };
-  const config = configs[level];
-  if (!config) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-[#1E293B]">
-        {level || '—'}
-      </span>
-    );
-  }
+  const key = normalizeJudgeLevel(level);
+  const config = configs[key];
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${config.classes}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${config.classes}`}>
       {config.icon}
-      {level}
+      {judgeLevelLabel(key)}
     </span>
   );
 };
 
+// Límite de jueces oficiales (puntúan en papel; el supervisor carga sus tarjetas).
 const MAX_OFFICIAL_JUDGES = 3;
 
+// Etiqueta legible del tipo de asignación.
 const assignmentTypeLabel = (type) => {
   const map = {
     evaluation: 'Fight Evaluator',
@@ -76,18 +85,21 @@ const AssignJudges = () => {
   const { token, user } = useAuth();
   const canManage = user?.role === 'admin' || user?.role === 'supervisor';
 
+  // Estado local: pelea, asignaciones actuales y catálogo de jueces disponibles.
   const [fight, setFight] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [availableJudges, setAvailableJudges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Selección de los dos formularios de asignación (oficial / evaluación).
   const [selectedJudge, setSelectedJudge] = useState('');
   const [selectedOfficialJudge, setSelectedOfficialJudge] = useState('');
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState(null);
   const [activating, setActivating] = useState(false);
 
+  // Carga en paralelo la pelea, sus asignaciones y todos los jueces del sistema.
   const loadData = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -111,6 +123,7 @@ const AssignJudges = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // Valores derivados: jueces sin asignar, conteos de oficiales, progreso y límites.
   const assignedIds = new Set(assignments.map((a) => a.judge_id));
   const unassignedJudges = availableJudges.filter((j) => !assignedIds.has(j.id));
   const officialCount = assignments.filter((a) => a.assignment_type === 'official').length;
@@ -120,6 +133,7 @@ const AssignJudges = () => {
   const progressColor = totalAssigned >= MIN_JUDGES ? 'bg-emerald-500' : totalAssigned > 0 ? 'bg-amber-500' : 'bg-red-500';
   const atMax = totalAssigned >= MAX_JUDGES;
 
+  // Asigna un juez a la pelea según su tipo (official | evaluation).
   const handleAssign = async (type) => {
     const judgeId = type === 'official' ? Number(selectedOfficialJudge) : Number(selectedJudge);
     if (!judgeId) return;
@@ -137,6 +151,7 @@ const AssignJudges = () => {
     }
   };
 
+  // Retira la asignación de un juez (requiere reload posterior).
   const handleRemove = async (judgeId) => {
     setError(null);
     try {
@@ -147,6 +162,7 @@ const AssignJudges = () => {
     }
   };
 
+  // Activa la pelea (pending → active) al superar el mínimo de jueces y navega al detalle.
   const handleActivate = async () => {
     if (assignments.length < MIN_JUDGES) return;
     setError(null);
@@ -176,6 +192,7 @@ const AssignJudges = () => {
     </div>
   );
 
+  // Guard: solo admin/supervisor pueden asignar jueces.
   if (!canManage && !loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
@@ -192,6 +209,7 @@ const AssignJudges = () => {
     );
   }
 
+  // Guard: las asignaciones solo se pueden modificar mientras la pelea está pending.
   if (fight && fight.status !== 'pending') {
     return (
       <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
@@ -397,14 +415,15 @@ const AssignJudges = () => {
             <div className="p-5">
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
                 <div className="min-w-[200px] flex-1">
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Official Judge</label>
-                  <select value={selectedOfficialJudge} onChange={(e) => setSelectedOfficialJudge(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
-                    <option value="">— Select an official judge —</option>
-                    {unassignedJudges.map((j) => (
-                      <option key={j.id} value={j.id}>{j.name} ({j.level || 'no level'})</option>
-                    ))}
-                  </select>
+                  <SelectField
+                    name="official-judge"
+                    label="Official Judge"
+                    value={selectedOfficialJudge}
+                    onChange={(e) => setSelectedOfficialJudge(e.target.value)}
+                    disabled={assigning}
+                    placeholder="— Select an official judge —"
+                    options={unassignedJudges.map((j) => ({ value: j.id, label: `${j.name} (${judgeLevelLabel(j.level)})` }))}
+                  />
                 </div>
                 <button disabled={!selectedOfficialJudge || assigning}
                   className="inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-11 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"
@@ -444,14 +463,15 @@ const AssignJudges = () => {
           <div className="p-5">
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
               <div className="min-w-[200px] flex-1">
-                <label className="block text-xs font-semibold text-slate-600 dark:text-[#94A3B8] uppercase tracking-wider mb-1.5">Judge</label>
-                <select value={selectedJudge} onChange={(e) => setSelectedJudge(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-[#1E293B] rounded-xl text-base sm:text-sm focus:outline-none focus:border-wbo-700 focus:ring-2 focus:ring-wbo-700/20 bg-white dark:bg-[#0B1120] text-slate-900 dark:text-[#F8FAFC] transition-all duration-250 hover:border-slate-300 dark:hover:border-[#334155]">
-                  <option value="">— Select a judge —</option>
-                  {unassignedJudges.map((j) => (
-                    <option key={j.id} value={j.id}>{j.name} ({j.level || 'no level'})</option>
-                  ))}
-                </select>
+                <SelectField
+                  name="evaluation-judge"
+                  label="Judge"
+                  value={selectedJudge}
+                  onChange={(e) => setSelectedJudge(e.target.value)}
+                  disabled={assigning}
+                  placeholder="— Select a judge —"
+                  options={unassignedJudges.map((j) => ({ value: j.id, label: `${j.name} (${judgeLevelLabel(j.level)})` }))}
+                />
               </div>
               <button disabled={!selectedJudge || assigning}
                 className="inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-11 bg-wbo-700 text-white rounded-xl text-sm font-bold hover:bg-wbo-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 shrink-0"

@@ -1,7 +1,13 @@
+// ─── OfficialCard.js — Modelo de la tarjeta OFICIAL de puntuación de una pelea
+// ─── (la referencia contra la que se evalúa a los jueces). Crea la tarjeta con
+// ─── sus asaltos en una transacción y la consulta incluyendo esos asaltos ───
 const { pool } = require('../config/db');
 
 const OfficialCard = {};
 
+// Busca la tarjeta oficial de una pelea (se asume una por pelea) y, si existe,
+// adjunta la lista de sus asaltos (`official_round_scores`) ordenada por
+// `round_number` en la propiedad `rounds`. Devuelve null si no hay tarjeta.
 OfficialCard.findByFight = async (fightId) => {
   const cardRes = await pool.query(`
     SELECT id, fight_id, total_score_red, total_score_blue, winner, created_by, created_at
@@ -21,6 +27,12 @@ OfficialCard.findByFight = async (fightId) => {
   return card;
 };
 
+// Crea la tarjeta oficial junto con todos sus asaltos dentro de una transacción
+// (BEGIN/COMMIT/ROLLBACK), garantizando atomicidad: o se guarda la tarjeta y
+// todos sus `official_round_scores`, o no queda nada. El INSERT múltiple de
+// asaltos se arma con un solo statement de valores generados (`$$n` por asalto,
+// 6 params c/u) y las deducciones se normalizan con `?? 0`. Al finalizar se
+// vuelve a leer la tarjeta y sus asaltos para devolver el estado completo.
 OfficialCard.create = async (fightId, rounds, userId) => {
   const client = await pool.connect();
   try {

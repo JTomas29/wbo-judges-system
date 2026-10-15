@@ -9,7 +9,17 @@ import DetailSection from '../../components/detail/DetailSection';
 import { BoltIcon, CheckBadgeIcon, ChartBarIcon, ArrowTrendingUpIcon, ShieldCheckIcon, ScaleIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { JudgeIcon } from '../../components/common/icons';
 import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
+import { getPerformanceRating, RATING_SIN_DATOS } from '../../utils/performanceRating';
 
+// ─── Perfil de Juez ─────────────────────────────────────────────────────────
+// Ruta: "/profile/:judgeId" (o "/profile/:userId" para el propio juez).
+// Muestra datos del juez, estadísticas globales (precisión, peleas, asaltos),
+// historial por pelea, asignaciones y observaciones (solo staff) + exportar PDF.
+// Consume: getJudgeById/getJudgeAssignments/getMyAssignments (judgeService),
+// getJudgeStatistics (statisticsService), observaciones/PDF (profileService).
+
+// Estilo del badge según el nivel del juez.
 const LEVEL_BADGE = {
   elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
   senior: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50',
@@ -27,6 +37,7 @@ const Badge = ({ children, className = '' }) => (
   </span>
 );
 
+// Clasifica el porcentaje de acierto en rangos (excelente/bueno/regular/mejorable).
 const getResultMeta = (pct) => {
   if (pct >= 80) return { label: 'Excellent', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800/50', bar: 'bg-gradient-to-r from-green-500 to-emerald-400' };
   if (pct >= 60) return { label: 'Good', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', bar: 'bg-gradient-to-r from-amber-500 to-yellow-400' };
@@ -34,12 +45,7 @@ const getResultMeta = (pct) => {
   return { label: 'Needs improvement', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', bar: 'bg-gradient-to-r from-red-500 to-rose-400' };
 };
 
-const performanceBadge = (pct) => {
-  if (pct >= 80) return { emoji: '🥇', label: 'Excellent' };
-  if (pct >= 60) return { emoji: '🥈', label: 'Very good' };
-  if (pct >= 40) return { emoji: '🥉', label: 'Good' };
-  return { emoji: '📈', label: 'In progress' };
-};
+
 
 const ProgressBar = ({ value, size = 'md' }) => {
   const meta = getResultMeta(value);
@@ -80,6 +86,7 @@ const DonutChart = ({ value, size = 120 }) => {
   );
 };
 
+// Apariencia de cada estado de asignación (igual que en JudgeAssignments).
 const STATE_META = {
   pending:    { label: 'Pending',   color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 dark:border dark:border-amber-800/50' },
   active:     { label: 'Active',     color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 dark:border dark:border-green-800/50' },
@@ -93,6 +100,7 @@ const JudgeProfile = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
 
+  // Estado local: juez, asignaciones, estadísticas, observaciones y flags de UI.
   const [judge, setJudge] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [stats, setStats] = useState(null);
@@ -105,15 +113,19 @@ const JudgeProfile = () => {
   const [obsFormText, setObsFormText] = useState('');
   const [obsSubmitting, setObsSubmitting] = useState(false);
 
+  // Id del juez a visualizar + si es el propio perfil del usuario logueado.
   const targetJudgeId = parseInt(judgeId || userId, 10);
   const isOwnProfile = user?.id === targetJudgeId;
 
+  // Guard: un juez solo puede ver su propio perfil (redirige al suyo).
   useEffect(() => {
     if (user?.role === 'judge' && user.id !== targetJudgeId) {
       navigate(`/profile/${user.id}`, { replace: true });
     }
   }, [user, targetJudgeId, navigate]);
 
+  // Carga el perfil: si es juez usa sus asignaciones propias y los datos del user;
+  // si es staff, busca al juez por id (tolerante a fallos por sección con Promise.allSettled).
   const loadData = useCallback(async () => {
     if (!token || !targetJudgeId) return;
     setLoading(true);
@@ -185,6 +197,7 @@ const JudgeProfile = () => {
     );
   }
 
+  // Genera y descarga el PDF del perfil del juez (blob descargado en el navegador).
   const handleDownloadPdf = async () => {
     setPdfLoading(true);
     try {
@@ -204,6 +217,7 @@ const JudgeProfile = () => {
     }
   };
 
+  // Crea una observación del staff sobre el juez y refresca la lista.
   const handleSubmitObservation = async (e) => {
     e.preventDefault();
     if (!obsFormFightId || !obsFormText.trim()) return;
@@ -227,6 +241,7 @@ const JudgeProfile = () => {
     }
   };
 
+  // Elimina una observación (con confirmación) y la quita de la lista local.
   const handleDeleteObservation = async (obsId) => {
     if (!window.confirm('Delete this observation?')) return;
     try {
@@ -237,16 +252,19 @@ const JudgeProfile = () => {
     }
   };
 
+  // Conteos derivados para las tarjetas de resumen según estado de la pelea.
   const totalAssigned = assignments.length;
   const pendingConfirm = assignments.filter((a) => a.fight_status === 'pending').length;
   const activeScoring = assignments.filter(
     (a) => a.fight_status === 'active' && a.scorecard_status !== 'finalized'
   ).length;
-  const analyzedCount = assignments.filter((a) => a.fight_status === 'analyzed').length;
-
-  const precision = stats?.avg_match_pct || 0;
+  const precision = stats?.avg_match_pct ?? null;
   const totalFights = stats?.total_fights || 0;
   const totalRounds = stats?.total_rounds || 0;
+  // Errores y coincidencias los agrega el backend desde las MISMAS filas del
+  // historial (analysis_results); no se recalculan ni se estiman aquí.
+  const totalErrors = stats?.total_errors ?? 0;
+  const staleFights = stats?.stale_fights || 0;
 
   const initials = judge?.name
     ?.split(' ')
@@ -255,7 +273,13 @@ const JudgeProfile = () => {
     .slice(0, 2)
     .toUpperCase() || '??';
 
-  const pBadge = performanceBadge(precision);
+  // Consistencia = clasificación por CANTIDAD DE ERRORES (analysis_results.errors),
+// la misma regla del historial. El porcentaje de acierto se muestra aparte y NO
+// se usa para clasificar: son métricas distintas y confundirlas daba etiquetas
+// contradictorias (p.ej. 80.8% de acierto pero 6 errores -> "Excellent").
+// Sin peleas analizadas se muestra "No data yet" en vez de "Excellent", porque
+// 0 errores sin rounds evaluados no significa buen rendimiento.
+const pBadge = totalFights > 0 ? getPerformanceRating(totalErrors) : RATING_SIN_DATOS;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-[fadeIn_0.3s_ease-out]">
@@ -291,8 +315,8 @@ const JudgeProfile = () => {
                   <Badge className="bg-white/15 text-white border border-white/10 backdrop-blur-sm">
                     Judge
                   </Badge>
-                  <Badge className={LEVEL_BADGE[judge?.level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}>
-                    {judge?.level || '—'}
+                  <Badge className={LEVEL_BADGE[normalizeJudgeLevel(judge?.level)]}>
+                    {judgeLevelLabel(judge?.level)}
                   </Badge>
                   <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${judge?.is_active ? 'text-green-300 dark:text-green-400' : 'text-white/40 dark:text-slate-500'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${judge?.is_active ? 'bg-green-400' : 'bg-white/30 dark:bg-slate-600'}`} />
@@ -400,8 +424,8 @@ const JudgeProfile = () => {
                 <svg className="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-violet-500 dark:text-violet-400/70 m-0 leading-none">Analyzed</p>
-                <p className="text-lg font-extrabold text-violet-800 dark:text-violet-200 mt-1 m-0 leading-tight tabular-nums">{analyzedCount}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-violet-500 dark:text-violet-400/70 m-0 leading-none">Errors</p>
+                <p className="text-lg font-extrabold text-violet-800 dark:text-violet-200 mt-1 m-0 leading-tight tabular-nums">{totalErrors}</p>
               </div>
             </div>
           </div>
@@ -451,14 +475,14 @@ const JudgeProfile = () => {
                 <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-800/30 flex items-center justify-center mx-auto mb-2">
                   <ShieldCheckIcon className="w-4 h-4 text-violet-700 dark:text-violet-400" />
                 </div>
-                <p className="text-sm font-extrabold text-violet-800 dark:text-violet-200 m-0 capitalize">{judge?.level || '—'}</p>
+                <p className="text-sm font-extrabold text-violet-800 dark:text-violet-200 m-0">{judgeLevelLabel(judge?.level)}</p>
                 <p className="text-[10px] font-bold text-violet-500 dark:text-violet-400/60 uppercase tracking-wider mt-0.5 m-0">Level</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-100 dark:border-emerald-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-800/30 flex items-center justify-center mx-auto mb-2">
                   <CheckBadgeIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 </div>
-                <p className="text-lg font-extrabold text-emerald-800 dark:text-emerald-200 m-0 tabular-nums">{analyzedCount}</p>
+                <p className="text-lg font-extrabold text-emerald-800 dark:text-emerald-200 m-0 tabular-nums">{totalFights}</p>
                 <p className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400/60 uppercase tracking-wider mt-0.5 m-0">Analyzed</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-sky-50 dark:bg-sky-900/15 border border-sky-100 dark:border-sky-800/25 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
@@ -565,22 +589,50 @@ const JudgeProfile = () => {
 
       {/* ── Performance History ── */}
       {stats?.history && stats.history.length > 0 && (
-        <DetailSection icon={ChartBarIcon} title="Performance History" description="Accuracy and results per fight">
+        <DetailSection icon={ChartBarIcon} title="Performance History" description="Official result and judge accuracy per fight">
+          {staleFights > 0 && (
+            <div className="mx-4 mt-4 sm:mx-5 flex items-start gap-2 text-[11px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg px-3 py-2">
+              <span>
+                {staleFights} of these {staleFights === 1 ? 'fight has' : 'fights have'} no reference round scores left,
+                so {'their'} recorded accuracy can no longer be recalculated. Shown as recorded.
+              </span>
+            </div>
+          )}
           <div className="sm:hidden space-y-3 p-4">
             {stats.history.map((h) => {
-              const rMeta = getResultMeta(h.match_pct);
+              // La columna Result se clasifica por CANTIDAD DE ERRORES (entero),
+              // no por porcentaje. La fuente del entero es analysis_results.errors.
+              // El porcentaje se sigue mostrando aparte en la columna Accuracy.
+              const rating = getPerformanceRating(h.errors);
               return (
                 <div key={h.fight_id} className="bg-slate-50 dark:bg-[#0B1120]/50 rounded-xl border border-slate-100 dark:border-[#1E293B] p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC] truncate m-0">{h.event_name}</p>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${rMeta.bg} ${rMeta.color} border ${rMeta.border}`}>
-                      {h.match_pct >= 80 ? '🥇' : h.match_pct >= 60 ? '🥈' : h.match_pct >= 40 ? '🥉' : '⚠'} {rMeta.label}
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${rating.bg} ${rating.color} border ${rating.border}`}>
+                      {rating.emoji} {rating.label}
                     </span>
                   </div>
+                  {/* Boxeadores enfrentados y resultado oficial de la PELEA.
+                      Esto es el resultado del combate, no la evaluación del juez. */}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 m-0 mb-0.5">
+                    {h.boxer_red} <span className="text-slate-400">vs</span> {h.boxer_blue}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] m-0 mb-2">
+                    Official result:{' '}
+                    {h.fight_result_winner
+                      ? `${h.fight_result_winner} (${h.fight_result_type || 'result registered'})`
+                      : 'not registered'}
+                    {h.official_winner ? ` · Reference card: ${h.official_winner} ${h.official_score_red}-${h.official_score_blue}` : ''}
+                  </p>
+                  {h.analysis_valid === false && (
+                    <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/25 border border-amber-200 dark:border-amber-800/50 rounded px-2 py-1 m-0 mb-2">
+                      Reference card no longer has round scores — this result can no longer be recalculated
+                    </p>
+                  )}
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
                       <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Accuracy</p>
-                      <p className={`text-sm font-extrabold tabular-nums m-0 ${rMeta.color}`}>{h.match_pct}%</p>
+                      <p className={`text-sm font-extrabold tabular-nums m-0 ${getResultMeta(h.match_pct).color}`}>{h.match_pct}%</p>
                     </div>
                     <div>
                       <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Matches</p>
@@ -603,8 +655,10 @@ const JudgeProfile = () => {
               <thead>
                 <tr className="border-b border-slate-200 dark:border-[#1E293B]">
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Fight</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Boxers</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden sm:table-cell">Date</th>
-                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Result</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden lg:table-cell">Official result</th>
+                  <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8]">Rating</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Accuracy</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Exact Matches</th>
                   <th className="text-left py-3.5 px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wide dark:text-[#94A3B8] hidden md:table-cell">Errors</th>
@@ -612,15 +666,35 @@ const JudgeProfile = () => {
               </thead>
               <tbody>
                 {stats.history.map((h) => {
-                  const rMeta = getResultMeta(h.match_pct);
+                  // Result se deriva de la cantidad de errores (entero), no del
+                  // porcentaje. Accuracy y Errors siguen mostrándose aparte.
+                  const rating = getPerformanceRating(h.errors);
                   return (
                     <tr key={h.fight_id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors dark:border-[#1E293B] dark:hover:bg-[#1A2435]">
-                      <td className="py-3.5 px-4 font-semibold text-slate-800 truncate max-w-[200px] dark:text-[#F8FAFC]">{h.event_name}</td>
-                      <td className="py-3.5 px-4 text-slate-500 text-xs hidden sm:table-cell dark:text-[#94A3B8]">{FORMAT_DATE(h.scheduled_date)}</td>
+                      <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-[#F8FAFC]">
+                        <div className="truncate max-w-[180px]">{h.event_name}</div>
+                        {h.analysis_valid === false && (
+                          <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/25 border border-amber-200 dark:border-amber-800/50 rounded px-1.5 py-0.5">
+                            Not recalculable
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600 text-xs dark:text-[#94A3B8]">
+                        <div className="whitespace-nowrap">{h.boxer_red} <span className="text-slate-400">vs</span> {h.boxer_blue}</div>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-500 text-xs hidden sm:table-cell dark:text-[#94A3B8] whitespace-nowrap">{FORMAT_DATE(h.scheduled_date)}</td>
+                      <td className="py-3.5 px-4 text-xs hidden lg:table-cell dark:text-[#94A3B8]">
+                        {h.fight_result_winner
+                          ? <span className="font-semibold text-slate-700 dark:text-slate-200">{h.fight_result_winner}</span>
+                          : <span className="text-slate-400 italic">Not registered</span>}
+                        {h.official_winner && (
+                          <div className="text-[10px] text-slate-400">Ref. card: {h.official_winner} {h.official_score_red}-{h.official_score_blue}</div>
+                        )}
+                      </td>
                       <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${rMeta.bg} ${rMeta.color} border ${rMeta.border}`}>
-                          {h.match_pct >= 80 ? '🥇' : h.match_pct >= 60 ? '🥈' : h.match_pct >= 40 ? '🥉' : '⚠'}
-                          <span>{rMeta.label}</span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${rating.bg} ${rating.color} border ${rating.border}`}>
+                          {rating.emoji}
+                          <span>{rating.label}</span>
                         </span>
                       </td>
                       <td className="py-3.5 px-4 hidden md:table-cell">
@@ -628,7 +702,7 @@ const JudgeProfile = () => {
                           <div className="flex-1 max-w-[120px]">
                             <ProgressBar value={h.match_pct} size="sm" />
                           </div>
-                          <span className={`text-xs font-extrabold tabular-nums ${rMeta.color}`}>{h.match_pct}%</span>
+                          <span className={`text-xs font-extrabold tabular-nums ${getResultMeta(h.match_pct).color}`}>{h.match_pct}%</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-slate-600 text-sm font-semibold hidden md:table-cell dark:text-[#94A3B8] tabular-nums">{h.matches}</td>

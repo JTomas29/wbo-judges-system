@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getFightById } from '../../services/fightService';
 import { getMyScorecard, createScorecard, saveRound, finalizeScorecard } from '../../services/scoringService';
 import { getEffectiveTotalRounds, isEarlyResult, RESULT_TYPE_LABELS } from '../../utils/fightResult';
+import { computeCardTotals, isValidRoundScore, MAX_DEDUCTION, MAX_ROUND_SCORE, MIN_ROUND_SCORE, validateRoundScore } from '../../utils/scoringRules';
 import BackButton from '../../components/common/BackButton';
 import { PageActionButton } from '../../components/detail/PageActions';
 import { ConfirmModal } from '../../components/common/modals';
@@ -11,6 +12,17 @@ import DeductionSelect from '../../components/common/DeductionSelect';
 import { WeightIcon } from '../../components/common/icons';
 import { CalendarIcon, MapPinIcon, UserGroupIcon, CheckBadgeIcon, BoltIcon, CheckIcon, ChatBubbleOvalLeftIcon, ChartBarIcon, ClockIcon, ExclamationTriangleIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
+// ─── Puntuación de Combate (Tarjeta del Juez) ───────────────────────────────
+// Ruta: "/scoring/:fightId". Es la tarjeta del juez asignado: permite cargar
+// los puntajes de cada round (6–10, sistema 10-point-must) y los descuentos
+// (0–2) con autoguardado (blur), notas por round, y enviar la tarjeta final
+// (inalterable). El descuento NUNCA modifica el puntaje del round: se muestra
+// aparte y sólo se descuenta del total acumulado de la tarjeta. Si la pelea ya
+// se finalizó, muestra el resumen en modo lectura.
+// Consume: getFightById (fightService); getMyScorecard, createScorecard,
+// saveRound, finalizeScorecard (scoringService).
+
+// Formatea fecha + hora de envío.
 const formatDateTime = (d) => {
   if (!d) return '';
   return new Date(d).toLocaleString('en-US', {
@@ -19,11 +31,17 @@ const formatDateTime = (d) => {
   });
 };
 
+// Formatea fechas (día-mes-año).
 const formatDate = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Normaliza un asalto recibido del servidor al estado local razonado.
+// Se mantienen separadas las tres magnitudes para no mezclarlas nunca:
+//   score_red / score_blue             → round_score (puntaje base del round)
+//   deduction_red / deduction_blue     → descuento del round
+//   final_score_red / final_score_blue → score - deduction (sólo total de tarjeta)
 const roundFromServer = (rs) => ({
   score_red: rs.score_red,
   score_blue: rs.score_blue,
@@ -34,9 +52,17 @@ const roundFromServer = (rs) => ({
   notes: rs.notes || '',
 });
 
-// Puntaje final del round considerando el descuento (se muestra en vivo en la carga)
-const computeFinal = (score, deduction) =>
-  score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
+// Convierte el estado local `roundData` ({ [round]: {...} }) en el array que
+// consume `computeCardTotals`, para derivar los totales de la tarjeta sin
+// tocar los puntajes base de cada round.
+const roundsListFrom = (roundData) => Object.values(roundData || {});
+
+// Aporte de ESTE round al total de la tarjeta: score del round menos su
+// descuento. `null` mientras el score esté vacío. No modifica el score del round.
+const computeRoundTotal = (score, deduction) =>
+  (score !== undefined && score !== null && score !== '')
+    ? Number(score) - Number(deduction || 0)
+    : null;
 
 const inputRedBase = "w-full min-h-12 px-3 py-3 text-center rounded-xl text-lg font-extrabold text-red-700 dark:text-red-400 placeholder-slate-300 dark:placeholder-slate-600 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-red-300 dark:hover:border-red-900/60 focus:outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70";
 
@@ -44,6 +70,7 @@ const inputBlueBase = "w-full min-h-12 px-3 py-3 text-center rounded-xl text-lg 
 
 const notesInputBase = "w-full min-h-12 px-4 py-3 rounded-xl text-base text-slate-800 dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 bg-slate-50/50 dark:bg-[#0B1120] border border-slate-200 dark:border-[#1E293B] shadow-sm transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus:border-wbo-700 focus:ring-4 focus:ring-wbo-700/10 focus:shadow-md disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed disabled:opacity-70 resize-y";
 
+// Enfoca y centra un campo al recibir foco (scroll suave).
 const scrollToField = (e) => {
   try {
     e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -52,6 +79,7 @@ const scrollToField = (e) => {
   }
 };
 
+// Pantalla de éxito mostrada tras enviar la tarjeta (modo lectura).
 const SuccessHero = ({ submittedAt }) => (
   <div className="bg-gradient-to-br from-white via-white to-wbo-50/40 dark:from-[#111827] dark:via-[#111827] dark:to-[#1a1528] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-4 border-t-wbo-700 shadow-lg p-8 sm:p-10 text-center animate-[fadeIn_0.4s_ease-out]">
     <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-5 animate-[scaleIn_0.5s_ease-out] shadow-md">
@@ -72,6 +100,7 @@ const SuccessHero = ({ submittedAt }) => (
   </div>
 );
 
+// Acentos de color para las tarjetas de resultado (rojo/azul/ámbar/esmeralda).
 const accentMap = {
   red: { border: 'border-t-red-500', iconBg: 'bg-red-50 dark:bg-red-900/20', iconColor: 'text-red-700 dark:text-red-400', valueColor: 'text-red-700 dark:text-red-400', hoverRing: 'hover:ring-red-200/50' },
   blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400', valueColor: 'text-blue-700 dark:text-blue-400', hoverRing: 'hover:ring-blue-200/50' },
@@ -79,6 +108,7 @@ const accentMap = {
   emerald: { border: 'border-t-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/20', iconColor: 'text-emerald-700 dark:text-emerald-400', valueColor: 'text-emerald-700 dark:text-emerald-400', hoverRing: 'hover:ring-emerald-200/50' },
 };
 
+// Tarjeta de resultado (total, ganador, diferencia) con acento de color.
 const ResultCard = ({ label, value, icon, accent = 'red' }) => {
   const a = accentMap[accent];
   return (
@@ -94,6 +124,7 @@ const ResultCard = ({ label, value, icon, accent = 'red' }) => {
   );
 };
 
+// Resumen de la pelea en modo lectura (fecha, sede, rol y estado).
 const FightSummaryCard = ({ fight, roleLabel }) => {
   const infoItems = [
     { icon: CalendarIcon, label: 'Date', value: formatDate(fight.scheduled_date) },
@@ -132,12 +163,56 @@ const FightSummaryCard = ({ fight, roleLabel }) => {
   );
 };
 
+// Insignia corta "R{n}" que identifica el asalto.
 const RoundBadge = ({ roundNumber }) => (
   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-wbo-50 dark:bg-wbo-900/20 text-wbo-700 dark:text-wbo-300 ring-1 ring-wbo-200/60 dark:ring-wbo-800/40">
     R{roundNumber}
   </span>
 );
 
+// Pie de totales de la tarjeta: separa explícitamente las tres magnitudes para
+// que nunca se confunda el score del round con el score final.
+//   Base total  = roundScore  (suma de los puntajes de cada round, sin descuento)
+//   Deductions  = descuentos cargados
+//   Final total = roundScore - deductions  (es lo que guarda la tarjeta)
+const RoundsTotalsFooter = ({ roundData }) => {
+  const { roundScore, deductions, finalScore } = computeCardTotals(roundsListFrom(roundData));
+  const hasDeductions = deductions.red > 0 || deductions.blue > 0;
+
+  return (
+    <div className="px-4 sm:px-6 py-4 bg-slate-50/70 dark:bg-[#0B1120] border-t border-slate-200 dark:border-[#1E293B]">
+      <div className="grid grid-cols-3 gap-3 text-center">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Base total</p>
+          <p className="text-base font-extrabold text-slate-700 dark:text-[#F8FAFC] tabular-nums m-0">
+            {roundScore.red} - {roundScore.blue}
+          </p>
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Deductions</p>
+          <p className="text-base font-extrabold text-amber-600 dark:text-amber-400 tabular-nums m-0">
+            -{deductions.red} - {deductions.blue}
+          </p>
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#64748B] m-0">Final total</p>
+          <p className="text-base font-extrabold text-wbo-700 dark:text-wbo-400 tabular-nums m-0">
+            {finalScore.red} - {finalScore.blue}
+          </p>
+        </div>
+      </div>
+      {hasDeductions && (
+        <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] text-center m-0 mt-2">
+          Deductions are applied to the card total only. Round scores stay as scored.
+        </p>
+      )}
+    </div>
+  );
+};
+
+// Tabla (escritorio) y cards (móvil) con el PUNTAJE BASE de cada asalto.
+// El descuento se muestra como insignia aparte y se aplica únicamente sobre el
+// total acumulado (RoundsTotalsFooter): el score del round nunca se modifica.
 const RoundsTable = ({ fight, roundData, totalRounds }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden animate-[fadeIn_0.55s_ease-out]">
     <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B]">
@@ -171,14 +246,14 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
                 <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
                 <span className="text-xs font-semibold text-red-600 dark:text-red-300 truncate">{fight.boxer_red}</span>
                 <span className="ml-auto text-lg font-extrabold text-red-700 dark:text-red-400 tabular-nums shrink-0">
-                  {data.final_score_red ?? '\u2014'}
+                  {data.score_red ?? '\u2014'}
                 </span>
               </div>
               <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/15 rounded-xl px-3 py-2.5 border border-blue-100 dark:border-blue-800/25">
                 <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
                 <span className="text-xs font-semibold text-blue-600 dark:text-blue-300 truncate">{fight.boxer_blue}</span>
                 <span className="ml-auto text-lg font-extrabold text-blue-700 dark:text-blue-400 tabular-nums shrink-0">
-                  {data.final_score_blue ?? '\u2014'}
+                  {data.score_blue ?? '\u2014'}
                 </span>
               </div>
             </div>
@@ -208,19 +283,19 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
                 <td className="px-5 py-3.5 text-center">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-red-400 dark:bg-red-500/70" />
-                    <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.final_score_red ?? '\u2014'}</span>
+                    <span className="text-base font-extrabold text-red-700 dark:text-red-400 tabular-nums">{data.score_red ?? '\u2014'}</span>
                   </span>
                   {data.deduction_red > 0 && (
-                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
+                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle" title="Deduction applied to the card total, not to this round">-{data.deduction_red}</span>
                   )}
                 </td>
                 <td className="px-5 py-3.5 text-center">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue-400 dark:bg-blue-500/70" />
-                    <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.final_score_blue ?? '\u2014'}</span>
+                    <span className="text-base font-extrabold text-blue-700 dark:text-blue-400 tabular-nums">{data.score_blue ?? '\u2014'}</span>
                   </span>
                   {data.deduction_blue > 0 && (
-                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
+                    <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle" title="Deduction applied to the card total, not to this round">-{data.deduction_blue}</span>
                   )}
                 </td>
                 <td className="px-5 py-3.5 text-slate-500 dark:text-[#64748B] text-xs italic max-w-[220px] truncate">{data.notes || '\u2014'}</td>
@@ -230,9 +305,11 @@ const RoundsTable = ({ fight, roundData, totalRounds }) => (
         </tbody>
       </table>
     </div>
+    <RoundsTotalsFooter roundData={roundData} />
   </div>
 );
 
+// Insignia de encabezado "Round {n}" para el editor en borrador.
 const DraftRoundBadge = ({ roundNumber }) => (
   <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-wbo-700 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/40">
     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -242,6 +319,7 @@ const DraftRoundBadge = ({ roundNumber }) => (
   </span>
 );
 
+// Encabezado del editor en borrador: pelea, datos y estado "listo/en progreso".
 const DraftHeader = ({ fight, allComplete }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-lg overflow-hidden animate-[fadeIn_0.3s_ease-out]">
     <div className="relative bg-gradient-to-r from-wbo-800 via-wbo-700 to-wbo-800 px-6 py-6 sm:px-8">
@@ -317,6 +395,7 @@ const DraftHeader = ({ fight, allComplete }) => (
   </div>
 );
 
+// Tarjeta de progreso: asaltos cargados y % con barra animada.
 const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md p-5 sm:p-6 animate-[fadeIn_0.35s_ease-out]">
     <div className="flex items-center justify-between gap-4 mb-4">
@@ -355,6 +434,7 @@ const ProgressCard = ({ completedRounds, totalRounds, progressPct, allComplete }
   </div>
 );
 
+// Resumen lateral del editor: asaltos completados, pendientes y estado.
 const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
   const items = [
     { label: 'Rounds completed', value: `${completedRounds} / ${totalRounds}`, strong: true },
@@ -392,6 +472,7 @@ const SummarySidebar = ({ completedRounds, totalRounds, allComplete }) => {
   );
 };
 
+// Botones post-envío: volver al dashboard o a mis asignaciones.
 const ActionButtons = ({ navigate }) => (
   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-[fadeIn_0.6s_ease-out]">
     <button
@@ -420,6 +501,7 @@ const ScoreFight = () => {
   const navigate = useNavigate();
   const { user, token } = useAuth();
 
+  // Estado: pelea, tarjeta, asaltos, errores, guardado en curso y flags.
   const [fight, setFight] = useState(null);
   const [scoreCard, setScoreCard] = useState(null);
   const [roundData, setRoundData] = useState({});
@@ -433,20 +515,24 @@ const ScoreFight = () => {
   const [finalizing, setFinalizing] = useState(false);
   const [fightUpdateMessage, setFightUpdateMessage] = useState(null);
 
+  // Valores derivados: asaltos efectivos, fin anticipado y estado de la tarjeta.
   const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
   const earlyEnded = fight ? isEarlyResult(fight) : false;
   const isFinalized = scoreCard?.status === 'finalized';
 
+  // Asaltos completos: par de puntajes que cumple la regla 10-point-must
+  // (6–10 con un 10 obligatorio). El descuento se ignora para el conteo porque
+  // no forma parte del puntaje del round.
   const completedRounds = Object.keys(roundData).filter(
-    (r) => roundData[r]?.score_red >= 1 && roundData[r]?.score_blue >= 1
-      && (roundData[r]?.score_red - (roundData[r]?.deduction_red || 0)) >= 1
-      && (roundData[r]?.score_blue - (roundData[r]?.deduction_blue || 0)) >= 1
+    (r) => isValidRoundScore(roundData[r]?.score_red, roundData[r]?.score_blue)
   ).length;
   const allComplete = completedRounds >= totalRounds && totalRounds > 0;
   const progressPct = totalRounds > 0 ? Math.round((completedRounds / totalRounds) * 100) : 0;
 
+  // Referencias de timers para el "Saved..." temporal (por asalto).
   const timersRef = useRef({});
 
+  // Limpia todos los timers pendientes al desmontar.
   useEffect(() => {
     const timers = timersRef.current;
     return () => {
@@ -454,6 +540,8 @@ const ScoreFight = () => {
     };
   }, []);
 
+  // Carga la pelea y la tarjeta del juez; crea la tarjeta si aún no existe
+  // y aplica restricciones (solo jueces, pelea activa o con fin anticipado).
   useEffect(() => {
     if (!token || !user) return;
     let cancelled = false;
@@ -531,6 +619,8 @@ const ScoreFight = () => {
     return () => { cancelled = true; };
   }, [fightId, token, user]);
 
+  // Polling cada 10 s: detecta cambios en el resultado/estado de la pelea
+  // (p. ej. fin anticipado) para bloquear asaltos posteriores al knockout.
   useEffect(() => {
     if (!token || !fight || !scoreCard || isFinalized) return;
     let cancelled = false;
@@ -567,6 +657,7 @@ const ScoreFight = () => {
     return () => { cancelled = true; clearInterval(interval); };
   }, [fightId, token, scoreCard, isFinalized, fight?.result_type]);
 
+  // Actualiza un campo de un asalto en el estado local (bloqueado si está finalizada).
   const updateRound = useCallback((roundNum, field, value) => {
     if (isFinalized) return;
     setRoundData((prev) => {
@@ -580,6 +671,8 @@ const ScoreFight = () => {
     });
   }, [isFinalized]);
 
+  // Al salir del campo valida la regla 10-point-must (6–10 con un 10 obligatorio)
+  // y autoguarda el asalto completo.
   const handleBlur = useCallback(async (roundNum) => {
     if (isFinalized) return;
     const data = roundData[roundNum];
@@ -588,12 +681,9 @@ const ScoreFight = () => {
     const sRed = Number(data.score_red);
     const sBlue = Number(data.score_blue);
 
-    if (sRed < 1 || sRed > 10) {
-      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_red must be between 1 and 10' }));
-      return;
-    }
-    if (sBlue < 1 || sBlue > 10) {
-      setRoundErrors((prev) => ({ ...prev, [roundNum]: 'score_blue must be between 1 and 10' }));
+    const validation = validateRoundScore(sRed, sBlue);
+    if (!validation.valid) {
+      setRoundErrors((prev) => ({ ...prev, [roundNum]: validation.message }));
       return;
     }
 
@@ -617,6 +707,8 @@ const ScoreFight = () => {
     }
   }, [roundData, scoreCard, token, isFinalized]);
 
+  // Cambio de deducción: el descuento NUNCA toca el score del round; sólo se
+  // guarda aparte y se descuenta del total acumulado de la tarjeta. Autoguarda.
   const handleDeductionChange = useCallback(async (roundNum, field, value) => {
     if (isFinalized) return;
     const data = roundData[roundNum] || { score_red: null, score_blue: null, notes: '' };
@@ -625,13 +717,14 @@ const ScoreFight = () => {
     const sRed = next.score_red != null && next.score_red !== '' ? Number(next.score_red) : null;
     const sBlue = next.score_blue != null && next.score_blue !== '' ? Number(next.score_blue) : null;
 
-    if (
-      (sRed != null && sRed - next.deduction_red < 1) ||
-      (sBlue != null && sBlue - next.deduction_blue < 1)
-    ) {
+    // El descuento sólo puede ser 0, 1 o 2. Con scores en 6–10 el puntaje final
+    // nunca puede caer por debajo de 1 (mínimo 6-2=4), invariante que también
+    // garantiza la constraint chk_round_final_scores_min en la base.
+    if (next.deduction_red < 0 || next.deduction_blue < 0
+      || next.deduction_red > MAX_DEDUCTION || next.deduction_blue > MAX_DEDUCTION) {
       setRoundErrors((prev) => ({
         ...prev,
-        [roundNum]: 'The deduction cannot leave a score below 1',
+        [roundNum]: `The deduction must be 0, 1 or ${MAX_DEDUCTION}`,
       }));
       return;
     }
@@ -643,7 +736,7 @@ const ScoreFight = () => {
       return n;
     });
 
-    if (sRed == null || sBlue == null || sRed < 1 || sRed > 10 || sBlue < 1 || sBlue > 10) return;
+    if (sRed == null || sBlue == null || !validateRoundScore(sRed, sBlue).valid) return;
 
     setSavingRound(roundNum);
     try {
@@ -661,6 +754,7 @@ const ScoreFight = () => {
     }
   }, [roundData, scoreCard, token, isFinalized]);
 
+  // Envía la tarjeta final (irreversible) y navega al resumen con toast.
   const handleFinalize = async () => {
     setFinalizing(true);
     setError(null);
@@ -714,6 +808,7 @@ const ScoreFight = () => {
     );
   }
 
+  // Etiqueta de rol y diferencia de puntos para el resumen en modo lectura.
   const roleLabel = user?.role === 'judge' ? 'Judge' : user?.role || '\u2014';
   const diff = scoreCard?.total_score_red != null && scoreCard?.total_score_blue != null
     ? Math.abs(scoreCard.total_score_red - scoreCard.total_score_blue)
@@ -793,13 +888,13 @@ const ScoreFight = () => {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 animate-[fadeIn_0.5s_ease-out]">
           <ResultCard
-            label="Red Total"
+            label="Red Total (after deductions)"
             value={scoreCard.total_score_red}
             icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             accent="red"
           />
           <ResultCard
-            label="Blue Total"
+            label="Blue Total (after deductions)"
             value={scoreCard.total_score_blue}
             icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             accent="blue"
@@ -958,8 +1053,8 @@ const ScoreFight = () => {
                           </label>
                           <input
                             type="number"
-                            min="1"
-                            max="10"
+                            min={MIN_ROUND_SCORE}
+                            max={MAX_ROUND_SCORE}
                             inputMode="numeric"
                             value={data.score_red ?? ''}
                             onChange={(e) => updateRound(rn, 'score_red', e.target.value === '' ? null : Number(e.target.value))}
@@ -979,8 +1074,8 @@ const ScoreFight = () => {
                               listboxLabel={`Deduction (points) for the red boxer (${fight.boxer_red})`}
                             />
                           </div>
-                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_red > 0 ? 'text-red-700 dark:text-red-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
-                            Final: {computeFinal(data.score_red, data.deduction_red) ?? '\u2014'}
+                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_red > 0 ? 'text-red-700 dark:text-red-400' : 'text-slate-400 dark:text-[#64748B]'}`} title="Card total contribution of this round: round score minus its deduction. The round score itself is unchanged.">
+                            Round total: {computeRoundTotal(data.score_red, data.deduction_red) ?? '\u2014'}
                             {data.deduction_red > 0 && (
                               <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold align-middle">-{data.deduction_red}</span>
                             )}
@@ -993,8 +1088,8 @@ const ScoreFight = () => {
                           </label>
                           <input
                             type="number"
-                            min="1"
-                            max="10"
+                            min={MIN_ROUND_SCORE}
+                            max={MAX_ROUND_SCORE}
                             inputMode="numeric"
                             value={data.score_blue ?? ''}
                             onChange={(e) => updateRound(rn, 'score_blue', e.target.value === '' ? null : Number(e.target.value))}
@@ -1014,8 +1109,8 @@ const ScoreFight = () => {
                               listboxLabel={`Deduction (points) for the blue boxer (${fight.boxer_blue})`}
                             />
                           </div>
-                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_blue > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 dark:text-[#64748B]'}`}>
-                            Final: {computeFinal(data.score_blue, data.deduction_blue) ?? '\u2014'}
+                          <p className={`mt-1 text-[11px] font-bold tabular-nums m-0 ${data.deduction_blue > 0 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-400 dark:text-[#64748B]'}`} title="Card total contribution of this round: round score minus its deduction. The round score itself is unchanged.">
+                            Round total: {computeRoundTotal(data.score_blue, data.deduction_blue) ?? '\u2014'}
                             {data.deduction_blue > 0 && (
                               <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] font-bold align-middle">-{data.deduction_blue}</span>
                             )}

@@ -1,3 +1,10 @@
+// ─── FormSection ────────────────────────────────────────────────────────────────
+// Sección/panel de un formulario: tarjeta con borde superior WBO, cabecera
+// opcional (icono + título + subtítulo) en degradado y cuerpo con los campos.
+// Componente puro controlado; se usa anidada dentro de FormCard. No usa contexto.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Props: icon (path SVG), title, subtitle, children (campos) y className extra
 const FormSection = ({ icon, title, subtitle, children, className = '' }) => (
   <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden mb-6 last:mb-0 animate-[fadeIn_0.4s_ease-out] ${className}`}>
     {(icon || title) && (
@@ -19,4 +26,5 @@ const FormSection = ({ icon, title, subtitle, children, className = '' }) => (
   </div>
 );
 
+// Exporta la sección de formulario para agrupar campos relacionados
 export default FormSection;

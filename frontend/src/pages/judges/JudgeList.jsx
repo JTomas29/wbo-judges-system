@@ -7,7 +7,15 @@ import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { ConfirmModal } from '../../components/common/modals';
 import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
+import { JUDGE_LEVEL_OPTIONS, judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── Gestión de Jueces (Admin/Supervisor) ───────────────────────────────────
+// Ruta: "/admin/judges" (solo staff). Lista jueces con filtros (nombre,
+// email, nivel elite/senior/junior, estado activo) y acciones: ver perfil,
+// editar (solo admin) y activar/desactivar (solo admin).
+// Consume: getJudges, updateJudge (judgeService).
+
+// Estilo del badge según el nivel del juez (elite/senior/junior).
 const levelBadge = (level) => {
   const map = {
     elite: 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/50',
@@ -76,9 +84,9 @@ const JudgeCardMobile = ({ juez, isStaff, onViewProfile, onEdit, onToggleActive 
     </div>
 
     <div className="flex items-center gap-2 flex-wrap mb-4">
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
-        {levelIcon(juez.level)}
-        {juez.level || '—'}
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${levelBadge(normalizeJudgeLevel(juez.level))}`}>
+        {levelIcon(normalizeJudgeLevel(juez.level))}
+        {judgeLevelLabel(juez.level)}
       </span>
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusBadge(juez.is_active)}`}>
         {statusIcon(juez.is_active)}
@@ -132,21 +140,18 @@ const JudgeCardMobile = ({ juez, isStaff, onViewProfile, onEdit, onToggleActive 
   </div>
 );
 
-const LEVEL_OPTIONS = [
-  { value: 'junior', label: 'Junior' },
-  { value: 'senior', label: 'Senior' },
-  { value: 'elite', label: 'Elite' },
-];
+const LEVEL_OPTIONS = JUDGE_LEVEL_OPTIONS;
 
 const JudgeList = () => {
   const { token, user } = useAuth();
   const navigate = useNavigate();
+  // Estado local: jueces, carga, error y objetivo del modal de confirmación.
   const [judges, setJudges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirmTarget, setConfirmTarget] = useState(null);
 
-  // Filters
+  // Filtros de la barra superior (se aplican en cliente).
   const [searchName, setSearchName] = useState('');
   const [searchEmail, setSearchEmail] = useState('');
   const [filterLevel, setFilterLevel] = useState('');
@@ -167,12 +172,13 @@ const JudgeList = () => {
       });
   }, [token]);
 
+  // Activa/desactiva un juez vía updateJudge y refleja el cambio en el estado local.
   const handleToggleActive = async (juez) => {
     try {
       await updateJudge(juez.id, {
         name: juez.name,
         email: juez.email,
-        level: juez.level || 'junior',
+        level: normalizeJudgeLevel(juez.level),
         is_active: !juez.is_active,
       }, token);
       setJudges((prev) =>
@@ -185,11 +191,12 @@ const JudgeList = () => {
     }
   };
 
+  // Filtrado en cliente por nombre, email, nivel y estado activo.
   const filteredJudges = useMemo(() => {
     return judges.filter((juez) => {
       if (searchName && !juez.name.toLowerCase().includes(searchName.toLowerCase())) return false;
       if (searchEmail && !juez.email.toLowerCase().includes(searchEmail.toLowerCase())) return false;
-      if (filterLevel && juez.level !== filterLevel) return false;
+      if (filterLevel && normalizeJudgeLevel(juez.level) !== filterLevel) return false;
       if (filterActive === 'active' && !juez.is_active) return false;
       if (filterActive === 'inactive' && juez.is_active) return false;
       return true;
@@ -207,6 +214,7 @@ const JudgeList = () => {
 
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
 
+  // Guard: solo staff (admin/supervisor) puede gestionar jueces.
   if (!isStaff) {
     return (
       <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-sm p-6 text-center">
@@ -302,9 +310,9 @@ const JudgeList = () => {
                   <td className="py-3 px-4 font-semibold text-slate-800 dark:text-[#F8FAFC]">{juez.name}</td>
                   <td className="py-3 px-4 text-slate-600 dark:text-[#94A3B8] hidden sm:table-cell">{juez.email}</td>
                   <td className="py-3 px-4 hidden sm:table-cell">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${levelBadge(juez.level)}`}>
-                      {levelIcon(juez.level)}
-                      {juez.level || '—'}
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${levelBadge(normalizeJudgeLevel(juez.level))}`}>
+                      {levelIcon(normalizeJudgeLevel(juez.level))}
+                      {judgeLevelLabel(juez.level)}
                     </span>
                   </td>
                   <td className="py-3 px-4">

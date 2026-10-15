@@ -7,11 +7,20 @@ import { RankingSummaryCard, PositionBadge, ScoreBadge, StatusBadge } from '../.
 import { RefereeIcon } from '../../components/common/icons';
 import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
+// ─── Ranking de Árbitros (Solo Staff) ───────────────────────────────────────
+// Pestaña "arbitros" de "/ranking". Lista el rendimiento de los árbitros:
+// posición, combates evaluados, promedio de puntaje/deducción y promedio final
+// (average_final_score). Filtrable por nombre, federación, evaluaciones y
+// estado; ordenable por ranking/nombre/combates/promedio.
+// Consume: getRefereeRanking (refereeRankingService). Botón → /referees/:id/profile.
+
+// Formatea fechas de última evaluación.
 const formatDate = (d) => {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Iniciales del nombre para el avatar.
 const getInitials = (first, last) => {
   const f = (first || '?')[0].toUpperCase();
   const l = (last || '?')[0].toUpperCase();
@@ -27,12 +36,14 @@ const RefereeRankingView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Filtros: nombre, federación, con/sin evaluaciones, estado y orden.
   const [searchName, setSearchName] = useState('');
   const [filterFederation, setFilterFederation] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterActive, setFilterActive] = useState('all');
   const [sortOrder, setSortOrder] = useState('ranking');
 
+  // Carga el ranking de árbitros desde el servicio.
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -43,11 +54,13 @@ const RefereeRankingView = () => {
       .finally(() => setLoading(false));
   }, [token]);
 
+  // Federaciones únicas presentes en el ranking (para el filtro).
   const federations = useMemo(() => {
     const feds = [...new Set(ranking.map((r) => r.federation).filter(Boolean))];
     return feds.sort();
   }, [ranking]);
 
+  // Aplica búsqueda, filtros y ordenamiento al ranking.
   const filteredRanking = useMemo(() => {
     let result = [...ranking];
 
@@ -94,6 +107,7 @@ const RefereeRankingView = () => {
     return result;
   }, [ranking, searchName, filterFederation, filterStatus, filterActive, sortOrder]);
 
+  // Estadísticas globales: total de árbitros, evaluaciones, promedio general y mejor árbitro.
   const summaryStats = useMemo(() => {
     const totalReferees = ranking.length;
     const withEvals = ranking.filter((r) => num(r.total_fights) > 0);
@@ -108,6 +122,7 @@ const RefereeRankingView = () => {
     return { totalReferees, totalEvaluations, overallAvg, bestReferee };
   }, [ranking]);
 
+  // Limpia todos los filtros y el ordenamiento.
   const clearFilters = () => {
     setSearchName('');
     setFilterFederation('');
@@ -138,6 +153,7 @@ const RefereeRankingView = () => {
     );
   }
 
+  // Color de la barra lateral según la posición (oro, plata, bronce o neutro).
   const positionBar = (i) => {
     if (i === 0) return 'bg-[#C9A44C]';
     if (i === 1) return 'bg-slate-400';
@@ -145,6 +161,7 @@ const RefereeRankingView = () => {
     return 'bg-slate-200 dark:bg-[#1E293B]';
   };
 
+  // Color del promedio final según rangos de rendimiento.
   const finalScoreColor = (s) => {
     if (s >= 90) return 'text-emerald-600 dark:text-emerald-400';
     if (s >= 75) return 'text-blue-600 dark:text-blue-400';

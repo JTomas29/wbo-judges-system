@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDashboard } from '../../services/dashboardService';
 import JudgeDashboard from './JudgeDashboard';
-import { Skeleton } from '../../components/common/Skeletons';
 import { JudgeIcon } from '../../components/common/icons';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── Dashboard de Admin/Supervisor ──────────────────────────────────────────
+// Vista principal del panel de control (ruta "/dashboard").
+// Consume `getDashboard` (dashboardService) para estadísticas globales y
+// delega a <JudgeDashboard /> cuando el rol autenticado es "judge".
+// Público objetivo: admin y supervisor (gestión de peleas, jueces y análisis).
+
+// Mapa de estilos por estado de pelea: se usa para badges y timeline.
 const statusColors = {
   scheduled: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', label: 'Scheduled', icon: 'clock', border: 'border-amber-200 dark:border-amber-800/50' },
   active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', label: 'Active', icon: 'zap', border: 'border-emerald-200 dark:border-emerald-800/50' },
@@ -25,17 +32,17 @@ const formatDate = (dateStr) => {
   return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Badge de nivel: siempre uno de los 3 niveles (junior/senior/elite).
 const levelBadge = (level) => {
-  if (!level) return null;
+  const key = normalizeJudgeLevel(level);
   const colors = {
     junior: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-    intermediate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
     senior: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
     elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   };
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
-      {level}
+    <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${colors[key]}`}>
+      {judgeLevelLabel(key)}
     </span>
   );
 };
@@ -56,6 +63,7 @@ const StatusIcon = ({ type }) => {
   );
 };
 
+// Contador visual animado (sube el número durante ~800 ms al montar el KPI).
 const AnimatedCounter = ({ value }) => {
   const [display, setDisplay] = useState(0);
   const ref = useRef(null);
@@ -178,8 +186,8 @@ const JudgeCard = ({ judge, index }) => {
         <div className="min-w-0 flex-1">
           <p className="text-base font-bold text-slate-900 truncate group-hover:text-red-800 transition-colors dark:text-[#F8FAFC] dark:group-hover:text-red-400">{judge.name}</p>
           <div className="flex items-center gap-1.5 mt-1">
-            {judge.level && levelBadge(judge.level)}
-            {judge.level && <span className="text-slate-300 dark:text-slate-600">|</span>}
+            {levelBadge(judge.level)}
+            <span className="text-slate-300 dark:text-slate-600">|</span>
             <span className="text-xs text-slate-400 dark:text-slate-500">{judge.total_analyzed || 0} fights</span>
           </div>
         </div>
@@ -195,14 +203,16 @@ const JudgeCard = ({ judge, index }) => {
   );
 };
 
-/* ─── Main Dashboard Component ─── */
+/* ─── Componente principal del Dashboard ─── */
 const Dashboard = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
+  // Estado de datos del dashboard: respuesta completa de getDashboard.
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Carga las estadísticas del panel; se re-utiliza también para "Retry"/"Refresh".
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -220,6 +230,7 @@ const Dashboard = () => {
     if (token) fetchData();
   }, [token, fetchData]);
 
+  // Los jueces no ven este panel: se delega a su dashboard específico.
   if (user?.role === 'judge') {
     return <JudgeDashboard />;
   }
@@ -276,6 +287,7 @@ const Dashboard = () => {
     day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
+  // Definición de las tarjetas KPI: cada una muestra un indicador global del sistema.
   const kpiCards = [
     { label: 'Total Fights', value: stats.total_fights, icon: 'fights', desc: 'Fights registered in the system', color: { bg: 'bg-red-50', text: 'text-red-700', top: 'border-t-[3px] border-t-red-500' }, trend: null },
     { label: 'Active Fights', value: stats.active_fights, icon: 'active', desc: 'Currently in progress', color: { bg: 'bg-emerald-50', text: 'text-emerald-700', top: 'border-t-[3px] border-t-emerald-500' }, trend: null },
@@ -365,69 +377,6 @@ const Dashboard = () => {
         </div>
       ) : (
         <>
-
-          {/* ── Judge: Active fights section (kept as-is for logic preservation) ── */}
-          {user?.role === 'judge' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Scoring</p>
-                  <h3 className="text-lg font-bold text-slate-900">My active fights</h3>
-                </div>
-              </div>
-              {activeFightsLoading ? (
-                <div className="space-y-3 py-4">
-                  {[0, 1, 2].map((i) => (
-                    <Skeleton key={i} className="h-16 rounded-xl" />
-                  ))}
-                </div>
-              ) : activeFights.length === 0 ? (
-                <div className="py-8 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-semibold text-slate-700 mb-1">You have no active fights</p>
-                  <p className="text-xs text-slate-400">When a fight you confirmed becomes active, it will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {activeFights.map((a) => {
-                    const isScored = a.scorecard_status === 'finalized';
-                    return (
-                      <div key={a.fight_id} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 hover:bg-red-50 transition-colors">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-slate-800 truncate">{a.event_name}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">{a.boxer_red} vs {a.boxer_blue}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
-                            {new Date(a.scheduled_date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                            {a.venue ? ` \u00B7 ${a.venue}` : ''}
-                          </p>
-                        </div>
-                        {isScored ? (
-                          <div className="shrink-0 text-right">
-                            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700">
-                              <StatusIcon type="check" />
-                              Scorecard sent
-                            </span>
-                            <p className="text-[10px] text-slate-400 mt-0.5">Waiting for the other judges.</p>
-                          </div>
-                        ) : (
-                          <button
-                            className="shrink-0 inline-flex items-center justify-center px-4 py-2 bg-wbo-700 text-white rounded-xl text-xs font-semibold hover:bg-wbo-800 transition-all active:scale-[0.97] shadow-sm"
-                            onClick={() => navigate(`/scoring/${a.fight_id}`)}
-                          >
-                            Score
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ── KPI Grid ── */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">

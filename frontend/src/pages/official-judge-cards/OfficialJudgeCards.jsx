@@ -21,11 +21,20 @@ import {
   PencilIcon,
 } from '@heroicons/react/24/outline';
 
+// ─── Tarjetas de Jueces Oficiales (Supervisor/Admin) ────────────────────────
+// Ruta: "/official-judge-cards/:fightId". Carga/actualiza las tarjetas en
+// papel de los jueces oficiales (≤3) de una pelea completada. Estas tarjetas
+// son de referencia y NO alimentan el ranking ni el análisis.
+// Consume: getFightById, getOfficialJudgeCards, createOfficialJudgeCard,
+// updateOfficialJudgeCard (fightService); getFightAssignments (judgeService).
+
+// Formatea fechas para mostrar en el encabezado.
 const formatDate = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Valida un asalto completo: puntajes 1–10, deducciones 0–2 y final ≥ 1.
 const roundComplete = (r) => {
   if (!r) return false;
   const sRed = Number(r.score_red);
@@ -40,6 +49,7 @@ const roundComplete = (r) => {
 const computeFinal = (score, deduction) =>
   score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
 
+// Totales (rojo/azul) acumulados de una tarjeta y su ganador.
 const cardTotals = (rounds) => rounds.reduce(
   (acc, r) => ({
     red: acc.red + Number(r.final_score_red ?? r.score_red),
@@ -369,6 +379,7 @@ const OfficialJudgeCards = () => {
   const navigate = useNavigate();
   const { user, token } = useAuth();
 
+  // Estado local: pelea, jueces oficiales, tarjetas, juez seleccionado y asaltos.
   const [fight, setFight] = useState(null);
   const [officialJudges, setOfficialJudges] = useState([]);
   const [cards, setCards] = useState([]);
@@ -382,13 +393,16 @@ const OfficialJudgeCards = () => {
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
   const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
 
+  // Juez oficial seleccionado y su tarjeta existente (si ya fue cargada).
   const selectedJudge = officialJudges.find((j) => j.judge_id === selectedJudgeId) || null;
   const existingCard = cards.find((c) => c.judge_id === selectedJudgeId) || null;
 
+  // Todos los asaltos efectivos están completos y válidos.
   const allComplete = totalRounds > 0 && Array.from({ length: totalRounds }, (_, i) => i + 1).every(
     (rn) => roundComplete(rounds[rn])
   );
 
+  // Construye el estado de asaltos, rellenando desde la tarjeta si existe.
   const buildRoundsFromCard = useCallback((card, roundsCount) => {
     const rd = {};
     Array.from({ length: roundsCount }, (_, i) => {
@@ -407,6 +421,8 @@ const OfficialJudgeCards = () => {
     return rd;
   }, []);
 
+  // Carga la pelea, los jueces oficiales asignados y sus tarjetas (solo staff,
+  // y solo si la pelea terminó o fue analizada).
   const loadData = useCallback(async () => {
     if (!token || !user) return;
     setLoading(true);
@@ -427,8 +443,8 @@ const OfficialJudgeCards = () => {
       const f = fightRes.data;
       setFight(f);
 
-      if (f.status !== 'completed' && f.status !== 'analyzed') {
-        setError('The fight must be completed before loading the official judges scorecards.');
+      if (!['active', 'completed', 'analyzed'].includes(f.status)) {
+        setError('The fight must be underway or completed before loading the official judges scorecards.');
         setLoading(false);
         return;
       }
@@ -446,6 +462,7 @@ const OfficialJudgeCards = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // Prepara el editor para el juez seleccionado (pre-carga su tarjeta si existe).
   const handleSelectJudge = (judgeId) => {
     setSelectedJudgeId(judgeId);
     const card = cards.find((c) => c.judge_id === judgeId) || null;
@@ -461,6 +478,7 @@ const OfficialJudgeCards = () => {
     }));
   };
 
+  // Guarda/actualiza la tarjeta del juez seleccionado y refresca la lista.
   const handleSave = async () => {
     setSaving(true);
     setError(null);

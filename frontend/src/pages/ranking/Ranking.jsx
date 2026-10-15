@@ -6,19 +6,28 @@ import JudgeRankingView from './JudgeRankingView';
 import RefereeRankingView from './RefereeRankingView';
 import { JudgeIcon, RefereeIcon } from '../../components/common/icons';
 
+// ─── Ranking de Jueces y Árbitros ───────────────────────────────────────────
+// Ruta: "/ranking". Orquestador de pestañas: "jueces" (todos) y "arbitros"
+// (solo admin/supervisor). El tab activo queda reflejado en el query string
+// (?tab=jueces|arbitros). Contenido delegado en JudgeRankingView /
+// RefereeRankingView.
+
 const Ranking = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // El ranking de árbitros está restringido a staff (admin/supervisor).
   const canViewReferees = user?.role === 'admin' || user?.role === 'supervisor';
   const tabs = [
     { id: 'jueces', label: 'Judges', icon: <JudgeIcon /> },
     ...(canViewReferees ? [{ id: 'arbitros', label: 'Referees', icon: <RefereeIcon /> }] : []),
   ];
 
+  // Tab activo desde el query string; por defecto "jueces".
   const requested = searchParams.get('tab');
   const activeTab = tabs.some((t) => t.id === requested) ? requested : 'jueces';
 
+  // Cambio de pestaña: se persiste en la URL (?tab=...).
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
   };

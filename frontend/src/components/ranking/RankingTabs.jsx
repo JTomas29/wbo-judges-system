@@ -1,3 +1,10 @@
+// ─── RankingTabs ────────────────────────────────────────────────────────────────
+// Pestañas horizontales para alternar entre vistas del ranking (p. ej. por jueces,
+// por árbitros o por categoría). Renderiza un botón por tab, resaltando el activo
+// con un degradado WBO. Componente puro controlado: sin contexto ni estado.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Props: tabs [{id, label, icon}], active (id activo) y onChange(id) al seleccionar
 const RankingTabs = ({ tabs, active, onChange }) => (
   <div className="inline-flex items-center bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-2xl p-1.5 shadow-sm gap-1 max-w-full overflow-x-auto">
     {tabs.map((tab) => {
@@ -20,4 +27,5 @@ const RankingTabs = ({ tabs, active, onChange }) => (
   </div>
 );
 
+// Exporta las pestañas del ranking
 export default RankingTabs;

@@ -1,7 +1,14 @@
+// ─── ProfileObservation.js — Modelo de observaciones del perfil de jueces y
+// ─── árbitros: notas de supervisión fijadas a una pelea y su entidad (juez o
+// ─── árbitro). CRUD básico + consultas cruzadas y exportación para PDF ───
 const { pool } = require('../config/db');
 
 const ProfileObservation = {};
 
+// Observaciones del perfil de un juez, enriquecidas con los datos de la pelea
+// (evento, fecha, boxeadores) y el nombre del usuario que las creó. JOIN a
+// `fights` y a `users`; filtro por `judge_id`, ordenadas de más reciente a más
+// antigua.
 ProfileObservation.getByJudge = async (judgeId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -25,6 +32,8 @@ ProfileObservation.getByJudge = async (judgeId) => {
   return rows;
 };
 
+// Observaciones del perfil de un árbitro. Idéntico a `getByJudge` pero
+// filtrando por `referee_id` (mismo JOIN a peleas y creadores).
 ProfileObservation.getByReferee = async (refereeId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -48,6 +57,8 @@ ProfileObservation.getByReferee = async (refereeId) => {
   return rows;
 };
 
+// Observación individual por id (SELECT * de toda la fila). Devuelve el registro
+// completo o null si no existe.
 ProfileObservation.getById = async (id) => {
   const { rows } = await pool.query(
     'SELECT * FROM profile_observations WHERE id = $1',
@@ -56,6 +67,10 @@ ProfileObservation.getById = async (id) => {
   return rows[0] || null;
 };
 
+// Crea una observación. El campo `entityType` decide a qué entidad se liga: si
+// es un juez se rellena `judge_id` y se deja `referee_id` en null (y viceversa),
+// garantizando con `|| null` que el perfil del otro lado no quede ligado. La
+// observación siempre se fija a una pelea (`fight_id`) y registra al creador.
 ProfileObservation.create = async ({ entityType, judgeId, refereeId, fightId, createdBy, observation }) => {
   const { rows } = await pool.query(`
     INSERT INTO profile_observations (entity_type, judge_id, referee_id, fight_id, created_by, observation)
@@ -65,6 +80,8 @@ ProfileObservation.create = async ({ entityType, judgeId, refereeId, fightId, cr
   return rows[0];
 };
 
+// Actualiza únicamente el texto de la observación (los demás campos —entidad,
+// pelea, creador— son inmutables). Devuelve la fila o null si no existe.
 ProfileObservation.update = async (id, { observation }) => {
   const { rows } = await pool.query(`
     UPDATE profile_observations
@@ -75,6 +92,8 @@ ProfileObservation.update = async (id, { observation }) => {
   return rows[0] || null;
 };
 
+// Elimina la observación por id. RETURNING id sirve para confirmar el borrado:
+// devuelve la fila eliminada o null si el id no existía.
 ProfileObservation.delete = async (id) => {
   const { rows } = await pool.query(
     'DELETE FROM profile_observations WHERE id = $1 RETURNING id',
@@ -84,6 +103,10 @@ ProfileObservation.delete = async (id) => {
 };
 
 // Para el PDF: obtener todo junto
+// Devuelve las observaciones de una entidad para el PDF del perfil. La columna
+// a filtrar se elige según `entityType` ('judge' → judge_id, resto → referee_id);
+// la interpolación `po.${column}` solo usa ese valor controlado (nunca input
+// libre). JOIN a pelea y creador, ordenadas por fecha descendente.
 ProfileObservation.getForPdf = async (entityType, entityId) => {
   const column = entityType === 'judge' ? 'judge_id' : 'referee_id';
   const { rows } = await pool.query(`

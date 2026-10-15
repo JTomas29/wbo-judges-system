@@ -12,6 +12,19 @@ import {
 import { getNotificationRoute } from '../../services/notificationNavigation';
 import ConfirmModal from './modals/ConfirmModal';
 
+// ─── NotificationCenter ─────────────────────────────────────────────────────────
+// Centro de notificaciones con campana (badge de no leídas), panel lateral (drawer)
+// que se abre desde la derecha, agrupación por fecha, paginación con scroll infinito
+// y acciones de marcar como leídas / vaciar bandeja.
+// CONSUMOS DE CONTEXTO:
+//   - useAuth(): obtiene el usuario logueado para filtrar rutas y el rol (user.role).
+//   - useNavigate(): de react-router para navegar a la ruta de cada notificación.
+// CONEXIÓN CON SERVICIOS:
+//   - notificationService (getNotifications, getUnreadCount, markAsRead, ...).
+//   - notificationNavigation.getNotificationRoute: calcula a qué ruta va cada aviso.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Configuración visual por tipo de notificación (colores, punto, etiqueta e ícono)
 const TYPE_CONFIG = {
   assignment: {
     bg: 'bg-blue-50 dark:bg-blue-900/20',
@@ -63,6 +76,7 @@ const TYPE_CONFIG = {
   },
 };
 
+// Agrupa las notificaciones por franja de fecha (Today / Yesterday / This week / Older)
 const getDateGroup = (dateStr) => {
   const now = new Date();
   const date = new Date(dateStr);
@@ -78,8 +92,10 @@ const getDateGroup = (dateStr) => {
   return 'Older';
 };
 
+// Orden visual fijo de los grupos de fecha en el listado
 const GROUP_ORDER = ['Today', 'Yesterday', 'This week', 'Older'];
 
+// Devuelve un arreglo ordenado de grupos con su label y sus notificaciones
 const groupNotifications = (notifications) => {
   const groups = {};
   for (const n of notifications) {
@@ -90,6 +106,7 @@ const groupNotifications = (notifications) => {
   return GROUP_ORDER.filter((g) => groups[g]).map((g) => ({ label: g, items: groups[g] }));
 };
 
+// Formatea el timestamp a tiempo relativo legible (Now, X min ago, fechas cortas)
 const getRelativeTime = (dateStr) => {
   const now = new Date();
   const date = new Date(dateStr);
@@ -109,6 +126,7 @@ const getRelativeTime = (dateStr) => {
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 };
 
+// Esqueleto de carga mostrado mientras se obtienen las notificaciones
 const SkeletonCard = () => (
   <div className="px-4 py-3.5 border-b border-slate-100/80 dark:border-[#1E293B]/60 animate-pulse">
     <div className="flex gap-3">
@@ -122,6 +140,7 @@ const SkeletonCard = () => (
   </div>
 );
 
+// Estado vacío cuando no hay notificaciones (campana con signo +)
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center py-20 px-6">
     <div className="relative mb-5">
@@ -143,16 +162,21 @@ const EmptyState = () => (
   </div>
 );
 
+// Tarjeta individual de notificación. Props: notification, onRead, onDelete, isNew,
+// onNavigate (navegación) y userRole (para resolver la ruta de destino)
 const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, userRole }) => {
+  // Configuración visual según el tipo (cae en "system" si es desconocido)
   const config = TYPE_CONFIG[notification.type] || TYPE_CONFIG.system;
   const isUnread = !notification.is_read;
 
+  // Al hacer clic: marca como leída (si estaba pendiente) y navega a la ruta derivada
   const handleClick = () => {
     const { path, deleted } = getNotificationRoute(notification, userRole);
     if (isUnread) onRead(notification.id);
     onNavigate(path, deleted);
   };
 
+  // Elimina la notificación sin propagar el clic al resto de la tarjeta
   const handleDelete = (e) => {
     e.stopPropagation();
     onDelete(notification.id);
@@ -209,24 +233,29 @@ const NotificationCard = ({ notification, onRead, onDelete, isNew, onNavigate, u
 };
 
 const NotificationCenter = () => {
+  // Hooks de navegación y contexto de autenticación
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
-  const [newIds, setNewIds] = useState(new Set());
-  const [showClearModal, setShowClearModal] = useState(false);
-  const [clearing, setClearing] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-  const prevUnreadRef = useRef(0);
-  const scrollRef = useRef(null);
-  const panelRef = useRef(null);
-  const LIMIT = 20;
 
+  // Estado interno del componente
+  const [isOpen, setIsOpen] = useState(false);                 // ¿panel abierto?
+  const [notifications, setNotifications] = useState([]);      // lista de notificaciones cargadas
+  const [unreadCount, setUnreadCount] = useState(0);           // contador de no leídas
+  const [loading, setLoading] = useState(false);               // loading de páginas adicionales
+  const [initialLoading, setInitialLoading] = useState(true);  // loading de la primera carga
+  const [hasMore, setHasMore] = useState(true);                // ¿existen más páginas?
+  const [page, setPage] = useState(0);                         // página actual de paginación
+  const [newIds, setNewIds] = useState(new Set());             // IDs con animación de "nuevo"
+  const [showClearModal, setShowClearModal] = useState(false); // ¿modal de vaciar bandeja abierto?
+  const [clearing, setClearing] = useState(false);             // ¿enviando "vaciar bandeja"?
+  const [feedback, setFeedback] = useState(null);              // feedback de éxito/error (toast interno)
+  const prevUnreadRef = useRef(0);                             // ref del contador previo (detectar incrementos)
+  const scrollRef = useRef(null);                              // ref del contenedor con scroll
+  const panelRef = useRef(null);                               // ref del drawer (clic afuera)
+  const LIMIT = 20;                                            // tamaño de página del scroll infinito
+
+  // Consulta el contador de no leídas. Si subió respecto de la anterior, marca los
+  // nuevos IDs para reproducir su animación de aparición.
   const fetchUnreadCount = useCallback(async () => {
     try {
       const data = await getUnreadCount();
@@ -244,6 +273,8 @@ const NotificationCenter = () => {
     } catch { /* silent */ }
   }, []);
 
+  // Carga las notificaciones con paginación. append=false reemplaza la lista;
+  // append=true concatena la página siguiente al final.
   const fetchNotifications = useCallback(async (pageNum = 0, append = false) => {
     try {
       setLoading(true);
@@ -263,12 +294,14 @@ const NotificationCenter = () => {
     }
   }, []);
 
+  // Polling del contador no leídas: consulta inicial + intervalo cada 30s
   useEffect(() => {
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
+  // Al abrir el panel, reinicia la paginación y recarga desde la primera página
   useEffect(() => {
     if (isOpen) {
       setPage(0);
@@ -277,6 +310,7 @@ const NotificationCenter = () => {
     }
   }, [isOpen, fetchNotifications]);
 
+  // Scroll infinito: al acercarse al fondo (80px) carga la página siguiente y la concatena
   const handleScroll = () => {
     if (!scrollRef.current || !hasMore || loading) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -287,6 +321,7 @@ const NotificationCenter = () => {
     }
   };
 
+  // Marca TODAS las notificaciones como leídas (optimista: actualiza UI al instante)
   const handleMarkAllRead = async () => {
     try {
       await markAllAsRead();
@@ -296,6 +331,7 @@ const NotificationCenter = () => {
     } catch { /* silent */ }
   };
 
+  // Vacía la bandeja: llama el servicio, limpia la lista y muestra feedback; cierra el drawer tras un breve retraso
   const handleClearAll = async () => {
     setClearing(true);
     setFeedback(null);
@@ -315,6 +351,7 @@ const NotificationCenter = () => {
     }
   };
 
+  // Marca una sola notificación como leída y decrementa el contador
   const handleMarkRead = async (id) => {
     try {
       await markAsRead(id);
@@ -326,6 +363,7 @@ const NotificationCenter = () => {
     } catch { /* silent */ }
   };
 
+  // Elimina una notificación con confirmación nativa del navegador
   const handleDelete = async (id) => {
     const target = notifications.find((n) => n.id === id);
     if (!target) return;
@@ -342,6 +380,8 @@ const NotificationCenter = () => {
     } catch { /* silent */ }
   };
 
+  // Navega al destino de la notificación; si el contenido ya no existe, redirige al
+  // dashboard con un toast informativo en el estado de la ruta.
   const handleNavigate = useCallback((path, deleted) => {
     setIsOpen(false);
     if (deleted) {
@@ -353,6 +393,7 @@ const NotificationCenter = () => {
     }
   }, [navigate]);
 
+  // Cierra el panel si el clic se produce fuera de él (excepto cuando el modal está abierto)
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e) => {
@@ -365,16 +406,19 @@ const NotificationCenter = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, showClearModal]);
 
+  // Bloquea el scroll del body mientras el drawer está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
+  // Agrupa la lista actual para su renderizado
   const grouped = groupNotifications(notifications);
 
   return (
     <>
       {/* Bell button */}
+      {/* Botón campana con badge de no leídas */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
@@ -513,6 +557,7 @@ const NotificationCenter = () => {
           </div>
         </div>
       )}
+      {/* Modal de confirmación para vaciar la bandeja */}
       <ConfirmModal
         isOpen={showClearModal}
         onClose={() => { if (!clearing) setShowClearModal(false); }}
@@ -528,4 +573,5 @@ const NotificationCenter = () => {
   );
 };
 
+// Exporta el centro de notificaciones para el layout principal
 export default NotificationCenter;

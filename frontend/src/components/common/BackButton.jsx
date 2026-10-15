@@ -1,8 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 
+// ─── BackButton ────────────────────────────────────────────────────────────────
+// Botón de retroceso reutilizable. Navega hacia atrás en el historial del
+// navegador; si no hay historial previo, redirige a una ruta de respaldo.
+// Se emplea en la cabecera de los formularios (FormCard) para volver a la
+// página de listado desde la que se abrió el detalle.
+// ───────────────────────────────────────────────────────────────────────────────
+
 const BackButton = ({ fallbackRoute = '/dashboard' }) => {
+  // Hook de React Router para programar la navegación
   const navigate = useNavigate();
 
+  // Handler de "volver": prefiere history.back() y solo cae al fallback si no hay historial
   const handleBack = () => {
     if (window.history.length > 1) {
       navigate(-1);
@@ -11,6 +20,7 @@ const BackButton = ({ fallbackRoute = '/dashboard' }) => {
     }
   };
 
+  // Renderiza un botón con ícono de flecha hacia la izquierda y texto "Back"
   return (
     <button
       onClick={handleBack}
@@ -24,4 +34,5 @@ const BackButton = ({ fallbackRoute = '/dashboard' }) => {
   );
 };
 
+// Exporta el componente para su uso en cualquier pantalla que requiera retroceder
 export default BackButton;

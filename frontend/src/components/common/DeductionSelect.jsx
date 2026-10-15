@@ -2,8 +2,18 @@ import { useState, useRef, useEffect, useId, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 
+// ─── DeductionSelect ───────────────────────────────────────────────────────────
+// Selector personalizado y accesible (patrón ARIA "listbox") para elegir la
+// deducción de puntos por faltas del árbitro (0, 1 o 2 puntos).
+// El listado se renderiza mediante un portal sobre <body> con reposicionamiento
+// dinámico (hacia arriba o abajo) y soporte completo de teclado.
+// Sin contexto adicional: recibe valor y callback por props.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Valores de descuento permitidos (en puntos)
 const OPTIONS = [0, 1, 2];
 
+// style por valor: categoriza visualmente la severidad del descuento aplicado
 const valueStyle = (v) => {
   switch (Number(v)) {
     case 0:
@@ -18,18 +28,23 @@ const valueStyle = (v) => {
 };
 
 const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listboxLabel = 'Descuento (puntos)' }) => {
-  const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(OPTIONS.indexOf(Number(value)));
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, placeAbove: false });
+  // Estado interno del componente
+  const [open, setOpen] = useState(false);                              // ¿listado abierto o cerrado?
+  const [activeIndex, setActiveIndex] = useState(OPTIONS.indexOf(Number(value))); // opción resaltada por teclado/hover
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, placeAbove: false }); // posición del portal
 
+  // Referencias al botón disparador y al listbox flotante
   const triggerRef = useRef(null);
   const listRef = useRef(null);
+  // ID único (useId) para conectar aria-controls / aria-activedescendant sin colisiones
   const uid = useId();
   const listboxId = `deduction-listbox-${uid}`;
 
+  // Valor y posición actuales normalizados a número
   const currentValue = Number(value);
   const currentIndex = OPTIONS.indexOf(currentValue);
 
+  // Calcula coordenadas del portal según el espacio disponible en el viewport
   const updatePosition = useCallback(() => {
     const el = triggerRef.current;
     if (!el) return;
@@ -44,6 +59,7 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
     });
   }, []);
 
+  // Mientras esté abierto: reposiciona el portal al hacer scroll o resize
   useEffect(() => {
     if (!open) return;
     updatePosition();
@@ -56,6 +72,7 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
     };
   }, [open, updatePosition]);
 
+  // Clic fuera del control (por fuera del trigger/listbox) => cierra el menú
   useEffect(() => {
     if (!open) return;
     const onDocMouseDown = (e) => {
@@ -67,16 +84,19 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
     return () => document.removeEventListener('mousedown', onDocMouseDown);
   }, [open]);
 
+  // Al reabrir, reinicia el índice activo a la opción seleccionada actual
   useEffect(() => {
     if (open) setActiveIndex(currentIndex);
   }, [open, currentIndex]);
 
+  // Selecciona un valor, notifica al padre y devuelve el foco al botón
   const select = (val) => {
     onChange(Number(val));
     setOpen(false);
     triggerRef.current?.focus();
   };
 
+  // Navegación por teclado: flechas, Home/End, Enter/Espacio y Escape
   const handleKeyDown = (e) => {
     if (disabled) return;
     switch (e.key) {
@@ -126,8 +146,10 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
     }
   };
 
+  // Renderiza el botón disparador + el listado flotante (portal) cuando está abierto
   return (
     <>
+      {/* Botón disparador: muestra el valor actual y el chevron indicador */}
       <div className="relative">
         <button
           type="button"
@@ -158,6 +180,7 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
         </button>
       </div>
 
+      {/* Listado flotante con las opciones de descuento (renderizado en <body> vía portal) */}
       {open &&
         createPortal(
           <div
@@ -203,4 +226,5 @@ const DeductionSelect = ({ value = 0, onChange, disabled = false, labelId, listb
   );
 };
 
+// Exporta el selector de descuentos para su uso en la evaluación de lucha
 export default DeductionSelect;

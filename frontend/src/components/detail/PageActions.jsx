@@ -1,14 +1,17 @@
-export default function PageActions({ children, className = '' }) {
-  return (
-    <div className={`flex flex-wrap justify-center gap-3 mt-6 ${className}`}>
-      {children}
-    </div>
-  )
-}
+// ─── PageActionButton ──────────────────────────────────────────────────────────
+// Acciones de página (parte inferior de un detalle/formulario) con botones de
+// tamaño ampliado. Similares a ActionPanel/ActionButton pero pensados como pie de
+// página (centrados y con más padding).
+//   - PageActionButton : botón más grande (px-6 py-3) con variantes primary/secondary/danger.
+// Componentes puros controlados: sin contexto ni estado propio.
+// ───────────────────────────────────────────────────────────────────────────────
 
+// PageActionButton: props → children, onClick, variant, disabled, loading, icon (componente), className
 export function PageActionButton({ children, onClick, variant = 'primary', disabled = false, loading = false, icon: Icon, className = '' }) {
+  // Clases base comunes a los botones de pie de página
   const base = 'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#111827]'
 
+  // Estilos particulares por variante visual
   const variants = {
     primary: 'bg-wbo-700 text-white hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]',
     secondary: 'bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md hover:-translate-y-0.5',
@@ -21,6 +24,7 @@ export function PageActionButton({ children, onClick, variant = 'primary', disab
       disabled={disabled || loading}
       className={`${base} ${variants[variant]} ${className}`}
     >
+      {/* Spinner de carga, ícono o nada según el estado */}
       {loading ? (
         <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
       ) : Icon ? (

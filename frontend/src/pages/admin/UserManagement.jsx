@@ -6,6 +6,11 @@ import FormSection from '../../components/common/FormSection';
 import InputField from '../../components/common/InputField';
 import SelectField from '../../components/common/SelectField';
 
+// ─── Creación de Usuario (Admin) ────────────────────────────────────────────
+// Ruta: "/admin/users/new". Formulario para crear un usuario de acceso al
+// sistema (juez o supervisor). Consume: registerRequest (authService).
+
+// Roles que puede crear el admin desde esta pantalla.
 const ROLES = [
   { value: 'judge', label: 'Judge' },
   { value: 'supervisor', label: 'Supervisor' },
@@ -22,6 +27,7 @@ const UserIcon = ({ className = 'w-4 h-4' }) => (
 
 const UserManagement = () => {
   const { token } = useAuth();
+  // Estado del formulario + errores (por campo) y mensajes de servidor/éxito.
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'judge' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState(null);
@@ -35,6 +41,7 @@ const UserManagement = () => {
     if (success) setSuccess(null);
   };
 
+  // Validación en cliente de nombre, email y contraseña (mín. 6 caracteres).
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Name is required';
@@ -52,6 +59,7 @@ const UserManagement = () => {
     return Object.keys(errs).length === 0;
   };
 
+  // Crea el usuario vía registerRequest y reinicia el formulario en caso de éxito.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError(null);

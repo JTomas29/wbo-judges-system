@@ -19,11 +19,21 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
+// ─── Live Scoring (Seguimiento en Vivo) ─────────────────────────────────────
+// Ruta: "/live/:fightId". Vista staff (admin/supervisor) del avance de las
+// tarjetas de los jueces mientras se disputa la pelea: estado por tarjeta
+// (pending/draft/finalized), asaltos completados, totales y barra de progreso.
+// Auto-refresca cada 30 s mientras haya drafts y permite finalizar la pelea
+// cuando todas las tarjetas fueron enviadas.
+// Consume: getFightById, getScorecards, completeFight (fightService).
+
+// Formatea fechas (día-mes-año).
 const formatDate = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Formatea fecha + hora para la "última actualización".
 const formatDateTime = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleString('en-US', {
@@ -32,9 +42,11 @@ const formatDateTime = (d) => {
   });
 };
 
+// Iniciales del juez para los avatares.
 const initials = (name = '') =>
   name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
 
+// Badge del estado de la tarjeta: pendiente, en progreso (draft) o recibida.
 const statusBadge = (status) => {
   if (!status) return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700">
@@ -58,6 +70,7 @@ const statusBadge = (status) => {
   );
 };
 
+// Badge del estado de la propia pelea (pending/active/completed/analyzed/archived).
 const fightStatusBadge = (status) => {
   if (!status) return null;
   const map = {
@@ -76,6 +89,7 @@ const fightStatusBadge = (status) => {
   );
 };
 
+// Acentos de color disponibles para las tarjetas de estadísticas.
 const statAccents = {
   red: { border: 'border-t-wbo-700', chip: 'bg-wbo-50 dark:bg-wbo-900/20', color: 'text-wbo-700 dark:text-wbo-400', value: 'text-wbo-700 dark:text-wbo-400' },
   blue: { border: 'border-t-blue-500', chip: 'bg-blue-50 dark:bg-blue-900/20', color: 'text-blue-700 dark:text-blue-400', value: 'text-blue-700 dark:text-blue-400' },
@@ -83,6 +97,7 @@ const statAccents = {
   amber: { border: 'border-t-amber-500', chip: 'bg-amber-50 dark:bg-amber-900/20', color: 'text-amber-600 dark:text-amber-500', value: 'text-amber-600 dark:text-amber-500' },
 };
 
+// Tarjeta de estadística con ícono, valor y etiqueta (con acento por color).
 const StatCard = ({ icon: Icon, label, value, suffix = '', accent = 'slate', delay = 0 }) => {
   const a = statAccents[accent];
   return (
@@ -99,6 +114,7 @@ const StatCard = ({ icon: Icon, label, value, suffix = '', accent = 'slate', del
   );
 };
 
+// Encabezado con datos de la pelea, estado, refresh manual y progreso de asaltos.
 const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
   const isActive = fight?.status === 'active';
   const infoItems = [
@@ -168,6 +184,7 @@ const LiveHeader = ({ fight, maxCompleted, roundsPct, onRefresh }) => {
   );
 };
 
+// Chips numerados que muestran qué asaltos acumuló cada tarjeta (table).
 const RoundBadges = ({ completed, total }) => (
   <div className="flex items-center justify-center gap-1 flex-wrap max-w-[200px] mx-auto">
     {Array.from({ length: total }, (_, i) => {
@@ -188,6 +205,7 @@ const RoundBadges = ({ completed, total }) => (
   </div>
 );
 
+// Versión compacta de los chips de asaltos para la vista móvil.
 const MobileRoundChips = ({ completed, total }) => (
   <div className="flex items-center gap-1.5 flex-wrap">
     {Array.from({ length: total }, (_, i) => {
@@ -241,6 +259,7 @@ const JudgeCardMobile = ({ entry, totalRounds }) => (
   </div>
 );
 
+// Resultado de una tarjeta según su estado (sin iniciar, en progreso o totales).
 const ResultCell = ({ entry }) => {
   if (!entry.scorecard_status) return <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">Not started</span>;
   if (entry.scorecard_status === 'draft') return <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">In progress</span>;
@@ -258,6 +277,7 @@ const ResultCell = ({ entry }) => {
   );
 };
 
+// Tabla (escritorio) y cards (móvil) con el estado en tiempo real de cada tarjeta.
 const ScorecardsTable = ({ entries, totalRounds }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]">
     <div className="px-4 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
@@ -337,6 +357,7 @@ const ScorecardsTable = ({ entries, totalRounds }) => (
   </div>
 );
 
+// Resumen lateral: recibidas/pendientes, % de tarjetas y asaltos, última actualización.
 const SummaryCard = ({ received, pendingCards, cardsPct, roundsPct, maxCompleted, totalRounds, lastUpdate }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-md overflow-hidden sticky top-6 animate-[fadeIn_0.5s_ease-out]">
     <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
@@ -391,14 +412,17 @@ const LiveScore = () => {
   const navigate = useNavigate();
   const { user, token } = useAuth();
 
+  // Estado: datos de la pelea, tarjetas de los jueces y flags de carga.
   const [fight, setFight] = useState(null);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [completing, setCompleting] = useState(false);
 
+  // Solo admin/supervisor pueden ver el seguimiento en vivo.
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
 
+  // Carga la pelea y sus tarjetas en paralelo.
   const fetchData = useCallback(async () => {
     try {
       if (!isStaff) {
@@ -433,6 +457,7 @@ const LiveScore = () => {
     return () => clearInterval(interval);
   }, [entries, fetchData]);
 
+  // Finaliza la pelea una vez recibidas todas las tarjetas.
   const handleComplete = async () => {
     setCompleting(true);
     try {
@@ -520,6 +545,7 @@ const LiveScore = () => {
     );
   }
 
+  // Métricas derivadas: tarjetas finalizadas, asaltos completados, conteos y %.
   const allFinalized = entries.length > 0 && entries.every((e) => e.scorecard_status === 'finalized');
 
   const maxCompleted = entries.length ? Math.max(...entries.map((e) => e.completed_rounds || 0)) : 0;
@@ -588,30 +614,29 @@ const LiveScore = () => {
 
         {fight?.status === 'active' && (
           <div className="flex flex-col items-center gap-3">
-            {allFinalized ? (
-              <button
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 w-full sm:w-auto bg-wbo-700 text-white rounded-xl text-base font-bold shadow-md hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                disabled={completing}
-                onClick={handleComplete}
-              >
-                {completing ? (
-                  <>
-                    <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                    Finalizing...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Finalize fight
-                  </>
-                )}
-              </button>
-            ) : (
+            <button
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 w-full sm:w-auto bg-wbo-700 text-white rounded-xl text-base font-bold shadow-md hover:bg-wbo-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={completing}
+              onClick={handleComplete}
+            >
+              {completing ? (
+                <>
+                  <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  Finalizing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Finalize fight
+                </>
+              )}
+            </button>
+            {!allFinalized && (
               <p className="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-5 py-3 inline-flex items-center gap-2 shadow-sm">
                 <ClockIcon className="w-4 h-4 shrink-0" />
-                Waiting for all judges to submit their scorecards.
+                Some evaluation judges have not submitted their scorecards yet. You can still finalize the fight.
               </p>
             )}
           </div>

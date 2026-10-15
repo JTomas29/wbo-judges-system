@@ -9,6 +9,12 @@ import InputField from '../../components/common/InputField';
 import SelectField from '../../components/common/SelectField';
 import TextareaField from '../../components/common/TextareaField';
 
+// ─── Creación de Pelea (Admin/Supervisor) ───────────────────────────────────
+// Ruta: "/fights/create". Registra una nueva pelea en el sistema, la cual
+// luego se asigna a jueces y se usa para análisis y puntuación.
+// Consume: createFight (fightService) y getReferees (refereeService).
+
+// Días de combate permitidos por el reglamento de la WBO.
 const ROUNDS = [4, 6, 8, 10, 12];
 
 const todayStr = new Date().toISOString().split('T')[0];
@@ -23,6 +29,7 @@ const CreateFight = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
 
+  // Estado del formulario; referee_id se envía solo si el usuario eligió uno.
   const [form, setForm] = useState({
     event_name: '',
     boxer_red: '',
@@ -36,11 +43,13 @@ const CreateFight = () => {
     referee_id: '',
     notes: '',
   });
+  // Árbitros disponibles para asignar a la pelea (select del formulario).
   const [referees, setReferees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
+  // Precarga el catálogo de árbitros al montar.
   useEffect(() => {
     getReferees()
       .then((res) => setReferees(res.data))
@@ -52,6 +61,8 @@ const CreateFight = () => {
     setFieldErrors({ ...fieldErrors, [e.target.name]: null });
   };
 
+  // Validación de campos obligatorios y regla de negocio: los dos boxeadores
+  // no pueden ser la misma persona.
   const validate = () => {
     const errs = {};
     if (!form.event_name.trim()) errs.event_name = 'Event name is required';
@@ -73,6 +84,7 @@ const CreateFight = () => {
 
     setLoading(true);
     try {
+      // Los campos opcionales vacíos se envían como undefined (no se persisten).
       const payload = {
         event_name: form.event_name.trim(),
         boxer_red: form.boxer_red.trim(),

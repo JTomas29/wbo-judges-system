@@ -5,6 +5,12 @@ import FilterBar, { FilterInput, FilterDate, FilterSelect } from '../../componen
 import { RankingSummaryCard } from '../../components/ranking/RankingBadges';
 import { PageHeaderSkeleton, FilterBarSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
+// ─── Historial de Peleas (Archivadas) ───────────────────────────────────────
+// Ruta: "/history". Lista las peleas archivadas (eliminadas del listado
+// principal) con filtros cliente-servidor y un modal de detalle con resumen
+// del análisis. Consume: getFightHistory (historyService).
+
+// Apariencia del badge "Archived" (todas las peleas aquí están archivadas).
 const statusConfig = {
   archived: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-300', dot: 'bg-slate-400', border: 'ring-slate-300 dark:ring-slate-600', icon: 'archive', label: 'Archived' },
 };
@@ -54,16 +60,19 @@ const ViewButton = ({ onClick }) => (
 
 const History = () => {
   const { token } = useAuth();
+  // Estado local: peleas archivadas + selección para el modal de detalle.
   const [fights, setFights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFight, setSelectedFight] = useState(null);
 
+  // Filtros (se envían al servidor; cada cambio re-dispara la carga).
   const [searchEvent, setSearchEvent] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
 
+  // Carga el historial pasando los filtros activos como query params (server-side).
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -81,6 +90,7 @@ const History = () => {
   const clearFilters = () => { setSearchEvent(''); setDateFrom(''); setDateTo(''); setFilterCategory(''); };
   const hasActiveFilters = searchEvent || dateFrom || dateTo || filterCategory;
 
+  // Conteos para las tarjetas de resumen: peleas con análisis y con tarjetas.
   const withAnalysis = fights.filter((f) => Number(f.avg_match_pct) > 0).length;
   const withScorecards = fights.filter((f) => Number(f.total_matches) > 0).length;
 

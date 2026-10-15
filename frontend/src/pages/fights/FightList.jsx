@@ -6,8 +6,15 @@ import FilterBar, { FilterInput, FilterSelect, FilterDate } from '../../componen
 import { BaseModal, ModalHeader, ModalFooter, ModalButton } from '../../components/common/modals';
 import { Skeleton, FilterBarSkeleton, StatCardsSkeleton, TableSkeleton } from '../../components/common/Skeletons';
 
+// ─── Listado de Peleas (Admin/Supervisor) ───────────────────────────────────
+// Ruta: "/fights". Lista todas las peleas con filtros (evento, boxeador,
+// estado, categoría, rango de fechas), estadísticas rápidas y acciones
+// (ver, editar y archivar). Consume: getFights, deleteFight (fightService).
+
+// Solo las peleas pendientes o activas pueden editarse.
 const canEdit = (status) => status === 'pending' || status === 'active';
 
+// Apariencia del badge según el estado de la pelea.
 const statusConfig = {
   pending: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/40', icon: 'clock', label: 'Pending' },
   active: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/40', icon: 'zap', label: 'Active' },
@@ -191,11 +198,13 @@ const FightList = () => {
       .catch((err) => { setError(err.response?.data?.message || 'Failed to load fights'); setLoading(false); });
   }, [token]);
 
+  // Categorías disponibles (categorías de peso únicas de las peleas) para el filtro.
   const categories = useMemo(() => {
     const cats = [...new Set(fights.map((f) => f.weight_class).filter(Boolean))];
     return cats.map((c) => ({ value: c, label: c }));
   }, [fights]);
 
+  // Filtrado combinado: texto evento/boxeador, estado, categoría y rango de fechas.
   const filteredFights = useMemo(() => {
     return fights.filter((fight) => {
       if (searchEvent && !fight.event_name.toLowerCase().includes(searchEvent.toLowerCase())) return false;
@@ -230,6 +239,7 @@ const FightList = () => {
 
   const hasActiveFilters = searchEvent || searchBoxer || filterStatus || filterCategory || dateFrom || dateTo;
 
+  // Archiva la pelea (deleteFight) y redirige al historial con un toast de éxito.
   const handleArchive = async () => {
     if (!archiveTarget) return;
     setArchiving(true);
@@ -244,6 +254,7 @@ const FightList = () => {
     }
   };
 
+  // Totales de las tarjetas de estadísticas sobre las peleas cargadas.
   const totalAnalyzed = fights.filter((f) => f.status === 'analyzed').length;
   const totalActive = fights.filter((f) => f.status === 'active').length;
   const totalCompleted = fights.filter((f) => f.status === 'completed').length;

@@ -12,7 +12,15 @@ import { Skeleton } from '../../components/common/Skeletons';
 import { DeleteModal } from '../../components/common/modals';
 import { JudgeIcon, RefereeIcon, WeightIcon, RoundsIcon, TitleIcon } from '../../components/common/icons';
 import { MapPinIcon, CalendarIcon, CheckBadgeIcon, InformationCircleIcon, PencilSquareIcon, StarIcon, Cog6ToothIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── Detalle de Pelea ───────────────────────────────────────────────────────
+// Ruta: "/fights/:id". Vista completa de una pelea para todos los roles.
+// Consume: getFightById, deleteFight (archiva), analyzeFight, activateFight
+// (fightService). Permite registrar resultado oficial, cargar tarjetas,
+// asignar jueces, activar la pelea, analizarla y ver análisis.
+
+// Estilos de las tarjetas de resumen (accent por color).
 const summaryAccents = {
   blue: { border: 'border-t-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-700 dark:text-blue-400' },
   violet: { border: 'border-t-violet-500', iconBg: 'bg-violet-50 dark:bg-violet-900/20', iconColor: 'text-violet-700 dark:text-violet-400' },
@@ -30,6 +38,7 @@ const detailAccents = {
   sky: { border: 'border-t-sky-500/30', iconBg: 'bg-sky-50 dark:bg-sky-900/20', iconColor: 'text-sky-700 dark:text-sky-400' },
 };
 
+// Mapa estilos/etiquetas por estado de la pelea (badge del encabezado).
 const statusConfig = {
   pending: { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-800/50', icon: 'clock', label: 'Pending' },
   active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'zap', label: 'Active' },
@@ -41,15 +50,15 @@ const statusConfig = {
 
 const getStatus = (status) => statusConfig[status] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400', border: 'border-slate-200', icon: 'clock', label: status };
 
+// Badge de nivel: siempre uno de los 3 niveles (junior/senior/elite).
 const levelBadge = (level) => {
-  if (!level) return null;
+  const key = normalizeJudgeLevel(level);
   const colors = {
     junior: 'bg-blue-100 text-blue-700 dark:bg-amber-900/30 dark:text-amber-300',
-    intermediate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
     senior: 'bg-purple-100 text-purple-700 dark:bg-blue-900/30 dark:text-blue-300',
     elite: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   };
-  return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold capitalize ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'}`}>{level}</span>;
+  return <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-semibold ${colors[key]}`}>{judgeLevelLabel(key)}</span>;
 };
 
 const assignmentLabel = (t) => t === 'referee_evaluator' ? 'Referee Evaluator' : t === 'official' ? 'Official' : 'Evaluation';
@@ -184,6 +193,7 @@ const FightDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token, user } = useAuth();
+  // Estado local: pelea cargada + flags de operaciones (eliminar/analizar/activar).
   const [fight, setFight] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -196,6 +206,7 @@ const FightDetails = () => {
   const [activating, setActivating] = useState(false);
   const [activateError, setActivateError] = useState(null);
 
+  // Carga la pelea completa al montar (o al cambiar de id).
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -232,10 +243,12 @@ const FightDetails = () => {
     </div>
   );
 
+  // Permisos derivados: staff (admin/supervisor) vs. juez asignado a la pelea.
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
   const myAssignment = fight?.assigned_judges?.find(j => j.id === user?.id);
   const canScore = user?.role === 'judge' && myAssignment && fight?.status === 'active';
 
+  // Activa la pelea (la pasa de pending → active) solo si hay jueces suficientes.
   const handleActivateFight = async () => {
     if ((fight?.assigned_judges?.length || 0) < (fight?.min_judges_required || 3)) return;
     setActivateError(null);
@@ -251,6 +264,7 @@ const FightDetails = () => {
     }
   };
 
+  // Elimina/archiva la pelea y redirige al historial.
   const handleDelete = async () => {
     setDeleting(true);
     setDeleteError(null);
@@ -347,6 +361,7 @@ const FightDetails = () => {
       </div>
 
       {/* ── Official Result (solo supervisor) ── */}
+      {/* Registro oficial del resultado (solo supervisor) */}
       <ResultRegistration fight={fight} onResultChange={handleResultChange} />
 
       {/* ── Summary cards ── */}
@@ -575,7 +590,7 @@ const FightDetails = () => {
             {isStaff && (
               <ActionButton
                 onClick={() => navigate(`/official-cards/${fight.id}`)}
-                disabled={fight.status !== 'completed'}
+                disabled={!['active', 'completed', 'analyzed'].includes(fight.status)}
               >
                 Load Official Scorecard
               </ActionButton>
@@ -584,7 +599,7 @@ const FightDetails = () => {
               <ActionButton
                 variant="secondary"
                 onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
-                disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
+                disabled={!['active', 'completed', 'analyzed'].includes(fight.status)}
               >
                 Official Judges Scorecards
               </ActionButton>
@@ -612,11 +627,15 @@ const FightDetails = () => {
                 Live Tracking
               </ActionButton>
             )}
-            {isStaff && (
+            {isStaff && fight.official_card && (
               <ActionButton
                 variant="secondary"
-                disabled={fight.status !== 'completed' || !fight.official_card || analyzing}
+                disabled={analyzing}
                 onClick={async () => {
+                  if (fight.status === 'analyzed') {
+                    navigate(`/analysis/${id}`);
+                    return;
+                  }
                   setAnalyzeError(null);
                   setAnalyzing(true);
                   try {
@@ -628,7 +647,7 @@ const FightDetails = () => {
                   }
                 }}
               >
-                {analyzing ? 'Processing...' : 'Analyze Fight'}
+                {analyzing ? 'Processing...' : fight.status === 'analyzed' ? 'View Analysis' : 'Analyze Fight'}
               </ActionButton>
             )}
             {user?.role === 'admin' && (
@@ -663,22 +682,6 @@ const FightDetails = () => {
           )}
         </DetailSection>
       )}
-
-      <ActionPanel stacked>
-        <ActionButton variant="secondary" onClick={() => navigate(`/official-cards/${fight.id}`)}>
-          View Scorecards
-        </ActionButton>
-        <ActionButton
-          variant="secondary"
-          onClick={() => navigate(`/official-judge-cards/${fight.id}`)}
-          disabled={fight.status !== 'completed' && fight.status !== 'analyzed'}
-        >
-          Official Judges Scorecards
-        </ActionButton>
-        <ActionButton variant="secondary" onClick={() => navigate(`/analysis/${fight.id}`)}>
-          View Analysis
-        </ActionButton>
-      </ActionPanel>
 
       <DeleteModal
         isOpen={showDeleteModal}

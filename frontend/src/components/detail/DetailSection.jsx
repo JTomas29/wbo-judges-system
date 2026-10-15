@@ -1,3 +1,11 @@
+// ─── DetailSection ──────────────────────────────────────────────────────────────
+// Tarjeta de sección para las páginas de detalle: cabecera con ícono (Componente),
+// título y descripción, y cuerpo con el contenido (children). Comparte formato
+// visual con FormSection pero es más compacta y usa un ícono como componente.
+// Componente puro controlado: no usa contexto ni estado.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Props: icon (componente React, no path SVG), title, description, children y className extra
 export default function DetailSection({ icon: Icon, title, description, children, className = '' }) {
   return (
     <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden ${className}`}>

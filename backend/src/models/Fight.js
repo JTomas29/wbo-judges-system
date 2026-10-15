@@ -1,7 +1,17 @@
-﻿const { pool } = require('../config/db');
+﻿// ─── Fight.js — Modelo de peleas del sistema de evaluación de jueces/árbitros.
+// ─── Centraliza el CRUD de peleas, las transiciones de estado
+// ─── (pending → active → completed/archived), el registro de resultados,
+// ─── la consulta de jueces asignados y las lecturas de análisis y
+// ─── consistencia por pelea ───
+const { pool } = require('../config/db');
 
 const Fight = {};
 
+// Devuelve todas las peleas NO archivadas (estado pending, active o completed)
+// ordenadas por fecha ascendente. LEFT JOIN a `referees` para exponer el nombre
+// completo del árbitro, y LEFT JOIN a un subquery que cuenta (GROUP BY fight_id)
+// los jueces asignados en `judge_assignments`; el COALESCE hace que las peleas
+// sin asignaciones reporten 0 jueces confirmados (`confirmed_judges`).
 Fight.getAll = async () => {
   const { rows } = await pool.query(`
     SELECT
@@ -39,6 +49,9 @@ Fight.getAll = async () => {
   return rows;
 };
 
+// Devuelve una sola pelea por su id (o null si no existe). LEFT JOIN al árbitro
+// con `CONCAT_WS` para el nombre y `json_build_object` dentro de un CASE WHEN
+// para incrustar el árbitro como objeto anidado (null cuando no hay árbitro).
 Fight.getById = async (id) => {
   const { rows } = await pool.query(`
     SELECT
@@ -79,6 +92,10 @@ Fight.getById = async (id) => {
   return rows[0] || null;
 };
 
+// Inserta una pelea nueva. Los campos opcionales (venue, title, referee_id,
+// broadcaster, notes) se normalizan con `|| null` para guardar NULL en lugar de
+// cadenas vacías o indefinidas, y `created_by` registra el usuario que la creó.
+// Solo devuelve el id generado (el resto se consulta con getById).
 Fight.create = async (data) => {
   const { rows } = await pool.query(`
     INSERT INTO fights (event_name, boxer_red, boxer_blue, scheduled_date, total_rounds, weight_class, venue, title, referee_id, broadcaster, notes, created_by)
@@ -101,6 +118,9 @@ Fight.create = async (data) => {
   return rows[0].id;
 };
 
+// Actualiza los campos editables de la pelea. No toca `created_by` ni el estado
+// (esas transiciones usan `complete`, `activate`, `archive`, `registerResult`).
+// Devuelve la fila afectada o null si el id no existe.
 Fight.update = async (id, data) => {
   const { rows } = await pool.query(`
     UPDATE fights SET
@@ -120,6 +140,9 @@ Fight.update = async (id, data) => {
   return rows[0] || null;
 };
 
+// Lista los jueces asignados a una pelea. JOIN `judge_assignments` ↔ `users`
+// para traer nombre, email, nivel (`level`) y el tipo de asignación
+// (`assignment_type`), ordenados alfabéticamente por nombre.
 Fight.getAssignedJudges = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -136,6 +159,8 @@ Fight.getAssignedJudges = async (fightId) => {
   return rows;
 };
 
+// Trae la tarjeta oficial de puntuación de la pelea (puntos totales de cada
+// esquina, winner y timestamps) desde `official_cards`, o null si aún no existe.
 Fight.getOfficialCard = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT id, total_score_red, total_score_blue, winner, created_at
@@ -145,6 +170,9 @@ Fight.getOfficialCard = async (fightId) => {
   return rows[0] || null;
 };
 
+// Resumen del análisis de desempeño de cada juez en la pelea. JOIN con `users`
+// para el nombre y expone matches (asaltos coincidentes), errors (asaltos en
+// desacuerdo con la tarjeta oficial) y match_pct (porcentaje de coincidencia).
 Fight.getAnalysisSummary = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -161,6 +189,9 @@ Fight.getAnalysisSummary = async (fightId) => {
   return rows;
 };
 
+// Transición de estado activo → completado. La condición `status = 'active'`
+// actúa como guarda: si la pelea no está activa no se modifica nada (devuelve
+// null), evitando completar peleas archivadas o pendientes.
 Fight.complete = async (id) => {
   const { rows } = await pool.query(`
     UPDATE fights
@@ -171,6 +202,8 @@ Fight.complete = async (id) => {
   return rows[0] || null;
 };
 
+// Transición de estado pendiente → activo (guarda equivalente a `complete`):
+// solo afecta peleas cuyo estado actual sea 'pending'.
 Fight.activate = async (id) => {
   const { rows } = await pool.query(`
     UPDATE fights
@@ -181,6 +214,12 @@ Fight.activate = async (id) => {
   return rows[0] || null;
 };
 
+// Registra el resultado final de la pelea (tipo, ganador, round, tiempo y el
+// usuario responsable). El `CASE` fuerza `status = 'completed'` cuando el tipo
+// de resultado es definitivo (ko, tko, rtd, dq, nc); para el resto de tipos
+// conserva el estado actual. `result_type` se castea al enum `fight_result_type`
+// y `result_registered_at` toma `NOW()`. Los campos opcionales se normalizan
+// con `|| null`.
 Fight.registerResult = async (id, data) => {
   const { rows } = await pool.query(`
     UPDATE fights
@@ -216,6 +255,15 @@ Fight.registerResult = async (id, data) => {
   return rows[0] || null;
 };
 
+// Detalle asalto por asalto comparando la puntuación del juez contra la oficial.
+// UNION ALL de dos orígenes:
+//   1) Jueces de evaluación: `round_scores` + `score_cards' (solo finalizadas)
+//      contra `official_cards` + `official_round_scores`, alineando por round.
+//   2) Jueces oficiales: `official_judge_round_scores` + `official_judge_cards`
+//      contra `official_cards` + `official_round_scores`.
+// Ambos descartan asaltos posteriores al resultado (`round_number <= result_round`
+// o `total_rounds` si el resultado no indicó round), pues no se puntúan asaltos
+// que no se disputaron. El subquery resultante se ordena por juez y round.
 Fight.getRoundDetail = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -265,23 +313,9 @@ Fight.getRoundDetail = async (fightId) => {
   return rows;
 };
 
-Fight.getJudgeConsistency = async (fightId) => {
-  const { rows } = await pool.query(`
-    SELECT
-      jc.judge_a_id,
-      ua.name AS judge_a_name,
-      jc.judge_b_id,
-      ub.name AS judge_b_name,
-      jc.match_pct
-    FROM judge_consistency jc
-    JOIN users ua ON ua.id = jc.judge_a_id
-    JOIN users ub ON ub.id = jc.judge_b_id
-    WHERE jc.fight_id = $1
-    ORDER BY ua.name, ub.name
-  `, [fightId]);
-  return rows;
-};
-
+// Cuenta los asaltos que los jueces puntuaron DESPUÉS de que la pelea terminó
+// (`round_number > result_round` o `total_rounds`) sobre tarjetas finalizadas.
+// Es un indicador de error de registro: detecta asaltos sobrantes puntuados.
 Fight.countRoundsBeyondFinish = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT COUNT(*)::INTEGER AS count
@@ -295,6 +329,9 @@ Fight.countRoundsBeyondFinish = async (fightId) => {
   return rows[0]?.count || 0;
 };
 
+// Ejecuta la función almacenada `fn_calculate_analysis($1)` que recalcula en la
+// base todos los resultados de análisis de los jueces (matches, errors, match_pct
+// y consistencia entre pares) para la pelea indicada.
 Fight.analyze = async (id) => {
   const { rows } = await pool.query(`
     SELECT * FROM fn_calculate_analysis($1)
@@ -302,6 +339,8 @@ Fight.analyze = async (id) => {
   return rows;
 };
 
+// Ajusta el número mínimo de jueces requeridos para validar la pelea. Sin
+// RETURNING: es una escritura de configuración de negocio, no de consulta.
 Fight.updateMinJudgesRequired = async (fightId, count) => {
   await pool.query(
     'UPDATE fights SET min_judges_required = $1 WHERE id = $2',
@@ -309,6 +348,8 @@ Fight.updateMinJudgesRequired = async (fightId, count) => {
   );
 };
 
+// Archiva la pelea (status = 'archived' + timestamp). La condición
+// `status != 'archived'` evita re-archivar; devuelve la fila o null.
 Fight.archive = async (id) => {
   const { rows } = await pool.query(`
     UPDATE fights
@@ -319,6 +360,14 @@ Fight.archive = async (id) => {
   return rows[0] || null;
 };
 
+// Historial de peleas archivadas con filtros opcionales construidos de forma
+// dinámica (los índices `$n` se calculan con `paramIndex` en orden de llegada):
+//   - searchEvent: búsqueda parcial del nombre del evento (ILIKE).
+//   - dateFrom / dateTo: rango de fechas de la pelea.
+//   - weightClass: categoría de peso exacta.
+// `LEFT JOIN LATERAL` agrega por pelea los resultados de `analysis_results`
+// (AVG de match_pct, SUM de matches y SUM de errors) para mostrar el desempeño
+// promedio de los jueces en cada pelea archivada.
 Fight.getHistory = async (filters = {}) => {
   let query = `
     SELECT

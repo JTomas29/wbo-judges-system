@@ -1,7 +1,17 @@
+// ─── Skeletons ─────────────────────────────────────────────────────────────────
+// Colección de componentes de carga (placeholders animados) que imitan la forma
+// de las secciones de la interfaz mientras llegan los datos: bloques base, header
+// de página, barra de filtros, tabla, grillas de tarjetas, tarjetas de métricas y
+// header de perfil. Todos usan aria-hidden para no interferir con lectores de pantalla.
+// Sin estado, sin contexto.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Bloque base pulsante; className define el tamaño/forma que se quiere simular
 export const Skeleton = ({ className = '' }) => (
   <div className={`animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 ${className}`} aria-hidden="true" />
 );
 
+// Esqueleto del encabezado de página: ícono cuadrado + líneas de título/subtítulo
 export const PageHeaderSkeleton = () => (
   <div className="flex items-start gap-4 sm:gap-5" aria-hidden="true">
     <Skeleton className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0" />
@@ -12,6 +22,7 @@ export const PageHeaderSkeleton = () => (
   </div>
 );
 
+// Esqueleto de la barra de filtros (input flex + dos selects fijos)
 export const FilterBarSkeleton = () => (
   <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 sm:p-5 mb-5" aria-hidden="true">
     <div className="flex flex-wrap gap-3">
@@ -22,6 +33,7 @@ export const FilterBarSkeleton = () => (
   </div>
 );
 
+// Esqueleto de una tabla: fila de cabecera + `rows` filas con avatar y columnas
 export const TableSkeleton = ({ rows = 5, cols = 4 }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm overflow-hidden" aria-hidden="true">
     <div className="px-5 py-4 border-b border-slate-100 dark:border-[#1E293B] flex gap-4">
@@ -40,6 +52,7 @@ export const TableSkeleton = ({ rows = 5, cols = 4 }) => (
   </div>
 );
 
+// Esqueleto de grilla de tarjetas (responsive 1/2/3 columnas) con `count` tarjetas
 export const CardsGridSkeleton = ({ count = 3, className = '' }) => (
   <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`} aria-hidden="true">
     {Array.from({ length: count }).map((_, i) => (
@@ -53,6 +66,7 @@ export const CardsGridSkeleton = ({ count = 3, className = '' }) => (
   </div>
 );
 
+// Esqueleto de tarjetas de métricas/estadísticas (2/4 columnas) con `count` bloques
 export const StatCardsSkeleton = ({ count = 4 }) => (
   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-hidden="true">
     {Array.from({ length: count }).map((_, i) => (
@@ -65,6 +79,7 @@ export const StatCardsSkeleton = ({ count = 4 }) => (
   </div>
 );
 
+// Esqueleto del encabezado de perfil: avatar + tres líneas de datos
 export const ProfileHeaderSkeleton = () => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-5 sm:p-6 flex items-center gap-4" aria-hidden="true">
     <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0" />

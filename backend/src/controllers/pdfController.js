@@ -117,6 +117,197 @@ function drawField(doc, label, value, x, y) {
   return y + 26;
 }
 
+// ─── Gráficos (dibujados con pdfkit, sin dependencias externas) ─────────────
+
+// Elige color semántico según un puntaje de 0..100 (o proporcional)
+function perfColor(value, max = 100) {
+  if (value == null) return COLORS.textMuted;
+  const ratio = value / max;
+  if (ratio >= 0.85) return COLORS.green;
+  if (ratio >= 0.7) return COLORS.amber;
+  return COLORS.red;
+}
+
+// Medidor (gauge) semicircular para el rendimiento global.
+// Dibuja un arco de fondo y un arco proporcional al valor.
+function drawGauge(doc, value, label, max = 100) {
+  const cx = doc.page.margins.left + 60;
+  const cy = doc.y + 52;
+  const r = 46;
+  const ratio = value == null ? 0 : Math.max(0, Math.min(1, value / max));
+
+  checkNewPage(doc, 150);
+
+  doc.save();
+  doc.lineWidth(14);
+  doc.lineCap('round');
+
+  // Arco de fondo (de -180° a 0° => semicírculo superior)
+  doc.strokeColor('#EDEDED');
+  doc.moveTo(cx - r, cy).arc(cx, cy, r, -180, 0).stroke();
+
+  // Arco de valor (proporcional)
+  doc.strokeColor(perfColor(value, max));
+  doc.moveTo(cx - r, cy).arc(cx, cy, r, -180, -180 + (180 * ratio)).stroke();
+  doc.restore();
+
+  // Valor central
+  doc.font('Helvetica-Bold').fontSize(22).fillColor(COLORS.dark)
+    .text(value == null ? '—' : `${Number(value).toFixed(1)}`,
+      cx - 30, cy - 20, { width: 60, align: 'center' });
+  doc.font('Helvetica').fontSize(7).fillColor(COLORS.textMuted)
+    .text(label, cx - 40, cy + 4, { width: 80, align: 'center' });
+
+  doc.y = cy + r + 8;
+  return doc.y;
+}
+
+// Gráfico de barras para el rendimiento histórico (por pelea/evento).
+// data: array de {label, value, max}.
+function drawBarChart(doc, data, title, max = 100) {
+  const left = doc.page.margins.left;
+  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const chartH = 120;
+  const baseY = doc.y + 24;
+  const plotH = chartH - 34;
+  const axisY = baseY + plotH;
+  const labelX = left;
+  const labelW = 70; // ancho reservado para etiquetas de evento a la izquierda
+  const plotRight = left + width - 8;
+
+  checkNewPage(doc, chartH + 40);
+
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.dark)
+    .text(title, left, doc.y, { width, align: 'left' });
+
+  const n = data.length;
+  const slotW = (plotRight - (labelX + labelW)) / Math.max(n, 1);
+  const barMaxW = slotW * 0.55;
+
+  // Eje / línea base
+  doc.moveTo(labelX + labelW, axisY).lineTo(plotRight, axisY)
+    .lineWidth(0.5).strokeColor(COLORS.border).stroke();
+
+  // Banda de niveles en el fondo (sutil)
+  doc.save();
+  doc.fillColor('#F9FAFB');
+  doc.rect(labelX + labelW, baseY, plotRight - (labelX + labelW), plotH).fill();
+  doc.restore();
+
+  // Líneas de referencia 60% / 85%
+  [0.6, 0.85].forEach((ref) => {
+    const ry = axisY - (plotH * ref);
+    doc.moveTo(labelX + labelW, ry).lineTo(plotRight, ry)
+      .lineWidth(0.4).strokeColor(ref === 0.85 ? COLORS.green : COLORS.amber).opacity(0.35).stroke().opacity(1);
+  });
+
+  data.forEach((d, i) => {
+    const cx = labelX + labelW + (i * slotW) + slotW / 2;
+    const ratio = d.value == null ? 0 : Math.max(0, Math.min(1, d.value / (d.max || max)));
+    const bh = ratio * plotH;
+    const bx = cx - barMaxW / 2;
+    const by = axisY - bh;
+
+    // Barra
+    doc.rect(bx, by, barMaxW, bh).fill(perfColor(d.value, d.max || max));
+
+    // Valor sobre la barra (solo si hay altura)
+    if (bh > 12) {
+      doc.font('Helvetica-Bold').fontSize(7).fillColor(COLORS.dark)
+        .text(String(d.value), bx, by - 10, { width: barMaxW, align: 'center' });
+    }
+
+    // Etiqueta de evento (vertical si es muy largo)
+    doc.font('Helvetica').fontSize(6).fillColor(COLORS.textMuted)
+      .text(d.label, cx - barMaxW, axisY + 4, { width: barMaxW * 2, align: 'center' });
+  });
+
+  doc.y = axisY + 20;
+  return doc.y;
+}
+
+// Gráfico de línea/área para la tendencia (últimas N lecturas).
+// data: array de {label, value, max}.
+function drawTrendChart(doc, data, title, max = 100) {
+  const left = doc.page.margins.left;
+  const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const chartH = 110;
+  const baseY = doc.y + 24;
+  const plotH = chartH - 34;
+  const axisY = baseY + plotH;
+  const labelX = left + 8;
+  const plotRight = left + width - 8;
+
+  checkNewPage(doc, chartH + 40);
+
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.dark)
+    .text(title, left, doc.y, { width, align: 'left' });
+
+  if (data.length === 0) {
+    doc.font('Helvetica').fontSize(8).fillColor(COLORS.textMuted)
+      .text('Sin datos', left, doc.y + 4, { width });
+    doc.y += 20;
+    return doc.y;
+  }
+
+  const n = data.length;
+  const stepX = (plotRight - labelX) / Math.max(n - 1, 1);
+
+  // Banda de niveles
+  doc.save();
+  doc.fillColor('#F9FAFB');
+  doc.rect(labelX, baseY, plotRight - labelX, plotH).fill();
+  doc.restore();
+
+  // Referencias
+  [0.6, 0.85].forEach((ref) => {
+    const ry = axisY - (plotH * ref);
+    doc.moveTo(labelX, ry).lineTo(plotRight, ry)
+      .lineWidth(0.4).strokeColor(ref === 0.85 ? COLORS.green : COLORS.amber).opacity(0.35).stroke().opacity(1);
+  });
+
+  const pts = data.map((d, i) => ({
+    x: labelX + (i * stepX),
+    y: axisY - (Math.max(0, Math.min(1, (d.value ?? 0) / (d.max || max))) * plotH),
+    label: d.label,
+    value: d.value,
+  }));
+
+  // Área de relleno
+  doc.save();
+  doc.fillColor(COLORS.primary).opacity(0.12);
+  doc.moveTo(pts[0].x, axisY);
+  pts.forEach(p => doc.lineTo(p.x, p.y));
+  doc.lineTo(pts[pts.length - 1].x, axisY).closePath().fill();
+  doc.restore();
+
+  // Línea
+  doc.save();
+  doc.lineWidth(2).strokeColor(COLORS.primary).lineJoin('round');
+  pts.forEach((p, i) => (i === 0 ? doc.moveTo(p.x, p.y) : doc.lineTo(p.x, p.y)));
+  doc.stroke();
+  doc.restore();
+
+  // Puntos + valores
+  pts.forEach((p) => {
+    doc.save();
+    doc.fillColor(perfColor(p.value, max));
+    doc.circle(p.x, p.y, 2.6).fill();
+    doc.restore();
+    doc.font('Helvetica-Bold').fontSize(6.5).fillColor(COLORS.dark)
+      .text(String(p.value), p.x - 10, p.y - 11, { width: 20, align: 'center' });
+  });
+
+  // Etiquetas (fechas cortas)
+  pts.forEach((p) => {
+    doc.font('Helvetica').fontSize(6).fillColor(COLORS.textMuted)
+      .text(p.label, p.x - 14, axisY + 4, { width: 28, align: 'center' });
+  });
+
+  doc.y = axisY + 20;
+  return doc.y;
+}
+
 function drawTable(doc, headers, rows, colWidths) {
   const startX = doc.page.margins.left;
   const pageW = doc.page.width - doc.page.margins.left - doc.page.margins.right;
@@ -322,7 +513,56 @@ pdfController.generateJudgePdf = async (req, res, next) => {
     // Header
     drawHeader(doc, 'PERFIL DE JUEZ', `Informe de desempeño — ${judge.name}`);
 
-    // Identificación
+    // ── 1) RESUMEN GENERAL ────────────────────────────────────────────────
+    drawSectionTitle(doc, 'RESUMEN GENERAL');
+
+    const summaryColW = (doc.page.width - 100) / 3;
+    let sfy = doc.y;
+    sfy = drawField(doc, 'Posición en ranking', position ? `#${position}` : '—', 50, sfy);
+    sfy = drawField(doc, 'Peleas evaluadas', stats?.total_fights ?? 0, 50 + summaryColW, sfy);
+    sfy = drawField(doc, 'Rounds puntuados', stats?.total_rounds_judged ?? 0, 50 + summaryColW * 2, sfy);
+    doc.y = sfy + 2;
+    sfy = drawField(doc, 'Accuracy global', stats ? `${stats.avg_match_pct}%` : '—', 50, doc.y);
+    sfy = drawField(doc, 'Tendencia (últ. 5)', stats ? `${stats.last_5_avg_pct}%` : '—', 50 + summaryColW, sfy);
+    sfy = drawField(doc, 'Ultimo accuracy', history[0] ? `${history[0].match_pct}%` : '—', 50 + summaryColW * 2, sfy);
+    doc.y = sfy + 6;
+
+    // Encabezado de bloques de gráficos
+    doc.moveDown(0.3);
+    doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.dark)
+      .text('RENDIMIENTO VISUAL', 50, doc.y);
+    doc.moveDown(0.4);
+
+    // Fila 1: gauge de rendimiento global + tendencia de últimas 5
+    const gaugeY = doc.y;
+    checkNewPage(doc, 150);
+    drawGauge(doc, stats ? stats.avg_match_pct : null, 'Accuracy global');
+    checkNewPage(doc, 150);
+    const trendData = history.slice(0, 5).reverse().map(h => ({
+      label: formatDate(h.scheduled_date).slice(0, 5),
+      value: h.match_pct,
+    }));
+    drawTrendChart(doc, trendData, 'Tendencia — últimas 5 peleas');
+    doc.y = Math.max(doc.y, gaugeY + 120) + 4;
+
+    // Barras: accuracy por pelea
+    if (history.length > 0) {
+      checkNewPage(doc, 170);
+      drawBarChart(doc,
+        history.map(h => ({
+          label: (h.event_name || '').slice(0, 14),
+          value: h.match_pct,
+        })),
+        'Rendimiento por pelea (accuracy)'
+      );
+      doc.moveDown(0.5);
+    }
+
+    // ── 2) DETALLE ────────────────────────────────────────────────────────
+    addPageWithHeader(doc);
+    doc.y = doc.page.margins.top + 20;
+
+    // Identificación completa
     drawSectionTitle(doc, 'IDENTIFICACIÓN');
     let fy = doc.y;
     const colW = (doc.page.width - 100) / 3;
@@ -332,22 +572,6 @@ pdfController.generateJudgePdf = async (req, res, next) => {
     doc.y = fy + 2;
     fy = drawField(doc, 'Nivel', judge.level || '—', 50, doc.y);
     fy = drawField(doc, 'Miembro desde', formatDate(judge.created_at), 50 + colW, fy);
-    doc.y = fy + 8;
-
-    // Ranking
-    drawSectionTitle(doc, 'RANKING');
-    fy = doc.y;
-    fy = drawField(doc, 'Posición', position ? `#${position}` : '—', 50, fy);
-    fy = drawField(doc, 'Puntuación promedio', stats ? `${stats.avg_match_pct}%` : '—', 50 + colW, fy);
-    fy = drawField(doc, 'Tendencia (últimas 5)', stats ? `${stats.last_5_avg_pct}%` : '—', 50 + colW * 2, fy);
-    doc.y = fy + 8;
-
-    // Rendimiento
-    drawSectionTitle(doc, 'RENDIMIENTO');
-    fy = doc.y;
-    fy = drawField(doc, 'Peleas evaluadas', stats?.total_fights ?? 0, 50, fy);
-    fy = drawField(doc, 'Rounds puntuados', stats?.total_rounds_judged ?? 0, 50 + colW, fy);
-    fy = drawField(doc, 'Accuracy global', stats ? `${stats.avg_match_pct}%` : '—', 50 + colW * 2, fy);
     doc.y = fy + 8;
 
     // Historial

@@ -1,7 +1,12 @@
+// ─── OfficialJudgeCard.js — Modelo de tarjeta OFICIAL POR JUEZ de una pelea.
+// ─── Cada juez oficial registra sus propios asaltos; además de CRUD, construye
+// ─── la consulta con el detalle de rounds y la info del juez enriquecidos ───
 const { pool } = require('../config/db');
 
 const OfficialJudgeCard = {};
 
+// Columnas comunes de la tarjeta, reutilizadas por todas las consultas para
+// mantener consistencia entre los distintos métodos de lectura.
 const CARD_FIELDS = `
   ojc.id,
   ojc.fight_id,
@@ -11,6 +16,9 @@ const CARD_FIELDS = `
   ojc.updated_at
 `;
 
+// Helper: lee los asaltos de una tarjeta desde el pool/cliente recibido
+// (permite usarlo tanto dentro de transacciones como fuera). Devuelve los
+// `official_judge_round_scores` ordenados por `round_number`.
 const getRounds = async (client, cardId) => {
   const roundsRes = await client.query(`
     SELECT
@@ -31,6 +39,8 @@ const getRounds = async (client, cardId) => {
   return roundsRes.rows;
 };
 
+// Helper: adjunta los datos del juez (users) que registró la tarjeta en la
+// propiedad `judge` del objeto de tarjeta recibido (null si no existe).
 const getJudgeInfo = async (card) => {
   const userRes = await pool.query(
     'SELECT id, name, email, level::text AS level FROM users WHERE id = $1',
@@ -40,6 +50,8 @@ const getJudgeInfo = async (card) => {
   return card;
 };
 
+// Todas las tarjetas oficiales de jueces de una pelea, enriquecidas con sus
+// asaltos y la información del juez de cada una.
 OfficialJudgeCard.findByFight = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT ${CARD_FIELDS}
@@ -57,6 +69,8 @@ OfficialJudgeCard.findByFight = async (fightId) => {
   return cards;
 };
 
+// Tarjeta oficial de un juez concreto en una pelea (clave compuesta fight_id +
+// judge_id). Devuelve null si ese juez aún no la registró.
 OfficialJudgeCard.findByFightAndJudge = async (fightId, judgeId) => {
   const { rows } = await pool.query(`
     SELECT ${CARD_FIELDS}
@@ -70,6 +84,8 @@ OfficialJudgeCard.findByFightAndJudge = async (fightId, judgeId) => {
   return card;
 };
 
+// Tarjeta oficial por su id, con asaltos e info del juez. Devuelve null si no
+// existe.
 OfficialJudgeCard.findById = async (cardId) => {
   const { rows } = await pool.query(`
     SELECT ${CARD_FIELDS}
@@ -83,6 +99,11 @@ OfficialJudgeCard.findById = async (cardId) => {
   return card;
 };
 
+// Crea la tarjeta de juez y, en la misma transacción, inserta sus asaltos si
+// vienen (el bloque `rounds.length > 0` soporta crear una tarjeta vacía). El
+// multi-INSERT usa parámetros numerados generados por asalto (6 por round) y
+// normaliza deducciones con `?? 0`. Al commitear devuelve la tarjeta con rounds
+// e info del juez.
 OfficialJudgeCard.create = async (fightId, judgeId, rounds, userId) => {
   const client = await pool.connect();
   try {
@@ -131,6 +152,11 @@ OfficialJudgeCard.create = async (fightId, judgeId, rounds, userId) => {
   }
 };
 
+// Reemplaza los asaltos de una tarjeta (DELETE + INSERT) dentro de una
+// transacción. Primero valida que la tarjeta exista (si no, ROLLBACK y null) y
+// luego borra todos sus rounds para reinsertar los nuevos; después actualiza
+// `updated_at` y devuelve el estado final enriquecido. El reemplazo completo
+// (en vez de UPDATE por round) garantiza una lista consistente sin huérfanos.
 OfficialJudgeCard.update = async (cardId, rounds) => {
   const client = await pool.connect();
   try {
@@ -192,6 +218,8 @@ OfficialJudgeCard.update = async (cardId, rounds) => {
   }
 };
 
+// Elimina la tarjeta oficial de un juez para una pelea dada. Devuelve el número
+// de filas borradas (0 si no existía).
 OfficialJudgeCard.deleteByFightAndJudge = async (fightId, judgeId) => {
   const { rowCount } = await pool.query(`
     DELETE FROM official_judge_cards

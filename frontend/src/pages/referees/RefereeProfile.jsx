@@ -8,22 +8,34 @@ import { RefereeIcon } from '../../components/common/icons';
 import { ChartBarIcon, ArrowTrendingUpIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { Skeleton, ProfileHeaderSkeleton } from '../../components/common/Skeletons';
 
+// ─── Perfil de Árbitro ──────────────────────────────────────────────────────
+// Ruta: "/referees/:id/profile". Muestra rendimiento del árbitro (evalúa la
+// labor arbitral en los combates): tarjetas de estadísticas, precisión general,
+// consistencia, gráfico de evolución, historial de evaluaciones y observaciones
+// del perfil (staff). Exporta PDF del perfil.
+// Consume: getRefereeProfile (refereeRankingService); getRefereeObservations,
+// downloadRefereePdf, createObservation, deleteObservation (profileService).
+
+// Formatea fechas completas.
 const formatDate = (d) => {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Formatea fechas cortas (día y mes) para los ejes del gráfico.
 const formatDateShort = (d) => {
   if (!d) return '';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 };
 
+// Iniciales del nombre para el avatar del encabezado.
 const getInitials = (first, last) => {
   const f = (first || '?')[0].toUpperCase();
   const l = (last || '?')[0].toUpperCase();
   return `${f}${l}`;
 };
 
+// Meta de estilo según el porcentaje de rendimiento (excelente → a mejorar).
 const getResultMeta = (pct) => {
   if (pct >= 80) return { label: 'Excellent', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800/50', bar: 'bg-gradient-to-r from-green-500 to-emerald-400' };
   if (pct >= 60) return { label: 'Good', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', bar: 'bg-gradient-to-r from-amber-500 to-yellow-400' };
@@ -31,6 +43,7 @@ const getResultMeta = (pct) => {
   return { label: 'Needs improvement', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', bar: 'bg-gradient-to-r from-red-500 to-rose-400' };
 };
 
+// Barra de progreso animada con color según el rendimiento.
 const ProgressBar = ({ value, size = 'md' }) => {
   const meta = getResultMeta(value);
   const heights = { sm: 'h-1.5', md: 'h-2.5', lg: 'h-3.5' };
@@ -41,6 +54,7 @@ const ProgressBar = ({ value, size = 'md' }) => {
   );
 };
 
+// Contenedor genérico de sección con ícono, título y descripción.
 const SectionCard = ({ Icon, title, description, children, delay = 0 }) => (
   <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-md overflow-hidden animate-[fadeIn_0.45s_ease-out]" style={{ animationDelay: `${delay}ms` }}>
     <div className="px-5 sm:px-6 py-4 flex items-center gap-3 border-b border-slate-100 dark:border-[#1E293B] bg-gradient-to-r from-wbo-50/70 to-transparent dark:from-wbo-900/10">
@@ -56,6 +70,7 @@ const SectionCard = ({ Icon, title, description, children, delay = 0 }) => (
   </div>
 );
 
+// Tarjeta de métrica con ícono, valor y etiqueta.
 const StatCard = ({ icon, value, label, color, iconBg, iconColor, labelColor, valueColor }) => (
   <div className={`${color} rounded-2xl p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5`}>
     <div className="flex items-center gap-3">
@@ -72,6 +87,7 @@ const StatCard = ({ icon, value, label, color, iconBg, iconColor, labelColor, va
   </div>
 );
 
+// Insignia de puntaje con color según el rango (≥90, ≥75, ≥60, >0).
 const ScoreBadge = ({ score }) => {
   let cls = 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
   if (score >= 90) cls = 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
@@ -87,6 +103,7 @@ const ScoreBadge = ({ score }) => {
 
 // ─── Simple SVG Line Chart ──────────────────────────────────────────────────
 
+// Gráfico de línea SVG de la evolución de puntajes (requiere ≥2 evaluaciones).
 const EvolutionChart = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -209,6 +226,7 @@ const RefereeProfile = () => {
   const { id } = useParams();
   const { token, user } = useAuth();
   const navigate = useNavigate();
+  // Datos del perfil, observaciones y estados de carga/formularios.
   const [data, setData] = useState(null);
   const [observations, setObservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -219,6 +237,7 @@ const RefereeProfile = () => {
   const [obsFormText, setObsFormText] = useState('');
   const [obsSubmitting, setObsSubmitting] = useState(false);
 
+  // Carga perfil + historial y las observaciones en paralelo.
   useEffect(() => {
     if (!token || !id) return;
     setLoading(true);
@@ -238,6 +257,7 @@ const RefereeProfile = () => {
       .finally(() => setLoading(false));
   }, [token, id]);
 
+  // Métricas clave extraídas del perfil para las tarjetas de estadísticas.
   const stats = useMemo(() => {
     if (!data?.profile) return null;
     const p = data.profile;
@@ -284,6 +304,7 @@ const RefereeProfile = () => {
   const { profile, history } = data;
   const initials = getInitials(profile.first_name, profile.last_name);
 
+  // Genera y descarga el PDF del perfil del árbitro.
   const handleDownloadPdf = async () => {
     setPdfLoading(true);
     try {
@@ -305,6 +326,7 @@ const RefereeProfile = () => {
 
   const refereeFightOptions = (history || []).map((h) => ({ id: h.fight_id, label: `${h.event_name} — ${formatDate(h.fight_date)}` }));
 
+  // Crea una observación de perfil vinculada a una pelea del árbitro.
   const handleSubmitObservation = async (e) => {
     e.preventDefault();
     if (!obsFormFightId || !obsFormText.trim()) return;
@@ -328,6 +350,7 @@ const RefereeProfile = () => {
     }
   };
 
+  // Elimina una observación del perfil tras confirmar.
   const handleDeleteObservation = async (obsId) => {
     if (!window.confirm('Delete this observation?')) return;
     try {

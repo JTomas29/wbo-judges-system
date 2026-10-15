@@ -1,3 +1,14 @@
+// ─── FilterBar ─────────────────────────────────────────────────────────────────
+// Barra de filtros reutilizable compuesta por tres partes exportables:
+//   - FilterBar   : contenedor visual (tarjeta) que agrupa los filtros y un botón
+//                   opcional "Clear filters".
+//   - FilterInput : campo de búsqueda de texto con ícono y botón de limpieza.
+//   - FilterSelect: <select> con ícono a la izquierda y chevron en la derecha.
+//   - FilterDate  : campo de fecha con etiqueta e ícono de calendario.
+// Componentes puros controlados: no mantienen estado, todo llega por props.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Colección de path (SVG) de los íconos disponibles según el nombre
 const icons = {
   search: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z',
   filter: 'M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z',
@@ -5,12 +16,14 @@ const icons = {
   calendar: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5',
 };
 
+// Chevron decorativo para los <select> (apuntando hacia abajo)
 const ChevronIcon = () => (
   <svg className="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
   </svg>
 );
 
+// Ícono posicionado a la izquierda del campo según su nombre (null si no aplica)
 const LeftIcon = ({ name }) => {
   if (!name) return null;
   return (
@@ -22,6 +35,7 @@ const LeftIcon = ({ name }) => {
   );
 };
 
+// FiltroBar: tarjeta contenedora. Props: children (filtros hijos) y onClear (callback opcional del botón "Clear filters")
 const FilterBar = ({ children, onClear }) => (
   <div className="bg-slate-50/80 dark:bg-[#0F172A]/60 rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm p-4 sm:p-5 transition-all duration-200 hover:shadow-md dark:hover:shadow-black/20">
     <div className="flex flex-wrap items-end gap-3">
@@ -43,8 +57,10 @@ const FilterBar = ({ children, onClear }) => (
   </div>
 );
 
+// Clases base compartidas por los inputs (bordes, altura, foco responsive)
 const baseInput = "w-full px-3.5 py-2.5 min-h-11 border rounded-xl text-base sm:text-sm transition-all duration-200 outline-none focus:ring-2 focus:ring-wbo-700/15 hover:border-slate-300 dark:border-[#1E293B] dark:text-[#F8FAFC] dark:placeholder-slate-500 dark:focus:border-wbo-400 dark:focus:ring-wbo-700/20 dark:hover:border-[#334155] dark:bg-[#0B1120]";
 
+// Campo de texto de búsqueda. Props: value, onChange, placeholder, className, icon
 export const FilterInput = ({ value, onChange, placeholder, className = '', icon = 'search' }) => (
   <div className={`min-w-[180px] flex-1 relative ${className}`}>
     <LeftIcon name={icon} />
@@ -71,6 +87,7 @@ export const FilterInput = ({ value, onChange, placeholder, className = '', icon
   </div>
 );
 
+// Select de filtros. Props: value, onChange, options [{value,label}], placeholder, className, icon
 export const FilterSelect = ({ value, onChange, options, placeholder, className = '', icon = 'filter' }) => (
   <div className={`min-w-[150px] relative ${className}`}>
     <LeftIcon name={icon} />
@@ -91,6 +108,7 @@ export const FilterSelect = ({ value, onChange, options, placeholder, className 
   </div>
 );
 
+// Fecha de filtro con etiqueta superior opcional. Props: value, onChange, placeholder, className
 export const FilterDate = ({ value, onChange, placeholder, className = '' }) => (
   <div className={`min-w-[150px] ${className}`}>
     {placeholder && (
@@ -112,4 +130,5 @@ export const FilterDate = ({ value, onChange, placeholder, className = '' }) => 
   </div>
 );
 
+// Exporta por defecto el contenedor FilterBar
 export default FilterBar;

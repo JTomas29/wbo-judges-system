@@ -1,3 +1,13 @@
+// ─── ModalParts ────────────────────────────────────────────────────────────────
+// Piezas visuales compartidas por las variantes de modal:
+//   - ModalHeader : cabecera con ícono de tipo (danger/warning/success/info),
+//                   título y descripción opcional.
+//   - ModalFooter : contenedor de acciones (botones) alineado a la derecha.
+//   - ModalButton : botón con variantes primary/secondary/danger y estado loading.
+// No usan contexto; se combinan dentro de BaseModal por cada variante concreta.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Fondo del contenedor del ícono según el tipo de modal
 const ICON_BG = {
   danger: 'bg-red-100 dark:bg-red-900/30',
   warning: 'bg-amber-100 dark:bg-amber-900/30',
@@ -5,6 +15,7 @@ const ICON_BG = {
   info: 'bg-blue-100 dark:bg-blue-900/30',
 };
 
+// Color del ícono según el tipo de modal
 const ICON_COLOR = {
   danger: 'text-red-600 dark:text-red-400',
   warning: 'text-amber-600 dark:text-amber-400',
@@ -12,6 +23,7 @@ const ICON_COLOR = {
   info: 'text-blue-600 dark:text-blue-400',
 };
 
+// Íconos por defecto de cada tipo (SVG inline)
 const DEFAULT_ICONS = {
   danger: (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
@@ -35,6 +47,7 @@ const DEFAULT_ICONS = {
   ),
 };
 
+// ModalHeader: cabecera con ícono (type o icon custom), título y descripción
 export default function ModalHeader({ title, description, type = 'info', icon }) {
   return (
     <div className="flex items-start gap-4 mb-5">
@@ -57,6 +70,7 @@ export default function ModalHeader({ title, description, type = 'info', icon })
   );
 }
 
+// ModalFooter: fila de acciones con separador superior; children = botones
 export function ModalFooter({ children, className = '' }) {
   return (
     <div className={`flex flex-col sm:flex-row gap-3 sm:justify-end mt-6 pt-4 border-t border-slate-100 dark:border-[#1E293B] ${className}`}>
@@ -65,9 +79,13 @@ export function ModalFooter({ children, className = '' }) {
   );
 }
 
+// ModalButton: botón de acción con variante (primary/secondary/danger), estado
+// disabled/loading (spinner) e ícono opcional antes del contenido
 export function ModalButton({ children, onClick, variant = 'primary', disabled = false, loading = false, icon: Icon, className = '' }) {
+  // Clases base comunes a cualquier botón del modal
   const base = 'inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-11 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#111827]'
 
+  // Estilos particulares por variante
   const variants = {
     primary: 'bg-wbo-700 text-white hover:bg-wbo-800 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] shadow-sm',
     secondary: 'bg-white dark:bg-[#1F2937] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] hover:bg-slate-50 dark:hover:bg-slate-700',

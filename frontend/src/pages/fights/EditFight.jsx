@@ -10,12 +10,18 @@ import SelectField from '../../components/common/SelectField';
 import TextareaField from '../../components/common/TextareaField';
 import { Skeleton } from '../../components/common/Skeletons';
 
+// ─── Edición de Pelea (Admin/Supervisor) ────────────────────────────────────
+// Ruta: "/fights/:id/edit". Precarga una pelea existente con getFightById,
+// permite modificar sus datos y persiste con updateFight (fightService).
+// Mismos campos que el formulario de creación.
+
 const ROUNDS = [4, 6, 8, 10, 12];
 
 const EditFight = () => {
   const { id } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
+  // form inicia en null: indica estado "sin cargar" (separado del loading).
   const [form, setForm] = useState(null);
   const [referees, setReferees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +29,8 @@ const EditFight = () => {
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
+  // Carga en paralelo la pelea y el catálogo de árbitros; vuelca los datos al
+  // formulario (la fecha se normaliza a "YYYY-MM-DD" para el input type=date).
   useEffect(() => {
     if (!token) return;
     Promise.all([
@@ -59,6 +67,7 @@ const EditFight = () => {
     setFieldErrors({ ...fieldErrors, [e.target.name]: null });
   };
 
+  // Validación en cliente: requeridos + nombres de boxeadores distintos.
   const validate = () => {
     const errs = {};
     if (!form.event_name.trim()) errs.event_name = 'Event name is required';

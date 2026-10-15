@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getFightAnalysis } from '../../services/fightService';
 import { getEffectiveTotalRounds, isEarlyResult } from '../../utils/fightResult';
+import { getPerformanceRating } from '../../utils/performanceRating';
 import BackButton from '../../components/common/BackButton';
 import { Skeleton } from '../../components/common/Skeletons';
 import { JudgeIcon, WeightIcon, RoundsIcon } from '../../components/common/icons';
@@ -22,6 +23,14 @@ import {
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 
+// ─── Análisis de Pelea ──────────────────────────────────────────────────────
+// Ruta: "/analysis/:fightId". Compara las tarjetas de los jueces contra la
+// tarjeta oficial asalto por asalto: aciertos exactos, coincidencia de
+// ganador y rendimiento por juez. Usa utilidades de estado de pelea
+// (getEffectiveTotalRounds, isEarlyResult) y consume getFightAnalysis
+// (fightService). Los jueces de evaluación solo ven su propio análisis.
+
+// Wrapper de página con fondo y márgenes negativos para la vista completa.
 const pageWrapper =
   'bg-[#F5F7FB] dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-12 sm:pb-16';
 
@@ -120,13 +129,17 @@ const statAccents = {
   amber: { border: 'border-t-amber-500', chip: 'bg-amber-50 dark:bg-amber-900/20', color: 'text-amber-600 dark:text-amber-500', value: 'text-amber-600 dark:text-amber-500' },
 };
 
+// Métricas globales del resumen y su acento visual en las StatCard.
 const statItems = [
   { key: 'total_judges', label: 'Judges analyzed', icon: JudgeIcon, accent: 'blue' },
   { key: 'total_rounds', label: 'Rounds analyzed', icon: RoundsIcon, accent: 'violet' },
-  { key: 'rounds_ok', label: 'Exact rounds', icon: CheckBadgeIcon, accent: 'emerald' },
-  { key: 'rounds_error', label: 'Rounds with errors', icon: ExclamationTriangleIcon, accent: 'red' },
+  // 'exact', 'same_winner' y 'different' son el desglose EXCLUSIVO por categoría:
+  // cada comparación pertenece a una sola de las tres y suman comparisons_total.
+  { key: 'exact', label: 'Exact matches', icon: CheckBadgeIcon, accent: 'emerald' },
+  { key: 'same_winner', label: 'Same (winner)', icon: ScaleIcon, accent: 'amber' },
+  { key: 'different', label: 'Different', icon: XCircleIcon, accent: 'red' },
+  { key: 'general_inconsistency', label: 'Inconsistency', icon: ExclamationTriangleIcon, accent: 'violet' },
   { key: 'fights_ok', label: 'Perfect scorecards', icon: TrophyIcon, accent: 'gold' },
-  { key: 'fights_error', label: 'Scorecards with errors', icon: XCircleIcon, accent: 'amber' },
 ];
 
 const StatCard = ({ icon: Icon, label, value, accent = 'slate', delay = 0 }) => {
@@ -315,8 +328,13 @@ const OfficialCardTable = ({ fight, card }) => {
   );
 };
 
-const CoincidenceBadge = ({ matchExact, matchWinner }) => {
-  if (matchExact) {
+// Badge de coincidencia de UNA comparación. Recibe la categoría ya clasificada
+// por el backend ('exact' | 'same_winner' | 'different'), que es exclusiva: una
+// comparación nunca es EXACT y SAME (WINNER) a la vez. El fallback mantiene la
+// UI funcional si el backend no manda 'category'.
+const CoincidenceBadge = ({ category, matchExact, matchWinner }) => {
+  const cat = category ?? (matchExact ? 'exact' : matchWinner ? 'same_winner' : 'different');
+  if (cat === 'exact') {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800/50 shadow-sm">
         <CheckIcon className="w-3 h-3" />
@@ -324,18 +342,18 @@ const CoincidenceBadge = ({ matchExact, matchWinner }) => {
       </span>
     );
   }
-  if (matchWinner) {
+  if (cat === 'same_winner') {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-800/50 shadow-sm">
         <ScaleIcon className="w-3 h-3" />
-        Winner
+        Same (Winner)
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800/50 shadow-sm">
       <XCircleIcon className="w-3 h-3" />
-      Error
+      Different
     </span>
   );
 };
@@ -369,30 +387,36 @@ const RoundComparisonCard = ({ round, judges, summary }) => (
                 <span className="text-slate-300 dark:text-slate-600">-</span>
                 <span className="inline-flex items-center justify-center min-w-[2ch] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">{jr.score_blue}</span>
               </span>
-              <CoincidenceBadge matchExact={jr.match_exact} matchWinner={jr.match_winner} />
+              <CoincidenceBadge category={jr.category} matchExact={jr.match_exact} matchWinner={jr.match_winner} />
             </div>
           </div>
         );
       })}
     </div>
-    {summary && (
-      <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B1120]/40 flex items-center gap-3 flex-wrap">
-        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200/60 dark:ring-emerald-800/40">
-          <CheckBadgeIcon className="w-3 h-3" />
-          {summary.ok} exact
-        </span>
-        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 text-[11px] font-bold text-red-600 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40">
-          <XCircleIcon className="w-3 h-3" />
-          {summary.errors} errors
-        </span>
-        {summary.winner_ok !== undefined && (
+    {summary && (() => {
+      // Conteo EXCLUSIVO por categoría. Las tres categorías son disjuntas, así
+      // que suman el total de jueces de este round. 'same_winner' NO incluye a
+      // los exact: cada comparación pertenece a una sola categoría.
+      const exactCount = summary.exact ?? summary.ok;
+      const sameWinnerCount = summary.same_winner ?? 0;
+      const differentCount = summary.different ?? summary.errors;
+      return (
+        <div className="px-4 sm:px-5 py-2.5 border-t border-slate-100 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B1120]/40 flex items-center gap-3 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200/60 dark:ring-emerald-800/40">
+            <CheckBadgeIcon className="w-3 h-3" />
+            {exactCount} exact
+          </span>
           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-[11px] font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/40">
             <ScaleIcon className="w-3 h-3" />
-            {summary.winner_ok} same
+            {sameWinnerCount} same (winner)
           </span>
-        )}
-      </div>
-    )}
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 text-[11px] font-bold text-red-600 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40">
+            <XCircleIcon className="w-3 h-3" />
+            {differentCount} different
+          </span>
+        </div>
+      );
+    })()}
   </div>
 );
 
@@ -404,6 +428,9 @@ const ProgressBar = ({ pct, gradient }) => (
 
 const JudgePerformanceCard = ({ judge, index }) => {
   const perfect = judge.exact_errors === 0;
+  // Clasificación de la inconsistencia individual por CANTIDAD de errores
+  // (misma tabla de bandas que Performance History).
+  const inconsistencyRating = getPerformanceRating(judge.exact_errors);
   return (
     <div
       className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-wbo-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-5 animate-[fadeIn_0.45s_ease-out]"
@@ -440,6 +467,33 @@ const JudgePerformanceCard = ({ judge, index }) => {
         </span>
       </div>
       <div className="space-y-4">
+        {/* Inconsistencia INDIVIDUAL del juez: se deriva de la cantidad de
+            errores (entero) con la misma tabla de bandas que usa Performance
+            History, para que ambas pantallas clsifiquen igual. */}
+        <div className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border ${inconsistencyRating.bg} ${inconsistencyRating.border}`}>
+          <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Inconsistency (individual)</span>
+          <span className={`inline-flex items-center gap-1.5 text-[11px] font-extrabold ${inconsistencyRating.color}`}>
+            {inconsistencyRating.emoji} {judge.exact_errors} {judge.exact_errors === 1 ? 'error' : 'errors'}
+            <span className="font-bold">· {inconsistencyRating.label}</span>
+          </span>
+        </div>
+        {/* Desglose EXCLUSIVO por categoría para este juez: cada comparación
+            cuenta en una sola categoría, así que los tres suman rounds_total.
+            SAME (WINNER) excluye a EXACT. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200/60 dark:ring-emerald-800/40">
+            <CheckBadgeIcon className="w-3 h-3" />
+            {judge.exact_matches} exact
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-[11px] font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/40">
+            <ScaleIcon className="w-3 h-3" />
+            {judge.same_winner_matches ?? 0} same (winner)
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/20 text-[11px] font-bold text-red-600 dark:text-red-400 ring-1 ring-red-200/60 dark:ring-red-800/40">
+            <XCircleIcon className="w-3 h-3" />
+            {judge.different_matches ?? 0} different
+          </span>
+        </div>
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#94A3B8]">
@@ -475,10 +529,12 @@ const FightAnalysis = () => {
   const { fightId } = useParams();
   const navigate = useNavigate();
   const { user, token } = useAuth();
+  // Estado local: datos del análisis, flag de carga y mensaje de error.
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Carga el análisis al montar (con flag para ignorar respuestas tardías).
   useEffect(() => {
     if (!token || !user) return;
     let cancelled = false;
@@ -509,6 +565,7 @@ const FightAnalysis = () => {
 
   const { fight, summary, official_card, judges, per_round_summary, ignored_rounds } = data;
 
+  // Un juez de evaluación solo ve su propio rendimiento; staff ve a todos.
   const visibleJudges =
     user?.role === 'judge'
       ? judges.filter((j) => j.id === user.judge_id)

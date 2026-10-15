@@ -4,6 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import { Skeleton } from '../common/Skeletons';
 import { RefereeIcon } from '../common/icons';
 
+// ─── RefereeEvaluation ──────────────────────────────────────────────────────────
+// Módulo de evaluación del árbitro dentro del detalle de una pelea (fight).
+// Permite crear, ver, editar y borrar la calificación del árbitro (estrellas 1-5,
+// cada estrella = 2 puntos sobre 10, comentarios opcionales hasta 500 caracteres).
+// CONTEXTOS Y SERVICIOS:
+//   - useAuth(): usa user (rol) y token para autorización y llamadas autenticadas.
+//   - refereeEvaluationService: CRUD de la evaluación (get/create/update/delete).
+// Acceso: sólo el SUPERVISOR que creó la pelea (fight.created_by === user.id) y
+// sólo cuando la pelea ya finalizó (completed/analyzed). Jueces y admins no ven la sección.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Da formato legible a la fecha de creación de la evaluación (o "—" si no existe)
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
 // Sistema de estrellas para la calificación del árbitro.
@@ -26,6 +38,7 @@ const scoreToStars = (score) => {
   return Math.min(5, Math.max(1, Math.round(n / 2)));
 };
 
+// Renderiza una estrella del puntaje; filled controla relleno y color
 const StarIcon = ({ filled }) => (
   <svg
     viewBox="0 0 24 24"
@@ -39,12 +52,16 @@ const StarIcon = ({ filled }) => (
   </svg>
 );
 
+// Control de calificación accesible (radiogroup de 5 estrellas):
+// soporta hover, foco por flechas/Home/End, clic y estado deshabilitado
 const StarRating = ({ value = 0, onChange, disabled = false, name }) => {
-  const [hover, setHover] = useState(0);
-  const [focusStar, setFocusStar] = useState(0);
-  const starRefs = useRef({});
-  const effective = hover || value;
+  // Estado interno de la calificación
+  const [hover, setHover] = useState(0);       // estrella bajo el mouse (previsualización)
+  const [focusStar, setFocusStar] = useState(0); // estrella con foco de teclado
+  const starRefs = useRef({});                 // refs a cada botón (para mover el foco)
+  const effective = hover || value;            // valor visual: hover si hay, si no el valor real
 
+  // Mueve el foco/hover a la estrella `next` (clamp 1-5) y la enfoca
   const move = (next) => {
     const clamped = Math.min(5, Math.max(1, next));
     setFocusStar(clamped);
@@ -53,6 +70,7 @@ const StarRating = ({ value = 0, onChange, disabled = false, name }) => {
     if (el) el.focus();
   };
 
+  // Navegación por teclado: ←/→ mueven, Home/End van al extremo
   const handleKeyDown = (e, star) => {
     if (disabled) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); move(star + 1); }
@@ -88,16 +106,20 @@ const StarRating = ({ value = 0, onChange, disabled = false, name }) => {
   );
 };
 
+// Sección principal de evaluación del árbitro.
+// Props: fight (pelea enlazada) y onEvaluationChange (callback a la página padre)
 const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
+  // Contexto de autenticación: rol del usuario y token para llamadas API
   const { token, user } = useAuth();
-  const [evaluation, setEvaluation] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [saveError, setSaveError] = useState(null);
-  const [deleteError, setDeleteError] = useState(null);
+  // Estado interno de la sección
+  const [evaluation, setEvaluation] = useState(null);     // evaluación persistida (o null)
+  const [loading, setLoading] = useState(true);           // carga inicial de la evaluación
+  const [error, setError] = useState(null);               // error al cargar
+  const [editing, setEditing] = useState(false);          // ¿modo edición activo?
+  const [saving, setSaving] = useState(false);            // ¿enviando guardado?
+  const [deleting, setDeleting] = useState(false);        // ¿enviando borrado?
+  const [saveError, setSaveError] = useState(null);       // error al guardar
+  const [deleteError, setDeleteError] = useState(null);   // error al borrar
 
   // Form state
   const [formStars, setFormStars] = useState(0);
@@ -113,6 +135,8 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   const canEdit = isFightSupervisor && isFightFinalized;
   const canView = isFightSupervisor && isFightFinalized;
 
+  // Carga la evaluación existente. Si el backend responde 404 (nunca se creó),
+  // deja el estado en "sin evaluación" para poder crearla; otros errores se muestran.
   const loadEvaluation = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -134,6 +158,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     }
   }, [fight?.id, token]);
 
+  // Al montar: si el usuario puede ver y hay pelea, dispara la carga
   useEffect(() => {
     if (!canView || !fight?.id) {
       setLoading(false);
@@ -149,6 +174,8 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
   if (isAdmin) return null;
   if (isSupervisor && !isFightSupervisor) return null;
 
+  // Guarda la evaluación: valida estrellas (1-5) y longitud de comentarios,
+  // luego crea (sin evaluation.id) o actualiza (con id) según corresponda
   const handleSave = async () => {
     setSaveError(null);
 
@@ -193,6 +220,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     }
   };
 
+  // Abre el modo edición precargando los datos actuales en el formulario
   const handleEdit = () => {
     if (evaluation) {
       setFormStars(scoreToStars(evaluation.score));
@@ -201,6 +229,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     setEditing(true);
   };
 
+  // Cancela la edición y restaura el formulario a los valores guardados (o vacíos)
   const handleCancel = () => {
     if (evaluation) {
       setFormStars(scoreToStars(evaluation.score));
@@ -213,6 +242,7 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     setSaveError(null);
   };
 
+  // Elimina la evaluación previa confirmación nativa; resetea todo el estado de la sección
   const handleDelete = async () => {
     if (!evaluation?.id) return;
     if (!window.confirm('Are you sure you want to delete the referee evaluation? This action cannot be undone.')) return;
@@ -577,7 +607,9 @@ const RefereeEvaluationSection = ({ fight, onEvaluationChange }) => {
     );
   }
 
+  // Si no coincide ningún modo anterior (decisión de seguridad), no renderiza nada
   return null;
 };
 
+// Exporta la sección para el detalle de la pelea
 export default RefereeEvaluationSection;

@@ -1,4 +1,13 @@
+// ─── TextareaField ──────────────────────────────────────────────────────────────
+// Área de texto controlada (textarea) con etiqueta, ícono opcional, indicador de
+// obligatorio(*), validación visual inline (verde si tiene contenido, rojo si error)
+// y mensaje de error. Componente puro: los datos llegan desde el formulario padre.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Props: name, label, value, onChange, placeholder, required, error, rows (altura),
+// icon (nodo) y className extra
 const TextareaField = ({ name, label, value, onChange, placeholder, required, error, rows = 4, icon, className = '' }) => {
+  // Clases de borde/fondo según el estado de validación (error / con contenido / neutro)
   const stateClasses = error
     ? 'border-red-400 dark:border-red-500/70 bg-red-50/40 dark:bg-red-950/20 placeholder-red-300 dark:placeholder-red-600/70 focus:border-red-500 focus:ring-4 focus:ring-red-500/15'
     : value
@@ -7,11 +16,13 @@ const TextareaField = ({ name, label, value, onChange, placeholder, required, er
 
   return (
     <div className={className}>
+      {/* Etiqueta del campo: ícono + texto + asterisco de obligatorio */}
       <label htmlFor={name} className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-2">
         {icon && <span className="text-slate-400 dark:text-slate-500">{icon}</span>}
         {label}
         {required && <span className="text-wbo-600 dark:text-wbo-400 text-sm leading-none">*</span>}
       </label>
+      {/* Textarea controlado con altura configurable y sin redimensionado manual */}
       <textarea
         id={name}
         name={name}
@@ -21,6 +32,7 @@ const TextareaField = ({ name, label, value, onChange, placeholder, required, er
         rows={rows}
         className={`w-full px-4 py-3 border rounded-xl text-base sm:text-sm font-medium transition-all duration-200 outline-none shadow-sm resize-none ${stateClasses}`}
       />
+      {/* Mensaje de error debajo del campo */}
       {error && (
         <p className="flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 mt-2">
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -33,4 +45,5 @@ const TextareaField = ({ name, label, value, onChange, placeholder, required, er
   );
 };
 
+// Exporta el área de texto para formularios
 export default TextareaField;

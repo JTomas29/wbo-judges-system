@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+// ─── Toast ──────────────────────────────────────────────────────────────────────
+// Notificación global tipo "toast". Lee un objeto { type, message } del estado de
+// la ruta (location.state.toast), lo muestra durante 4s y luego lo limpia. Se usa
+// para delegar avisos entre páginas (p. ej. tras redirecciones). No usa contexto.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Estilos por tipo de notificación: info, success, error y warning (fondo, texto, ring e ícono)
 const TOAST_STYLES = {
   info: {
     bg: 'bg-blue-50',
@@ -45,10 +52,13 @@ const TOAST_STYLES = {
 };
 
 const Toast = () => {
+  // Hooks de ruta: lee el toast entrante y lee el pathname para el replace
   const location = useLocation();
   const navigate = useNavigate();
+  // Estado interno: toast actual (type + message) o null si no hay
   const [toast, setToast] = useState(null);
 
+  // Detecta un toast en el state de la navegación; lo activa y limpia la URL
   useEffect(() => {
     if (location.state?.toast) {
       setToast(location.state.toast);
@@ -56,16 +66,20 @@ const Toast = () => {
     }
   }, [location, navigate]);
 
+  // Auto-cierre del toast a los 4 segundos
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), 4000);
     return () => clearTimeout(timer);
   }, [toast]);
 
+  // Sin toast activo, no renderiza nada
   if (!toast) return null;
 
+  // Resuelve los estilos según el tipo (desconocido → info por defecto)
   const style = TOAST_STYLES[toast.type] || TOAST_STYLES.info;
 
+  // Renderiza la notificación fija en la parte inferior centrada, con botón de cierre
   return (
     <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] animate-toastSlideUp">
       <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl ${style.bg} ${style.text} ring-1 ${style.ring} shadow-lg shadow-black/10`}>
@@ -85,4 +99,5 @@ const Toast = () => {
   );
 };
 
+// Exporta el toast global para montarlo una vez en el layout
 export default Toast;

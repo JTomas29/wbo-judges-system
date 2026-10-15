@@ -1,7 +1,15 @@
+// ─── ScoreCard.js — Modelo de tarjetas de puntuación de los jueces en cada
+// ─── pelea. Maneja la localización de la tarjeta por pelea+juez, su creación
+// ─── perezosa, la finalización del borrador y la lectura de asaltos y avance
+// ─── de completitud por pelea ───
 const { pool } = require('../config/db');
 
 const ScoreCard = {};
 
+// Localiza la tarjeta de (pelea, juez) y, si no existe, la crea en estado
+// 'draft' (patrón find-or-create). Esto permite al juez empezar a puntuar sin
+// una inserción previa explícita; la unicidad la garantiza la clave compuesta
+// (fight_id, judge_id) de la tabla.
 ScoreCard.findOrCreate = async (fightId, judgeId) => {
   const existing = await pool.query(`
     SELECT id, fight_id, judge_id, status::text, total_score_red, total_score_blue, winner, submitted_at
@@ -20,6 +28,7 @@ ScoreCard.findOrCreate = async (fightId, judgeId) => {
   return rows[0];
 };
 
+// Tarjeta por su id, o null si no existe.
 ScoreCard.findById = async (id) => {
   const { rows } = await pool.query(`
     SELECT id, fight_id, judge_id, status::text, total_score_red, total_score_blue, winner, submitted_at
@@ -29,6 +38,8 @@ ScoreCard.findById = async (id) => {
   return rows[0] || null;
 };
 
+// Tarjeta de un juez concreto en una pelea (clave compuesta fight_id + judge_id),
+// o null si aún no tiene tarjeta.
 ScoreCard.findByFightAndJudge = async (fightId, judgeId) => {
   const { rows } = await pool.query(`
     SELECT id, fight_id, judge_id, status::text, total_score_red, total_score_blue, winner, submitted_at
@@ -38,6 +49,8 @@ ScoreCard.findByFightAndJudge = async (fightId, judgeId) => {
   return rows[0] || null;
 };
 
+// Asaltos puntuados de una tarjeta, ordenados por número de round. Incluye las
+// columnas ya calculadas por la base (`final_score_red/blue`).
 ScoreCard.getRoundScores = async (scoreCardId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -50,6 +63,10 @@ ScoreCard.getRoundScores = async (scoreCardId) => {
   return rows;
 };
 
+// Finaliza una tarjeta: cambia de 'draft' a 'finalized' y sella `submitted_at`
+// con la hora actual. La condición `status = 'draft'` es la guarda para que solo
+// se finalice una vez (las tarjetas ya finalizadas devuelven null y no se
+// re-escriben).
 ScoreCard.finalize = async (id) => {
   const { rows } = await pool.query(`
     UPDATE score_cards
@@ -60,6 +77,12 @@ ScoreCard.finalize = async (id) => {
   return rows[0] || null;
 };
 
+// Panel de avance de puntuación de una pelea. Parte de `judge_assignments` y
+// hace JOIN con `users`, `fights` y LEFT JOIN con `score_cards` (misma pelea y
+// juez) y `round_scores` para contar, con `COUNT(rs.id)` agrupado, cuántos
+// asaltos lleva completados cada juez respecto al total de la pelea. El filtro
+// opcional `assignmentType` restringe a un tipo concreto de asignación y el
+// GROUP BY es necesario por la agregación del COUNT.
 ScoreCard.getAllByFight = async (fightId, assignmentType = null) => {
   let query = `
     SELECT
@@ -96,6 +119,8 @@ ScoreCard.getAllByFight = async (fightId, assignmentType = null) => {
   return rows;
 };
 
+// Cuenta los asaltos registrados de una tarjeta. Complemento de
+// `getAllByFight` para validaciones puntuales de completitud.
 ScoreCard.getRoundCount = async (scoreCardId) => {
   const { rows } = await pool.query(`
     SELECT COUNT(*)::INTEGER AS count

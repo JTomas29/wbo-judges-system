@@ -3,24 +3,37 @@ import { registerResult } from '../../services/fightService';
 import { useAuth } from '../../context/AuthContext';
 import { RESULT_TYPE_OPTIONS, RESULT_TYPE_LABELS, isEarlyResult } from '../../utils/fightResult';
 
-const ResultRegistration = ({ fight, onResultChange }) => {
-  const { token, user } = useAuth();
-  const [resultType, setResultType] = useState('');
-  const [winner, setWinner] = useState('');
-  const [round, setRound] = useState('');
-  const [time, setTime] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const timerRef = useRef(null);
+// ─── ResultRegistration ─────────────────────────────────────────────────────────
+// Registro oficial del RESULTADO de una pelea, exclusivo del rol supervisor.
+// Si ya existe un resultado (fight.result_type), muestra el resumen en modo lectura.
+// Si no, muestra un formulario (tipo de resultado, ganador, asalto y tiempo) que
+// valida los datos y llama a fightService.registerResult.
+// CONTEXTO: useAuth() → user (para el rol) y token (autenticación de la llamada).
+// ───────────────────────────────────────────────────────────────────────────────
 
+const ResultRegistration = ({ fight, onResultChange }) => {
+  // Contexto de autenticación: rol del usuario y token para la llamada API
+  const { token, user } = useAuth();
+  // Estado interno del formulario
+  const [resultType, setResultType] = useState('');   // tipo de resultado seleccionado
+  const [winner, setWinner] = useState('');           // boxeador ganador
+  const [round, setRound] = useState('');             // asalto final (resultados tempranos)
+  const [time, setTime] = useState('');               // tiempo del final (m:ss)
+  const [saving, setSaving] = useState(false);        // ¿enviando el registro?
+  const [error, setError] = useState(null);           // mensaje de error de validación/API
+  const [success, setSuccess] = useState(false);      // ¿mostrar confirmación de guardado?
+  const timerRef = useRef(null);                      // timer para auto-ocultar el éxito
+
+  // Cálculos derivados
   const isSupervisor = user?.role === 'supervisor';
   const isRegistered = !!fight?.result_type;
   const isEarly = isEarlyResult(fight);
 
+  // Restricciones de visibilidad: sólo supervisor y estados activos de la pelea
   if (!isSupervisor) return null;
   if (fight.status === 'cancelled' || fight.status === 'archived') return null;
 
+  // Envía el registro: valida tipo, ganador (excepto NC), asalto y el formato mm:ss
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -47,6 +60,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
 
     setSaving(true);
     try {
+      // Compone el payload: sin ganador en NC, y con asalto/tiempo solo en resultados tempranos
       const payload = { result_type: resultType, winner: resultType === 'nc' ? null : winner };
       if (resultType !== 'decision' && resultType !== 'nc') {
         payload.round = parseInt(round, 10);
@@ -66,6 +80,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
 
   return (
     <div className="bg-gradient-to-br from-white to-slate-50/40 dark:from-[#111827] dark:to-[#0f141f] rounded-2xl border border-slate-200 dark:border-[#1E293B] border-t-[3px] border-t-amber-500 shadow-sm p-5 sm:p-6">
+      {/* Cabecera de la sección "Official Result" */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-amber-700 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
@@ -78,6 +93,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
         </div>
       </div>
 
+      {/* Banner de éxito temporal (5s) tras registrar el resultado */}
       {success && (
         <div className="mb-4 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 animate-[fadeIn_0.3s_ease-out]">
           <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
@@ -89,6 +105,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
         </div>
       )}
 
+      {/* Si ya existe un resultado: muestra el resumen (tipo, ganador y asalto/tiempo) */}
       {isRegistered ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#1F2937] border border-slate-100 dark:border-[#1E293B]">
@@ -112,6 +129,7 @@ const ResultRegistration = ({ fight, onResultChange }) => {
           )}
         </div>
       ) : (
+        // Si NO hay resultado: formulario de registro con selección de tipo/ganador/asalto/tiempo
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -202,4 +220,5 @@ const ResultRegistration = ({ fight, onResultChange }) => {
   );
 };
 
+// Exporta el módulo de registro de resultados para el detalle de la pelea
 export default ResultRegistration;

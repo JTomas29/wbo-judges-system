@@ -1,8 +1,16 @@
+// ─── Página de Login ─────────────────────────────────────────────────────────
+// Vista pública de autenticación del Sistema de Evaluación de Jueces WBO.
+// Ruta: "/" · Sin protección: cualquier usuario anónimo.
+// Consume el contexto AuthContext (action `login`) para iniciar sesión y
+// redirige al Dashboard cuando el backend valida las credenciales.
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logoSrc from '../../assets/logoWbo.png';
 
+// Cuentas de prueba visibles SOLO en entorno de desarrollo (import.meta.env.DEV).
+// Permiten un acceso rápido de cada rol: admin, supervisor y juez.
 const devAccounts = [
   { label: 'Administrator', email: 'admin@wbo.com', password: 'admin123' },
   { label: 'Supervisor', email: 'supervisor@wbo.com', password: 'super123' },
@@ -10,6 +18,7 @@ const devAccounts = [
 ];
 
 const Login = () => {
+  // Estado local del formulario y del proceso de envío.
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,6 +26,8 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Envía las credenciales al AuthContext; si la API responde OK, redirige al
+  // Dashboard. Cualquier error del backend se muestra dentro del formulario.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -33,6 +44,7 @@ const Login = () => {
     }
   };
 
+  // Rellena los campos con una cuenta de prueba al pulsar "Use".
   const fillCredentials = (account) => {
     setEmail(account.email);
     setPassword(account.password);
@@ -98,6 +110,7 @@ const Login = () => {
         </div>
       </div>
 
+      {/* Panel de credenciales de prueba: solo se renderiza en desarrollo */}
       {import.meta.env.DEV && (
         <div className="w-[420px] max-w-full mt-6 px-2">
           <div className="text-center text-xs font-semibold text-white/60 uppercase tracking-wider mb-2.5">

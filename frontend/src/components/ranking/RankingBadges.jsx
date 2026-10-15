@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── RankingBadges ──────────────────────────────────────────────────────────────
+// Conjunto de insignias y barras para la vista de ranking de jueces/árbitros:
+//   - RankingSummaryCard : tarjeta de resumen con valor destacado, ícono y acento.
+//   - PositionBadge      : posición en el ranking con estilo de medalla (1/2/3).
+//   - ScoreBadge         : puntaje promedio con color según rango.
+//   - StatusBadge        : estado activo/inactivo con punto pulsante.
+//   - LevelBadge         : nivel del participante con color propio.
+//   - AccuracyBar        : barra de precisión con animación de carga y color auto/definido.
+// Accesibilidad: los esqueletos/estados usan aria-hidden cuando corresponde.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Acentos de color reutilizables para el borde, círculo y valor de las tarjetas
 const summaryAccents = {
   blue: {
     border: 'border-t-blue-500',
@@ -38,6 +51,8 @@ const summaryAccents = {
   },
 };
 
+// Tarjeta de resumen del ranking. Props: icon (path SVG o nodo), value, label,
+// sublabel, accent (clave de color) y delay (animación escalonada)
 const RankingSummaryCard = ({ icon, value, label, sublabel, accent = 'blue', delay = 0 }) => {
   const a = summaryAccents[accent] || summaryAccents.blue;
   return (
@@ -62,6 +77,7 @@ const RankingSummaryCard = ({ icon, value, label, sublabel, accent = 'blue', del
   );
 };
 
+// Insignia de posición: medallas para 1° (oro), 2° (plata), 3° (bronce) y genérico gris
 const PositionBadge = ({ pos }) => {
   const medals = {
     1: 'bg-gradient-to-br from-gold-light to-gold text-wbo-800 ring-gold/60 shadow-md shadow-gold/40',
@@ -78,6 +94,7 @@ const PositionBadge = ({ pos }) => {
   );
 };
 
+// Insignia de puntaje: color semafórico según el valor (≥90 verde, ≥75 azul, ≥60 ámbar, resto rojo)
 const ScoreBadge = ({ score }) => {
   const value = Number(score) || 0;
   let color = 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700';
@@ -92,6 +109,7 @@ const ScoreBadge = ({ score }) => {
   );
 };
 
+// Insignia de estado: activo (verde con punto pulsante) o inactivo (gris)
 const StatusBadge = ({ active }) => (
   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ring-1 ${
     active
@@ -103,25 +121,30 @@ const StatusBadge = ({ active }) => (
   </span>
 );
 
+// Insignia de nivel: sólo 3 niveles (junior/senior/elite) con su color.
+// El nivel es independiente de la posición en el ranking.
 const LevelBadge = ({ level }) => {
-  if (!level) return null;
+  const key = normalizeJudgeLevel(level);
   const colors = {
     junior: 'bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300 ring-sky-200 dark:ring-sky-800/40',
-    intermediate: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-200 dark:ring-amber-800/40',
     senior: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-purple-200 dark:ring-purple-800/40',
     elite: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-800/40',
   };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold capitalize ring-1 ${colors[level] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ring-slate-200 dark:ring-slate-700'}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold ring-1 ${colors[key]}`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-      {level}
+      {judgeLevelLabel(key)}
     </span>
   );
 };
 
+// Barra de precisión animada. Props: value (porcentaje), color ('auto' o clave de gradiente),
+// className extra y delay (ms) para animar el ancho al montar
 const AccuracyBar = ({ value, color = 'auto', className = '', delay = 80 }) => {
+  // Estado interno: ancho actual de la barra (0 → anima hasta el porcentaje)
   const [w, setW] = useState(0);
   const pct = Number(value) || 0;
+  // Anima el ancho desde 0 hasta el porcentaje tras `delay` ms
   useEffect(() => {
     const t = setTimeout(() => setW(Math.max(0, Math.min(100, pct))), delay);
     return () => clearTimeout(t);
@@ -147,4 +170,5 @@ const AccuracyBar = ({ value, color = 'auto', className = '', delay = 80 }) => {
   );
 };
 
+// Exporta todas las insignias y barras del ranking como exports nombrados
 export { RankingSummaryCard, PositionBadge, ScoreBadge, StatusBadge, LevelBadge, AccuracyBar };

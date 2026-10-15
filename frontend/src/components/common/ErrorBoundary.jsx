@@ -1,24 +1,36 @@
 import { Component } from 'react';
 
+// ─── ErrorBoundary ─────────────────────────────────────────────────────────────
+// Límite de errores (clase de React). Atrapa errores de render de sus hijos y
+// muestra una pantalla de respaldo con mensaje y botón "Retry", evitando que
+// un fallo puntual tumbe toda la aplicación. No usa contexto ni props externas
+// (los hijos se pasan como children).
+// ───────────────────────────────────────────────────────────────────────────────
+
 class ErrorBoundary extends Component {
+  // Estado interno: hasError (¿hubo fallo?) y error (objeto del error capturado)
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
+  // Ciclo de vida: React la invoca ante un error de render para derivar el estado
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
 
+  // Ciclo de vida: registra el error en consola para diagnóstico del equipo
   componentDidCatch(error, info) {
     console.error('Error captured by ErrorBoundary:', error, info);
   }
 
+  // Handler del botón "Retry": limpia el estado y reintenta renderizar a los hijos
   handleReset = () => {
     this.setState({ hasError: false, error: null });
   };
 
   render() {
+    // Si hubo error, muestra la fallback UI centrada con retroalimentación visual
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-[60vh] px-4">
@@ -46,8 +58,10 @@ class ErrorBoundary extends Component {
       );
     }
 
+    // Sin errores: renderiza normalmente el contenido hijo envuelto
     return this.props.children;
   }
 }
 
+// Exporta el límite de errores para envolver secciones críticas del layout
 export default ErrorBoundary;

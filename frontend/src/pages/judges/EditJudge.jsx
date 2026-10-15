@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJudgeById, updateJudge } from '../../services/judgeService';
+import { JUDGE_LEVEL_OPTIONS, JUDGE_LEVEL_VALUES, normalizeJudgeLevel } from '../../utils/judgeLevels';
 import { useAuth } from '../../context/AuthContext';
 import FormCard from '../../components/common/FormCard';
 import FormSection from '../../components/common/FormSection';
@@ -9,12 +10,23 @@ import SelectField from '../../components/common/SelectField';
 import { DeleteModal } from '../../components/common/modals';
 import { Skeleton } from '../../components/common/Skeletons';
 
-const LEVELS = ['Sin Asignar', 'Principiante', 'Intermedio', 'Avanzado'];
+// ─── Edición de Juez ────────────────────────────────────────────────────────
+// Ruta: "/admin/judges/:id/edit". Solo admin. Edita datos personales, nivel
+// y contiene toggle activo/inactivo + cambio opcional de contraseña.
+// Consume: getJudgeById, updateJudge, deleteJudge (judgeService).
+
+// Niveles posibles del juez. Antes este select ofrecía valores legacy en español
+// ('Sin Asignar', 'Principiante', 'Intermedio', 'Avanzado') que NO existen en el
+// ENUM judge_level (junior|senior|elite), por lo que cualquier guardado manual
+// del nivel era rechazado por el backend con "Nivel inválido". Ahora usa el mismo
+// catálogo que la actualización automática fn_update_judge_level(), de modo que
+// la edición manual del administrador y la automática nunca se contradicen.
 
 const EditJudge = () => {
   const { id } = useParams();
   const { user, token } = useAuth();
   const navigate = useNavigate();
+  // Estado local: formulario (null hasta cargar), flags de guardado y errores.
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,6 +35,7 @@ const EditJudge = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Carga el juez y pre-llena el formulario (deja contraseñas en blanco).
   useEffect(() => {
     if (!token) return;
     getJudgeById(id, token)
@@ -31,7 +44,7 @@ const EditJudge = () => {
         setForm({
           name: j.name || '',
           email: j.email || '',
-          level: j.level || '',
+          level: normalizeJudgeLevel(j.level),
           is_active: j.is_active !== false,
           password: '',
           confirmPassword: '',
@@ -50,18 +63,20 @@ const EditJudge = () => {
     setFieldErrors({ ...fieldErrors, [e.target.name]: null });
   };
 
+  // Validación de campos: nombre, email, nivel, y contraseñas solo si se cambian.
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Name is required';
     if (!form.email.trim()) errs.email = 'Required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Invalid email';
-    if (!form.level) errs.level = 'Required';
+    if (!JUDGE_LEVEL_VALUES.includes(form.level)) errs.level = 'Select a valid level';
     if (form.password && form.password.length < 6) errs.password = 'Minimum 6 characters';
     if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match';
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
+  // Guarda los cambios (incluye password solo si se definió) y vuelve a /admin/users.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -84,6 +99,7 @@ const EditJudge = () => {
     }
   };
 
+  // Elimina el juez (import dinámico) y vuelve a /admin/users.
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -97,6 +113,7 @@ const EditJudge = () => {
     }
   };
 
+  // Guard: solo el rol admin puede editar jueces.
   if (user && user.role !== 'admin') {
     return (
       <div className="flex items-center justify-center py-20">
@@ -173,7 +190,7 @@ const EditJudge = () => {
               value={form.level}
               onChange={handleChange}
               placeholder="Select level"
-              options={LEVELS.map((l) => ({ value: l, label: l }))}
+              options={JUDGE_LEVEL_OPTIONS}
               required
               error={fieldErrors.level}
             />

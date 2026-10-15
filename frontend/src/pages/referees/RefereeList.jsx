@@ -6,6 +6,14 @@ import { createReferee, deactivateReferee, getReferees, updateReferee } from '..
 import RefereeModal from './RefereeModal';
 import { TableSkeleton } from '../../components/common/Skeletons';
 
+// ─── Gestión de Árbitros (Registro) ─────────────────────────────────────────
+// Vista admin/supervisor: CRUD básico del registro de árbitros (sin vínculo a
+// usuarios del sistema). Permite crear/editar y desactivar árbitros con
+// confirmación. Lista responsive (cards en móvil, tabla en escritorio).
+// Consume: getReferees, createReferee, updateReferee, deactivateReferee
+// (refereeService). Archivado vía RefereeModal.
+
+// Clases del badge de estado según activo/inactivo.
 const statusClass = (active) => active
   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
   : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600';
@@ -17,11 +25,13 @@ const StatusBadge = ({ active }) => (
   </span>
 );
 
+// Formatea fechas del registro (created_at).
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value))
   : '—';
 
 const RefereeList = () => {
+  // Estado: lista, carga, filtros, modal, confirmación y toast.
   const [referees, setReferees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +43,7 @@ const RefereeList = () => {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
 
+  // Carga inicial de todos los árbitros.
   const loadReferees = async () => {
     setLoading(true);
     setError('');
@@ -47,12 +58,14 @@ const RefereeList = () => {
   };
 
   useEffect(() => { loadReferees(); }, []);
+  // Auto-cierra el toast a los 4 segundos.
   useEffect(() => {
     if (!toast) return undefined;
     const timer = window.setTimeout(() => setToast(''), 4000);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  // Filtra por búsqueda y estado, y ordena (A-Z o más recientes).
   const visibleReferees = useMemo(() => [...referees]
     .filter((referee) => {
       const fullName = `${referee.first_name} ${referee.last_name}`.toLowerCase();
@@ -66,6 +79,7 @@ const RefereeList = () => {
       : `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`, 'es')),
   [referees, search, status, order]);
 
+  // Crea o actualiza un árbitro según si el modal trae uno existente.
   const saveReferee = async (form) => {
     setSaving(true);
     setError('');
@@ -87,6 +101,7 @@ const RefereeList = () => {
     }
   };
 
+  // Desactiva el árbitro confirmado (no se elimina del registro).
   const handleDeactivate = async () => {
     if (!confirmTarget) return;
     setSaving(true);
@@ -106,6 +121,7 @@ const RefereeList = () => {
   const clearFilters = () => { setSearch(''); setStatus(''); setOrder('az'); };
   const hasFilters = search || status || order !== 'az';
 
+  // Botones de acción por fila: editar y desactivar (solo si está activo).
   const actionButtons = (referee) => (
     <div className="flex flex-wrap gap-2">
       <button onClick={() => setModalReferee(referee)} className="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-300 dark:border-[#374151] text-slate-700 dark:text-slate-200 hover:text-wbo-700 hover:border-wbo-400 hover:bg-wbo-50 dark:hover:bg-red-900/30">Edit</button>

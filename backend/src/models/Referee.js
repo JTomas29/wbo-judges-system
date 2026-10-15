@@ -1,13 +1,21 @@
+// ─── Referee.js — Modelo de árbitros del sistema. CRUD del catálogo de
+// ─── árbitros más sus consultas de evaluación: ranking de desempeño,
+// ─── perfil con estadísticas agregadas e historial de evaluaciones ───
 const { pool } = require('../config/db');
 
 const Referee = {};
 
+// Columnas base reutilizadas en las consultas CRUD. `full_name` se compone en
+// SQL concatenando nombre y apellido, evitando el CONCAT_WS cuando faltan datos.
 const SELECT_COLS = `
   id, first_name, last_name,
   first_name || ' ' || last_name AS full_name,
   license_number, federation, phone, active, created_at, updated_at
 `;
 
+// Inserta un árbitro nuevo. Los campos opcionales (licencia, federación,
+// teléfono) se normalizan con `|| null`; `active` tiene default true si el
+// llamador no lo envía. Devuelve el árbitro creado.
 Referee.create = async ({ first_name, last_name, license_number, federation, phone, active = true }) => {
   const { rows } = await pool.query(
     `INSERT INTO referees (first_name, last_name, license_number, federation, phone, active)
@@ -18,6 +26,8 @@ Referee.create = async ({ first_name, last_name, license_number, federation, pho
   return rows[0];
 };
 
+// Lista todos los árbitros del catálogo (activos e inactivos), ordenados por
+// apellido y luego nombre.
 Referee.getAll = async () => {
   const { rows } = await pool.query(
     `SELECT ${SELECT_COLS}
@@ -27,6 +37,7 @@ Referee.getAll = async () => {
   return rows;
 };
 
+// Árbitro por id, o null si no existe.
 Referee.getById = async (id) => {
   const { rows } = await pool.query(
     `SELECT ${SELECT_COLS}
@@ -37,6 +48,8 @@ Referee.getById = async (id) => {
   return rows[0] || null;
 };
 
+// Actualiza los datos editables del árbitro, normalizando campos opcionales.
+// Devuelve la fila actualizada o null si el id no existe.
 Referee.update = async (id, { first_name, last_name, license_number, federation, phone, active }) => {
   const { rows } = await pool.query(
     `UPDATE referees
@@ -48,6 +61,8 @@ Referee.update = async (id, { first_name, last_name, license_number, federation,
   return rows[0] || null;
 };
 
+// Desactiva el árbitro (active = FALSE) en lugar de borrarlo físicamente, para
+// preservar el historial de peleas y evaluaciones que lo referencian (FK).
 Referee.deactivate = async (id) => {
   const { rows } = await pool.query(
     `UPDATE referees
@@ -61,6 +76,13 @@ Referee.deactivate = async (id) => {
 
 // ─── RANKING ────────────────────────────────────────────────────────────────
 
+// Ranking de desempeño de los árbitros. El CTE `eval_stats` agrega por árbitro
+// sus evaluaciones: COUNT de peleas, AVG de score/deducción/final (ROUND a 2
+// decimales), mejor/peor final_score y última fecha evaluada. El SELECT hace
+// LEFT JOIN de todos los árbitros contra ese agregado (COALESCE a 0 para quienes
+// nunca fueron evaluados) y asigna la `position` con ROW_NUMBER() ordenando por
+// promedio de final_score DESC, luego por cantidad de peleas y luego por nombre.
+// Los valores agregados se pasan a Number para salir como números JSON seguros.
 Referee.getRanking = async () => {
   const { rows } = await pool.query(`
     WITH eval_stats AS (
@@ -115,6 +137,10 @@ Referee.getRanking = async () => {
 
 // ─── PROFILE ────────────────────────────────────────────────────────────────
 
+// Perfil de un árbitro con estadísticas agregadas de su historial. Reutiliza el
+// mismo CTE de `eval_stats` (COUNT/AVG/MAX/MIN por árbitro), filtra por id y
+// devuelve el resumen con los promedios a 2 decimales y COALESCE a 0; al igual
+// que el ranking, los agregados se convierten a Number para el JSON final.
 Referee.getProfile = async (id) => {
   const { rows } = await pool.query(`
     WITH eval_stats AS (
@@ -160,6 +186,9 @@ Referee.getProfile = async (id) => {
   };
 };
 
+// Historial de evaluaciones de un árbitro para su ficha: JOIN a `fights` (nombre
+// y fecha del evento) y a `users` (nombre del supervisor), ordenado por fecha de
+// la evaluación descendente.
 Referee.getEvaluationHistory = async (refereeId) => {
   const { rows } = await pool.query(`
     SELECT

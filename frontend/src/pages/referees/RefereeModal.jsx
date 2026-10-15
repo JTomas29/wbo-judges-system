@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react';
 import BaseModal from '../../components/common/modals/BaseModal';
 import InputField from '../../components/common/InputField';
 
+// ─── Modal Crear/Editar Árbitro ─────────────────────────────────────────────
+// Formulario del registro de árbitros (independiente de usuarios del sistema).
+// Con referee=undefined crea; con referee=objeto pre-carga y edita.
+// Validación mínima: nombre y apellido obligatorios. El guardado lo realiza
+// el padre (RefereeList) vía onSave.
+
+// Formulario por defecto (creación).
 const EMPTY_FORM = {
   first_name: '',
   last_name: '',
@@ -15,6 +22,7 @@ const RefereeModal = ({ isOpen, referee, onClose, onSave, saving }) => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
 
+  // Al abrir, precarga los datos del árbitro o reinicia el formulario vacío.
   useEffect(() => {
     if (!isOpen) return;
     setForm(referee ? {
@@ -28,11 +36,13 @@ const RefereeModal = ({ isOpen, referee, onClose, onSave, saving }) => {
     setErrors({});
   }, [isOpen, referee]);
 
+  // Actualiza un campo y limpia su error si existía.
   const setField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
     if (errors[field]) setErrors((current) => ({ ...current, [field]: '' }));
   };
 
+  // Valida (nombre y apellido obligatorios) y delega el guardado en onSave.
   const handleSubmit = (event) => {
     event.preventDefault();
     const nextErrors = {};

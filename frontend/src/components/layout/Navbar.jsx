@@ -7,12 +7,23 @@ import logoSrcDark from '../../assets/logoWboModoOscuro.png';
 import NotificationCenter from '../common/NotificationCenter';
 import { RefereeIcon } from '../common/icons';
 
+// ─── Navbar ─────────────────────────────────────────────────────────────────────
+// Barra de navegación superior pegajosa (sticky). Muestra logo, menú de enlaces
+// según el rol (NavLink con indicador activo), toggle de tema claro/oscuro, centro
+// de notificaciones, avatar/perfil, logout y un menú móvil desplegable.
+// CONTEXTOS USADOS:
+//   - useAuth()  : user (rol para filtrar enlaces y datos) y logout (cerrar sesión).
+//   - useTheme() : theme actual y toggleTheme para cambiar entre claro/oscuro.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Etiquetas legibles de cada rol de la aplicación
 const roleLabels = {
   admin: 'Administrator',
   supervisor: 'Supervisor',
   judge: 'Judge',
 };
 
+// Calcula las iniciales del usuario a partir de su nombre (1-2 letras)
 const getInitials = (name) => {
   if (!name) return '??';
   const parts = name.trim().split(/\s+/);
@@ -20,6 +31,7 @@ const getInitials = (name) => {
   return parts.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 };
 
+// Íconos inline del tema (sol/luna) en su versión de escritorio
 const SunIcon = () => (
   <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -32,6 +44,7 @@ const MoonIcon = () => (
   </svg>
 );
 
+// Íconos inline del tema (versión pequeña para el menú móvil)
 const SunIconSm = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -44,6 +57,7 @@ const MoonIconSm = () => (
   </svg>
 );
 
+// Ícono temático de guante de boxeo (sección Fights)
 const BoxingGloveIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" viewBox="0 0 24 24">
     <path d="M16.584 6.057c2.335 0 2.962 3.187 1.958 5.285c-.449.939-1.226 1.763-1.847 2.594c-.597.796-.895 1.194-1.287 1.473c-.874.621-1.886.591-2.918.591h-1.032c-2.539 0-3.808 0-4.647-.71s-1.044-1.93-1.455-4.373c-.226-1.343-.385-2.685-.352-3.986c.06-2.382 1.885-4.388 4.348-4.782c1.174-.188 2.62-.206 3.793-.007c2.097.356 3.576 2.162 3.43 4.19c-.09 1.235-.592 2.508-.905 3.702" />
@@ -51,6 +65,7 @@ const BoxingGloveIcon = () => (
   </svg>
 );
 
+// Ícono de podio/trofeo (sección Ranking)
 const RankingIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
     <path strokeLinecap="round" d="M16 22v-9c0-1.414 0-2.121-.44-2.56C15.122 10 14.415 10 13 10h-2c-1.414 0-2.121 0-2.56.44C8 10.878 8 11.585 8 13v9m0 0c0-1.414 0-2.121-.44-2.56C7.122 19 6.415 19 5 19s-2.121 0-2.56.44C2 19.878 2 20.585 2 22m20 0v-3c0-1.414 0-2.121-.44-2.56C21.122 16 20.415 16 19 16s-2.121 0-2.56.44C16 16.878 16 17.585 16 19v3" />
@@ -58,18 +73,21 @@ const RankingIcon = () => (
   </svg>
 );
 
+// Ícono de usuario (sección de administración de usuarios)
 const UserIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
     <path fillRule="evenodd" clipRule="evenodd" d="M6.5 7.5c0 3.035 2.465 5.5 5.5 5.5s5.5-2.465 5.5-5.5S15.035 2 12 2a5.503 5.503 0 0 0-5.5 5.5m1.5 0c0-2.205 1.795-4 4-4s4 1.795 4 4s-1.795 4-4 4s-4-1.795-4-4m10.57 10.91l1.015 3.785l1.45-.39l-1.015-3.785a4.76 4.76 0 0 0-4.59-3.52H8.57a4.75 4.75 0 0 0-4.59 3.52l-1.015 3.785l1.45.39L5.43 18.41A3.25 3.25 0 0 1 8.57 16h6.86c1.47 0 2.76.99 3.14 2.41" />
   </svg>
 );
 
+// Ícono de panel/dashboard
 const DashboardIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 15 15" fill="currentColor">
     <path d="M5.25 8c.228 0 .426 0 .6.042a1.5 1.5 0 0 1 1.11 1.107c.04.175.04.373.04.601v2.5c0 .228 0 .426-.041.6a1.5 1.5 0 0 1-1.109 1.11c-.174.04-.372.04-.6.04h-2.5c-.228 0-.426 0-.6-.041a1.5 1.5 0 0 1-1.108-1.108C1 12.676 1 12.478 1 12.25v-2.5c0-.228 0-.426.042-.6a1.5 1.5 0 0 1 1.107-1.108C2.324 8 2.522 8 2.75 8zm7 0c.228 0 .426 0 .6.042a1.5 1.5 0 0 1 1.109 1.107c.042.175.041.373.041.601v2.5c0 .228 0 .426-.041.6a1.5 1.5 0 0 1-1.108 1.109c-.175.042-.373.041-.601.041h-2.5c-.228 0-.426 0-.6-.041a1.5 1.5 0 0 1-1.108-1.108C8 12.676 8 12.478 8 12.25v-2.5c0-.228 0-.426.042-.6a1.5 1.5 0 0 1 1.107-1.108C9.324 8 9.522 8 9.75 8zM2.8 9c-.307 0-.373.003-.416.014a.5.5 0 0 0-.37.37c-.01.043-.014.11-.014.416v2.4c0 .308.003.374.014.417a.5.5 0 0 0 .37.37c.043.01.11.013.416.013h2.4c.308 0 .374-.003.417-.014a.5.5 0 0 0 .37-.369c.01-.043.013-.11.013-.417V9.8c0-.307-.003-.373-.014-.416a.5.5 0 0 0-.369-.37C5.574 9.004 5.507 9 5.2 9zm7 0c-.307 0-.373.003-.416.014a.5.5 0 0 0-.37.37c-.01.043-.014.11-.014.416v2.4c0 .308.003.374.014.417a.5.5 0 0 0 .37.37c.043.01.11.013.416.013h2.4c.308 0 .374-.003.417-.014a.5.5 0 0 0 .37-.369c.01-.043.013-.11.013-.417V9.8c0-.307-.004-.373-.014-.416a.5.5 0 0 0-.369-.37c-.043-.01-.11-.014-.417-.014zM5.25 1c.228 0 .426 0 .6.042a1.5 1.5 0 0 1 1.11 1.107c.04.175.04.373.04.601v2.5c0 .228 0 .426-.041.6A1.5 1.5 0 0 1 5.85 6.96c-.174.04-.372.04-.6.04h-2.5c-.228 0-.426 0-.6-.041A1.5 1.5 0 0 1 1.041 5.85C1 5.676 1 5.478 1 5.25v-2.5c0-.228 0-.426.042-.6a1.5 1.5 0 0 1 1.107-1.108C2.324 1 2.522 1 2.75 1zm7 0c.228 0 .426 0 .6.042a1.5 1.5 0 0 1 1.109 1.107c.042.175.041.373.041.601v2.5c0 .228 0 .426-.041.6a1.5 1.5 0 0 1-1.109 1.11c-.174.04-.372.04-.6.04h-2.5c-.228 0-.426 0-.6-.041A1.5 1.5 0 0 1 8.041 5.85C8 5.676 8 5.478 8 5.25v-2.5c0-.228 0-.426.042-.6a1.5 1.5 0 0 1 1.107-1.108C9.324 1 9.522 1 9.75 1zM2.8 2c-.307 0-.373.003-.416.014a.5.5 0 0 0-.37.37c-.01.043-.014.11-.014.416v2.4c0 .308.003.374.014.417a.5.5 0 0 0 .37.37c.043.01.11.013.416.013h2.4c.308 0 .374-.003.417-.014a.5.5 0 0 0 .37-.369c.01-.043.013-.11.013-.417V2.8c0-.307-.003-.373-.014-.416a.5.5 0 0 0-.369-.37C5.574 2.004 5.507 2 5.2 2zm7 0c-.307 0-.373.003-.416.014a.5.5 0 0 0-.37.37c-.01.043-.014.11-.014.416v2.4c0 .308.003.374.014.417a.5.5 0 0 0 .37.37c.043.01.11.013.416.013h2.4c.308 0 .374-.003.417-.014a.5.5 0 0 0 .37-.369c.01-.043.013-.11.013-.417V2.8c0-.307-.004-.373-.014-.416a.5.5 0 0 0-.369-.37c-.043-.01-.11-.014-.417-.014z" />
   </svg>
 );
 
+// Ícono de historial (sección de historial de peleas)
 const HistoryIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 21q-3.45 0-6.012-2.287T3.05 13H5.1q.35 2.6 2.313 4.3T12 19q2.925 0 4.963-2.037T19 12t-2.037-4.962T12 5q-1.725 0-3.225.8T6.25 8H9v2H3V4h2v2.35q1.275-1.6 3.113-2.475T12 3q1.875 0 3.513.713t2.85 1.924t1.925 2.85T21 12t-.712 3.513t-1.925 2.85t-2.85 1.925T12 21m2.8-4.8L11 12.4V7h2v4.6l3.2 3.2z" />
@@ -77,10 +95,13 @@ const HistoryIcon = () => (
 );
 
 const Navbar = () => {
+  // Contextos: autenticación (usuario + logout) y tema (claro/oscuro)
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  // Estado interno: ¿menú móvil desplegado?
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Enlaces de navegación según el rol (judge/other/admin condicionales)
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
     ...(user?.role === 'judge'
@@ -137,6 +158,7 @@ const Navbar = () => {
       : []),
   ];
 
+  // Renderiza la barra superior sticky con logo, navegación desktop y acciones
   return (
     <header className="bg-white dark:bg-[#0F172A] border-b border-slate-200 dark:border-[#1E293B] shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] sticky top-0 z-50 transition-colors duration-200">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -334,4 +356,5 @@ const Navbar = () => {
   );
 };
 
+// Exporta la barra de navegación para el layout principal
 export default Navbar;

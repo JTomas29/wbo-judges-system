@@ -20,11 +20,19 @@ import {
   TrophyIcon,
 } from '@heroicons/react/24/outline';
 
+// ─── Tarjeta Oficial (Supervisor/Admin) ─────────────────────────────────────
+// Ruta: "/official-cards/:fightId". El staff carga la tarjeta oficial en
+// papel asalto por asalto (puntaje 1–10 + deducciones 0–2) de una pelea
+// terminada; al guardarla queda inmodificable. Consume: getFightById,
+// getOfficialCard, createOfficialCard (fightService).
+
+// Formatea fechas para mostrar en el encabezado.
 const formatDate = (d) => {
   if (!d) return '\u2014';
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+// Valida un asalto completo: puntajes 1–10, deducciones 0–2 y resultado final ≥ 1.
 const roundComplete = (r) => {
   if (!r) return false;
   const sRed = Number(r.score_red);
@@ -36,6 +44,7 @@ const roundComplete = (r) => {
     && sRed - dRed >= 1 && sBlue - dBlue >= 1;
 };
 
+// Puntaje final de una esquina tras aplicar la deducción.
 const computeFinal = (score, deduction) =>
   score != null && score !== '' ? Number(score) - Number(deduction || 0) : null;
 
@@ -463,6 +472,7 @@ const OfficialCards = () => {
   const navigate = useNavigate();
   const { user, token } = useAuth();
 
+  // Estado local: pelea, tarjeta ya guardada, asaltos en edición y flags de UI.
   const [fight, setFight] = useState(null);
   const [card, setCard] = useState(null);
   const [rounds, setRounds] = useState({});
@@ -474,10 +484,13 @@ const OfficialCards = () => {
   const isStaff = user?.role === 'admin' || user?.role === 'supervisor';
   const totalRounds = fight ? getEffectiveTotalRounds(fight) : 0;
 
+  // Todos los asaltos efectivos están completos y válidos.
   const allComplete = totalRounds > 0 && Array.from({ length: totalRounds }, (_, i) => i + 1).every(
     (rn) => roundComplete(rounds[rn])
   );
 
+  // Carga la pelea (solo staff y solo si está "completed") y la tarjeta existente
+  // o bien inicializa los asaltos vacíos para capturarlos.
   useEffect(() => {
     if (!token || !user) return;
     let cancelled = false;
@@ -498,8 +511,8 @@ const OfficialCards = () => {
         const f = fightRes.data;
         setFight(f);
 
-        if (f.status !== 'completed') {
-          setError('The fight must be completed before loading the official scorecard.');
+        if (!['active', 'completed', 'analyzed'].includes(f.status)) {
+          setError('The fight must be underway or completed before loading the official scorecard.');
           setLoading(false);
           return;
         }
@@ -538,6 +551,7 @@ const OfficialCards = () => {
     return () => { cancelled = true; };
   }, [fightId, token, user, isStaff]);
 
+  // Actualiza un campo de un asalto (puntaje o deducción).
   const handleChange = (rn, field, value) => {
     setRounds((prev) => ({
       ...prev,
@@ -545,6 +559,7 @@ const OfficialCards = () => {
     }));
   };
 
+  // Construye el payload con todos los asaltos y guarda la tarjeta oficial.
   const handleSave = async () => {
     setSaving(true);
     setError(null);

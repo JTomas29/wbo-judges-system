@@ -1,15 +1,24 @@
+// ─── icons ─────────────────────────────────────────────────────────────────────
+// Colección de íconos SVG inline reutilizables en toda la app. Todos aceptan
+// className (por defecto 'w-4 h-4'/'w-5 h-5') y toman el color del contenedor
+// mediante stroke/fill currentColor. No mantienen estado ni usan contexto.
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Ícono de juez: gavel/lámina de la ley para representar perfiles judiciales
 export const JudgeIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" viewBox="0 0 24 24">
     <path d="m20.01 18.51l-4.95-4.95m0 0l-3.54 3.54c-.78.78-2.05.78-2.83 0l-4.24-4.24c-.78-.78-.78-2.05 0-2.83l7.07-7.07c.78-.78 2.05-.78 2.83 0l4.24 4.24c.78.78.78 2.05 0 2.83zM2 21h6M6.56 7.92l7.07 7.07" />
   </svg>
 );
 
+// Ícono de árbitro: persona con silbato (fill), usado en evaluaciones de árbitros
 export const RefereeIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M11 20a1 1 0 1 0 2 0zm5-6a1 1 0 1 0 0 2zm1 2a1 1 0 1 0 0-2zm-1-5l-.447.894a1 1 0 0 0 1.437-.753zm-8 0l-.99.141a1 1 0 0 0 1.437.753zm.78-7.625a1 1 0 0 0-1.56 1.25L8 4zm8 1.25a1 1 0 1 0-1.56-1.25L16 4zm-9.617.516l-.99.142zm9.674 0L15.847 5zM20 9.561h-1V18h2V9.562zM18 20v-1H6v2h12zM4 18h1V9.562H3V18zM5.515 7.621l.242.97l1.986-.496l-.243-.97l-.243-.97l-1.985.496zM16.5 7.125l-.242.97l1.985.496l.242-.97l.243-.97l-1.986-.496zM12 9h-1v11h2V9zm4 6v1h1v-2h-1zM8.153 4v1h7.694V3H8.153zm8.684 1.141L15.847 5l-.837 5.859L16 11l.99.141l.837-5.858zM16 11l.447-.894l-4-2L12 9l-.447.894l4 2zm-4-2l-.447-.894l-4 2L8 11l.447.894l4-2zm-4 2l.99-.141L8.153 5l-.99.141l-.99.142l.837 5.858zm4-2l.78-.625l-4-5L8 4l-.78.625l4 5zm0 0l.78.625l4-5L16 4l-.78-.625l-4 5zm-8 .562h1a1 1 0 0 1 .757-.97l-.242-.97l-.243-.97A3 3 0 0 0 3 9.561zM6 20v-1a1 1 0 0 1-1-1H3a3 3 0 0 0 3 3zm14-2h-1a1 1 0 0 1-1 1v2a3 3 0 0 0 3-3zM8.153 4V3a2 2 0 0 0-1.98 2.283l.99-.142l.99-.141zm7.694 0v1l.99.141l.99.142A2 2 0 0 0 15.847 3zM20 9.562h1a3 3 0 0 0-2.272-2.91l-.243.97l-.242.97a1 1 0 0 1 .757.97z" />
   </svg>
 );
 
+// Ícono de pesas para representar la categoría de peso de la pelea
 export const WeightIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path fillRule="evenodd" clipRule="evenodd" d="M7 6h1a2.5 2.5 0 0 1 2.5 2.5v8A2.5 2.5 0 0 1 8 19H7a2.5 2.5 0 0 1-2.5-2.5v-8A2.5 2.5 0 0 1 7 6m1.5 2.5v8a.5.5 0 0 1-.5.5H7a.5.5 0 0 1-.5-.5v-8A.5.5 0 0 1 7 8h1a.5.5 0 0 1 .5.5M17 6h-1a2.5 2.5 0 0 0-2.5 2.5v8A2.5 2.5 0 0 0 16 19h1a2.5 2.5 0 0 0 2.5-2.5v-8A2.5 2.5 0 0 0 17 6m-1.5 2.5v8a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-8A.5.5 0 0 0 17 8h-1a.5.5 0 0 0-.5.5" />
@@ -18,12 +27,14 @@ export const WeightIcon = ({ className = 'w-4 h-4' }) => (
   </svg>
 );
 
+// Ícono de asaltos/rounds: dos tarjetas apiladas, para el número de rounds
 export const RoundsIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M2 5c-.55 0-1 .45-1 1v15c0 1.1.9 2 2 2h15c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1-.45-1-1V6c0-.55-.45-1-1-1m13 10c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1h1v7c0 .55.45 1 1 1m6-14H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2m-1 16H8c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1" />
   </svg>
 );
 
+// Ícono de título/cinturón de campeonato para peleas titulares
 export const TitleIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" viewBox="0 0 24 24">
     <path d="M12 17c-1.674 0-3.13 1.265-3.882 3.131c-.36.892.156 1.869.84 1.869h6.083c.685 0 1.2-.977.841-1.869C15.13 18.265 13.674 17 12 17Z" />

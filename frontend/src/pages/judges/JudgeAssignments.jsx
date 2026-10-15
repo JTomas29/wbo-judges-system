@@ -7,6 +7,12 @@ import BackButton from '../../components/common/BackButton';
 import FilterBar, { FilterInput, FilterSelect } from '../../components/common/FilterBar';
 import { FilterBarSkeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
 
+// ─── Mis Asignaciones (Juez) ────────────────────────────────────────────────
+// Ruta: "/judge/assignments" (solo rol judge). Lista las peleas asignadas al
+// juez con estado derivado (getFightState), filtros, orden y auto-refresco
+// cada 15 s. Consume: getMyAssignments (judgeService).
+
+// Apariencia de cada estado de la asignación (pending/active/finalized/completed/analyzed).
 const STATE_META = {
   pending:    { label: 'Pending',    color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800/50' },
   active:     { label: 'Active',      color: 'text-green-700 dark:text-green-300', bg: 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/50' },
@@ -15,6 +21,7 @@ const STATE_META = {
   analyzed:   { label: 'Analyzed',   color: 'text-red-700 dark:text-red-300',     bg: 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800/50' },
 };
 
+// Color del borde izquierdo según el estado de la asignación.
 const getLeftBorder = (state) => {
   const map = {
     pending: 'border-l-amber-500',
@@ -60,6 +67,7 @@ const JudgeAssignments = () => {
   const { token, user } = useAuth();
   const isJudge = user?.role === 'judge';
 
+  // Estado local: asignaciones, flag de carga y filtros/orden.
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,6 +76,7 @@ const JudgeAssignments = () => {
   const [filterState, setFilterState] = useState('');
   const [sortOrder, setSortOrder] = useState('');
 
+  // Carga inicial de las asignaciones del juez.
   const loadAssignments = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -84,6 +93,7 @@ const JudgeAssignments = () => {
 
   useEffect(() => { loadAssignments(); }, [loadAssignments]);
 
+  // Auto-refresco: sondea cambios de estado (activación de pelea) cada 15 s.
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
@@ -97,11 +107,13 @@ const JudgeAssignments = () => {
     return () => { cancelled = true; clearInterval(interval); };
   }, [token]);
 
+  // Deriva el estado de cada asignación con la utilidad compartida getFightState.
   const withState = useMemo(
     () => assignments.map((a) => ({ ...a, _state: getFightState(a) })),
     [assignments],
   );
 
+  // Aplica búsqueda por evento, filtro por estado y orden por fecha (default: más reciente).
   const filteredAssignments = useMemo(() => {
     let result = [...withState];
     if (searchEvent) {
@@ -121,6 +133,7 @@ const JudgeAssignments = () => {
     return result;
   }, [withState, searchEvent, filterState, sortOrder]);
 
+  // Conteos para las tarjetas de resumen (total/pending/active/analyzed).
   const counts = useMemo(() => {
     const total = assignments.length;
     const pending = withState.filter((a) => a._state === 'pending').length;
@@ -137,6 +150,7 @@ const JudgeAssignments = () => {
 
   const hasActiveFilters = searchEvent || filterState || sortOrder;
 
+  // Enrutado según el tipo de asignación y su estado (scoring/analysis/fight).
   const goTo = (a) => {
     if (a.assignment_type === 'official') {
       navigate(`/fights/${a.fight_id}`);
@@ -159,6 +173,7 @@ const JudgeAssignments = () => {
     return 'View fight';
   };
 
+  // Guard: solo el rol judge puede ver esta página.
   if (!isJudge) {
     return (
       <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 -mb-5 sm:-mb-6 px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 pb-5 sm:pb-6 flex items-center justify-center">

@@ -5,7 +5,16 @@ import { getMyAssignments } from '../../services/judgeService';
 import { getJudgeStatistics } from '../../services/statisticsService';
 import { getFightState } from '../../utils/fightResult';
 import { Skeleton, CardsGridSkeleton } from '../../components/common/Skeletons';
+import { judgeLevelLabel, normalizeJudgeLevel } from '../../utils/judgeLevels';
 
+// ─── Dashboard del Juez ──────────────────────────────────────────────────────
+// Vista personal del usuario con rol "judge" (ruta "/dashboard", delegada
+// desde <Dashboard/>). Muestra sus asignaciones, estadísticas de rendimiento y
+// una línea de tiempo del flujo de las peleas.
+// Consume: getMyAssignments (judgeService), getJudgeStatistics (statisticsService)
+// y la utilidad getFightState (utils/fightResult).
+
+// Estilos y pasos de la línea temporal según el estado de la asignación.
 const Card = ({ children, className = '' }) => (
   <div className={`bg-white dark:bg-[#111827] rounded-2xl border border-red-100 dark:border-[#1E293B] shadow-sm hover:border-red-300 dark:hover:border-[#334155] hover:shadow-md transition-all duration-300 ${className}`}>
     {children}
@@ -32,6 +41,7 @@ const FORMAT_DATE = (d) => {
 const TODAY_STR = () =>
   new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
+// Metadatos del flujo de la asignación: pending → active → finalized → completed → analyzed.
 const STATE_META = {
   pending:    { label: 'Pending',   color: 'text-amber-700 dark:text-amber-300',   bg: 'bg-amber-100 dark:bg-amber-900/30',   dot: 'bg-amber-500', bar: 'bg-amber-500', step: 0 },
   active:     { label: 'Active',     color: 'text-green-700 dark:text-green-300',   bg: 'bg-green-100 dark:bg-green-900/30',   dot: 'bg-green-500', bar: 'bg-green-500', step: 1 },
@@ -73,12 +83,14 @@ const JudgeDashboard = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
 
+  // Estado local: asignaciones del juez y sus estadísticas (carga en paralelo).
   const [assignments, setAssignments] = useState([]);
   const [loadingAsign, setLoadingAsign] = useState(true);
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [error, setError] = useState(null);
 
+  // Carga inicial en paralelo de asignaciones + estadísticas del juez.
   const loadData = useCallback(async () => {
     setLoadingAsign(true);
     setLoadingStats(true);
@@ -102,6 +114,8 @@ const JudgeDashboard = () => {
     if (token && user) loadData();
   }, [token, user, loadData]);
 
+  // Auto-refresh silencioso: actualiza las asignaciones cada 15 s para reflejar
+  // activaciones/resultados sin recargar la página.
   useEffect(() => {
     if (!token || !user) return;
     let cancelled = false;
@@ -130,6 +144,7 @@ const JudgeDashboard = () => {
     );
   }
 
+  // Conteos derivados para los mini-indicadores y mensajes de bienvenida.
   const totalAssigned = assignments.length;
   const pendingConfirm = assignments.filter((a) => a.fight_status === 'pending').length;
   const finalizedCount = assignments.filter((a) => a.fight_status === 'active' && a.scorecard_status === 'finalized').length;
@@ -171,8 +186,8 @@ const JudgeDashboard = () => {
                   <Badge className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/40">
                     Judge
                   </Badge>
-                  <Badge className={LEVEL_BADGE[user?.level] || 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}>
-                    {user?.level || '\u2014'}
+                  <Badge className={LEVEL_BADGE[normalizeJudgeLevel(user?.level)]}>
+                    {judgeLevelLabel(user?.level)}
                   </Badge>
                   <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${user?.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
@@ -353,7 +368,9 @@ const JudgeDashboard = () => {
                           {state !== 'completed' && (
                             <button className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-300 dark:text-slate-600 hover:text-red-700 dark:hover:text-red-400 transition-all duration-250 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wbo-700/40"
                               aria-label="View fight"
-                              onClick={() => {
+                              // Enrutado según tipo de asignación y estado: oficial → detalle de pelea;
+                            // activa/finalizada → scoring; analizada → análisis; resto → detalle.
+                            onClick={() => {
                                 if (a.assignment_type === 'official') navigate(`/fights/${a.fight_id}`);
                                 else if (state === 'active' || state === 'finalized') navigate(`/scoring/${a.fight_id}`);
                                 else if (state === 'analyzed') navigate(`/analysis/${a.fight_id}`);
@@ -466,7 +483,7 @@ const JudgeDashboard = () => {
               )}
               <TimelineItem icon="M5 13l4 4L19 7" label="Submitted" date={null} done={analyzedCount > 0} />
               <TimelineItem icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" label="Fight analyzed" date={null} done={analyzedCount > 0} />
-              <TimelineItem icon="M13 10V3L4 14h7v7l9-11h-7z" label={`Level ${stats?.level || '\u2014'}`} date={null} done={!!stats?.level} />
+              <TimelineItem icon="M13 10V3L4 14h7v7l9-11h-7z" label={`Level ${judgeLevelLabel(stats?.level)}`} date={null} done={!!stats?.level} />
             </div>
           ) : (
             <div className="py-10 text-center">

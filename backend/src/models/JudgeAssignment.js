@@ -1,7 +1,12 @@
-﻿const { pool } = require('../config/db');
+﻿// ─── JudgeAssignment.js — Modelo de asignación de jueces a peleas.
+// ─── Gestiona el alta/baja de asignaciones, el conteo por pelea y tipo, y
+// ─── las consultas de las peleas asignadas a un juez ───
+const { pool } = require('../config/db');
 
 const JudgeAssignment = {};
 
+// Asigna un juez (con su tipo de asignación) a una pelea. `assigned_at` lo
+// resuelve el default de la columna. Devuelve la asignación completa creada.
 JudgeAssignment.create = async (fightId, judgeId, assignmentType) => {
   const { rows } = await pool.query(`
     INSERT INTO judge_assignments (fight_id, judge_id, assignment_type)
@@ -11,6 +16,9 @@ JudgeAssignment.create = async (fightId, judgeId, assignmentType) => {
   return rows[0];
 };
 
+// Busca una asignación existente por la pareja (fight_id, judge_id). La clave
+// compuesta única sirve de guarda para evitar duplicados: devuelve null cuando
+// el juez aún no está asignado a esa pelea.
 JudgeAssignment.findOne = async (fightId, judgeId) => {
   const { rows } = await pool.query(`
     SELECT id, fight_id, judge_id, assignment_type::text, assigned_at
@@ -20,6 +28,8 @@ JudgeAssignment.findOne = async (fightId, judgeId) => {
   return rows[0] || null;
 };
 
+// Lista las asignaciones de una pelea. JOIN a `users` para traer nombre, email,
+// nivel y el tipo de asignación, ordenadas alfabéticamente por nombre.
 JudgeAssignment.getByFight = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT
@@ -37,6 +47,7 @@ JudgeAssignment.getByFight = async (fightId) => {
   return rows;
 };
 
+// Cuenta el total de asignaciones de una pelea (todas juntas).
 JudgeAssignment.getCount = async (fightId) => {
   const { rows } = await pool.query(`
     SELECT COUNT(*)::INTEGER AS total
@@ -46,6 +57,8 @@ JudgeAssignment.getCount = async (fightId) => {
   return rows[0].total;
 };
 
+// Cuenta las asignaciones de una pelea filtrando por tipo (`assignment_type`),
+// casted a su enum. Se usa para validar si ya se cubrió el cupo oficial esperado.
 JudgeAssignment.getCountByType = async (fightId, assignmentType) => {
   const { rows } = await pool.query(`
     SELECT COUNT(*)::INTEGER AS total
@@ -55,6 +68,8 @@ JudgeAssignment.getCountByType = async (fightId, assignmentType) => {
   return rows[0].total;
 };
 
+// Elimina la asignación (fight_id, judge_id). Devuelve el número de filas
+// borradas (0 si no existía), que la capa de servicio usa para distinguir.
 JudgeAssignment.delete = async (fightId, judgeId) => {
   const { rowCount } = await pool.query(`
     DELETE FROM judge_assignments
@@ -63,6 +78,10 @@ JudgeAssignment.delete = async (fightId, judgeId) => {
   return rowCount;
 };
 
+// Peleas asignadas a un juez (para su agenda/panel). JOIN con `fights` para los
+// datos del evento y LEFT JOIN con `score_cards` (mismo juez y pelea) para
+// exponer el estado de su tarjeta de puntuación; así el juez sabe si ya entregó
+// su tarjeta y en qué estado está cada pelea. Ordena por fecha de la pelea.
 JudgeAssignment.getByJudgeId = async (judgeId) => {
   const { rows } = await pool.query(`
     SELECT
